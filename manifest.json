@@ -1,0 +1,19 @@
+﻿{
+    "name": "__MSG_extName__",
+    "description": "__MSG_extDescription__", 
+    "version": "1.0.0",
+    "default_locale": "ja",
+    "icons": {
+      "48": "icon/icon48.png", 
+      "128": "icon/icon128.png"
+    },
+    "browser_action": {
+      "default_icon": "icon/icon19.png",
+      "default_title": "__MSG_extName__"
+    },
+    "options_page": "options.html",
+    "background_page" : "background.html",
+    "permissions": [
+      "tabs", "http://*/*" 
+    ]
+}
