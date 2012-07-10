@@ -1,0 +1,30 @@
+﻿{
+  "extName": {
+    "message": "Tab Memory Purge",
+    "description": "Extension Name"
+  },
+  "extDescription": {
+    "message": "Release Memory of Tab on regular basis.",
+    "description": "Extension Work"
+  },
+  "option": {
+    "message": "Option",
+    "description": "Option string"
+  },
+  "setTimerTitle": {
+    "message": "Time to unload of inactive tab",
+    "description": "Memory Release Time"
+  }, 
+  "default": {
+    "message": "Default",
+    "description": "Default"
+  },
+  "minute": {
+    "message": "minute",
+    "description": "minute"
+  }, 
+  "exclude_url": {
+    "message": "Exclude URL(Regular expression, require escape)",
+    "description": "Exclude URL"
+  } 
+}
