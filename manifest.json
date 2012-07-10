@@ -4,11 +4,11 @@
     "version": "1.0.0",
     "default_locale": "ja",
     "icons": {
-      "48": "icon/icon48.png", 
-      "128": "icon/icon128.png"
+      "48": "icon/icon_048.png", 
+      "128": "icon/icon_128.png"
     },
     "browser_action": {
-      "default_icon": "icon/icon19.png",
+      "default_icon": "icon/icon_019.png",
       "default_title": "__MSG_extName__"
     },
     "options_page": "options.html",

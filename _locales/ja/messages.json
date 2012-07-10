@@ -11,12 +11,20 @@
     "message": "オプション",
     "description": "オプションの文字列"
   },
+  "setTimerTitle": {
+    "message": "非アクティブのタブをアンロードする時間",
+    "description": "メモリ解放時間"
+  }, 
   "default": {
     "message": "デフォルト",
     "description": "デフォルト"
   },
-  "differ_domain_exclude": {
-    "message": "除外するドメイン(正規表現, エスケープ必須)",
-    "description": "除外するドメイン"
+  "minute": {
+    "message": "分",
+    "description": "分"
+  }, 
+  "exclude_url": {
+    "message": "除外するアドレス(正規表現, エスケープ必須)",
+    "description": "除外するアドレス"
   } 
 }
