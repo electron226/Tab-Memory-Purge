@@ -1,5 +1,5 @@
 ﻿/** 空ページへのアドレス */
-var blank_page = '../blank.html';
+var blank_page = chrome.extension.getURL('blank.html');
 
 /**
  * tabIdごとのsetIntervalのid
