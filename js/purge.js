@@ -90,6 +90,7 @@ function setTick(tabId)
         for (var i = 0; i < exclude_array.length; i++) {
             var re = new RegExp(exclude_array[i]);
             if (tab.url.match(re)) {
+                //console.log(exclude_array[i]);
                 flag = false; // 実行しない
                 break;
             }
