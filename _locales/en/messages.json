@@ -19,12 +19,16 @@
     "message": "Default",
     "description": "Default"
   },
+  "reset": {
+    "message": "Reset",
+    "description": "Reset"
+  }, 
   "minute": {
     "message": "minute",
     "description": "minute"
   }, 
   "exclude_url": {
-    "message": "Exclude URL(Regular expression, Not required escape)",
+    "message": "Exclude URL(Partial matches, Regular expression, Not required escape)",
     "description": "Exclude URL"
   },
   "refURL": {

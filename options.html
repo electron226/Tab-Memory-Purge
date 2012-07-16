@@ -23,22 +23,46 @@
 </ul>
 
 <hr>
-
 <div style="margin-top: 15px;">
     <span class="exclude_urlText"></span>
     <span class="refURLText"></span><br>
 </div>
 <textarea name="exclude_url" rows="5" cols="40"></textarea>
 
+<hr>
+<button onclick="Reset();"><span class="resetText"></span></button>
+
 <script type="text/javascript" src="js/default.js"></script>
 <script type="text/javascript">
-    function Run() {
-        var locale_i18n = [
-            'extName', 'option', 'default', 'minute',
-            'setTimerTitle',
-            'refURL', 'exclude_url',
-        ];
+    var locale_i18n = [
+        'extName', 'option', 'default', 'reset', 'minute',
+        'setTimerTitle',
+        'refURL', 'exclude_url',
+    ];
 
+    var storage = {
+        'timer'       : localStorage['timer'],
+        'exclude_url' : localStorage['exclude_url'],
+        };
+    
+    function ElementNameDefault(name, value)
+    {
+        var element = document.getElementsByName(name)[0];
+        element.value      = value;
+        storage[name]      = value;
+        localStorage[name] = value;
+    }
+
+    function Reset()
+    {
+        ElementNameDefault('timer', default_timer);
+        ElementNameDefault('exclude_url', default_exclude_url);
+        
+        chrome.extension.sendRequest({ event : 'init'});
+    }
+
+    function Run()
+    {
         // テキストの設定
         for (var i = 0; i < locale_i18n.length; i++) {
             var el      = document.getElementsByClassName(locale_i18n[i] + 'Text');
@@ -50,11 +74,6 @@
                                         + string.substring(index);
             }
         }
-
-        var storage = {
-            'timer'       : localStorage['timer'],
-            'exclude_url' : localStorage['exclude_url'],
-            };
 
         // 除外するドメイン入力欄
         var textarea = document.getElementsByTagName('textarea');

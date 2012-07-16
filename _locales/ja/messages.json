@@ -19,12 +19,16 @@
     "message": "デフォルト",
     "description": "デフォルト"
   },
+  "reset": {
+    "message": "リセット",
+    "description": "リセット"
+  }, 
   "minute": {
     "message": "分",
     "description": "分"
   }, 
   "exclude_url": {
-    "message": "除外するアドレス(正規表現、エスケープ不要)",
+    "message": "除外するアドレス(部分一致、正規表現、エスケープ不要)",
     "description": "除外するアドレス"
   },
   "refURL": {
