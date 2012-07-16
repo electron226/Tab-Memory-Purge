@@ -24,7 +24,11 @@
     "description": "minute"
   }, 
   "exclude_url": {
-    "message": "Exclude URL(Regular expression, require escape)",
+    "message": "Exclude URL(Regular expression, Not required escape)",
     "description": "Exclude URL"
-  } 
+  },
+  "refURL": {
+    "message": "<a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions' target='_blank'>Reference</a>",
+    "description": "Reference Link"
+  }
 }

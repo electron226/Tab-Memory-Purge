@@ -24,7 +24,11 @@
     "description": "分"
   }, 
   "exclude_url": {
-    "message": "除外するアドレス(正規表現, エスケープ必須)",
+    "message": "除外するアドレス(正規表現、エスケープ不要)",
     "description": "除外するアドレス"
-  } 
+  },
+  "refURL": {
+    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>参考</a>",
+    "description": "参考リンク"
+  }
 }
