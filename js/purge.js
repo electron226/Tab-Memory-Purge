@@ -85,8 +85,10 @@ function setTick(tabId)
         var flag = true;
         var exclude = localStorage['exclude_url'] ?
                       localStorage['exclude_url'] : default_exclude_url;
-        exclude = chrome_exclude_url + exclude; // chromeのページを除外に追加
+        exclude = exclude == '' ? chrome_exclude_url
+                                : chrome_exclude_url + '\n' + exclude;
         var exclude_array = exclude.split('\n');
+        //console.log(exclude_array);
         for (var i = 0; i < exclude_array.length; i++) {
             var re = new RegExp(exclude_array[i]);
             if (tab.url.match(re)) {

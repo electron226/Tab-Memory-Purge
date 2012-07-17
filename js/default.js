@@ -8,4 +8,4 @@ var default_exclude_url = 'nicovideo.jp\n'
 // Chromeの設定ページなどは変更不可にし、除外させる
 var chrome_exclude_url = '^chrome(:|-)\n'
                        + '^view-source:\n'
-                       + '^https://\n';
+                       + '^https://';
