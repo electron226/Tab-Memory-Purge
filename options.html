@@ -95,7 +95,7 @@
             textarea[i].value = option;
 
             textarea[i].onchange = function() {
-                localStorage[ this.name ] = this.value;
+                localStorage[ this.name ] = this.value.trim();
 
                 chrome.extension.sendRequest({ event : 'init'});
             }
