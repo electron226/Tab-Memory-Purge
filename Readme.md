@@ -3,7 +3,7 @@ Google Chrome用のタブ拡張機能です。
 
 ## 機能
 設定した条件にそって、使用していないタブのメモリを解放します。  
-なお、HTTPプロトコルを使用しているサイトでのみ動作します。  
+なお、HTTPSプロトコルを使用しているサイト以外で動作します。  
 また、ツールバーのアイコンをクリックすることで、現在開いているページの解放も可能です。  
 空ページを読み込み、メモリ解放を行っているため、[Stock Tabs](https://github.com/electron226/Stock-Tabs "Stock Tabs")に比べ、多少メモリ使用量の減りが少ないです。  
 そのため、多くのメモリ減少が必要な場合、[Stock Tabs](https://github.com/electron226/Stock-Tabs "Stock Tabs")の使用をおすすめします。
