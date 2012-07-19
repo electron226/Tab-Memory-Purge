@@ -11,6 +11,10 @@
     "message": "Option",
     "description": "Option string"
   },
+  "pageTitle": {
+    "message": "Page to use when releasing",
+    "description": "Page to use when releasing"
+  }, 
   "setTimerTitle": {
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
@@ -19,10 +23,18 @@
     "message": "Default",
     "description": "Default"
   },
-  "reset": {
-    "message": "Reset",
-    "description": "Reset"
+  "extPage": {
+    "message": "Page in the extensions",
+    "description": "Page in the extensions"
   }, 
+  "warning_blankPage": {
+    "message": "Page URL and it is not empty and does not have any effect.",
+    "description": "warning set URL"
+  },
+  "warning_extPage": {
+    "message": "If you enable the &quot;Page in the extensions&quot;, tabs that are released when the Reload extension updates will be closed. This is the specification of Chrome.",
+    "description": "warning extPage"
+  },
   "minute": {
     "message": "minute",
     "description": "minute"

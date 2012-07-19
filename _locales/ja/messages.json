@@ -11,6 +11,10 @@
     "message": "オプション",
     "description": "オプションの文字列"
   },
+  "pageTitle": {
+    "message": "解放時に使用するページ",
+    "description": "メモリ解放時に使用するページ"
+  }, 
   "setTimerTitle": {
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
@@ -19,10 +23,18 @@
     "message": "デフォルト",
     "description": "デフォルト"
   },
-  "reset": {
-    "message": "リセット",
-    "description": "リセット"
+  "extPage": {
+    "message": "拡張機能内のページ",
+    "description": "拡張機能内のページ"
   }, 
+  "warning_blankPage": {
+    "message": "URLは空ページでないと、効果がありません。",
+    "description": "指定するURLの警告文"
+  },
+  "warning_extPage": {
+    "message": "&lceil;拡張機能内のページ&rfloor;を有効にした場合、拡張機能の更新・リロード時に解放されているタブが閉じます。これはChromeの仕様です。",
+    "description": "extPageの警告文"
+  },
   "minute": {
     "message": "分",
     "description": "分"

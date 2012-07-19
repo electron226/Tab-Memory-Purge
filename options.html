@@ -5,7 +5,7 @@
     <title>Tab Memory Purge Options</title>
 </head>
     <style type="text/css">
-        div {
+        div.title {
             margin-top: 30px;
         }
         ul {
@@ -16,10 +16,20 @@
 
 <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
 
-<div class="setTimerTitleText"></div>
+<div class="title pageTitleText"></div>
 <hr>
 <ul>
-    <li><input type="number" name="timer" style="width: 75px;">&nbsp;<span class="minuteText"></span></li>
+    <li><input type="radio" name="page" value='on'>URL:&nbsp;<input type="text" name="page_url" style="width: 250px;"></li>
+    <li style="color: darkred; font-weight: bold;"><span class="warning_blankPageText" style="padding-left: 20px;"></span></li>
+    <li>&nbsp;</li>
+    <li><input type="radio" name="page" value='off'><span class="extPageText"></span></li>
+    <li style="color: darkred; font-weight: bold;"><span class="warning_extPageText" style="padding-left: 20px;"></span></li>
+</ul>
+
+<div class="title setTimerTitleText"></div>
+<hr>
+<ul>
+    <li><input type="number" name="timer" style="width: 75px;" min="0">&nbsp;<span class="minuteText"></span></li>
 </ul>
 
 <hr>
@@ -30,17 +40,20 @@
 <textarea name="exclude_url" rows="5" cols="40"></textarea>
 
 <hr>
-<button onclick="Reset();"><span class="resetText"></span></button>
+<button onclick="InitDefault();"><span class="defaultText"></span></button>
 
 <script type="text/javascript" src="js/default.js"></script>
 <script type="text/javascript">
     var locale_i18n = [
-        'extName', 'option', 'default', 'reset', 'minute',
+        'extName', 'option', 'default', 'minute',
         'setTimerTitle',
         'refURL', 'exclude_url',
+        'pageTitle', 'extPage', 'warning_blankPage', 'warning_extPage', 
     ];
 
     var storage = {
+        'page'        : localStorage['page'],
+        'page_url'    : localStorage['page_url'],
         'timer'       : localStorage['timer'],
         'exclude_url' : localStorage['exclude_url'],
         };
@@ -51,10 +64,15 @@
         element.value      = value;
         storage[name]      = value;
         localStorage[name] = value;
+        if (element.type == 'radio') {
+            element.checked = true;
+        }
     }
 
-    function Reset()
+    function InitDefault()
     {
+        ElementNameDefault('page', default_page);
+        ElementNameDefault('page_url', default_page_url);
         ElementNameDefault('timer', default_timer);
         ElementNameDefault('exclude_url', default_exclude_url);
         
@@ -121,9 +139,27 @@
                 } 
 
                 input[i].value = option;
+            } else if (input[i].type == 'text') {
+                if (option === undefined) {
+                    switch (name) {
+                        case 'page_url':
+                            option = default_page_url;
+                            break;
+                        default:
+                            option = '';
+                            break;
+                    }
+                    storage[name]      = option;
+                    localStorage[name] = option;
+                } 
+
+                input[i].value = option;
             } else if (input[i].type == 'radio') {
                 if (option === undefined) {
                     switch (name) {
+                        case 'page':
+                            option = default_page;
+                            break;
                         default:
                             option = 'off';
                             break;
@@ -157,8 +193,17 @@
             // データ保存
             input[i].onchange = function() {
                 switch (this.type) {
+                    case 'text':
                     case 'radio':
+                        localStorage[this.name] = this.value;
+                        break;
                     case 'number':
+                        if (this.name == 'timer') {
+                            if (this.value < 1) {
+                                this.value = 1;
+                            }
+                        }
+
                         localStorage[this.name] = this.value;
                         break;
                     case 'checkbox':

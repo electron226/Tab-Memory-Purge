@@ -6,14 +6,14 @@ var blank_page = chrome.extension.getURL('blank.html');
  * key = tabId
  * value = setIntervalのid
  */
-ticked = new Object();
+var ticked = new Object();
 
 /**
  * メモリ解放を行ったタブ
  * key = tabId
  * value = 解放前のURL
  */
-unloaded = new Object();
+var unloaded = new Object();
 
 /**
 * タブの解放を行います。
@@ -34,11 +34,23 @@ function Purge(tabId)
             args += '&url=' + encodeURIComponent(tab.url);
         }
 
-        var url = blank_page + '?' + args;
+        // 解放時に仕様するページ
+        var page_option = localStorage['page'] ?
+                          localStorage['page'] : default_page;
+        if (page_option == 'on') {
+            // URLを指定する
+            var url = localStorage['page_url'] ?
+                      localStorage['page_url'] : default_page_url;
+        } else {
+            // 拡張機能内のページ
+            var url = blank_page + '?' + args; 
+        }
 
         chrome.tabs.update(tabId, { url: url }, function(updated) {
-            unloaded[ updated.id ] = tab.url;
+            /* console.log('Purge', tabId);  */
+            unloaded[updated.id] = tab.url;
             deleteTick(tabId);
+            localStorage['backup'] = JSON.stringify(unloaded);
         });
     });
 }
@@ -51,8 +63,10 @@ function Purge(tabId)
 function UnPurge(tabId)
 {
     chrome.tabs.update(tabId, { url: unloaded[tabId] }, function(updated) {
+        /* console.log('UnPurge', tabId); */
         delete unloaded[tabId];
         setTick(tabId);
+        localStorage['backup'] = JSON.stringify(unloaded);
     });
 }
 
@@ -85,8 +99,12 @@ function setTick(tabId)
         var flag = true;
         var exclude = localStorage['exclude_url'] ?
                       localStorage['exclude_url'] : default_exclude_url;
+        var page_url = localStorage['page_url'] ?
+                       localStorage['page_url'] : default_page_url;
         exclude = exclude == '' ? chrome_exclude_url
-                                : chrome_exclude_url + '\n' + exclude;
+                                : chrome_exclude_url + '\n'
+                                + page_url + '\n'
+                                + exclude;
         var exclude_array = exclude.split('\n');
         //console.log(exclude_array);
         for (var i = 0; i < exclude_array.length; i++) {
@@ -139,6 +157,30 @@ function Initialized()
     });
 }
 
+function RestoreTabs()
+{
+    var backup = localStorage['backup'];
+    if (backup) {
+        backup = JSON.parse(backup);
+        for (var key in backup) {
+            var tabId = parseInt(key);
+            if (FindHash(tabId, unloaded) == null) {
+                // 解放済タブがなかったら、新規タブとして復元
+                chrome.tabs.create({ url: backup[tabId], active: false });
+            } else {
+                // 解放済タブがあったら、そのタブを更新
+                chrome.tabs.update(tabId, { url: backup[tabId] },
+                                   function(updated) {
+                    /* console.log('RestoreTabs: ', tabId); */
+                    delete unloaded[tabId];
+                    setTick(tabId);
+                    localStorage['backup'] = JSON.stringify(unloaded);
+                });
+            }
+        }
+    }
+}
+
 /**
 * 指定した連想配列のキーのindexを返す
 * @param search_key キー名
@@ -178,17 +220,34 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
     deleteTick(tabId);
 });
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-    if (FindHash(tab.id, unloaded) != null) {
-        UnPurge(tab.id);
-    } else {
-        Purge(tab.id);
-    }
+chrome.windows.onRemoved.addListener(function(windowId) {
+    localStorage.removeItem('backup');
 });
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
-    if (request.event == 'init') {
-        Initialized();
-    }
+        switch (request.event) {
+            case 'init':
+                Initialized();
+                break;
+            case 'purge':
+                chrome.windows.getCurrent({ populate: true }, function(win) {
+                    var i = 0;
+                    for (; i < win.tabs.length; i++) {
+                        if (win.tabs[i].active) {
+                            break;
+                        }
+                    }
+
+                    if (FindHash(win.tabs[i].id, unloaded) != null) {
+                        UnPurge(win.tabs[i].id);
+                    } else {
+                        Purge(win.tabs[i].id);
+                    } 
+                });
+                break;
+            case 'restore':
+                RestoreTabs();
+                break;
+        }
 });

@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Tab Memory Purge</title>
+    <style type="text/css">
+        button {
+            width: 5em;
+            border-width: 1px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 0px 1px gray;
+
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<button onclick="SendRequest('purge')">Purge</button>
+<button onclick="SendRequest('restore')">Restore</button>
+
+<script type="text/javascript">
+    function SendRequest(event_name) {
+        chrome.extension.sendRequest({ event : event_name });
+    }
+</script>
+</body>
+</html>
+
