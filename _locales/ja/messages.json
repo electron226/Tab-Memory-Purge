@@ -28,11 +28,11 @@
     "description": "拡張機能内のページ"
   }, 
   "warning_blankPage": {
-    "message": "URLは空ページでないと、効果がありません。",
+    "message": "リンク先は空ページでないと、効果がありません。",
     "description": "指定するURLの警告文"
   },
   "warning_extPage": {
-    "message": "&lceil;拡張機能内のページ&rfloor;を有効にした場合、拡張機能の更新・リロード時に解放されているタブが閉じます。これはChromeの仕様です。",
+    "message": "&lceil;拡張機能内のページ&rfloor;を有効にした場合、拡張機能の更新・リロード時に解放されているタブが閉じます。これはChromeの仕様です。<br>この機能が有効された状態で、更新が行われてしまった場合、ツールバーの拡張機能のアイコンから復元を選択すれば、更新前のタブを開き直すことができます。",
     "description": "extPageの警告文"
   },
   "minute": {
