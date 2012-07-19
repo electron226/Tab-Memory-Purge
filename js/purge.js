@@ -157,6 +157,13 @@ function Initialized()
     });
 }
 
+/**
+* 解放済のタブを復元する。
+* オプションで解放時に使用するURLに「拡張機能のページ」を選択しているとき、
+* 拡張機能更新時などに解放済のタブが閉じてしまった後に
+* 手動でブラウザアクションから使用する。
+* @return なし
+*/
 function RestoreTabs()
 {
     var backup = localStorage['backup'];
@@ -171,7 +178,7 @@ function RestoreTabs()
                 // 解放済タブがあったら、そのタブを更新
                 chrome.tabs.update(tabId, { url: backup[tabId] },
                                    function(updated) {
-                    /* console.log('RestoreTabs: ', tabId); */
+                    /* console.log('RestoreTabs() update: ', tabId); */
                     delete unloaded[tabId];
                     setTick(tabId);
                     localStorage['backup'] = JSON.stringify(unloaded);
