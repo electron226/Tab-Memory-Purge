@@ -1,5 +1,5 @@
-﻿// 解放時に使用するページのデフォルト値(デフォルトでURLを指定する)
-var default_page = 'on';
+﻿// 解放時に使用するページのデフォルト値(デフォルトで拡張機能のページを使用する)
+var default_page = 'off';
 
 // 解放時に使用するページのURL(デフォルトでabout:blank)
 var default_page_url = 'about:blank';

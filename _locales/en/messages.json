@@ -18,7 +18,15 @@
   "setTimerTitle": {
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
-  }, 
+  },
+  "purge": {
+    "message": "Purge",
+    "description": "Purge"
+  },
+  "restore": {
+    "message": "Restore",
+    "description": "Restore"
+  },
   "default": {
     "message": "Default",
     "description": "Default"
@@ -28,7 +36,7 @@
     "description": "Page in the extensions"
   }, 
   "warning_blankPage": {
-    "message": "The linked page and it is not empty and does not have any effect.",
+    "message": "The linked page and it is not empty and does not have any effect.<br>Also, the pause is not canceled even if you select the tab after you update the extension has been released. Please come back 'Back' button.",
     "description": "warning set URL"
   },
   "warning_extPage": {

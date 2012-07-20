@@ -57,6 +57,15 @@
         'timer'       : localStorage['timer'],
         'exclude_url' : localStorage['exclude_url'],
         };
+        
+    function ElementNameDefaultRadio(name, index, value)
+    {
+        var element = document.getElementsByName(name)[index];
+        element.value      = value;
+        storage[name]      = value;
+        localStorage[name] = value;
+        element.checked = true;
+    }
     
     function ElementNameDefault(name, value)
     {
@@ -64,14 +73,11 @@
         element.value      = value;
         storage[name]      = value;
         localStorage[name] = value;
-        if (element.type == 'radio') {
-            element.checked = true;
-        }
     }
 
     function InitDefault()
     {
-        ElementNameDefault('page', default_page);
+        ElementNameDefaultRadio('page', 1, default_page);
         ElementNameDefault('page_url', default_page_url);
         ElementNameDefault('timer', default_timer);
         ElementNameDefault('exclude_url', default_exclude_url);

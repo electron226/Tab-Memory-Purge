@@ -19,6 +19,14 @@
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
   }, 
+  "purge": {
+    "message": "解放",
+    "description": "解放"
+  },
+  "restore": {
+    "message": "復元",
+    "description": "復元"
+  },
   "default": {
     "message": "デフォルト",
     "description": "デフォルト"
@@ -28,7 +36,8 @@
     "description": "拡張機能内のページ"
   }, 
   "warning_blankPage": {
-    "message": "リンク先は空ページでないと、効果がありません。",
+    "message":
+      "リンク先は空ページでないと、効果がありません。<br>また、拡張機能の更新後は解放されたタブを選択しても休止解除されません。「戻る」ボタンで戻ってください。",
     "description": "指定するURLの警告文"
   },
   "warning_extPage": {

@@ -16,13 +16,33 @@
 </head>
 <body>
 
-<button onclick="SendRequest('purge')">Purge</button>
-<button onclick="SendRequest('restore')">Restore</button>
+<button onclick="SendRequest('purge')"><span class="purgeText"></span></button>
+<button onclick="SendRequest('restore')"><span class="restoreText"></span></button>
 
 <script type="text/javascript">
+    var locale_i18n = [
+        'restore', 'purge',
+    ];
+    
     function SendRequest(event_name) {
         chrome.extension.sendRequest({ event : event_name });
     }
+    
+    function Run()
+    {        // テキストの設定
+        for (var i = 0; i < locale_i18n.length; i++) {
+            var el      = document.getElementsByClassName(locale_i18n[i] + 'Text');
+            var message = chrome.i18n.getMessage(locale_i18n[i]);
+            for (var j = 0; j < el.length; j++) {
+                var string      = el[j].innerHTML;
+                var index       = string.lastIndexOf('</');
+                el[j].innerHTML = string.substring(0, index) + message
+                                        + string.substring(index);
+            }
+        }
+    }
+    
+    window.addEventListener('DOMContentLoaded', Run, false);
 </script>
 </body>
 </html>
