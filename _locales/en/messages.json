@@ -32,7 +32,7 @@
     "description": "warning set URL"
   },
   "warning_extPage": {
-    "message": "If you enable the &quot;Page in the extensions&quot;, tabs that are released when the Reload extension updates will be closed. This is the specification of Chrome.",
+    "message": "If you enable the &quot;Page in the extensions&quot;, tabs that are released when the Reload extension updates will be closed. This is the specification of Chrome.<br>In this feature is enabled, if the update had been done, if you choose to restore from an icon in the Toolbar's advanced features, you can re-open the tab before the update.",
     "description": "warning extPage"
   },
   "minute": {
