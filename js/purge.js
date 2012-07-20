@@ -9,11 +9,14 @@ var blank_page = chrome.extension.getURL('blank.html');
 var ticked = new Object();
 
 /**
- * メモリ解放を行ったタブ
- * key = tabId
- * value = 解放前のURL
+ * メモリ解放を行ったタブの情報が入ってる辞書型の配列
+ *
+ * id: tabId
+ * index: タブが挿入されている位置
+ * url: 解放前のURL
+ * purgeurl: 休止ページのURL
  */
-var unloaded = new Object();
+var unloaded = new Array(); 
 
 /**
 * タブの解放を行います。
@@ -34,21 +37,14 @@ function Purge(tabId)
             args += '&url=' + encodeURIComponent(tab.url);
         }
 
-        // 解放時に仕様するページ
-        var page_option = localStorage['page'] ?
-                          localStorage['page'] : default_page;
-        if (page_option == 'on') {
-            // URLを指定する
-            var url = localStorage['page_url'] ?
-                      localStorage['page_url'] : default_page_url;
-        } else {
-            // 拡張機能内のページ
-            var url = blank_page + '?' + args; 
-        }
+        var url = blank_page + '?' + args; 
 
         chrome.tabs.update(tabId, { url: url }, function(updated) {
             /* console.log('Purge', tabId);  */
-            unloaded[updated.id] = tab.url;
+            unloaded.push({ id: updated.id,
+                            index: updated.index,
+                            url: tab.url,
+                            purgeurl: url });
             deleteTick(tabId);
             localStorage['backup'] = JSON.stringify(unloaded);
         });
@@ -62,9 +58,10 @@ function Purge(tabId)
 */
 function UnPurge(tabId)
 {
-    chrome.tabs.update(tabId, { url: unloaded[tabId] }, function(updated) {
+    var url = FindUnloaded('id', tabId)['url'];
+    chrome.tabs.update(tabId, { url: url }, function(updated) {
         /* console.log('UnPurge', tabId); */
-        delete unloaded[tabId];
+        DeleteUnloaded('id', tabId);
         setTick(tabId);
         localStorage['backup'] = JSON.stringify(unloaded);
     });
@@ -77,7 +74,7 @@ function UnPurge(tabId)
 */
 function tick(tabId)
 {
-    if (FindHash(tabId, unloaded) == null) {
+    if (FindUnloaded('id', tabId) == null) {
         chrome.tabs.get(tabId, function(tab) {
             // アクティブタブへの処理の場合、行わない
             if (tab.active == false) {
@@ -99,11 +96,8 @@ function setTick(tabId)
         var flag = true;
         var exclude = localStorage['exclude_url'] ?
                       localStorage['exclude_url'] : default_exclude_url;
-        var page_url = localStorage['page_url'] ?
-                       localStorage['page_url'] : default_page_url;
         exclude = exclude == '' ? chrome_exclude_url
                                 : chrome_exclude_url + '\n'
-                                + page_url + '\n'
                                 + exclude;
         var exclude_array = exclude.split('\n');
         //console.log(exclude_array);
@@ -158,10 +152,52 @@ function Initialized()
 }
 
 /**
-* 解放済のタブを復元する。
-* オプションで解放時に使用するURLに「拡張機能のページ」を選択しているとき、
-* 拡張機能更新時などに解放済のタブが閉じてしまった後に
-* 手動でブラウザアクションから使用する。
+* 指定した辞書型の配列を再帰処理し、タブを復元する。
+*
+* なお、配列の中の辞書型には下記の要素が必要。
+* id: tabId
+* index: タブが挿入されている位置
+* url: 解放前のURL
+* purgeurl: 休止ページのURL
+*
+* @param {Array} array 辞書型の配列。基本的にunloaded変数を渡す。
+* @param {Number} [index = 0] 配列の再帰処理開始位置
+* @param {Number} [end = array.length] 配列の最後の要素から一つ後の位置
+* @return 
+*/
+function Restore(array, index, end)
+{
+    // 最後まで処理を行ったらunloadedに上書き
+    if (index >= end) {
+        unloaded = array;
+    }
+
+    // 初期値
+    if (index === undefined || index === null) {
+        index = 0;
+    }
+    if (end === undefined || end === null) {
+        end = array.length;
+    }
+
+    chrome.tabs.get(parseInt(array[index]['id']), function(tab) {
+        if (tab === undefined) {
+            // タブが存在しない場合、新規作成
+            var purgeurl = array[index]['purgeurl'];
+            var rIndex = array[index]['index'];
+            chrome.tabs.create({ url: purgeurl, index: rIndex, active: false },
+                               function(tab) {
+                array[index]['id'] = tab.id;
+
+                Restore(array, ++index, end);
+            });
+        }
+    });
+}
+
+/**
+* 解放済みのタブを復元する。
+* アップデートなどで解放済みのタブが閉じられてしまった時に復元する。
 * @return なし
 */
 function RestoreTabs()
@@ -169,23 +205,56 @@ function RestoreTabs()
     var backup = localStorage['backup'];
     if (backup) {
         backup = JSON.parse(backup);
-        for (var key in backup) {
-            var tabId = parseInt(key);
-            if (FindHash(tabId, unloaded) == null) {
-                // 解放済タブがなかったら、新規タブとして復元
-                chrome.tabs.create({ url: backup[tabId], active: false });
-            } else {
-                // 解放済タブがあったら、そのタブを更新
-                chrome.tabs.update(tabId, { url: backup[tabId] },
-                                   function(updated) {
-                    /* console.log('RestoreTabs() update: ', tabId); */
-                    delete unloaded[tabId];
-                    setTick(tabId);
-                    localStorage['backup'] = JSON.stringify(unloaded);
-                });
-            }
+        Restore(backup);
+    }
+}
+
+/**
+* メモリ解放を行ったタブを保存しているunloaded変数を検索する
+* @param  {String} key 検索する要素が持っているキー名
+* @param  {Any} value 検索するunloaded[key]kの値
+* @return {Object|Number} 成功なら指定したキーの位置の辞書型を返す。
+*                         見つからなかったらNULL。
+*/
+function FindUnloaded(key, value)
+{
+    for (var i = 0; i < unloaded.length; i++) {
+        if (unloaded[i][key] == value) {
+            return unloaded[i];
         }
     }
+
+    return null;
+}
+
+/**
+* メモリ解放を行ったタブを保存しているunloaded変数を検索する
+* @param  {String} key 検索する要素が持っているキー名
+* @param  {Any} value 検索するunloaded[key]の値
+* @return {Number} 成功ならunloaded変数のindex位置を返す。
+*                  見つからなかったらNULL。
+*/
+function FindUnloadedIndex(key, value)
+{
+    for (var i = 0; i < unloaded.length; i++) {
+        if (unloaded[i][key] == value) {
+            return i;
+        }
+    }
+
+    return null;
+}
+
+/**
+* メモリ解放を行ったタブを保存しているunloaded変数の要素を削除
+* @param  {String} key 削除する要素が持っているキー名
+* @param  {Any} value 削除する要素のunloaded[key]の値
+* @return なし
+*/
+function DeleteUnloaded(key, value)
+{
+    var index = FindUnloadedIndex(key, value);
+    unloaded.splice(index, 1);
 }
 
 /**
@@ -208,7 +277,7 @@ function FindHash(search_key, hash)
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-    if (FindHash(activeInfo.tabId, unloaded) != null) {
+    if (FindUnloaded('id', activeInfo.tabId) != null) {
         // アクティブにしたタブがアンロード済みだった場合、再読込
         UnPurge(activeInfo.tabId);
     } else {
@@ -223,7 +292,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
-    delete unloaded[tabId];
+    DeleteUnloaded('id', tabId);
     deleteTick(tabId);
 });
 
@@ -231,30 +300,19 @@ chrome.windows.onRemoved.addListener(function(windowId) {
     localStorage.removeItem('backup');
 });
 
+chrome.browserAction.onClicked.addListener(function(tab) {
+    if (FindUnloaded('id', tab.id) != null) {
+        UnPurge(tab.id);
+    } else {
+        Purge(tab.id);
+    }
+});
+
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
         switch (request.event) {
             case 'init':
                 Initialized();
-                break;
-            case 'purge':
-                chrome.windows.getCurrent({ populate: true }, function(win) {
-                    var i = 0;
-                    for (; i < win.tabs.length; i++) {
-                        if (win.tabs[i].active) {
-                            break;
-                        }
-                    }
-
-                    if (FindHash(win.tabs[i].id, unloaded) != null) {
-                        UnPurge(win.tabs[i].id);
-                    } else {
-                        Purge(win.tabs[i].id);
-                    } 
-                });
-                break;
-            case 'restore':
-                RestoreTabs();
                 break;
         }
 });

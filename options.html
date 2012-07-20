@@ -16,16 +16,6 @@
 
 <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
 
-<div class="title pageTitleText"></div>
-<hr>
-<ul>
-    <li><input type="radio" name="page" value='on'>URL:&nbsp;<input type="text" name="page_url" style="width: 250px;"></li>
-    <li style="color: darkred; font-weight: bold;"><span class="warning_blankPageText"></span></li>
-    <li>&nbsp;</li>
-    <li><input type="radio" name="page" value='off'><span class="extPageText"></span></li>
-    <li style="color: darkred; font-weight: bold;"><span class="warning_extPageText"></span></li>
-</ul>
-
 <div class="title setTimerTitleText"></div>
 <hr>
 <ul>
@@ -48,12 +38,9 @@
         'extName', 'option', 'default', 'minute',
         'setTimerTitle',
         'refURL', 'exclude_url',
-        'pageTitle', 'extPage', 'warning_blankPage', 'warning_extPage', 
     ];
 
     var storage = {
-        'page'        : localStorage['page'],
-        'page_url'    : localStorage['page_url'],
         'timer'       : localStorage['timer'],
         'exclude_url' : localStorage['exclude_url'],
         };
@@ -64,7 +51,7 @@
         element.value      = value;
         storage[name]      = value;
         localStorage[name] = value;
-        element.checked = true;
+        element.checked    = true;
     }
     
     function ElementNameDefault(name, value)
@@ -77,8 +64,6 @@
 
     function InitDefault()
     {
-        ElementNameDefaultRadio('page', 1, default_page);
-        ElementNameDefault('page_url', default_page_url);
         ElementNameDefault('timer', default_timer);
         ElementNameDefault('exclude_url', default_exclude_url);
         
@@ -148,9 +133,6 @@
             } else if (input[i].type == 'text') {
                 if (option === undefined) {
                     switch (name) {
-                        case 'page_url':
-                            option = default_page_url;
-                            break;
                         default:
                             option = '';
                             break;
@@ -163,9 +145,6 @@
             } else if (input[i].type == 'radio') {
                 if (option === undefined) {
                     switch (name) {
-                        case 'page':
-                            option = default_page;
-                            break;
                         default:
                             option = 'off';
                             break;

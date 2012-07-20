@@ -11,37 +11,13 @@
     "message": "Option",
     "description": "Option string"
   },
-  "pageTitle": {
-    "message": "Page to use when releasing",
-    "description": "Page to use when releasing"
-  }, 
   "setTimerTitle": {
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
   },
-  "purge": {
-    "message": "Purge",
-    "description": "Purge"
-  },
-  "restore": {
-    "message": "Restore",
-    "description": "Restore"
-  },
   "default": {
     "message": "Default",
     "description": "Default"
-  },
-  "extPage": {
-    "message": "Page in the extensions",
-    "description": "Page in the extensions"
-  }, 
-  "warning_blankPage": {
-    "message": "The linked page and it is not empty and does not have any effect.<br>Also, the pause is not canceled even if you select the tab after you update the extension has been released. Please come back 'Back' button.",
-    "description": "warning set URL"
-  },
-  "warning_extPage": {
-    "message": "If you enable the &quot;Page in the extensions&quot;, tabs that are released when the Reload extension updates will be closed. This is the specification of Chrome.<br>In this feature is enabled, if the update had been done, if you choose to restore from an icon in the Toolbar's advanced features, you can re-open the tab before the update.",
-    "description": "warning extPage"
   },
   "minute": {
     "message": "minute",
