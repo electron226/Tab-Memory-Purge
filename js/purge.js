@@ -254,7 +254,9 @@ function FindUnloadedIndex(key, value)
 function DeleteUnloaded(key, value)
 {
     var index = FindUnloadedIndex(key, value);
-    unloaded.splice(index, 1);
+    if (index) {
+        unloaded.splice(index, 1);
+    }
 }
 
 /**

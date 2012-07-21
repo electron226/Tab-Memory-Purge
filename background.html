@@ -30,6 +30,9 @@
             return details.version;
         }
 
+        // 初期化(現在の開いているタブに対して機能の有効化)
+        Initialized();
+
         // この拡張機能のバージョンチェック
         var currVersion = getVersion();
         var prevVersion = localStorage['version'];
