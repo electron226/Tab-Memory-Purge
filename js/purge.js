@@ -170,6 +170,7 @@ function Restore(array, index, end)
     // 最後まで処理を行ったらunloadedに上書き
     if (index >= end) {
         unloaded = array;
+        return;
     }
 
     // 初期値
