@@ -19,7 +19,7 @@
 <div class="title setTimerTitleText"></div>
 <hr>
 <ul>
-    <li><input type="number" name="timer" style="width: 75px;" min="0">&nbsp;<span class="minuteText"></span></li>
+    <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
 </ul>
 
 <hr>
@@ -30,44 +30,150 @@
 <textarea name="exclude_url" rows="5" cols="40"></textarea>
 
 <hr>
+<button onclick="Save();"><span class="saveText"></span></button>
 <button onclick="InitDefault();"><span class="defaultText"></span></button>
 
 <script type="text/javascript" src="js/default.js"></script>
 <script type="text/javascript">
     var locale_i18n = [
-        'extName', 'option', 'default', 'minute',
+        'extName', 'option', 'default', 'save', 'minute',
         'setTimerTitle',
         'refURL', 'exclude_url',
     ];
 
     var storage = {
-        'timer'       : localStorage['timer'],
-        'exclude_url' : localStorage['exclude_url'],
-        };
+        'timer' : localStorage['timer'],
+        'exclude_url' : localStorage['exclude_url'], 
+    };
         
-    function ElementNameDefaultRadio(name, index, value)
+    /**
+     * オプションを保存
+     *
+     * @param {Object} options
+     * @param {String} options.name 保存する要素名
+     * @param {Number} [options.index = 0] 保存する要素ごとの位置
+     * @param {Any} options.value 保存する値
+     *
+     * @return なし
+     */
+    function SetElementName(options)
     {
-        var element = document.getElementsByName(name)[index];
+        var index = options.index ? options.index : 0;
+        var value = options.value;
+        var name = options.name;
+
+        var element = document.getElementsByName(options.name)[index];
         element.value      = value;
-        storage[name]      = value;
-        localStorage[name] = value;
-        element.checked    = true;
-    }
-    
-    function ElementNameDefault(name, value)
-    {
-        var element = document.getElementsByName(name)[0];
-        element.value      = value;
-        storage[name]      = value;
+        storage[name] = value;
         localStorage[name] = value;
     }
 
+    /**
+     * SetElementNameのCheckbox, Radioボタン用
+     * 引数はSetElementNameと同じ
+     *
+     * @returns なし
+     */
+    function SetElementNameCheck(options)
+    {
+        SetElementName(options);
+        element.checked = true;
+    }
+
+    /**
+     * 指定した要素のオプションを取得・保存する
+     *
+     * @param {Object} options
+     * @param {String} options.name 保存する要素名
+     * @param {String} options.type 保存する要素のタイプ
+     *                              number: 数値
+     *                              text: テキストボックス
+     *                              textarea: テキストエリア
+     *                              radio: ラジオボタン
+     * @param {Number} [options.index = 0] 保存する要素名ごとの番号
+     *                                     ラジオボタンなどで使用。
+     * @param {Function} [options.compare] 引数を一つ取る、比較関数。
+     *                                     戻り値がtrueならoptions.value,
+     *                                     falseならoptions.compare_valueを保存
+     * @param {Any} [options.compare_value] compareがfalseだった時の値。
+     *
+     * @throws {Error} options.typeの値が対応していない物だった
+     * @returns なし
+     */
+    function SaveElementName(options)
+    {
+        if (!options.index) {
+            options.index = 0;
+        }
+
+        var element = document.getElementsByName(options.name)[options.index];
+        var value = element.value;
+
+        if (options.compare && options.compare_value) {
+            value = options.compare(value) ? value : options.compare_value;
+        }
+
+        // valueをタイプごとに修正
+        switch (options.type) {
+            case 'number':
+                break;
+            case 'textarea':
+                value = value.trim();
+                break;
+            default:
+                throw new Error('SetElementName Error.', options);
+                break;
+        }
+
+        // 保存
+        element.value              = value;
+        storage[name]              = value;
+        localStorage[options.name] = value;
+    }
+
+    // 
+    /**
+     * 指定した名前の要素を読み込み
+     * ラジオボタンのような同一の名前を複数持っている要素には未対応。
+     *
+     * @param {String} name 読み込む要素の名前
+     * @param [Any] default_value 要素が保存されていなかった場合のデフォルト値
+     *
+     * @returns なし
+     */
+    function LoadElementName(name, default_value)
+    {
+        var element = document.getElementsByName(name)[0];
+        var option = storage[name] ? storage[name] : default_value;
+
+        element.value      = option;
+        storage[name]      = option;
+        localStorage[name] = option;
+    }
+    
     function InitDefault()
     {
-        ElementNameDefault('timer', default_timer);
-        ElementNameDefault('exclude_url', default_exclude_url);
+        SetElementName({ name: 'timer', value: default_timer});
+        SetElementName({ name: 'exclude_url', value: default_exclude_url});
         
         chrome.extension.sendRequest({ event : 'init'});
+    }
+
+    function Save()
+    {
+        SaveElementName({ name: 'timer', type: 'number',
+                compare: function(value) {
+                    return value >= 1;
+                }, compare_value: 1});
+        SaveElementName({ name: 'exclude_url', type: 'textarea'});
+
+        chrome.extension.sendRequest({ event : 'init'});
+    }
+    
+    function Load()
+    {
+        LoadElementName('timer', default_timer);
+        LoadElementName('exclude_url', default_exclude_url);
     }
 
     function Run()
@@ -84,124 +190,8 @@
             }
         }
 
-        // 除外するドメイン入力欄
-        var textarea = document.getElementsByTagName('textarea');
-        for (var i = 0; i < textarea.length; i++) {
-            var name = textarea[i].name;
-            var option = storage[name];
-            if (option === undefined) {
-                switch (name) {
-                    case 'exclude_url':
-                        option = default_exclude_url;
-                        break;
-                    default:
-                        option = "";
-                        break;
-                }
-                storage[name]      = option;
-                localStorage[name] = option;
-            }
-            textarea[i].value = option;
-
-            textarea[i].onchange = function() {
-                localStorage[ this.name ] = this.value.trim();
-
-                chrome.extension.sendRequest({ event : 'init'});
-            }
-        }
-
-        var input = document.getElementsByTagName('input');
-        for (var i = 0; i < input.length; i++) {
-            // データ読み込み
-            var name = input[i].name;
-            var option = storage[name];
-            if (input[i].type == 'number') {
-                if (option === undefined) {
-                    switch (name) {
-                        case 'timer':
-                            option = default_timer;
-                            break;
-                        default:
-                            option = 0;
-                            break;
-                    }
-                    storage[name]      = option;
-                    localStorage[name] = option;
-                } 
-
-                input[i].value = option;
-            } else if (input[i].type == 'text') {
-                if (option === undefined) {
-                    switch (name) {
-                        default:
-                            option = '';
-                            break;
-                    }
-                    storage[name]      = option;
-                    localStorage[name] = option;
-                } 
-
-                input[i].value = option;
-            } else if (input[i].type == 'radio') {
-                if (option === undefined) {
-                    switch (name) {
-                        default:
-                            option = 'off';
-                            break;
-                    }
-
-                    storage[name]      = option;
-                    localStorage[name] = option;
-                } 
-
-                if (input[i].value == option) {
-                    input[i].checked = true;
-                }
-            } else if (input[i].type == 'checkbox') {
-                if (option === undefined) {
-                    switch (name) {
-                        default:
-                            option = 'false';
-                            break;
-                    }
-                    storage[name]      = option;
-                    localStorage[name] = option;
-                }
-
-                if (option == 'true') {
-                    input[i].checked = true;
-                } else {
-                    input[i].checked = false;
-                }
-            }
-
-            // データ保存
-            input[i].onchange = function() {
-                switch (this.type) {
-                    case 'text':
-                    case 'radio':
-                        localStorage[this.name] = this.value;
-                        break;
-                    case 'number':
-                        if (this.name == 'timer') {
-                            if (this.value < 1) {
-                                this.value = 1;
-                            }
-                        }
-
-                        localStorage[this.name] = this.value;
-                        break;
-                    case 'checkbox':
-                        localStorage[this.name] = this.checked;
-                        break;
-                    default:
-                        throw new Error('データの保存に失敗しました。');
-                        break;
-                }
-
-                chrome.extension.sendRequest({ event : 'init'});
-            }
-        };
+        // データ読み込み
+        Load();
     }
 
     window.addEventListener('DOMContentLoaded', Run, false);

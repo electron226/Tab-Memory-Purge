@@ -15,6 +15,10 @@
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
   }, 
+  "save": {
+    "message": "保存",
+    "description": "保存ボタン"
+  },
   "default": {
     "message": "デフォルト",
     "description": "デフォルト"

@@ -15,6 +15,10 @@
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
   },
+  "save": {
+    "message": "Save",
+    "description": "Save Button"
+  },
   "default": {
     "message": "Default",
     "description": "Default"
