@@ -19,6 +19,10 @@
     "message": "Save",
     "description": "Save Button"
   },
+  "clear": {
+    "message": "Clear",
+    "description": "Clear Button"
+  },
   "default": {
     "message": "Default",
     "description": "Default"
