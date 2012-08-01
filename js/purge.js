@@ -37,13 +37,13 @@ function Purge(tabId)
             args += '&url=' + encodeURIComponent(tab.url);
         }
 
-        var url = blank_page + '?' + args; 
+        var url = blank_page + '?' + args;   
 
         chrome.tabs.update(tabId, { url: url }, function(updated) {
-            /* console.log('Purge', tabId);  */
-            unloaded.push({ id: updated.id,
-                            index: updated.index,
-                            url: tab.url,
+            /* console.log('Purge', tabId);   */
+            unloaded.push({ id:       updated.id,
+                            index:    updated.index,
+                            url:      tab.url,
                             purgeurl: url });
             deleteTick(tabId);
             localStorage['backup'] = JSON.stringify(unloaded);
@@ -255,7 +255,7 @@ function FindUnloadedIndex(key, value)
 function DeleteUnloaded(key, value)
 {
     var index = FindUnloadedIndex(key, value);
-    if (index) {
+    if (index != null) {
         unloaded.splice(index, 1);
     }
 }
