@@ -184,7 +184,7 @@ function Restore(array, index, end)
         end = array.length;
     }
 
-    chrome.tabs.get(parseInt(array[index]['id']), function(tab) {
+    chrome.tabs.get(array[index]['id'], function(tab) {
         if (tab === undefined) {
             // タブが存在しない場合、新規作成
             var purgeurl = array[index]['purgeurl'];
