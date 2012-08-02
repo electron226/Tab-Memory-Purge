@@ -25,15 +25,15 @@ function GetQueryString()
     return null;
 }
 
-var head = document.getElementsByTagName('head');
 function ChangeFavicon(favicon)
 {
-    var head_html = head[0].innerHTML;
+    var head = document.querySelector('head');
+    var head_html = head.innerHTML;
     var insert_pos = head_html.lastIndexOf('</head>');
     var head_html = head_html +
         '<link rel="icon" href="' + favicon + '" type="image/' +
         favicon.substr(favicon.lastIndexOf('.') + 1) + '">';
-    head[0].innerHTML = head_html;
+    head.innerHTML = head_html;
 }
 
 function Run()
@@ -41,19 +41,17 @@ function Run()
     var args = GetQueryString();
 
     if (args['title']) {
-        document.title = decodeURIComponent(args['title']);
-
-        var span = document.getElementById('title');
-        span.innerHTML = document.title;
+        document.title = args['title'];
+        document.querySelector('#title').innerHTML = document.title;
     }
 
     if (args['favicon']) {
-        ChangeFavicon(decodeURIComponent(args['favicon']));
+        ChangeFavicon(args['favicon']);
     }
 
-    var span = document.getElementById('url');
+    var span = document.querySelector('#url');
     if (args['url']) {
-        var url = decodeURIComponent(args['url']);
+        var url = args['url'];
         span.innerHTML = '<a href="' + url + '">' + url + '</a>';
     } else {
         span.innerHTML = 'None';
