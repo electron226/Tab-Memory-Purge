@@ -77,7 +77,10 @@ function tick(tabId)
     if (FindUnloaded('id', tabId) == null) {
         chrome.tabs.get(tabId, function(tab) {
             // アクティブタブへの処理の場合、行わない
-            if (tab.active == false) {
+            if (tab.active) {
+               // アクティブにしたタブのアンロード時間更新
+                UnloadTimeProlong(tabId);
+            } else {
                 Purge(tabId);
             }
         });
@@ -279,14 +282,24 @@ function FindHash(search_key, hash)
     return null;
 }
 
+/**
+* アンロード時間の延長
+* @param {Number} tabId 延長するタブのID
+* @return なし
+*/
+function UnloadTimeProlong(tabId)
+{
+    deleteTick(tabId);
+    setTick(tabId);
+}
+
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     if (FindUnloaded('id', activeInfo.tabId) != null) {
         // アクティブにしたタブがアンロード済みだった場合、再読込
         UnPurge(activeInfo.tabId);
     } else {
         // アクティブにしたタブのアンロード時間更新
-        deleteTick(activeInfo.tabId);
-        setTick(activeInfo.tabId);
+        UnloadTimeProlong(activeInfo.tabId);
     }
 });
 
