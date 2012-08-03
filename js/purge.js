@@ -19,6 +19,11 @@ var ticked = new Object();
 var unloaded = new Array(); 
 
 /**
+* アクティブなタブを選択する前に選択していたタブのID
+*/
+var old_activeId = null;
+
+/**
 * タブの解放を行います。
 * @param {Number} tabId タブのID
 * @return なし
@@ -294,6 +299,12 @@ function UnloadTimeProlong(tabId)
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
+    // 前にアクティブにされていたタブのアンロード時間を更新
+    if (old_activeId) {
+        UnloadTimeProlong(old_activeId);
+    }
+    old_activeId = activeInfo.tabId;
+
     if (FindUnloaded('id', activeInfo.tabId) != null) {
         // アクティブにしたタブがアンロード済みだった場合、再読込
         UnPurge(activeInfo.tabId);
