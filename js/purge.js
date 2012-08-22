@@ -113,11 +113,11 @@ function setTick(tabId)
         }
 
         var exclude_array = exclude.split("\n");
-        console.log(exclude_array);  
+        /* console.log(exclude_array);   */
         for (var i = 0; i < exclude_array.length; i++) {
             var re = new RegExp(exclude_array[i]);
             if (tab.url.match(re)) {
-                console.log(exclude_array[i]);  
+                /* console.log(exclude_array[i]);   */
                 flag = false; // 実行しない
                 break;
             }
@@ -320,7 +320,7 @@ function NotPurgeToggle(tab)
     if (GetNotPurge().lastIndexOf(tab.url) == -1) {
         SetNotPurge(tab.url);
     } else {
-        console.log("RemoveNotPurge", RemoveNotPurge(tab.url));
+        RemoveNotPurge(tab.url);
     }
     UnloadTimeProlong(tab.id);
 }
