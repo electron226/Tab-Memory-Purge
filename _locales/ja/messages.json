@@ -15,6 +15,18 @@
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
   }, 
+  "release": {
+    "message": "タブを解放",
+    "description": "ポップアップの解放ボタン"
+  },
+  "not_release": {
+    "message": "タブを解放しない",
+    "description": "ポップアップの解放しないボタン"
+  },
+  "restore": {
+    "message": "緊急時復元",
+    "description": "ポップアップの緊急時の復元ボタン"
+  },
   "save": {
     "message": "保存",
     "description": "保存ボタン"
