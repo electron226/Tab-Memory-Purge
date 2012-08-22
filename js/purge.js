@@ -105,14 +105,19 @@ function setTick(tabId)
         var exclude = localStorage['exclude_url'] ?
                       localStorage['exclude_url'] : default_exclude_url;
         exclude = exclude == '' ? chrome_exclude_url
-                                : chrome_exclude_url + '\n'
-                                + exclude;
-        var exclude_array = exclude.split('\n');
-        //console.log(exclude_array);
+                                : chrome_exclude_url + "\n" + exclude;
+
+        // ポップアップで設定した読み込まないURLを取得
+        if (GetNotPurge() != '') {
+            exclude += "\n" + GetNotPurge();
+        }
+
+        var exclude_array = exclude.split("\n");
+        console.log(exclude_array);  
         for (var i = 0; i < exclude_array.length; i++) {
             var re = new RegExp(exclude_array[i]);
             if (tab.url.match(re)) {
-                //console.log(exclude_array[i]);
+                console.log(exclude_array[i]);  
                 flag = false; // 実行しない
                 break;
             }
@@ -140,11 +145,14 @@ function deleteTick(tabId)
 }
 
 /**
-* 初期化。全てのタブに対し、定期処理の設定を行う。
+* 初期化。
 * @return なし 
 */
 function Initialized()
 {
+    // 一時解放用のストレージをクリア
+    localStorage.removeItem('not_purge');
+
     for (var key in ticked) {
         clearInterval(ticked[key]);
     }
@@ -298,6 +306,70 @@ function UnloadTimeProlong(tabId)
     setTick(tabId);
 }
 
+function PurgeToggle(tabId)
+{
+    if (FindUnloaded('id', tabId) != null) {
+        UnPurge(tabId);
+    } else {
+        Purge(tabId);
+    }
+}
+
+function NotPurgeToggle(tab)
+{
+    if (GetNotPurge().lastIndexOf(tab.url) == -1) {
+        SetNotPurge(tab.url);
+    } else {
+        console.log("RemoveNotPurge", RemoveNotPurge(tab.url));
+    }
+    UnloadTimeProlong(tab.id);
+}
+
+function SetNotPurge(url) {
+    var list = GetNotPurge();
+    if (list != '') {
+        // 同じURLがあるか確認してなければ追加
+        var begin = list.lastIndexOf(url);
+        if (begin == -1) {
+            list += "\n" + url;
+        } else {
+            // 変更なしのまま終了
+            return;
+        }
+    } else {
+        list = url;
+    }
+    localStorage['not_purge'] = list;
+}
+
+function GetNotPurge()
+{
+    var not_purge = localStorage['not_purge'];
+    return not_purge !== undefined && not_purge !== null ? not_purge : '';
+}
+
+function RemoveNotPurge(url)
+{
+    var list = GetNotPurge();
+    var begin = list.lastIndexOf(url);
+    if (begin != -1) {
+        var end = list.indexOf("\n", begin);
+        if (end != -1) {
+            // 最後の項目ではない場合
+            // 1 = "\n"
+            list = list.substring(0, begin) + list.substring(begin + url.length + 1);
+        } else {
+            // 最後の項目の場合
+            list = list.substring(0, begin);
+        }
+
+        localStorage['not_purge'] = list;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     // 前にアクティブにされていたタブのアンロード時間を更新
     if (old_activeId) {
@@ -328,11 +400,7 @@ chrome.windows.onRemoved.addListener(function(windowId) {
 });
 
 chrome.browserAction.onClicked.addListener(function(tab) {
-    if (FindUnloaded('id', tab.id) != null) {
-        UnPurge(tab.id);
-    } else {
-        Purge(tab.id);
-    }
+    PurgeToggle(tab.id);
 });
 
 chrome.extension.onRequest.addListener(
@@ -340,6 +408,19 @@ chrome.extension.onRequest.addListener(
         switch (request.event) {
             case 'init':
                 Initialized();
+                break;
+            case 'release':
+                chrome.tabs.getSelected(function (tab) {
+                    PurgeToggle(tab.id);
+                });
+                break;
+            case 'not_release':
+                chrome.tabs.getSelected(function (tab) {
+                    NotPurgeToggle(tab);
+                });
+                break;
+            case 'restore':
+                RestoreTabs();
                 break;
         }
 });

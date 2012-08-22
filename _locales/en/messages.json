@@ -15,6 +15,18 @@
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
   },
+  "release": {
+    "message": "Release",
+    "description": "Release Button in popup"
+  },
+  "not_release": {
+    "message": "Not release",
+    "description": "Not Release Button in popup"
+  },
+  "restore": {
+    "message": "Emergency recovery",
+    "description": "Restore Button in popup"
+  },
   "save": {
     "message": "Save",
     "description": "Save Button"
