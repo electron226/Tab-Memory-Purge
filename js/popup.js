@@ -1,15 +1,18 @@
 var locale_i18n = [
-    'restore', 'release', 'not_release', 'remove_not_release', 
+    'restore', 'release', 'non_release', 'remove_non_release', 
 ];
 
 function ChangeNonReleaseText()
 {
     var purgeIcon = localStorage['purgeIcon'];
-    var el = document.querySelector('.not_releaseText'); 
-    if (purgeIcon == 'true') {
-        var message = chrome.i18n.getMessage(locale_i18n[3]);
-    } else {
-        var message = chrome.i18n.getMessage(locale_i18n[2]);
+    var el = document.querySelector('.non_releaseText'); 
+    switch (localStorage['purgeIcon']) {
+        case 'temp_exclude':
+            var message = chrome.i18n.getMessage(locale_i18n[3]); // non_release
+            break;
+        default:
+            var message = chrome.i18n.getMessage(locale_i18n[2]); // remove_non_release
+            break;
     }
     el.innerHTML = message;
 }
@@ -21,7 +24,7 @@ function OnRelease()
 
 function OnNonRelease()
 {
-    chrome.extension.sendRequest({ event : 'not_release'}, function(reponse) {
+    chrome.extension.sendRequest({ event : 'non_release'}, function(reponse) {
         ChangeNonReleaseText();
     });
 }
@@ -52,6 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
     Run();
 
     document.querySelector('#release').addEventListener('click', OnRelease);
-    document.querySelector('#not_release').addEventListener('click', OnNonRelease);
+    document.querySelector('#non_release').addEventListener('click', OnNonRelease);
     document.querySelector('#restore').addEventListener('click', OnRestore);
 });

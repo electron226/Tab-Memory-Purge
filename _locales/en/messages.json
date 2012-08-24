@@ -19,11 +19,11 @@
     "message": "Release Tab",
     "description": "a menu in popup"
   },
-  "not_release": {
+  "non_release": {
     "message": "Non-release tab",
     "description": "a menu in popup"
   },
-  "remove_not_release": {
+  "remove_non_release": {
     "message": "Remove the non-release tab",
     "description": "a menu in popup"
   },

@@ -19,11 +19,11 @@
     "message": "タブを解放",
     "description": "ポップアップの項目"
   },
-  "not_release": {
+  "non_release": {
     "message": "タブを非解放にする",
     "description": "ポップアップの項目"
   },
-  "remove_not_release": {
+  "remove_non_release": {
     "message": "タブの非解放を解除",
     "description": "ポップアップの項目"
   },

@@ -1,7 +1,4 @@
-﻿/** 空ページへのアドレス */
-var blank_page = chrome.extension.getURL('blank.html');
-
-/**
+﻿/**
  * tabIdごとのsetIntervalのid
  * key = tabId
  * value = setIntervalのid
@@ -100,30 +97,9 @@ function tick(tabId)
 function setTick(tabId)
 {
     chrome.tabs.get(tabId, function(tab) {
-        // 除外ドメインと比較
-        var flag = true;
-        var exclude = localStorage['exclude_url'] ?
-                      localStorage['exclude_url'] : default_exclude_url;
-        exclude = exclude == '' ? chrome_exclude_url
-                                : chrome_exclude_url + "\n" + exclude;
-
-        // ポップアップで設定した読み込まないURLを取得
-        if (GetNonRelease() != '') {
-            exclude += "\n" + GetNonRelease();
-        }
-
-        var exclude_array = exclude.split("\n");
-        /* console.log(exclude_array);   */
-        for (var i = 0; i < exclude_array.length; i++) {
-            var re = new RegExp(exclude_array[i]);
-            if (tab.url.match(re)) {
-                /* console.log(exclude_array[i]);   */
-                flag = false; // 実行しない
-                break;
-            }
-        }
-
-        if (flag) {
+        // 全ての除外アドレス一覧と比較
+        if (!CheckExcludeList(tab.url)) {
+            // 除外アドレスに含まれていない場合
             var timer = localStorage['timer'] ?
                         localStorage['timer'] : default_timer;
             timer = timer * 60 * 1000; // 分(設定) * 秒数 * ミリ秒
@@ -151,7 +127,7 @@ function deleteTick(tabId)
 function Initialized()
 {
     // 一時解放用のストレージをクリア
-    localStorage.removeItem('not_purge');
+    localStorage.removeItem('non_purge');
 
     for (var key in ticked) {
         clearInterval(ticked[key]);
@@ -307,30 +283,90 @@ function UnloadTimeProlong(tabId)
 }
 
 /**
-* タブが既に一時的な非解放リストに追加されているならアイコンを変える。
-* また、localStorage['purgeIcon']にtrue, もしくはfalseが入る。
-* trueは非解放時のアイコンを表示する。falseはその逆。
-* @param {Tab} active_tab 調べるタブ
-* @return なし
+* 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
+* @param {String} exclude 除外リストの値。複数のものは\nで区切る
+* @param {String} url マッチするか調べるアドレス
+* @return {Boolean} マッチしたらTRUE, しなかったらFALSE
 */
-function ChangeIconNonReleaseTab(active_tab)
+function CheckMatchUrlString(exclude, url)
 {
-    var notPurgeObj = SearchNonRelease(active_tab.url);
-    if (notPurgeObj['begin'] == null) {
-        /* console.log('Change Icon On'); */
-        // 追加されていない
-        chrome.browserAction.setIcon(
-            { path: chrome.extension.getURL('icon/icon_019.png'),
-                tabId: active_tab.id });
-        localStorage['purgeIcon'] = false;
-    } else {
-        /* console.log('Change Icon Off'); */
-        // 追加されている
-        chrome.browserAction.setIcon(
-            { path: chrome.extension.getURL('icon/icon_019_off.png'),
-                tabId: active_tab.id });
-        localStorage['purgeIcon'] = true;
+    var exclude_array = exclude.split("\n");
+    /* console.log(array); */
+    for (var i = 0; i < exclude_array.length; i++) {
+        if (exclude_array[i] != '') {
+            var re = new RegExp(exclude_array[i]);
+            if (url.match(re)) {
+                /* console.log(url);    */
+                return true;
+            }
+        }
     }
+    return false;
+}
+
+/**
+* 与えられたURLが全ての除外リストに一致するか検索する。
+* @param url
+* @return {Integer} どのリストと一致したかを数値で返す。
+*                   CHROME_EXCLUDE = 拡張機能側で固定されている除外アドレス
+*                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレスリスト
+*                   TEMP_EXCLUDE   = 一時的な非解放リスト
+*                   null           = 一致しなかった。
+*/
+function CheckExcludeList(url)
+{
+    // 拡張側で最初から除外されている固定除外アドレスと比較
+    if (CheckMatchUrlString(chrome_exclude_url, url)) {
+        /* console.log('CHROME_EXCLUDE') */
+        return CHROME_EXCLUDE;
+    }
+
+    // 除外アドレスと比較
+    var exclude = localStorage['exclude_url'] ?
+                  localStorage['exclude_url'] : default_exclude_url;
+    if (CheckMatchUrlString(exclude, url)) {
+        /* console.log('USE_EXCLUDE') */
+        return USE_EXCLUDE;
+    }
+
+    // 一時的な非解放リストと比較
+    /* console.log('GetNonRelease', GetNonRelease()); */
+    if (CheckMatchUrlString(GetNonRelease(), url)) {
+        /* console.log('TEMP_EXCLUDE') */
+        return TEMP_EXCLUDE;
+    }
+
+    /* console.log("null"); */
+    return null;
+}
+
+/**
+ * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
+ * また、localStorage['purgeIcon']には変更したアイコンファイルを表す文字列が入る。
+ * この値はハッシュ変数(icons)のキー名でもある。
+ * @param {Tab} 対象のタブ
+ * @return なし
+ */
+function ReloadBrowserIcon(tab)
+{
+    switch (CheckExcludeList(tab.url)) {
+        case CHROME_EXCLUDE:
+            var change_icon = 'chrome_exclude';
+            break;
+        case USE_EXCLUDE:
+            var change_icon = 'use_exclude';
+            break;
+        case TEMP_EXCLUDE:
+            var change_icon = 'temp_exclude';
+            break;
+        default:
+            var change_icon = 'normal';
+            break;
+    }
+
+    chrome.browserAction.setIcon(
+        { path: icons[change_icon], tabId: tab.id });
+        localStorage['purgeIcon'] = change_icon;
 }
 
 /**
@@ -358,7 +394,7 @@ function NonReleaseToggle(tab)
     } else {
         RemoveNonRelease(tab.url);
     }
-    ChangeIconNonReleaseTab(tab);
+    ReloadBrowserIcon(tab);
 
     UnloadTimeProlong(tab.id);
 }
@@ -382,7 +418,7 @@ function SetNonRelease(url) {
     } else {
         list = url;
     }
-    localStorage['not_purge'] = list;
+    localStorage['non_purge'] = list;
 }
 
 /**
@@ -392,8 +428,8 @@ function SetNonRelease(url) {
 */
 function GetNonRelease()
 {
-    var not_purge = localStorage['not_purge'];
-    return not_purge !== undefined && not_purge !== null ? not_purge : '';
+    var non_purge = localStorage['non_purge'];
+    return non_purge !== undefined && non_purge !== null ? non_purge : '';
 }
 
 /**
@@ -437,7 +473,7 @@ function RemoveNonRelease(url)
             // 1 = "\n"
             list = list.substring(0, obj['begin']) + list.substring(obj['end']);
         }
-        localStorage['not_purge'] = list;
+        localStorage['non_purge'] = list;
 
         return true;
     } else {
@@ -447,8 +483,8 @@ function RemoveNonRelease(url)
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
     chrome.tabs.get(activeInfo.tabId, function(tab) {
-        // 一時的非解放一覧に追加されているならアイコンを変える
-        ChangeIconNonReleaseTab(tab);
+        // アイコンの状態を変更
+        ReloadBrowserIcon(tab);
 
         // 前にアクティブにされていたタブのアンロード時間を更新
         if (old_activeId) {
@@ -475,12 +511,15 @@ chrome.tabs.onRemoved.addListener(function(tabId) {
     deleteTick(tabId);
 });
 
-chrome.windows.onRemoved.addListener(function(windowId) {
-    localStorage.removeItem('backup');
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	if (changeInfo.status == 'loading') {
+	} else {
+		ReloadBrowserIcon(tab);
+	}
 });
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-    PurgeToggle(tab.id);
+chrome.windows.onRemoved.addListener(function(windowId) {
+    localStorage.removeItem('backup');
 });
 
 chrome.extension.onRequest.addListener(
@@ -494,7 +533,7 @@ chrome.extension.onRequest.addListener(
                     PurgeToggle(tab.id);
                 });
                 break;
-            case 'not_release':
+            case 'non_release':
                 chrome.tabs.getSelected(function (tab) {
                     NonReleaseToggle(tab);
                 });
