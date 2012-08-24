@@ -108,8 +108,8 @@ function setTick(tabId)
                                 : chrome_exclude_url + "\n" + exclude;
 
         // ポップアップで設定した読み込まないURLを取得
-        if (GetNotPurge() != '') {
-            exclude += "\n" + GetNotPurge();
+        if (GetNonRelease() != '') {
+            exclude += "\n" + GetNonRelease();
         }
 
         var exclude_array = exclude.split("\n");
@@ -306,6 +306,38 @@ function UnloadTimeProlong(tabId)
     setTick(tabId);
 }
 
+/**
+* タブが既に一時的な非解放リストに追加されているならアイコンを変える。
+* また、localStorage['purgeIcon']にtrue, もしくはfalseが入る。
+* trueは非解放時のアイコンを表示する。falseはその逆。
+* @param {Tab} active_tab 調べるタブ
+* @return なし
+*/
+function ChangeIconNonReleaseTab(active_tab)
+{
+    var notPurgeObj = SearchNonRelease(active_tab.url);
+    if (notPurgeObj['begin'] == null) {
+        /* console.log('Change Icon On'); */
+        // 追加されていない
+        chrome.browserAction.setIcon(
+            { path: chrome.extension.getURL('icon/icon_019.png'),
+                tabId: active_tab.id });
+        localStorage['purgeIcon'] = false;
+    } else {
+        /* console.log('Change Icon Off'); */
+        // 追加されている
+        chrome.browserAction.setIcon(
+            { path: chrome.extension.getURL('icon/icon_019_off.png'),
+                tabId: active_tab.id });
+        localStorage['purgeIcon'] = true;
+    }
+}
+
+/**
+* 解放状態・解放解除を交互に行う
+* @param {Number} tabId 対象のタブのID
+* @return なし
+*/
 function PurgeToggle(tabId)
 {
     if (FindUnloaded('id', tabId) != null) {
@@ -315,22 +347,33 @@ function PurgeToggle(tabId)
     }
 }
 
-function NotPurgeToggle(tab)
+/**
+* 非解放・非解放解除を交互に行う
+* @param {Tab} tab 対象のタブオブジェクト
+*/
+function NonReleaseToggle(tab)
 {
-    if (GetNotPurge().lastIndexOf(tab.url) == -1) {
-        SetNotPurge(tab.url);
+    if (GetNonRelease().lastIndexOf(tab.url) == -1) {
+        SetNonRelease(tab.url);
     } else {
-        RemoveNotPurge(tab.url);
+        RemoveNonRelease(tab.url);
     }
+    ChangeIconNonReleaseTab(tab);
+
     UnloadTimeProlong(tab.id);
 }
 
-function SetNotPurge(url) {
-    var list = GetNotPurge();
+/**
+* URLを非解放リストに追加する。
+* @param {String} url 追加するアドレス
+* @return なし
+*/
+function SetNonRelease(url) {
+    var list = GetNonRelease();
     if (list != '') {
         // 同じURLがあるか確認してなければ追加
-        var begin = list.lastIndexOf(url);
-        if (begin == -1) {
+        var obj = SearchNonRelease(url);
+        if (obj['begin'] != null) {
             list += "\n" + url;
         } else {
             // 変更なしのまま終了
@@ -342,28 +385,60 @@ function SetNotPurge(url) {
     localStorage['not_purge'] = list;
 }
 
-function GetNotPurge()
+/**
+* 非解放リストの取得。
+* 解放リストのURLは'\n'で区切られている。
+* @return {String} 非解放リスト
+*/
+function GetNonRelease()
 {
     var not_purge = localStorage['not_purge'];
     return not_purge !== undefined && not_purge !== null ? not_purge : '';
 }
 
-function RemoveNotPurge(url)
+/**
+* 非解放リストの検索
+* @param {String} url 検索する文字列
+* @return {Object} 成功したなら{ begin, end, isLast }が返る。
+*                  失敗したら全ての項目がnull。
+*
+*                  戻り値のbeginとendの関係は
+*                  (begin, end]
+*/
+function SearchNonRelease(url)
 {
-    var list = GetNotPurge();
+    var list = GetNonRelease();
     var begin = list.lastIndexOf(url);
     if (begin != -1) {
         var end = list.indexOf("\n", begin);
-        if (end != -1) {
+        var flag = (end == -1) ? true : false;
+
+        return { begin: begin, end: begin + url.length + 1, isLast: flag };
+    } else {
+        return { begin: null, end: null, isLast: null };
+    }
+}
+
+/**
+* 非解放リストからアドレスを削除
+* @param {String} url 削除するアドレス
+* @return {boolean} 成功したらtrue, 失敗したらfalse
+*/
+function RemoveNonRelease(url)
+{
+    var list = GetNonRelease();
+    var obj = SearchNonRelease(url);
+    if (obj['begin'] != null) {
+        if (obj['isLast'] == true) {
+            // 最後の項目の場合
+            list = list.substring(0, obj['begin']);
+        } else {
             // 最後の項目ではない場合
             // 1 = "\n"
-            list = list.substring(0, begin) + list.substring(begin + url.length + 1);
-        } else {
-            // 最後の項目の場合
-            list = list.substring(0, begin);
+            list = list.substring(0, obj['begin']) + list.substring(obj['end']);
         }
-
         localStorage['not_purge'] = list;
+
         return true;
     } else {
         return false;
@@ -371,19 +446,24 @@ function RemoveNotPurge(url)
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
-    // 前にアクティブにされていたタブのアンロード時間を更新
-    if (old_activeId) {
-        UnloadTimeProlong(old_activeId);
-    }
-    old_activeId = activeInfo.tabId;
+    chrome.tabs.get(activeInfo.tabId, function(tab) {
+        // 一時的非解放一覧に追加されているならアイコンを変える
+        ChangeIconNonReleaseTab(tab);
 
-    if (FindUnloaded('id', activeInfo.tabId) != null) {
-        // アクティブにしたタブがアンロード済みだった場合、再読込
-        UnPurge(activeInfo.tabId);
-    } else {
-        // アクティブにしたタブのアンロード時間更新
-        UnloadTimeProlong(activeInfo.tabId);
-    }
+        // 前にアクティブにされていたタブのアンロード時間を更新
+        if (old_activeId) {
+            UnloadTimeProlong(old_activeId);
+        }
+        old_activeId = activeInfo.tabId;
+
+        if (FindUnloaded('id', activeInfo.tabId) != null) {
+            // アクティブにしたタブがアンロード済みだった場合、再読込
+            UnPurge(activeInfo.tabId);
+        } else {
+            // アクティブにしたタブのアンロード時間更新
+            UnloadTimeProlong(activeInfo.tabId);
+        }
+    }) ;
 });
 
 chrome.tabs.onCreated.addListener(function(tab) {
@@ -416,7 +496,7 @@ chrome.extension.onRequest.addListener(
                 break;
             case 'not_release':
                 chrome.tabs.getSelected(function (tab) {
-                    NotPurgeToggle(tab);
+                    NonReleaseToggle(tab);
                 });
                 break;
             case 'restore':

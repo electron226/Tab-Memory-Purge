@@ -16,16 +16,20 @@
     "description": "Memory Release Time"
   },
   "release": {
-    "message": "Release",
-    "description": "Release Button in popup"
+    "message": "Release Tab",
+    "description": "a menu in popup"
   },
   "not_release": {
-    "message": "Not release",
-    "description": "Not Release Button in popup"
+    "message": "Non-release tab",
+    "description": "a menu in popup"
+  },
+  "remove_not_release": {
+    "message": "Remove the non-release tab",
+    "description": "a menu in popup"
   },
   "restore": {
     "message": "Emergency recovery",
-    "description": "Restore Button in popup"
+    "description": "a menu in popup"
   },
   "save": {
     "message": "Save",
