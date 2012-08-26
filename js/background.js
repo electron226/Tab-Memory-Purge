@@ -8,7 +8,11 @@ function Init()
 {
     // 初期化(現在の開いているタブに対して機能の有効化)
     // purge.jsに記述
-    Initialized();
+    Initialize();
+
+    // 前回、正常にウインドウが閉じられていなかった場合、
+    // 以前の解放済タブの情報が残っていたら復元
+    RestoreTabs();
 }
 
 /**
@@ -25,7 +29,6 @@ function onInstall() {
  */
 function onUpdate() {
     console.log("Extension Updated.");
-    RestoreTabs(); // purge.js
 }
 
 /**

@@ -24,7 +24,11 @@
     "description": "a menu in popup"
   },
   "remove_non_release": {
-    "message": "Remove the non-release tab",
+    "message": "Remove the Non-release tab",
+    "description": "a menu in popup"
+  },
+  "all_unpurge": {
+    "message": "Free release in the all tabs.",
     "description": "a menu in popup"
   },
   "restore": {

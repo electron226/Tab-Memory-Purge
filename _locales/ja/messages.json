@@ -27,6 +27,10 @@
     "message": "タブの非解放を解除",
     "description": "ポップアップの項目"
   },
+  "all_unpurge": {
+    "message": "全ての解放されているタブを解除",
+    "description": "ポップアップの項目"
+  },
   "restore": {
     "message": "緊急時復元",
     "description": "ポップアップの項目"

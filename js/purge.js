@@ -48,7 +48,7 @@ function Purge(tabId)
                             url:      tab.url,
                             purgeurl: url });
             deleteTick(tabId);
-            localStorage['backup'] = JSON.stringify(unloaded);
+            SetBackup(JSON.stringify(unloaded));
         });
     });
 }
@@ -65,7 +65,7 @@ function UnPurge(tabId)
         /* console.log('UnPurge', tabId); */
         DeleteUnloaded('id', tabId);
         setTick(tabId);
-        localStorage['backup'] = JSON.stringify(unloaded);
+        SetBackup(JSON.stringify(unloaded));
     });
 }
 
@@ -124,7 +124,7 @@ function deleteTick(tabId)
 * 初期化。
 * @return なし 
 */
-function Initialized()
+function Initialize()
 {
     // 一時解放用のストレージをクリア
     localStorage.removeItem('non_purge');
@@ -141,6 +141,24 @@ function Initialized()
             }
         }
     });
+}
+
+/**
+* 解放されている全てのタブを解放解除
+* @return なし
+*/
+function AllUnPurge()
+{
+    // 一度IDをコピー
+    var purgeIds = new Array();
+    for (var i = 0; i < unloaded.length; i++) {
+        purgeIds.push(unloaded[i]['id']);
+    }
+
+    // コピーしたIDを元に解放処理
+    for (var i = 0; i < purgeIds.length; i++) {
+        UnPurge(purgeIds[i]);
+    }
 }
 
 /**
@@ -195,11 +213,37 @@ function Restore(array, index, end)
 */
 function RestoreTabs()
 {
-    var backup = localStorage['backup'];
+    var backup = GetBackup();
     if (backup) {
         backup = JSON.parse(backup);
         Restore(backup);
     }
+}
+
+/**
+* バックアップデータ取得
+* @return {Array} 連想配列の配列
+*/
+function GetBackup()
+{
+    return localStorage['backup'];
+}
+
+/**
+* バックアップデータ保存
+* @param {Array} value 連想配列の配列
+*/
+function SetBackup(value)
+{
+    localStorage['backup'] = value;
+}
+
+/**
+* バックアップデータ削除
+*/
+function RemoveBackup()
+{
+    localStorage.removeItem('backup');
 }
 
 /**
@@ -519,14 +563,14 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 });
 
 chrome.windows.onRemoved.addListener(function(windowId) {
-    localStorage.removeItem('backup');
+    RemoveBackup();
 });
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
         switch (request.event) {
             case 'init':
-                Initialized();
+                Initialize();
                 break;
             case 'release':
                 chrome.tabs.getSelected(function (tab) {
@@ -537,6 +581,9 @@ chrome.extension.onRequest.addListener(
                 chrome.tabs.getSelected(function (tab) {
                     NonReleaseToggle(tab);
                 });
+                break;
+            case 'all_unpurge':
+                AllUnPurge();
                 break;
             case 'restore':
                 RestoreTabs();

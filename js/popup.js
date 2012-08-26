@@ -1,5 +1,5 @@
 var locale_i18n = [
-    'restore', 'release', 'non_release', 'remove_non_release', 
+    'restore', 'release', 'non_release', 'remove_non_release', 'all_unpurge', 
 ];
 
 function ChangeNonReleaseText()
@@ -8,10 +8,12 @@ function ChangeNonReleaseText()
     var el = document.querySelector('.non_releaseText'); 
     switch (localStorage['purgeIcon']) {
         case 'temp_exclude':
-            var message = chrome.i18n.getMessage(locale_i18n[3]); // non_release
+            // non_release
+            var message = chrome.i18n.getMessage(locale_i18n[3]);
             break;
         default:
-            var message = chrome.i18n.getMessage(locale_i18n[2]); // remove_non_release
+            // remove_non_release
+            var message = chrome.i18n.getMessage(locale_i18n[2]);
             break;
     }
     el.innerHTML = message;
@@ -27,6 +29,11 @@ function OnNonRelease()
     chrome.extension.sendRequest({ event : 'non_release'}, function(reponse) {
         ChangeNonReleaseText();
     });
+}
+
+function OnAllUnPurge()
+{
+    chrome.extension.sendRequest({ event : 'all_unpurge'});
 }
 
 function OnRestore()
@@ -56,5 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('#release').addEventListener('click', OnRelease);
     document.querySelector('#non_release').addEventListener('click', OnNonRelease);
+    document.querySelector('#all_unpurge').addEventListener('click', OnAllUnPurge);
     document.querySelector('#restore').addEventListener('click', OnRestore);
 });
