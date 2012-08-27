@@ -1,4 +1,10 @@
 /** blank.htmlで行う処理のスクリプトファイル */
+
+/**
+* 受け取った引数を分解し、連想配列(ハッシュ)として返す。
+* @return {Object} 引数を表す連想配列。キーは受け取った引数名。
+*                  引数がない場合はnullが返る。
+*/
 function GetQueryString()
 {
     if( 1 < document.location.search.length )
@@ -25,6 +31,11 @@ function GetQueryString()
     return null;
 }
 
+/**
+* ファビコン変更
+* @param {String} favicon 変更するファビコンを表すURL
+* @return なし
+*/
 function ChangeFavicon(favicon)
 {
     var head = document.querySelector('head');
@@ -36,19 +47,26 @@ function ChangeFavicon(favicon)
     head.innerHTML = head_html;
 }
 
-function Run()
+/**
+* 初期化
+* @return なし 
+*/
+function Initialize()
 {
     var args = GetQueryString();
 
+    // 推奨(recommend)
     if (args['title']) {
         document.title = args['title'];
         document.querySelector('#title').innerHTML = document.title;
     }
 
+    // 推奨(recommend)
     if (args['favicon']) {
         ChangeFavicon(args['favicon']);
     }
 
+    // 必須(Indispensable)
     var span = document.querySelector('#url');
     if (args['url']) {
         var url = args['url'];
@@ -59,5 +77,5 @@ function Run()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    Run();
+    Initialize();
 });

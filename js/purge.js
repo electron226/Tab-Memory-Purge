@@ -29,17 +29,33 @@ function Purge(tabId)
 {
     chrome.tabs.get(tabId, function(tab) {
         var args = new String();
-        if (tab.title) {
-            args += '&title=' + encodeURIComponent(tab.title);
-        }
-        if (tab.favIconUrl) {
-            args += '&favicon=' + encodeURIComponent(tab.favIconUrl);
+
+        // 解放に使うページを指定
+        var release_page = blank_page;
+        if (localStorage['release_page'] == 'default') { // デフォルト
+            if (tab.title) {
+                args += '&title=' + encodeURIComponent(tab.title);
+            }
+            if (tab.favIconUrl) {
+                args += '&favicon=' + encodeURIComponent(tab.favIconUrl);
+            }
+        } else { // 指定URL
+            var release_url = localStorage['release_url'];
+            if (release_url != '' && release_url != undefined) {
+                release_page = release_url;
+            }
+
+            if (localStorage['assignment_title'] == 'true' && tab.title) {
+                args += '&title=' + encodeURIComponent(tab.title);
+            }
+            if (localStorage['assignment_favicon'] == 'true' && tab.favIconUrl) {
+                args += '&favicon=' + encodeURIComponent(tab.favIconUrl);
+            }
         }
         if (tab.url) {
             args += '&url=' + encodeURIComponent(tab.url);
         }
-
-        var url = blank_page + '?' + args;   
+        var url = release_page + '?' + args;   
 
         chrome.tabs.update(tabId, { url: url }, function(updated) {
             /* console.log('Purge', tabId);   */
@@ -54,19 +70,21 @@ function Purge(tabId)
 }
 
 /**
-* 解放したタブを復元します
+* 解放したタブを復元します。
+* 引数urlが指定されていた場合、unloadedに該当するタブが
+* 解放されているかどうかに関わらず、解放処理が行われる。
 * @param {Number} tabId 復元するタブのID
 * @return なし
 */
 function UnPurge(tabId)
 {
-    var url = FindUnloaded('id', tabId)['url'];
-    chrome.tabs.update(tabId, { url: url }, function(updated) {
+    var url = FindUnloaded('id', tabId)['url']; 
+    chrome.tabs.update(tabId, { url: url }, function(updated) { 
         /* console.log('UnPurge', tabId); */
         DeleteUnloaded('id', tabId);
         setTick(tabId);
         SetBackup(JSON.stringify(unloaded));
-    });
+    }); 
 }
 
 /**
@@ -215,8 +233,7 @@ function RestoreTabs()
 {
     var backup = GetBackup();
     if (backup) {
-        backup = JSON.parse(backup);
-        Restore(backup);
+        Restore(JSON.parse(backup));
     }
 }
 
@@ -249,9 +266,9 @@ function RemoveBackup()
 /**
 * メモリ解放を行ったタブを保存しているunloaded変数を検索する
 * @param  {String} key 検索する要素が持っているキー名
-* @param  {Any} value 検索するunloaded[key]kの値
+* @param  {Any} value 検索するunloaded[key]の値
 * @return {Object|Number} 成功なら指定したキーの位置の辞書型を返す。
-*                         見つからなかったらNULL。
+*                         見つからなかったらnull。
 */
 function FindUnloaded(key, value)
 {
@@ -269,7 +286,7 @@ function FindUnloaded(key, value)
 * @param  {String} key 検索する要素が持っているキー名
 * @param  {Any} value 検索するunloaded[key]の値
 * @return {Number} 成功ならunloaded変数のindex位置を返す。
-*                  見つからなかったらNULL。
+*                  見つからなかったらnull。
 */
 function FindUnloadedIndex(key, value)
 {
@@ -538,7 +555,9 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
         if (FindUnloaded('id', activeInfo.tabId) != null) {
             // アクティブにしたタブがアンロード済みだった場合、再読込
-            UnPurge(activeInfo.tabId);
+            // 解放ページ側の処理と二重処理になるが、
+            // どちらかが先に実行されるので問題なし。
+            UnPurge(activeInfo.tabId);  
         } else {
             // アクティブにしたタブのアンロード時間更新
             UnloadTimeProlong(activeInfo.tabId);
@@ -553,6 +572,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 chrome.tabs.onRemoved.addListener(function(tabId) {
     DeleteUnloaded('id', tabId);
     deleteTick(tabId);
+    SetBackup(JSON.stringify(unloaded));
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -575,6 +595,43 @@ chrome.extension.onRequest.addListener(
             case 'release':
                 chrome.tabs.getSelected(function (tab) {
                     PurgeToggle(tab.id);
+
+                    // 現在のタブの左右の未解放のタブを選択する
+                    chrome.windows.get(
+                        tab.windowId, { populate: true }, function(win) {
+                        // 現在のタブの位置を探し出す
+                        var i = 0;
+                        for(;
+                            i < win.tabs.length && win.tabs[i].id != tab.id;
+                            i++);
+
+                        // 現在のタブより右側を探索
+                        var j = i + 1;
+                        for(; j < win.tabs.length; j++) {
+                            if (!FindUnloaded('id', win.tabs[j].id)) {
+                                break;
+                            }
+                        }
+
+                        // 見つからなかったら左側を探索
+                        if (j >= win.tabs.length) {
+                            var j = i - 1;
+                            for(; 0 <= j; j--) {
+                                if (!FindUnloaded('id', win.tabs[j].id)) {
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (0 <= j && j < win.tabs.length) {
+                            // 見つかったら、そのタブをアクティブ
+                            chrome.tabs.update(
+                                win.tabs[j].id, { active : true });
+                        } else {
+                            // 見つからなかったら新規タブを作成し、アクティブ
+                            chrome.tabs.create({ active : true });
+                        }
+                    });
                 });
                 break;
             case 'non_release':

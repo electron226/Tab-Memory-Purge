@@ -11,6 +11,10 @@
     "message": "オプション",
     "description": "オプションの文字列"
   },
+  "setReleaseFileUrlTitle": {
+    "message": "解放に使うページを指定",
+    "description": "オプションの解放先URLの指定項目"
+  },
   "setTimerTitle": {
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
@@ -35,6 +39,27 @@
     "message": "緊急時復元",
     "description": "ポップアップの項目"
   },
+  "in_extension": {
+    "message": "拡張機能内",
+    "description": "オプションの項目名"
+  }, 
+  "assignment": {
+    "message": "指定ローカルファイル",
+    "description": "オプションの項目名"
+  },
+  "explanation_assignment": {
+    "message":
+      "解放時に使用するファイルを指定することにより拡張機能が閉じられてしまっていても、タブが残り続けます。",
+    "description": "指定ローカルファイルに関する説明"
+  },
+  "assignment_title": {
+    "message": "タイトル(&title)",
+    "description": "オプションの指定URLの項目"
+  },
+  "assignment_favicon": {
+    "message": "アイコン(&favicon)",
+    "description": "オプションの指定URLの項目"
+  },
   "save": {
     "message": "保存",
     "description": "保存ボタン"
@@ -43,6 +68,10 @@
     "message": "クリア",
     "description": "クリアボタン"
   }, 
+  "init": {
+    "message": "初期化",
+    "description": "初期化ボタン"
+  },
   "default": {
     "message": "デフォルト",
     "description": "デフォルト"
@@ -50,6 +79,14 @@
   "minute": {
     "message": "分",
     "description": "分"
+  }, 
+  "sample": {
+    "message": "サンプル",
+    "description": "サンプル"
+  }, 
+  "example": {
+    "message": "例",
+    "description": "例"
   }, 
   "exclude_url": {
     "message": "除外するアドレス(部分一致、正規表現、エスケープ不要)",

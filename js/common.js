@@ -1,5 +1,9 @@
-function isFunction(functionToCheck) {
+function isFunction(obj) {
     var getType = {};
-    return functionToCheck && getType.toString.call(
-        functionToCheck) == '[object Function]';
+    return obj && getType.toString.call(obj) == '[object Function]';
+}
+
+function isObject(obj) {
+  return obj instanceof Object &&
+      Object.getPrototypeOf(obj) === Object.prototype;
 }

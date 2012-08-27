@@ -1,4 +1,7 @@
-﻿// 時間設定がない場合に入力するデフォルト値
+﻿var default_release_page = 'default';
+var default_release_url = '';
+
+// 時間設定がない場合に入力するデフォルト値
 var default_timer = 20;
 
 // 除外アドレス設定がない場合に入力するデフォルト値

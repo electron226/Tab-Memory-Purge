@@ -1,148 +1,137 @@
-/** options.html‚Å“Ç‚İ‚İ‚ÉÀs‚·‚éƒXƒNƒŠƒvƒg */
+ï»¿/** options.htmlã§èª­ã¿è¾¼ã¿æ™‚ã«å®Ÿè¡Œã™ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆ */
 
 var locale_i18n = [
-    'extName', 'option', 'setTimerTitle', 'refURL',
-    'default', 'save', 'clear', 'minute','exclude_url',
+    'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle', 'refURL',
+    'assignment', 'in_extension', 'explanation_assignment', 'sample',
+    'example', 'assignment_title', 'assignment_favicon', 'default',
+    'save', 'clear', 'init', 'minute', 'exclude_url',
 ];
 
-var storage = {
-    'timer' : localStorage['timer'],
-    'exclude_url' : localStorage['exclude_url'], 
-};
-    
 /**
- * ƒIƒvƒVƒ‡ƒ“‚ğ•Û‘¶
+ * æŒ‡å®šã—ãŸåå‰ã®è¦ç´ ã‚’èª­ã¿è¾¼ã¿
  *
- * @param {Object} options
- * @param {String} options.name •Û‘¶‚·‚é—v‘f–¼
- * @param {Number} [options.index = 0] •Û‘¶‚·‚é—v‘f‚²‚Æ‚ÌˆÊ’u
- * @param {Any} options.value •Û‘¶‚·‚é’l
+ * @param {String} name èª­ã¿è¾¼ã‚€è¦ç´ ã®åå‰
+ * @param [Any] default_value è¦ç´ ãŒä¿å­˜ã•ã‚Œã¦ã„ãªã‹ã£ãŸå ´åˆã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
  *
- * @return ‚È‚µ
- */
-function SetElementName(options)
-{
-    var index = options.index ? options.index : 0;
-    var value = options.value;
-    var name = options.name;
-
-    var element = document.getElementsByName(options.name)[index];
-    element.value      = value;
-    storage[name] = value;
-    localStorage[name] = value;
-}
-
-/**
- * SetElementName‚ÌCheckbox, Radioƒ{ƒ^ƒ“—p
- * ˆø”‚ÍSetElementName‚Æ“¯‚¶
- *
- * @returns ‚È‚µ
- */
-function SetElementNameCheck(options)
-{
-    SetElementName(options);
-    element.checked = true;
-}
-
-/**
- * w’è‚µ‚½—v‘f‚ÌƒIƒvƒVƒ‡ƒ“‚ğæ“¾E•Û‘¶‚·‚é
- *
- * @param {Object} options
- * @param {String} options.name •Û‘¶‚·‚é—v‘f–¼
- * @param {String} options.type •Û‘¶‚·‚é—v‘f‚Ìƒ^ƒCƒv
- *                              number: ”’l
- *                              text: ƒeƒLƒXƒgƒ{ƒbƒNƒX
- *                              textarea: ƒeƒLƒXƒgƒGƒŠƒA
- *                              radio: ƒ‰ƒWƒIƒ{ƒ^ƒ“
- * @param {Number} [options.index = 0] •Û‘¶‚·‚é—v‘f–¼‚²‚Æ‚Ì”Ô†
- *                                     ƒ‰ƒWƒIƒ{ƒ^ƒ“‚È‚Ç‚Åg—pB
- * @param {Function} [options.compare] ˆø”‚ğˆê‚Âæ‚éA”äŠrŠÖ”B
- *                                     –ß‚è’l‚ªtrue‚È‚çoptions.value,
- *                                     false‚È‚çoptions.compare_value‚ğ•Û‘¶
- * @param {Any} [options.compare_value] compare‚ªfalse‚¾‚Á‚½‚Ì’lB
- *
- * @throws {Error} options.type‚Ì’l‚ª‘Î‰‚µ‚Ä‚¢‚È‚¢•¨‚¾‚Á‚½
- * @returns ‚È‚µ
- */
-function SaveElementName(options)
-{
-    if (!options.index) {
-        options.index = 0;
-    }
-
-    var element = document.getElementsByName(options.name)[options.index];
-    var value = element.value;
-
-    if (options.compare && options.compare_value) {
-        value = options.compare(value) ? value : options.compare_value;
-    }
-
-    // value‚ğƒ^ƒCƒv‚²‚Æ‚ÉC³
-    switch (options.type) {
-        case 'number':
-            break;
-        case 'textarea':
-            value = value.trim();
-            break;
-        default:
-            throw new Error('SetElementName Error.', options);
-            break;
-    }
-
-    // •Û‘¶
-    element.value              = value;
-    storage[name]              = value;
-    localStorage[options.name] = value;
-}
-
-// 
-/**
- * w’è‚µ‚½–¼‘O‚Ì—v‘f‚ğ“Ç‚İ‚İ
- * ƒ‰ƒWƒIƒ{ƒ^ƒ“‚Ì‚æ‚¤‚È“¯ˆê‚Ì–¼‘O‚ğ•¡”‚Á‚Ä‚¢‚é—v‘f‚É‚Í–¢‘Î‰B
- *
- * @param {String} name “Ç‚İ‚Ş—v‘f‚Ì–¼‘O
- * @param [Any] default_value —v‘f‚ª•Û‘¶‚³‚ê‚Ä‚¢‚È‚©‚Á‚½ê‡‚ÌƒfƒtƒHƒ‹ƒg’l
- *
- * @returns ‚È‚µ
+ * @returns ãªã—
  */
 function LoadElementName(name, default_value)
 {
-    var element = document.getElementsByName(name)[0];
-    var option = storage[name] ? storage[name] : default_value;
+    var elements = document.querySelectorAll("[name='" + name + "']");
+    var option = localStorage[name] ? localStorage[name] : default_value;
+    for (var i = 0; i < elements.length; i++) {
+        switch (elements[i].type) {
+            case 'checkbox':
+                if (option == 'true' || option == true) {
+                    elements[i].checked = option;
+                    localStorage[elements[i].name] = option;
+                }
+                break;
+            case 'radio':
+                if (elements[i].value == option) {
+                    elements[i].checked = true;
+                    localStorage[elements[i].name] = option;
+                }
+                break;
+            default:
+                // elementsã®lengthãŒ1ã®æ™‚ã«æ­£å¸¸ã«å‹•ä½œ
+                elements[i].value  = option;
+                localStorage[elements[i].name] = option;
+                break;
+        }
+    }  
+}
 
-    element.value      = option;
-    storage[name]      = option;
-    localStorage[name] = option;
+/**
+* æŒ‡å®šã—ãŸåå‰ã®è¦ç´ ã‚’ä¿å­˜
+* @param {String} name ä¿å­˜ã™ã‚‹è¦ç´ å
+* @param {Function} callback nameã‚’è¡¨ã™è¦ç´ ã‚’å—ã‘å–ã‚‹é–¢æ•°ã€‚
+*                            ä¿å­˜ã™ã‚‹è¦ç´ ãŒé¸æŠã™ã‚‹ã‚¿ã‚¤ãƒ—ãªã‚‰
+*                            ãƒã‚§ãƒƒã‚¯ã•ã‚Œã¦ã„ã‚‹è¦ç´ ã‚’å—ã‘å–ã‚‹ã€‚
+* @return {Boolean} æˆåŠŸã—ãŸã‚‰true, å¤±æ•—ã—ãŸã‚‰false
+*/
+function SaveElementName(name, callback)
+{
+    if (!isFunction(callback)) {
+        return false;
+    }
+
+    var elements = document.querySelectorAll("[name='" + name + "']");
+    for (var i = 0; i < elements.length; i++) {
+        switch (elements[i].type) {
+            case 'radio':
+                if (elements[i].checked) {
+                    callback(elements[i]);
+                }
+                break;
+            default:
+                callback(elements[i]);
+                break;
+        }
+    }
+
+    return true;
 }
 
 function InitDefault()
 {
-    SetElementName({ name: 'timer', value: default_timer});
-    SetElementName({ name: 'exclude_url', value: default_exclude_url});
+    localStorage.removeItem('release_page');
+    localStorage.removeItem('release_url');
+    localStorage.removeItem('assignment_title');
+    localStorage.removeItem('assignment_favicon');
+    localStorage.removeItem('timer');
+    localStorage.removeItem('exclude_url'); 
+    Load();
     
-    chrome.extension.sendRequest({ event : 'init'});
+    chrome.extension.sendRequest({ event : 'init'}); 
 }
 
 function Save()
 {
-    SaveElementName({ name: 'timer', type: 'number',
-            compare: function(value) {
-                return value >= 1;
-            }, compare_value: 1});
-    SaveElementName({ name: 'exclude_url', type: 'textarea'});
+    SaveElementName('release_page', function (element) {
+        localStorage[element.name] = element.value;
+    }); 
+
+    SaveElementName('release_url', function (element) {
+        localStorage[element.name] = element.value.trim();
+    }); 
+    SaveElementName('assignment_title', function (element) {
+        localStorage[element.name] = element.checked;
+    });
+    SaveElementName('assignment_favicon', function (element) {
+        localStorage[element.name] = element.checked;
+    });
+
+    SaveElementName('timer', function (element) {
+        if (element.value < 1) {
+            element.value = 1;
+        }
+        localStorage[element.name] = element.value;
+    });
+
+    SaveElementName('exclude_url', function (element) {
+        element.value = element.value.trim();
+        localStorage[element.name] = element.value.trim();
+    }); 
 
     chrome.extension.sendRequest({ event : 'init'});
 }
 
 function Load()
 {
+    LoadElementName('release_page', default_release_page); 
+    LoadElementName('release_url', default_release_url); 
+    LoadElementName('assignment_title', true); 
+    LoadElementName('assignment_favicon', true); 
     LoadElementName('timer', default_timer);
     LoadElementName('exclude_url', default_exclude_url);
+
+    InitOptionItemState();
 }
 
-function Run()
+function InitTranslation()
 {
-    // ƒeƒLƒXƒg‚Ìİ’è
+    // ãƒ†ã‚­ã‚¹ãƒˆã®è¨­å®š
     for (var i = 0; i < locale_i18n.length; i++) {
         var el      = document.getElementsByClassName(locale_i18n[i] + 'Text');
         var message = chrome.i18n.getMessage(locale_i18n[i]);
@@ -153,13 +142,57 @@ function Run()
                                     + string.substring(index);
         }
     }
+}
 
-    // ƒf[ƒ^“Ç‚İ‚İ
-    Load();
+function InitOptionItemState()
+{
+    var rPage = document.querySelectorAll("input[name='release_page']");
+    var rUrl = document.querySelector("input[name='release_url']"); 
+    var rCheckboxs = document.querySelectorAll(
+                        "#assignment_options input[type='checkbox']"); 
+    for (var i = 0; i < rPage.length; i++) {
+        if (rPage[i].checked == true) {
+            if (rPage[i].value == 'default') {
+                rUrl.disabled = true;
+                for (var j = 0; j < rCheckboxs.length; j++) {
+                    rCheckboxs[j].disabled = true; 
+                } 
+            } else {
+                rUrl.disabled = false;
+                for (var j = 0; j < rCheckboxs.length; j++) {
+                    rCheckboxs[j].disabled = false; 
+                } 
+            }
+        }
+    }
+}
+
+function onReleasePage()
+{
+    var element = document.querySelector("input[name='release_url']");
+    var rCheckboxs = document.querySelectorAll(
+                        "#assignment_options input[type='checkbox']"); 
+    if (this.value == 'default') {
+        element.disabled = true;
+        for (var j = 0; j < rCheckboxs.length; j++) {
+            rCheckboxs[j].disabled = true;
+        } 
+    } else {
+        element.disabled = false;
+        for (var j = 0; j < rCheckboxs.length; j++) {
+            rCheckboxs[j].disabled = false;
+        } 
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    Run();
+    InitTranslation();
+    Load(); // ãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿
+
+    var elements = document.querySelectorAll("input[name='release_page']");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('click', onReleasePage);
+    }
 
     document.querySelector('#init').addEventListener('click', InitDefault);
     document.querySelector('#save').addEventListener('click', Save);

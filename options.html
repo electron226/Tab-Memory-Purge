@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
     <style type="text/css">
+        body, input {
+            font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
+                "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
+        }
         div.title {
             margin-top: 30px;
         }
@@ -12,13 +16,41 @@
         }
     </style>
     <script type="text/javascript" src="js/default.js"></script>
+    <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/options.js"></script>
 </head>
 <body>
 
 <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
 
-<div class="title setTimerTitleText"></div>
+<div class="setReleaseFileUrlTitleText"></div>
+<hr>
+<ul>
+    <li><input type="radio" name="release_page" value="default">
+        <span class="in_extensionText"></span>(<span class="defaultText"></span>)
+    </li>
+    <li><input type="radio" name="release_page" value="assignment">
+        <span class="assignmentText"></span>
+        <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
+        <ul>
+            <li><input type="text" name="release_url" style="width: 500px;"></li>
+            <li>
+                <span class="exampleText"></span>:
+                <input type="text" style="width: 472px;" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
+            </li>
+            <li id="assignment_options">
+                <input type="checkbox" name="assignment_title">
+                    <span class="assignment_titleText"></span>
+                <input type="checkbox" name="assignment_favicon">
+                    <span class="assignment_faviconText"></span>
+            </li>
+            <li style="font-weight: bold; color: red;">
+                <span class="explanation_assignmentText"></span></li>
+        </ul>
+    </li>
+</ul>
+
+<div class="setTimerTitleText"></div>
 <hr>
 <ul>
     <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
@@ -34,6 +66,6 @@
 <hr>
 <button id="save"><span class="saveText"></span></button>
 <button id="load"><span class="clearText"></span></button>
-<button id="init"><span class="defaultText"></span></button>
+<button id="init"><span class="initText"></span></button>
 </body>
 </html>
