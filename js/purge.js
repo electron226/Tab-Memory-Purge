@@ -9,7 +9,6 @@ var ticked = new Object();
  * メモリ解放を行ったタブの情報が入ってる辞書型の配列
  *
  * id: tabId
- * index: タブが挿入されている位置
  * url: 解放前のURL
  * purgeurl: 休止ページのURL
  */
@@ -30,37 +29,44 @@ function Purge(tabId)
     chrome.tabs.get(tabId, function(tab) {
         var args = new String();
 
-        // 解放に使うページを指定
-        var release_page = blank_page;
-        if (localStorage['release_page'] == 'default') { // デフォルト
-            if (tab.title) {
-                args += '&title=' + encodeURIComponent(tab.title);
-            }
-            if (tab.favIconUrl) {
-                args += '&favicon=' + encodeURIComponent(tab.favIconUrl);
-            }
+        // 共通要素
+        var title = "";
+        if (tab.title) {
+            title = '&title=' + encodeURIComponent(tab.title);
+        }
+
+        var favicon = "";
+        if (tab.favIconUrl) {
+            favicon = '&favicon=' + encodeURIComponent(tab.favIconUrl);
+        }
+
+        // 解放に使うページを設定
+        var page = blank_page;
+        var release_page = GetStorage('release_page', default_release_page);
+        if (release_page == 'default') { // デフォルト
+            args += title + favicon;
         } else { // 指定URL
-            var release_url = localStorage['release_url'];
-            if (release_url != '' && release_url != undefined) {
-                release_page = release_url;
+            var release_url = GetStorage('release_url', default_release_url);
+            if (release_url != '') {
+                page = release_url;
             }
 
-            if (localStorage['assignment_title'] == 'true' && tab.title) {
-                args += '&title=' + encodeURIComponent(tab.title);
+            if (GetStorage('assignment_title', 'true') == 'true') {
+                args += title;
             }
-            if (localStorage['assignment_favicon'] == 'true' && tab.favIconUrl) {
-                args += '&favicon=' + encodeURIComponent(tab.favIconUrl);
+            if (GetStorage('assignment_favicon', 'true') == 'true') {
+                args += favicon;
             }
         }
+
         if (tab.url) {
             args += '&url=' + encodeURIComponent(tab.url);
         }
-        var url = release_page + '?' + args;   
+        var url = page + '?' + args;   
 
         chrome.tabs.update(tabId, { url: url }, function(updated) {
             /* console.log('Purge', tabId);   */
             unloaded.push({ id:       updated.id,
-                            index:    updated.index,
                             url:      tab.url,
                             purgeurl: url });
             deleteTick(tabId);
@@ -85,6 +91,77 @@ function UnPurge(tabId)
         setTick(tabId);
         SetBackup(JSON.stringify(unloaded));
     }); 
+}
+
+/**
+* 解放状態・解放解除を交互に行う
+* @param {Number} tabId 対象のタブのID
+* @return なし
+*/
+function PurgeToggle(tabId)
+{
+    if (FindUnloaded('id', tabId) != null) {
+        UnPurge(tabId);
+    } else {
+        Purge(tabId);
+    }
+}
+
+/**
+* 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
+* @param {String} exclude 除外リストの値。複数のものは\nで区切る
+* @param {String} url マッチするか調べるアドレス
+* @return {Boolean} マッチしたらTRUE, しなかったらFALSE
+*/
+function CheckMatchUrlString(exclude, url)
+{
+    var exclude_array = exclude.split("\n");
+    /* console.log(array); */
+    for (var i = 0; i < exclude_array.length; i++) {
+        if (exclude_array[i] != '') {
+            var re = new RegExp(exclude_array[i]);
+            if (url.match(re)) {
+                /* console.log(url);    */
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+* 与えられたURLが全ての除外リストに一致するか検索する。
+* @param url
+* @return {Integer} どのリストと一致したかを数値で返す。
+*                   CHROME_EXCLUDE = 拡張機能側で固定されている除外アドレス
+*                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレスリスト
+*                   TEMP_EXCLUDE   = 一時的な非解放リスト
+*                   null           = 一致しなかった。
+*/
+function CheckExcludeList(url)
+{
+    // 拡張側で最初から除外されている固定除外アドレスと比較
+    if (CheckMatchUrlString(chrome_exclude_url, url)) {
+        /* console.log('CHROME_EXCLUDE') */
+        return CHROME_EXCLUDE;
+    }
+
+    // 除外アドレスと比較
+    if (CheckMatchUrlString(
+        GetStorage('exclude_url', default_exclude_url), url)) {
+        /* console.log('USE_EXCLUDE') */
+        return USE_EXCLUDE;
+    }
+
+    // 一時的な非解放リストと比較
+    /* console.log('GetNonRelease', GetNonRelease()); */
+    if (CheckMatchUrlString(GetNonRelease(), url)) {
+        /* console.log('TEMP_EXCLUDE') */
+        return TEMP_EXCLUDE;
+    }
+
+    /* console.log("null"); */
+    return null;
 }
 
 /**
@@ -118,8 +195,7 @@ function setTick(tabId)
         // 全ての除外アドレス一覧と比較
         if (!CheckExcludeList(tab.url)) {
             // 除外アドレスに含まれていない場合
-            var timer = localStorage['timer'] ?
-                        localStorage['timer'] : default_timer;
+            var timer = GetStorage('timer', default_timer);
             timer = timer * 60 * 1000; // 分(設定) * 秒数 * ミリ秒
 
             ticked[tabId] = setInterval(function() { tick(tabId); } , timer);
@@ -213,8 +289,7 @@ function Restore(array, index, end)
         if (tab === undefined) {
             // タブが存在しない場合、新規作成
             var purgeurl = array[index]['purgeurl'];
-            var rIndex = array[index]['index'];
-            chrome.tabs.create({ url: purgeurl, index: rIndex, active: false },
+            chrome.tabs.create({ url: purgeurl, active: false },
                                function(tab) {
                 array[index]['id'] = tab.id;
 
@@ -344,64 +419,6 @@ function UnloadTimeProlong(tabId)
 }
 
 /**
-* 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
-* @param {String} exclude 除外リストの値。複数のものは\nで区切る
-* @param {String} url マッチするか調べるアドレス
-* @return {Boolean} マッチしたらTRUE, しなかったらFALSE
-*/
-function CheckMatchUrlString(exclude, url)
-{
-    var exclude_array = exclude.split("\n");
-    /* console.log(array); */
-    for (var i = 0; i < exclude_array.length; i++) {
-        if (exclude_array[i] != '') {
-            var re = new RegExp(exclude_array[i]);
-            if (url.match(re)) {
-                /* console.log(url);    */
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-/**
-* 与えられたURLが全ての除外リストに一致するか検索する。
-* @param url
-* @return {Integer} どのリストと一致したかを数値で返す。
-*                   CHROME_EXCLUDE = 拡張機能側で固定されている除外アドレス
-*                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレスリスト
-*                   TEMP_EXCLUDE   = 一時的な非解放リスト
-*                   null           = 一致しなかった。
-*/
-function CheckExcludeList(url)
-{
-    // 拡張側で最初から除外されている固定除外アドレスと比較
-    if (CheckMatchUrlString(chrome_exclude_url, url)) {
-        /* console.log('CHROME_EXCLUDE') */
-        return CHROME_EXCLUDE;
-    }
-
-    // 除外アドレスと比較
-    var exclude = localStorage['exclude_url'] ?
-                  localStorage['exclude_url'] : default_exclude_url;
-    if (CheckMatchUrlString(exclude, url)) {
-        /* console.log('USE_EXCLUDE') */
-        return USE_EXCLUDE;
-    }
-
-    // 一時的な非解放リストと比較
-    /* console.log('GetNonRelease', GetNonRelease()); */
-    if (CheckMatchUrlString(GetNonRelease(), url)) {
-        /* console.log('TEMP_EXCLUDE') */
-        return TEMP_EXCLUDE;
-    }
-
-    /* console.log("null"); */
-    return null;
-}
-
-/**
  * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
  * また、localStorage['purgeIcon']には変更したアイコンファイルを表す文字列が入る。
  * この値はハッシュ変数(icons)のキー名でもある。
@@ -428,20 +445,6 @@ function ReloadBrowserIcon(tab)
     chrome.browserAction.setIcon(
         { path: icons[change_icon], tabId: tab.id });
         localStorage['purgeIcon'] = change_icon;
-}
-
-/**
-* 解放状態・解放解除を交互に行う
-* @param {Number} tabId 対象のタブのID
-* @return なし
-*/
-function PurgeToggle(tabId)
-{
-    if (FindUnloaded('id', tabId) != null) {
-        UnPurge(tabId);
-    } else {
-        Purge(tabId);
-    }
 }
 
 /**
@@ -489,8 +492,7 @@ function SetNonRelease(url) {
 */
 function GetNonRelease()
 {
-    var non_purge = localStorage['non_purge'];
-    return non_purge !== undefined && non_purge !== null ? non_purge : '';
+    return GetStorage('not_purge', '')
 }
 
 /**
@@ -558,11 +560,8 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
             // 解放ページ側の処理と二重処理になるが、
             // どちらかが先に実行されるので問題なし。
             UnPurge(activeInfo.tabId);  
-        } else {
-            // アクティブにしたタブのアンロード時間更新
-            UnloadTimeProlong(activeInfo.tabId);
         }
-    }) ;
+    });
 });
 
 chrome.tabs.onCreated.addListener(function(tab) {
@@ -586,6 +585,53 @@ chrome.windows.onRemoved.addListener(function(windowId) {
     RemoveBackup();
 });
 
+/**
+* 指定されたタブに最も近い未解放のタブをアクティブにする。
+* 右側から探索され、見つからなかったら左側を探索する。
+* 何も見つからなければ新規タブを作成してそのタブをアクティブにする。
+* @param {Tab} tab 基準点となるタブ
+* @return なし
+*/
+function SearchSelectUnloadedTab(tab)
+{
+    // 現在のタブの左右の未解放のタブを選択する
+    chrome.windows.get(
+        tab.windowId, { populate: true }, function(win) {
+        // 現在のタブの位置を探し出す
+        var i = 0;
+        for(;
+            i < win.tabs.length && win.tabs[i].id != tab.id;
+            i++);
+
+        // 現在のタブより右側を探索
+        var j = i + 1;
+        for(; j < win.tabs.length; j++) {
+            if (!FindUnloaded('id', win.tabs[j].id)) {
+                break;
+            }
+        }
+
+        // 見つからなかったら左側を探索
+        if (j >= win.tabs.length) {
+            var j = i - 1;
+            for(; 0 <= j; j--) {
+                if (!FindUnloaded('id', win.tabs[j].id)) {
+                    break;
+                }
+            }
+        }
+
+        if (0 <= j && j < win.tabs.length) {
+            // 見つかったら、そのタブをアクティブ
+            chrome.tabs.update(
+                win.tabs[j].id, { active : true });
+        } else {
+            // 見つからなかったら新規タブを作成し、アクティブ
+            chrome.tabs.create({ active : true });
+        }
+    });
+}
+
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {
         switch (request.event) {
@@ -595,43 +641,7 @@ chrome.extension.onRequest.addListener(
             case 'release':
                 chrome.tabs.getSelected(function (tab) {
                     PurgeToggle(tab.id);
-
-                    // 現在のタブの左右の未解放のタブを選択する
-                    chrome.windows.get(
-                        tab.windowId, { populate: true }, function(win) {
-                        // 現在のタブの位置を探し出す
-                        var i = 0;
-                        for(;
-                            i < win.tabs.length && win.tabs[i].id != tab.id;
-                            i++);
-
-                        // 現在のタブより右側を探索
-                        var j = i + 1;
-                        for(; j < win.tabs.length; j++) {
-                            if (!FindUnloaded('id', win.tabs[j].id)) {
-                                break;
-                            }
-                        }
-
-                        // 見つからなかったら左側を探索
-                        if (j >= win.tabs.length) {
-                            var j = i - 1;
-                            for(; 0 <= j; j--) {
-                                if (!FindUnloaded('id', win.tabs[j].id)) {
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (0 <= j && j < win.tabs.length) {
-                            // 見つかったら、そのタブをアクティブ
-                            chrome.tabs.update(
-                                win.tabs[j].id, { active : true });
-                        } else {
-                            // 見つからなかったら新規タブを作成し、アクティブ
-                            chrome.tabs.create({ active : true });
-                        }
-                    });
+                    SearchSelectUnloadedTab(tab);
                 });
                 break;
             case 'non_release':
