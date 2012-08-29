@@ -44,13 +44,25 @@
     "description": "a option menu name"
   }, 
   "assignment": {
-    "message": "Assignment Local File",
+    "message": "Assignment File",
     "description": "a option menu name"
   },
   "explanation_assignment": {
     "message":
-      "Specifies the local file to be used at the time of release.<br>If it specifies, even if expanded function become invalid, a tab will remain.",
+      "Specifies the local file to be used at the time of release.<br>If it specifies, even if expanded function become invalid, a tab will remain.<br>You can also specify a URL outside, I do not recommend because the following problems occur.",
     "description": "Explanation of assignment of local file."
+  },
+  "explanation_problem1": {
+    "message": "Unless the internet connection environment is possible, it does not work properly.",
+    "description": "Description of problem related to the specified local file"
+  },
+  "explanation_problem2": {
+    "message": "When the server of a release place is downed, it does not operate normally. ",
+    "description": "Description of problem related to the specified local file"
+  },
+  "explanation_problem3": {
+    "message": "The information on the page which is looking at self leaks outside.(URL or Title)",
+    "description": "Description of problem related to the specified local file"
   },
   "assignment_title": {
     "message": "title(&title)",

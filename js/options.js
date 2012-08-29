@@ -2,8 +2,9 @@
 
 var locale_i18n = [
     'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle', 'refURL',
-    'assignment', 'in_extension', 'explanation_assignment', 'sample',
-    'example', 'assignment_title', 'assignment_favicon', 'default',
+    'assignment', 'in_extension', 'explanation_assignment',
+    'explanation_problem1', 'explanation_problem2', 'explanation_problem3', 
+    'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
     'save', 'clear', 'init', 'minute', 'exclude_url',
 ];
 
