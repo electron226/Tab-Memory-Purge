@@ -43,20 +43,25 @@ function Purge(tabId)
         // 解放に使うページを設定
         var page = blank_page;
         var release_page = GetStorage('release_page', default_release_page);
-        if (release_page == 'default') { // デフォルト
-            args += title + favicon;
-        } else { // 指定URL
-            var release_url = GetStorage('release_url', default_release_url);
-            if (release_url != '') {
-                page = release_url;
-            }
+        switch (release_page) {
+            case 'author': // 作者サイト
+                page = default_release_author_url;
+            case 'default': // デフォルト
+                args += title + favicon;
+                break;
+            default: // 指定URL
+                var release_url = GetStorage('release_url', default_release_url);
+                if (release_url != '') {
+                    page = release_url;
+                }
 
-            if (GetStorage('assignment_title', 'true') == 'true') {
-                args += title;
-            }
-            if (GetStorage('assignment_favicon', 'true') == 'true') {
-                args += favicon;
-            }
+                if (GetStorage('assignment_title', 'true') == 'true') {
+                    args += title;
+                }
+                if (GetStorage('assignment_favicon', 'true') == 'true') {
+                    args += favicon;
+                }
+                break;
         }
 
         if (tab.url) {

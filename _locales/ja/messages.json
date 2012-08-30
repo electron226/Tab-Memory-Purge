@@ -43,26 +43,33 @@
     "message": "拡張機能内",
     "description": "オプションの項目名"
   }, 
+  "author": {
+    "message": "作者サイト(Google App Engine)",
+    "description": "オプションの項目名"
+  }, 
+  "explanation": {
+    "message": "このオプションを使用する場合、下記の点に注意が必要です。",
+    "description": "「解放に使うページを指定」項目に関する注意点"
+  },
+  "explanation_problem1": {
+    "message": "拡張機能が無効になった時、解放されたタブが閉じてしまいます。",
+    "description": "拡張機能内に関する問題点の説明"
+  },
+  "explanation_problem2": {
+    "message": "ネット接続が可能な環境でなければ、正常に動作しない。",
+    "description": "作者サイトに関する問題点の説明"
+  },
+  "explanation_problem3": {
+    "message": "サーバが落ちている場合、正常に動作しない。",
+    "description": "作者サイトに関する問題点の説明"
+  },
+  "explanation_problem4": {
+    "message": "外部に自身の見ているページの情報が漏れる(タイトルやURL程度)。",
+    "description": "作者サイトに関する問題点の説明"
+  },
   "assignment": {
     "message": "指定ローカルファイル",
     "description": "オプションの項目名"
-  },
-  "explanation_assignment": {
-    "message":
-      "解放時に使用するファイルを指定することにより拡張機能が閉じられてしまっていても、タブが残り続けます。<br>外部URLのものも指定できますが、下記の問題が発生するのでおすすめはしません。",
-    "description": "指定ローカルファイルに関する説明"
-  },
-  "explanation_problem1": {
-    "message": "ネット接続が可能な環境でなければ、正常に動作しない。",
-    "description": "指定ローカルファイルに関する問題点の説明"
-  },
-  "explanation_problem2": {
-    "message": "解放先のサーバが落ちている場合、正常に動作しない。",
-    "description": "指定ローカルファイルに関する問題点の説明"
-  },
-  "explanation_problem3": {
-    "message": "外部に自身の見ているページの情報が漏れる(タイトルやURL程度)。",
-    "description": "指定ローカルファイルに関する問題点の説明"
   },
   "assignment_title": {
     "message": "タイトル(&title)",

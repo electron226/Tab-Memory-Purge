@@ -2,8 +2,9 @@
 
 var locale_i18n = [
     'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle', 'refURL',
-    'assignment', 'in_extension', 'explanation_assignment',
-    'explanation_problem1', 'explanation_problem2', 'explanation_problem3', 
+    'assignment', 'in_extension', 'author', 'explanation',
+    'explanation_problem1', 'explanation_problem2', 'explanation_problem3',
+    'explanation_problem4', 
     'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
     'save', 'clear', 'init', 'minute', 'exclude_url',
 ];
@@ -153,7 +154,7 @@ function InitOptionItemState()
                         "#assignment_options input[type='checkbox']"); 
     for (var i = 0; i < rPage.length; i++) {
         if (rPage[i].checked == true) {
-            if (rPage[i].value == 'default') {
+            if (rPage[i].value != 'assignment') {
                 rUrl.disabled = true;
                 for (var j = 0; j < rCheckboxs.length; j++) {
                     rCheckboxs[j].disabled = true; 
@@ -173,7 +174,7 @@ function onReleasePage()
     var element = document.querySelector("input[name='release_url']");
     var rCheckboxs = document.querySelectorAll(
                         "#assignment_options input[type='checkbox']"); 
-    if (this.value == 'default') {
+    if (this.value != 'assignment') {
         element.disabled = true;
         for (var j = 0; j < rCheckboxs.length; j++) {
             rCheckboxs[j].disabled = true;

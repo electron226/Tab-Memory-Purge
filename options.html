@@ -28,6 +28,23 @@
 <ul>
     <li><input type="radio" name="release_page" value="default">
         <span class="in_extensionText"></span>(<span class="defaultText"></span>)
+        <li style="font-weight: bold; color: red; margin-left: 25px;">
+            <div class="explanationText"></div>
+            <ol>
+                <li><span class="explanation_problem1Text"></span></li>
+            </ol>
+        </li>
+    </li>
+    <li><input type="radio" name="release_page" value="author">
+        <span class="authorText"></span>
+        <li style="font-weight: bold; color: red; margin-left: 25px;">
+            <div class="explanationText"></div>
+            <ol>
+                <li><span class="explanation_problem2Text"></span></li>
+                <li><span class="explanation_problem3Text"></span></li>
+                <li><span class="explanation_problem4Text"></span></li>
+            </ol>
+        </li>
     </li>
     <li><input type="radio" name="release_page" value="assignment">
         <span class="assignmentText"></span>
@@ -44,14 +61,6 @@
                 <input type="checkbox" name="assignment_favicon">
                     <span class="assignment_faviconText"></span>
             </li>
-            <li style="font-weight: bold; color: red;">
-                <span class="explanation_assignmentText"></span>
-                <ol>
-                    <li><span class="explanation_problem1Text"></span></li>
-                    <li><span class="explanation_problem2Text"></span></li>
-                    <li><span class="explanation_problem3Text"></span></li>
-                </ol>
-            </li>
         </ul>
     </li>
 </ul>
@@ -67,7 +76,7 @@
     <span class="exclude_urlText"></span>
     <span class="refURLText"></span>
 </div>
-<textarea name="exclude_url" rows="5" cols="40"></textarea>
+<textarea name="exclude_url" rows="8" cols="40"></textarea>
 
 <hr>
 <button id="save"><span class="saveText"></span></button>

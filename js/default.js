@@ -1,5 +1,6 @@
 ﻿var default_release_page = 'default';
 var default_release_url = '';
+var default_release_author_url = 'https://tabmemorypurge.appspot.com/blank.html';
 
 // 時間設定がない場合に入力するデフォルト値
 var default_timer = 20;

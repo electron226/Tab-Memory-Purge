@@ -43,26 +43,36 @@
     "message": "In the extension",
     "description": "a option menu name"
   }, 
-  "assignment": {
-    "message": "Assignment File",
+  "author": {
+    "message": "Author Site(Google App Engine)",
     "description": "a option menu name"
-  },
-  "explanation_assignment": {
-    "message":
-      "Specifies the local file to be used at the time of release.<br>If it specifies, even if expanded function become invalid, a tab will remain.<br>You can also specify a URL outside, I do not recommend because the following problems occur.",
-    "description": "Explanation of assignment of local file."
+  }, 
+  "explanation": {
+    "message": "If you use this option, you must be aware of the following.",
+    "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "Unless the internet connection environment is possible, it does not work properly.",
-    "description": "Description of problem related to the specified local file"
+    "message": "When expanded function become invalid, the already released tab will be closed.",
+    "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_problem2": {
-    "message": "When the server of a release place is downed, it does not operate normally. ",
-    "description": "Description of problem related to the specified local file"
+    "message": "Unless the internet connection environment is possible, it does not work properly.",
+    "description":
+      "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
+    "message": "When the server is downed, it does not operate normally.",
+    "description":
+      "Description of problem related to the specified author site"
+  },
+  "explanation_problem4": {
     "message": "The information on the page which is looking at self leaks outside.(URL or Title)",
-    "description": "Description of problem related to the specified local file"
+    "description":
+      "Description of problem related to the specified author site"
+  },
+  "assignment": {
+    "message": "Assignment Local File",
+    "description": "a option menu name"
   },
   "assignment_title": {
     "message": "title(&title)",
