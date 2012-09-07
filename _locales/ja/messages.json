@@ -24,11 +24,11 @@
     "description": "ポップアップの項目"
   },
   "non_release": {
-    "message": "タブを非解放にする",
+    "message": "タブの解放禁止",
     "description": "ポップアップの項目"
   },
   "remove_non_release": {
-    "message": "タブの非解放を解除",
+    "message": "タブの解放禁止を解除",
     "description": "ポップアップの項目"
   },
   "all_unpurge": {

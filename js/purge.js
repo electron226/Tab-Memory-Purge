@@ -497,7 +497,7 @@ function SetNonRelease(url) {
 */
 function GetNonRelease()
 {
-    return GetStorage('not_purge', '')
+    return GetStorage('non_purge', '')
 }
 
 /**
