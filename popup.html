@@ -5,30 +5,48 @@
     <title>popup</title>
     <link rel="shortcut icon" href="favicon.ico">
     <style type="text/css">
-        div {
-            text-align: center;
-        }
-        button {
-            font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
+        body {
+            min-width: 230px;
+
+            font-family: "Meiryo UI", "Meiryo", "MS P Gothic",
                 "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
-            border-radius: 5px;
-            width: 150px;
+            font-size: 14px;
         }
-        button:hover {
-            background-color: lightblue;
+        hr {
+            margin: 5px 0px 5px 0px;
+        }
+        ul {
+            margin: 0px;
+            padding-left: 0px;
+            list-style-type: none;
+        }
+        li a {
+            color: black;
+            text-decoration: none;
+
+            display: block;
+        }
+        li a:hover {
+            color: white;
+            background-color: #2255CC;
         }
     </style>
     <script type="text/javascript" src="js/default.js"></script>
     <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/popup.js"></script>
 </head>
+
 <body>
 
-<div><button id="release"><span class="releaseText"></span></button></div>
-<div><button id="non_release"><span class="non_releaseText"></span></button></div>
-<div><button id="all_unpurge"><span class="all_unpurgeText"></span></button></div>
-<div><button id="restore"><span class="restoreText"></span></button></div>
+<ul>
+    <li><a href="#" id="release"><span class="releaseText"></span></a></li>
+    <li><a href="#" id="non_release"><span class="non_releaseText"></span></a></li>
+    <li><a href="#" id="all_unpurge"><span class="all_unpurgeText"></span></a></li>
+</ul>
+<hr>
+<ul>
+    <li><a href="#" id="restore"><span class="restoreText"></span></a></li>
+</ul>
 
 </body>
 </html>
-

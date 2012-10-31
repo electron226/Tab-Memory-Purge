@@ -32,7 +32,7 @@
     "description": "a menu in popup"
   },
   "all_unpurge": {
-    "message": "Free release in the all tabs.",
+    "message": "All the tabs are released",
     "description": "a menu in popup"
   },
   "restore": {
@@ -61,7 +61,7 @@
       "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "When the server is downed, it does not operate normally.",
+    "message": "If the server is downed, it does not operate normally.",
     "description":
       "Description of problem related to the specified author site"
   },

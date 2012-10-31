@@ -159,8 +159,8 @@ function CheckExcludeList(url)
     }
 
     // 一時的な非解放リストと比較
-    /* console.log('GetNonRelease', GetNonRelease()); */
-    if (CheckMatchUrlString(GetNonRelease(), url)) {
+    var search_obj = SearchNonRelease(url);
+    if (search_obj['begin'] !== null) {
         /* console.log('TEMP_EXCLUDE') */
         return TEMP_EXCLUDE;
     }
@@ -458,7 +458,8 @@ function ReloadBrowserIcon(tab)
 */
 function NonReleaseToggle(tab)
 {
-    if (GetNonRelease().lastIndexOf(tab.url) == -1) {
+    var search_obj = SearchNonRelease(tab.url);
+    if (search_obj['begin'] === null) {
         SetNonRelease(tab.url);
     } else {
         RemoveNonRelease(tab.url);
@@ -478,10 +479,9 @@ function SetNonRelease(url) {
     if (list != '') {
         // 同じURLがあるか確認してなければ追加
         var obj = SearchNonRelease(url);
-        if (obj['begin'] != null) {
+        if (obj['begin'] == null) {
             list += "\n" + url;
         } else {
-            // 変更なしのまま終了
             return;
         }
     } else {
