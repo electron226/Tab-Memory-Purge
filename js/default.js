@@ -1,23 +1,24 @@
-﻿var default_release_page = 'default';
+﻿var default_release_page = 'author';
 var default_release_url = '';
 var default_release_author_url = 'https://tabmemorypurge.appspot.com/blank.html';
+var default_non_release_https = 'true'
 
 // 時間設定がない場合に入力するデフォルト値
 var default_timer = 20;
 
 // 除外アドレス設定がない場合に入力するデフォルト値
 var default_exclude_url = 'nicovideo.jp\n'
-                        + 'youtube.com';
+                        + 'youtube.com\n'
+                        + '.pdf$';
 
 // Chromeの設定ページなどは変更不可にし、除外させる
 var chrome_exclude_url = '^chrome[:|-]\n'
-                         + '^view-source:\n'
-                         + '^https:';
+                         + '^view-source:\n';
 
 // どの除外リストかと表す値
 var CHROME_EXCLUDE = 50001;
-var USE_EXCLUDE = 50002;
-var TEMP_EXCLUDE = 50003;
+var USE_EXCLUDE    = 50002;
+var TEMP_EXCLUDE   = 50003;
 
 // 空ページのアドレス
 var blank_page = chrome.extension.getURL('blank.html');

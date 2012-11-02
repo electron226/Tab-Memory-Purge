@@ -19,16 +19,20 @@
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
   }, 
+  "otherTitle": {
+    "message": "その他",
+    "description": "オプションの項目"
+  },
   "release": {
     "message": "タブを解放",
     "description": "ポップアップの項目"
   },
   "non_release": {
-    "message": "タブの解放禁止",
+    "message": "このタブのURLの解放を禁止",
     "description": "ポップアップの項目"
   },
   "remove_non_release": {
-    "message": "タブの解放禁止を解除",
+    "message": "このタブのURLの解放を禁止を解除",
     "description": "ポップアップの項目"
   },
   "all_unpurge": {
@@ -55,6 +59,10 @@
     "message": "拡張機能が無効になった時、解放されたタブが閉じてしまいます。",
     "description": "拡張機能内に関する問題点の説明"
   },
+  "explanation_solution": {
+    "message": "もし、閉じられてしまった場合はすぐにポップアップメニューの「緊急時復元」を実行することで復元することができます。",
+    "description": "拡張機能内に関する問題の発生時の解決策"
+  },
   "explanation_problem2": {
     "message": "ネット接続が可能な環境でなければ、正常に動作しない。",
     "description": "作者サイトに関する問題点の説明"
@@ -78,6 +86,10 @@
   "assignment_favicon": {
     "message": "アイコン(&favicon)",
     "description": "オプションの指定URLの項目"
+  },
+  "non_release_https": {
+    "message": "HTTPSのページでは解放しない。",
+    "description": "a other option in the options menu"
   },
   "save": {
     "message": "保存",
@@ -112,7 +124,7 @@
     "description": "除外するアドレス"
   },
   "refURL": {
-    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>参考</a>",
+    "message": "<a href='http://www.rubular.com/' target='_blank'>テストツール</a>&nbsp;<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>参考</a>",
     "description": "参考リンク"
   }
 }

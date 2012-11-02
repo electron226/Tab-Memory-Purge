@@ -26,17 +26,18 @@
 <div class="setReleaseFileUrlTitleText"></div>
 <hr>
 <ul>
-    <li><input type="radio" name="release_page" value="default">
-        <span class="in_extensionText"></span>(<span class="defaultText"></span>)
+    <li><input type="radio" name="release_page" value="normal">
+        <span class="in_extensionText"></span>
         <li style="font-weight: bold; color: red; margin-left: 25px;">
             <div class="explanationText"></div>
             <ol>
                 <li><span class="explanation_problem1Text"></span></li>
             </ol>
+            <div class="explanation_solutionText"></div>
         </li>
     </li>
     <li><input type="radio" name="release_page" value="author">
-        <span class="authorText"></span>
+        <span class="authorText"></span>(<span class="defaultText"></span>)
         <li style="font-weight: bold; color: red; margin-left: 25px;">
             <div class="explanationText"></div>
             <ol>
@@ -71,12 +72,17 @@
     <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
 </ul>
 
-<hr>
 <div style="margin-top: 15px;">
-    <span class="exclude_urlText"></span>
-    <span class="refURLText"></span>
+    <span class="exclude_urlText"></span>&nbsp;<span class="refURLText"></span>
+    <hr>
+    <textarea name="exclude_url" rows="8" cols="40"></textarea>
 </div>
-<textarea name="exclude_url" rows="8" cols="40"></textarea>
+
+<div class="otherTitleText" style="margin-top: 15px;"></div>
+<hr>
+<ul>
+    <li><input type="checkbox" name="non_release_https"><span class="non_release_httpsText"></span></li>
+</ul>
 
 <hr>
 <button id="save"><span class="saveText"></span></button>

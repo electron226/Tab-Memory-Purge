@@ -21,6 +21,10 @@ function Init()
  */
 function onInstall() {
     console.log("Extension Installed.");
+    
+    // インストール時にオプションページを表示
+    var option_page = chrome.extension.getURL("options.html");
+    chrome.tabs.create({ url: option_page });
 }
 
 /**

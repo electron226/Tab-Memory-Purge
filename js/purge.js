@@ -1,4 +1,6 @@
-﻿/**
+﻿/** 拡張機能 動作部分本体 */
+
+/**
  * tabIdごとのsetIntervalのid
  * key = tabId
  * value = setIntervalのid
@@ -46,11 +48,12 @@ function Purge(tabId)
         switch (release_page) {
             case 'author': // 作者サイト
                 page = default_release_author_url;
-            case 'default': // デフォルト
+            case 'normal': // 拡張機能内
                 args += title + favicon;
                 break;
-            default: // 指定URL
-                var release_url = GetStorage('release_url', default_release_url);
+            case 'assignment': // 指定URL
+                var release_url = GetStorage(
+                    'release_url', default_release_url);
                 if (release_url != '') {
                     page = release_url;
                 }
@@ -61,6 +64,12 @@ function Purge(tabId)
                 if (GetStorage('assignment_favicon', 'true') == 'true') {
                     args += favicon;
                 }
+                break;
+            default: // 該当なしの時は初期値を設定
+                console.log("'release page' setting error."
+                            + " so to set default value.");
+                localStorage['release_page'] = default_release_page;
+                Purge(tabId); // この関数を実行し直す
                 break;
         }
 
@@ -139,7 +148,7 @@ function CheckMatchUrlString(exclude, url)
 * @param url
 * @return {Integer} どのリストと一致したかを数値で返す。
 *                   CHROME_EXCLUDE = 拡張機能側で固定されている除外アドレス
-*                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレスリスト
+*                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレス
 *                   TEMP_EXCLUDE   = 一時的な非解放リスト
 *                   null           = 一致しなかった。
 */
@@ -150,10 +159,18 @@ function CheckExcludeList(url)
         /* console.log('CHROME_EXCLUDE') */
         return CHROME_EXCLUDE;
     }
+    
+    // 除外アドレスでその他の「HTTPSのページでは解放しない」の設定を反映させる
+    var normal_excludes = GetStorage('exclude_url', default_exclude_url);
+    if (GetStorage('non_release_https', default_non_release_https) == 'true') {
+        /* console.log('Add to exclude url string to exclude HTTPS.'); */
+        normal_excludes += '\n' + '^https:';
+        /* console.log('**normal_excludes**');
+        console.log(normal_excludes); */
+    }
 
     // 除外アドレスと比較
-    if (CheckMatchUrlString(
-        GetStorage('exclude_url', default_exclude_url), url)) {
+    if (CheckMatchUrlString(normal_excludes, url)) {
         /* console.log('USE_EXCLUDE') */
         return USE_EXCLUDE;
     }
@@ -226,7 +243,7 @@ function deleteTick(tabId)
 function Initialize()
 {
     // 一時解放用のストレージをクリア
-    localStorage.removeItem('non_purge');
+    RemoveNonRelease();
 
     for (var key in ticked) {
         clearInterval(ticked[key]);
@@ -272,7 +289,7 @@ function AllUnPurge()
 * @param {Array} array 辞書型の配列。基本的にunloaded変数を渡す。
 * @param {Number} [index = 0] 配列の再帰処理開始位置
 * @param {Number} [end = array.length] 配列の最後の要素から一つ後の位置
-* @return 
+* @return なし
 */
 function Restore(array, index, end)
 {
@@ -319,7 +336,7 @@ function RestoreTabs()
 
 /**
 * バックアップデータ取得
-* @return {Array} 連想配列の配列
+* @return {Array | undefined} 連想配列の配列、存在しなければundefined
 */
 function GetBackup()
 {
@@ -425,7 +442,7 @@ function UnloadTimeProlong(tabId)
 
 /**
  * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
- * また、localStorage['purgeIcon']には変更したアイコンファイルを表す文字列が入る。
+ * localStorage['purgeIcon']には変更したアイコンファイルを表す文字列が入る。
  * この値はハッシュ変数(icons)のキー名でもある。
  * @param {Tab} 対象のタブ
  * @return なし
@@ -447,8 +464,7 @@ function ReloadBrowserIcon(tab)
             break;
     }
 
-    chrome.browserAction.setIcon(
-        { path: icons[change_icon], tabId: tab.id });
+    chrome.browserAction.setIcon({ path: icons[change_icon], tabId: tab.id });
         localStorage['purgeIcon'] = change_icon;
 }
 
@@ -460,7 +476,7 @@ function NonReleaseToggle(tab)
 {
     var search_obj = SearchNonRelease(tab.url);
     if (search_obj['begin'] === null) {
-        SetNonRelease(tab.url);
+        AddNonRelease(tab.url);
     } else {
         RemoveNonRelease(tab.url);
     }
@@ -470,11 +486,21 @@ function NonReleaseToggle(tab)
 }
 
 /**
+* 非解放リストの取得。
+* 解放リストのURLは'\n'で区切られている。
+* @return {String} 非解放リスト
+*/
+function GetNonRelease()
+{
+    return GetStorage('non_purge', '');
+}
+
+/**
 * URLを非解放リストに追加する。
 * @param {String} url 追加するアドレス
 * @return なし
 */
-function SetNonRelease(url) {
+function AddNonRelease(url) {
     var list = GetNonRelease();
     if (list != '') {
         // 同じURLがあるか確認してなければ追加
@@ -488,16 +514,6 @@ function SetNonRelease(url) {
         list = url;
     }
     localStorage['non_purge'] = list;
-}
-
-/**
-* 非解放リストの取得。
-* 解放リストのURLは'\n'で区切られている。
-* @return {String} 非解放リスト
-*/
-function GetNonRelease()
-{
-    return GetStorage('non_purge', '')
 }
 
 /**
@@ -525,70 +541,37 @@ function SearchNonRelease(url)
 
 /**
 * 非解放リストからアドレスを削除
+* 引数urlが指定されていないなら、非解放リスト自体を削除する。
 * @param {String} url 削除するアドレス
 * @return {boolean} 成功したらtrue, 失敗したらfalse
 */
 function RemoveNonRelease(url)
 {
-    var list = GetNonRelease();
-    var obj = SearchNonRelease(url);
-    if (obj['begin'] != null) {
-        if (obj['isLast'] == true) {
-            // 最後の項目の場合
-            list = list.substring(0, obj['begin']);
-        } else {
-            // 最後の項目ではない場合
-            // 1 = "\n"
-            list = list.substring(0, obj['begin']) + list.substring(obj['end']);
-        }
-        localStorage['non_purge'] = list;
+    if (url !== undefined && url !== null) {
+        var list = GetNonRelease();
+        var obj = SearchNonRelease(url);
+        if (obj['begin'] != null) {
+            if (obj['isLast'] == true) {
+                // 最後の項目の場合
+                list = list.substring(0, obj['begin']);
+            } else {
+                // 最後の項目ではない場合
+                // 1 = "\n"
+                list = list.substring(
+                    0, obj['begin']) + list.substring(obj['end']);
+            }
+            localStorage['non_purge'] = list;
 
-        return true;
+            return true;
+        } else {
+            return false;
+        }
     } else {
-        return false;
+        /* console.log('Clear non_purge cache.') */
+        localStorage.removeItem('non_purge');
+        return true;
     }
 }
-
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-    chrome.tabs.get(activeInfo.tabId, function(tab) {
-        // アイコンの状態を変更
-        ReloadBrowserIcon(tab);
-
-        // 前にアクティブにされていたタブのアンロード時間を更新
-        if (old_activeId) {
-            UnloadTimeProlong(old_activeId);
-        }
-        old_activeId = activeInfo.tabId;
-
-        if (FindUnloaded('id', activeInfo.tabId) != null) {
-            // アクティブにしたタブがアンロード済みだった場合、再読込
-            // 解放ページ側の処理と二重処理になるが、
-            // どちらかが先に実行されるので問題なし。
-            UnPurge(activeInfo.tabId);  
-        }
-    });
-});
-
-chrome.tabs.onCreated.addListener(function(tab) {
-    setTick(tab.id);
-});
-
-chrome.tabs.onRemoved.addListener(function(tabId) {
-    DeleteUnloaded('id', tabId);
-    deleteTick(tabId);
-    SetBackup(JSON.stringify(unloaded));
-});
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if (changeInfo.status == 'loading') {
-	} else {
-		ReloadBrowserIcon(tab);
-	}
-});
-
-chrome.windows.onRemoved.addListener(function(windowId) {
-    RemoveBackup();
-});
 
 /**
 * 指定されたタブに最も近い未解放のタブをアクティブにする。
@@ -636,6 +619,47 @@ function SearchSelectUnloadedTab(tab)
         }
     });
 }
+
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, function(tab) {
+        // アイコンの状態を変更
+        ReloadBrowserIcon(tab);
+
+        // 前にアクティブにされていたタブのアンロード時間を更新
+        if (old_activeId) {
+            UnloadTimeProlong(old_activeId);
+        }
+        old_activeId = activeInfo.tabId;
+
+        if (FindUnloaded('id', activeInfo.tabId) != null) {
+            // アクティブにしたタブがアンロード済みだった場合、再読込
+            // 解放ページ側の処理と二重処理になるが、
+            // どちらかが先に実行されるので問題なし。
+            UnPurge(activeInfo.tabId);  
+        }
+    });
+});
+
+chrome.tabs.onCreated.addListener(function(tab) {
+    setTick(tab.id);
+});
+
+chrome.tabs.onRemoved.addListener(function(tabId) {
+    DeleteUnloaded('id', tabId);
+    deleteTick(tabId);
+    SetBackup(JSON.stringify(unloaded));
+});
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	if (changeInfo.status == 'loading') {
+	} else {
+		ReloadBrowserIcon(tab);
+	}
+});
+
+chrome.windows.onRemoved.addListener(function(windowId) {
+    RemoveBackup();
+});
 
 chrome.extension.onRequest.addListener(
     function(request, sender, sendResponse) {

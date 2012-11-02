@@ -2,11 +2,12 @@
 
 var locale_i18n = [
     'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle', 'refURL',
-    'assignment', 'in_extension', 'author', 'explanation',
-    'explanation_problem1', 'explanation_problem2', 'explanation_problem3',
-    'explanation_problem4', 
+    'otherTitle', 'assignment', 'in_extension', 'author', 'explanation',
+    'explanation_problem1', 'explanation_solution', 'explanation_problem2',
+    'explanation_problem3', 'explanation_problem4', 
     'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
     'save', 'clear', 'init', 'minute', 'exclude_url',
+    'non_release_https',
 ];
 
 /**
@@ -83,6 +84,7 @@ function InitDefault()
     localStorage.removeItem('assignment_favicon');
     localStorage.removeItem('timer');
     localStorage.removeItem('exclude_url'); 
+    localStorage.removeItem('non_release_https'); 
     Load();
     
     chrome.extension.sendRequest({ event : 'init'}); 
@@ -116,6 +118,10 @@ function Save()
         localStorage[element.name] = element.value.trim();
     }); 
 
+    SaveElementName('non_release_https', function (element) {
+        localStorage[element.name] = element.checked;
+    }); 
+
     chrome.extension.sendRequest({ event : 'init'});
 }
 
@@ -127,6 +133,7 @@ function Load()
     LoadElementName('assignment_favicon', true); 
     LoadElementName('timer', default_timer);
     LoadElementName('exclude_url', default_exclude_url);
+    LoadElementName('non_release_https', true);
 
     InitOptionItemState();
 }

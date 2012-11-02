@@ -19,16 +19,20 @@
     "message": "Time to unload of inactive tab",
     "description": "Memory Release Time"
   },
+  "otherTitle": {
+    "message": "Other",
+    "description": "a option menu name"
+  },
   "release": {
     "message": "Release Tab",
     "description": "a menu in popup"
   },
   "non_release": {
-    "message": "Non-release tab",
+    "message": "Non-release URL",
     "description": "a menu in popup"
   },
   "remove_non_release": {
-    "message": "Remove the Non-release tab",
+    "message": "Remove the Non-release URL",
     "description": "a menu in popup"
   },
   "all_unpurge": {
@@ -54,6 +58,10 @@
   "explanation_problem1": {
     "message": "When expanded function become invalid, the already released tab will be closed.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
+  },
+  "explanation_solution": {
+    "message": "If tabs has closed, you'll use 'Emergency recovery' of popup menu immediately, so restore closed tabs.",
+    "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "explanation_problem2": {
     "message": "Unless the internet connection environment is possible, it does not work properly.",
@@ -81,6 +89,10 @@
   "assignment_favicon": {
     "message": "favicon(&favicon)",
     "description": "a assignment options in the options menu"
+  },
+  "non_release_https": {
+    "message": "Do not run in the https page.",
+    "description": "a other option in the options menu"
   },
   "save": {
     "message": "Save",
@@ -115,7 +127,7 @@
     "description": "Exclude URL"
   },
   "refURL": {
-    "message": "<a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions' target='_blank'>Reference</a>",
-    "description": "Reference Link"
+    "message": "<a href='http://www.rubular.com/' target='_blank'>Test Tool</a>",
+    "description": "Test Tool and Reference Link"
   }
 }
