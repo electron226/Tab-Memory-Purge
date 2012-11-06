@@ -13,13 +13,15 @@ var ticked = new Object();
  * id: tabId
  * url: 解放前のURL
  * purgeurl: 休止ページのURL
+ * scrollPosition: スクロール量(x, y)を表すオブジェクト
  */
 var unloaded = new Array(); 
 
-/**
-* アクティブなタブを選択する前に選択していたタブのID
-*/
+/** アクティブなタブを選択する前に選択していたタブのID */
 var old_activeId = null;
+
+/** タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列 */
+var tempScrollPositions = {};
 
 /**
 * タブの解放を行います。
@@ -29,62 +31,68 @@ var old_activeId = null;
 function Purge(tabId)
 {
     chrome.tabs.get(tabId, function(tab) {
-        var args = new String();
+        // objScroll = タブのスクロール量(x, y)
+        chrome.tabs.executeScript(tabId, { file: 'js/getScrollPosition.js' },
+                          function(objScroll) {
+            var args = new String();
 
-        // 共通要素
-        var title = "";
-        if (tab.title) {
-            title = '&title=' + encodeURIComponent(tab.title);
-        }
+            // 共通要素
+            var title = "";
+            if (tab.title) {
+                title = '&title=' + encodeURIComponent(tab.title);
+            }
 
-        var favicon = "";
-        if (tab.favIconUrl) {
-            favicon = '&favicon=' + encodeURIComponent(tab.favIconUrl);
-        }
+            var favicon = "";
+            if (tab.favIconUrl) {
+                favicon = '&favicon=' + encodeURIComponent(tab.favIconUrl);
+            }
 
-        // 解放に使うページを設定
-        var page = blank_page;
-        var release_page = GetStorage('release_page', default_release_page);
-        switch (release_page) {
-            case 'author': // 作者サイト
-                page = default_release_author_url;
-            case 'normal': // 拡張機能内
-                args += title + favicon;
-                break;
-            case 'assignment': // 指定URL
-                var release_url = GetStorage(
-                    'release_url', default_release_url);
-                if (release_url != '') {
-                    page = release_url;
-                }
+            // 解放に使うページを設定
+            var page = blank_page;
+            var release_page = GetStorage('release_page', default_release_page);
+            switch (release_page) {
+                case 'author': // 作者サイト
+                    page = default_release_author_url;
+                case 'normal': // 拡張機能内
+                    args += title + favicon;
+                    break;
+                case 'assignment': // 指定URL
+                    var release_url = GetStorage(
+                        'release_url', default_release_url);
+                    if (release_url != '') {
+                        page = release_url;
+                    }
 
-                if (GetStorage('assignment_title', 'true') == 'true') {
-                    args += title;
-                }
-                if (GetStorage('assignment_favicon', 'true') == 'true') {
-                    args += favicon;
-                }
-                break;
-            default: // 該当なしの時は初期値を設定
-                console.log("'release page' setting error."
-                            + " so to set default value.");
-                localStorage['release_page'] = default_release_page;
-                Purge(tabId); // この関数を実行し直す
-                break;
-        }
+                    if (GetStorage('assignment_title', 'true') == 'true') {
+                        args += title;
+                    }
+                    if (GetStorage('assignment_favicon', 'true') == 'true') {
+                        args += favicon;
+                    }
+                    break;
+                default: // 該当なしの時は初期値を設定
+                    console.log("'release page' setting error."
+                                + " so to set default value.");
+                    localStorage['release_page'] = default_release_page;
+                    Purge(tabId); // この関数を実行し直す
+                    break;
+            }
 
-        if (tab.url) {
-            args += '&url=' + encodeURIComponent(tab.url);
-        }
-        var url = page + '?' + args;   
+            if (tab.url) {
+                args += '&url=' + encodeURIComponent(tab.url);
+            }
+            var url = page + '?' + args;   
 
-        chrome.tabs.update(tabId, { url: url }, function(updated) {
-            /* console.log('Purge', tabId);   */
-            unloaded.push({ id:       updated.id,
-                            url:      tab.url,
-                            purgeurl: url });
-            deleteTick(tabId);
-            SetBackup(JSON.stringify(unloaded));
+            chrome.tabs.update(tabId, { 'url': url }, function(updated) {
+                /* console.log('Purge', tabId);   */
+                unloaded.push({ id:       updated.id,
+                                url:      tab.url,
+                                purgeurl: url, 
+                                scrollPosition: objScroll[0],
+                                });
+                deleteTick(tabId);
+                SetBackup(JSON.stringify(unloaded));
+            });
         });
     });
 }
@@ -101,6 +109,10 @@ function UnPurge(tabId)
     var url = FindUnloaded('id', tabId)['url']; 
     chrome.tabs.update(tabId, { url: url }, function(updated) { 
         /* console.log('UnPurge', tabId); */
+
+        // スクロール位置を解放前の位置に戻す
+        tempScrollPositions[tabId] = FindUnloaded('id', tabId)['scrollPosition'];
+
         DeleteUnloaded('id', tabId);
         setTick(tabId);
         SetBackup(JSON.stringify(unloaded));
@@ -654,6 +666,17 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	if (changeInfo.status == 'loading') {
 	} else {
 		ReloadBrowserIcon(tab);
+
+        // 解放解除時に動作。
+        // 指定したタブの解放時のスクロール量があった場合、それを復元する
+        var scrollPos = tempScrollPositions[tabId];
+        if (scrollPos) {
+            chrome.tabs.executeScript(tabId,
+                { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
+                    function() {
+                        delete tempScrollPositions[tabId];
+                    });
+        }
 	}
 });
 

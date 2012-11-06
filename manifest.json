@@ -1,7 +1,7 @@
 ﻿{
     "name": "__MSG_extName__",
     "description": "__MSG_extDescription__", 
-    "version": "1.6.1",
+    "version": "1.6.2",
     "manifest_version": 2,
     "default_locale": "en",
     "icons": {
@@ -18,7 +18,7 @@
       "page": "background.html"
     },
     "permissions": [
-      "tabs"
+      "tabs", "http://*/*", "https://*/*"
     ], 
     "web_accessible_resources": [
       "blank.html"
