@@ -8,20 +8,25 @@
 var ticked = new Object();
 
 /**
- * メモリ解放を行ったタブの情報が入ってる辞書型の配列
+ * メモリ解放を行ったタブの情報が入ってる辞書型
  *
- * id: tabId
- * url: 解放前のURL
- * purgeurl: 休止ページのURL
- * scrollPosition: スクロール量(x, y)を表すオブジェクト
+ * key = tabId
+ * value = 下記のプロパティがあるオブジェクト
+ *              url: 解放前のURL
+ *              purgeurl: 休止ページのURL
+ *              scrollPosition: スクロール量(x, y)を表すオブジェクト
  */
-var unloaded = new Array(); 
+var unloaded = new Object();
 
 /** アクティブなタブを選択する前に選択していたタブのID */
 var old_activeId = null;
 
-/** タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列 */
-var tempScrollPositions = {};
+/**
+ * タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列
+ * key = tabId
+ * value = スクロール量(x, y)を表す連想配列
+ */
+var tempScrollPositions = new Object();
 
 /**
 * タブの解放を行います。
@@ -85,11 +90,12 @@ function Purge(tabId)
 
             chrome.tabs.update(tabId, { 'url': url }, function(updated) {
                 /* console.log('Purge', tabId);   */
-                unloaded.push({ id:       updated.id,
-                                url:      tab.url,
-                                purgeurl: url, 
-                                scrollPosition: objScroll[0],
-                                });
+                unloaded[updated.id] = {
+                    url:      tab.url,
+                    purgeurl: url, 
+                    scrollPosition: objScroll[0],
+                };
+
                 deleteTick(tabId);
                 SetBackup(JSON.stringify(unloaded));
             });
@@ -106,14 +112,18 @@ function Purge(tabId)
 */
 function UnPurge(tabId)
 {
-    var url = FindUnloaded('id', tabId)['url']; 
+    var url = unloaded[tabId]['url'];
+    if (url === null || url === undefined) {
+        return;
+    }
+
     chrome.tabs.update(tabId, { url: url }, function(updated) { 
         /* console.log('UnPurge', tabId); */
 
-        // スクロール位置を解放前の位置に戻す
-        tempScrollPositions[tabId] = FindUnloaded('id', tabId)['scrollPosition'];
+        // スクロール位置を一時的に保存
+        tempScrollPositions[tabId] = unloaded[tabId]['scrollPosition'];
 
-        DeleteUnloaded('id', tabId);
+        delete unloaded[tabId];
         setTick(tabId);
         SetBackup(JSON.stringify(unloaded));
     }); 
@@ -126,7 +136,7 @@ function UnPurge(tabId)
 */
 function PurgeToggle(tabId)
 {
-    if (FindUnloaded('id', tabId) != null) {
+    if (unloaded[tabId]) {
         UnPurge(tabId);
     } else {
         Purge(tabId);
@@ -205,7 +215,7 @@ function CheckExcludeList(url)
 */
 function tick(tabId)
 {
-    if (FindUnloaded('id', tabId) == null) {
+    if (unloaded[tabId] === null || unloaded[tabId] === undefined) {
         chrome.tabs.get(tabId, function(tab) {
             // アクティブタブへの処理の場合、行わない
             if (tab.active) {
@@ -277,57 +287,51 @@ function Initialize()
 */
 function AllUnPurge()
 {
-    // 一度IDをコピー
-    var purgeIds = new Array();
-    for (var i = 0; i < unloaded.length; i++) {
-        purgeIds.push(unloaded[i]['id']);
-    }
-
-    // コピーしたIDを元に解放処理
-    for (var i = 0; i < purgeIds.length; i++) {
-        UnPurge(purgeIds[i]);
-    }
+    for (var key in unloaded) {
+        UnPurge( parseInt(key) );
+    };
 }
 
 /**
-* 指定した辞書型の配列を再帰処理し、タブを復元する。
+* 指定した辞書型の再帰処理し、タブを復元する。
+* 引数は第一引数のみを指定。
 *
-* なお、配列の中の辞書型には下記の要素が必要。
-* id: tabId
-* index: タブが挿入されている位置
-* url: 解放前のURL
-* purgeurl: 休止ページのURL
-*
-* @param {Array} array 辞書型の配列。基本的にunloaded変数を渡す。
-* @param {Number} [index = 0] 配列の再帰処理開始位置
-* @param {Number} [end = array.length] 配列の最後の要素から一つ後の位置
+* @param {Object} object オブジェクト型。これのみを指定する。
+*                        基本的にオブジェクト型unloaded変数のバックアップを渡す。
+* @param {String[]} [keys] オブジェクト型のキー名の配列。
+* @param {Number} [index = 0] keysの再帰処理開始位置
+* @param {Number} [end = keys.length] keysの最後の要素から一つ後の位置
 * @return なし
 */
-function Restore(array, index, end)
+function Restore(object, keys, index, end)
 {
     // 最後まで処理を行ったらunloadedに上書き
     if (index >= end) {
-        unloaded = array;
+        unloaded = object;
         return;
     }
 
     // 初期値
-    if (index === undefined || index === null) {
+    if (keys === undefined || keys === null) {
+        keys = new Array();
+        for (var i in object) {
+            keys.push(i);
+        }
         index = 0;
-    }
-    if (end === undefined || end === null) {
-        end = array.length;
+        end = keys.length;
     }
 
-    chrome.tabs.get(array[index]['id'], function(tab) {
-        if (tab === undefined) {
+    var id = parseInt( keys[index] );
+    chrome.tabs.get(id, function(tab) {
+        if (tab === undefined || tab === null) {
             // タブが存在しない場合、新規作成
-            var purgeurl = array[index]['purgeurl'];
-            chrome.tabs.create({ url: purgeurl, active: false },
-                               function(tab) {
-                array[index]['id'] = tab.id;
+            var purgeurl = object[id]['purgeurl'];
+            chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
+                var temp = object[id];
+                delete object[id];
+                object[tab.id] = temp;
 
-                Restore(array, ++index, end);
+                Restore(object, keys, ++index, end);
             });
         }
     });
@@ -341,7 +345,7 @@ function Restore(array, index, end)
 function RestoreTabs()
 {
     var backup = GetBackup();
-    if (backup) {
+    if (backup !== undefined && backup !== null && backup !== "{}") {
         Restore(JSON.parse(backup));
     }
 }
@@ -370,75 +374,6 @@ function SetBackup(value)
 function RemoveBackup()
 {
     localStorage.removeItem('backup');
-}
-
-/**
-* メモリ解放を行ったタブを保存しているunloaded変数を検索する
-* @param  {String} key 検索する要素が持っているキー名
-* @param  {Any} value 検索するunloaded[key]の値
-* @return {Object|Number} 成功なら指定したキーの位置の辞書型を返す。
-*                         見つからなかったらnull。
-*/
-function FindUnloaded(key, value)
-{
-    for (var i = 0; i < unloaded.length; i++) {
-        if (unloaded[i][key] == value) {
-            return unloaded[i];
-        }
-    }
-
-    return null;
-}
-
-/**
-* メモリ解放を行ったタブを保存しているunloaded変数を検索する
-* @param  {String} key 検索する要素が持っているキー名
-* @param  {Any} value 検索するunloaded[key]の値
-* @return {Number} 成功ならunloaded変数のindex位置を返す。
-*                  見つからなかったらnull。
-*/
-function FindUnloadedIndex(key, value)
-{
-    for (var i = 0; i < unloaded.length; i++) {
-        if (unloaded[i][key] == value) {
-            return i;
-        }
-    }
-
-    return null;
-}
-
-/**
-* メモリ解放を行ったタブを保存しているunloaded変数の要素を削除
-* @param  {String} key 削除する要素が持っているキー名
-* @param  {Any} value 削除する要素のunloaded[key]の値
-* @return なし
-*/
-function DeleteUnloaded(key, value)
-{
-    var index = FindUnloadedIndex(key, value);
-    if (index != null) {
-        unloaded.splice(index, 1);
-    }
-}
-
-/**
-* 指定した連想配列のキーのindexを返す
-* @param search_key キー名
-* @param hash 検索する連想配列
-* @return 成功なら連想配列でのindexを、失敗ならnullを返す
-*/
-function FindHash(search_key, hash)
-{
-    var i = 0;
-    for (var key in hash) {
-        if (search_key == key) {
-            return i;
-        }
-        i++;
-    }
-
-    return null;
 }
 
 /**
@@ -606,7 +541,7 @@ function SearchSelectUnloadedTab(tab)
         // 現在のタブより右側を探索
         var j = i + 1;
         for(; j < win.tabs.length; j++) {
-            if (!FindUnloaded('id', win.tabs[j].id)) {
+            if (!(unloaded[win.tabs[j].id])) {
                 break;
             }
         }
@@ -615,7 +550,7 @@ function SearchSelectUnloadedTab(tab)
         if (j >= win.tabs.length) {
             var j = i - 1;
             for(; 0 <= j; j--) {
-                if (!FindUnloaded('id', win.tabs[j].id)) {
+                if (!(unloaded[win.tabs[j].id])) {
                     break;
                 }
             }
@@ -643,7 +578,8 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
         }
         old_activeId = activeInfo.tabId;
 
-        if (FindUnloaded('id', activeInfo.tabId) != null) {
+        var already_unloaded = unloaded[activeInfo.tabId];
+        if (already_unloaded !== null && already_unloaded !== undefined) {
             // アクティブにしたタブがアンロード済みだった場合、再読込
             // 解放ページ側の処理と二重処理になるが、
             // どちらかが先に実行されるので問題なし。
@@ -657,7 +593,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
-    DeleteUnloaded('id', tabId);
+    delete unloaded[tabId];
     deleteTick(tabId);
     SetBackup(JSON.stringify(unloaded));
 });
@@ -670,7 +606,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         // 解放解除時に動作。
         // 指定したタブの解放時のスクロール量があった場合、それを復元する
         var scrollPos = tempScrollPositions[tabId];
-        if (scrollPos) {
+        if (scrollPos !== undefined && scrollPos !== null) {
             chrome.tabs.executeScript(tabId,
                 { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
                     function() {
