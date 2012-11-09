@@ -1,0 +1,125 @@
+body, input {
+    font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
+    "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.word_of_warning {
+    font-weight: bold;
+    color: red;
+    margin-left: 25px;
+}
+
+input[name="release_url"] {
+    width: 700px;
+}
+
+#sample_url {
+    width: 472px;
+}
+
+textarea[name="exclude_url"] {
+    float: left;
+}
+
+div.otherTitleText {
+    clear: both;
+}
+
+#tool_box {
+    background: rgba(75, 75, 75, 1.0);
+    color: white;
+    padding: 5px;
+    font-size: 14px;
+
+    position: fixed;
+    left: 0px;
+    top: 100%;
+    width: 100%;
+}
+
+#tool_box input {
+    background: lightgray;
+}
+
+#tool_box textarea {
+    background: lightgray;
+}
+
+#tool_box .close_btn {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+
+    width: 25px;
+    height: 25px;
+}
+
+#tool_box input[name="regular_expression"] {
+    width: 80%;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#tool_box input[name="options"] {
+    margin-left: 5px;
+}
+
+#tool_box #compare_string {
+    width: 45%;
+    height: 100px;
+    margin: 0 5px 0px 5px;
+}
+
+#tool_box #result {
+    background: lightgreen;
+    color: black;
+    font-size: 12px;
+
+    position: absolute;
+    width: 45%;
+    height: 100px;
+
+    padding: 5px;
+}
+
+#tool_box table {
+    background: lightgray;
+    color: black;
+    font-size: 12px;
+    margin: 0 5px 5px 5px;
+}
+
+#tool_box th {
+    padding-right: 5px;
+    text-align: left;
+    width: 6em;
+}
+
+#tool_box td {
+    width: 300px;
+}
+
+#tool_box #reference_area {
+    float: left;
+    max-width: 70%;
+}
+
+#tool_box #reference_option_area {
+    float: left;
+    max-width: 30%;
+}
+
+#tool_box #information_area {
+    float: left;
+}
+
+#tool_box .regex_refURLText {
+    font-size: 12px;
+    background: lightgray;
+    color: black;
+    padding: 5px;
+}

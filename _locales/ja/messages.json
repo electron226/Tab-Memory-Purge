@@ -89,7 +89,7 @@
   },
   "non_release_https": {
     "message": "HTTPSのページでは解放しない。",
-    "description": "a other option in the options menu"
+    "description": "オプションのその他の項目の設定"
   },
   "save": {
     "message": "保存",
@@ -120,11 +120,135 @@
     "description": "例"
   }, 
   "exclude_url": {
-    "message": "除外するアドレス(部分一致、正規表現、エスケープ不要)",
+    "message": "除外するアドレス(正規表現)",
     "description": "除外するアドレス"
   },
-  "refURL": {
-    "message": "<a href='http://www.rubular.com/' target='_blank'>テストツール</a>&nbsp;<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>参考</a>",
+  "regex_refURL": {
+    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>より詳細なリファレンス</a><br>参考元:<a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
     "description": "参考リンク"
+  },
+  "regex_tool": {
+    "message": "正規表現確認ツール",
+    "description": "正規表現確認ツール"
+  },
+  "regex": {
+    "message": "正規表現",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_compare_string": {
+    "message": "比較対象文字列",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_reference": {
+    "message": "正規表現リファレンス",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_option_reference": {
+    "message": "正規表現オプション",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_result": {
+    "message": "結果",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_information": {
+    "message": "その他情報",
+    "description": "正規表現確認ツール項目名"
+  },
+  "regex_single": {
+    "message": "a,b,cの文字のどれか",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_any_single": {
+    "message": "任意の文字",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_capture": {
+    "message": "括弧内のものとマッチした内容を記憶",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_any_except": {
+    "message": "a,b,cの文字以外",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_whitespace": {
+    "message": "任意の空白文字(スペース, タブ, 改ページ、改行)",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_or": {
+    "message": "aまたはb",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_range": {
+    "message": "aからzの文字",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_non_whitespace": {
+    "message": "任意の空白文字以外",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_zero_one": {
+    "message": "aの0文字か1文字",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_range_or": {
+    "message": "aからz、A-Zの文字",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_digit": {
+    "message": "任意の数値",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_zero_more": {
+    "message": "aの0文字以上",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_start": {
+    "message": "入力の先頭(先頭文字の前)",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_non_digit": {
+    "message": "数値以外",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_one_more": {
+    "message": "aの1文字以上",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_end": {
+    "message": "文字列の末尾(最後の文字の後)",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_word": {
+    "message": "アンダースコアを含む英数字。[A-Za-z0-9_]と同等",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_exactly": {
+    "message": "aを3文字(aaaとマッチ)",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_non_word": {
+    "message": "アンダースコアを含む英数字以外。[^A-Za-z0-9_]と同等",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_three_or_more": {
+    "message": "aの3文字以上",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_word_boundary": {
+    "message": "単語の区切り",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_between": {
+    "message": "aの3文字から6文字",
+    "description": "正規表現リファレンスの項目"
+  },
+  "regex_global": {
+    "message": "グローバルマッチ",
+    "description": "正規表現リファレンスのオプションの項目"
+  },
+  "regex_confuse": {
+    "message": "大文字・小文字の無視",
+    "description": "正規表現リファレンスのオプションの項目"
   }
 }

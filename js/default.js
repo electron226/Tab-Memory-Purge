@@ -2,14 +2,16 @@
 var default_release_url = '';
 var default_release_author_url = 'https://tabmemorypurge.appspot.com/blank.html';
 var default_non_release_https = 'true'
+var default_regex_option = '';
 
 // 時間設定がない場合に入力するデフォルト値
 var default_timer = 20;
 
 // 除外アドレス設定がない場合に入力するデフォルト値
-var default_exclude_url = 'nicovideo.jp\n'
-                        + 'youtube.com\n'
-                        + '.pdf$';
+var default_exclude_url =
+    '(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n'
+        + 'nicovideo.jp\n'
+        + 'youtube.com';
 
 // Chromeの設定ページなどは変更不可にし、除外させる
 var chrome_exclude_url = '^chrome[:|-]\n'

@@ -155,7 +155,8 @@ function CheckMatchUrlString(exclude, url)
     /* console.log(array); */
     for (var i = 0; i < exclude_array.length; i++) {
         if (exclude_array[i] != '') {
-            var re = new RegExp(exclude_array[i]);
+            var regex_option = GetStorage('regex_option', default_regex_option);
+            var re = new RegExp(exclude_array[i], regex_option);
             if (url.match(re)) {
                 /* console.log(url);    */
                 return true;

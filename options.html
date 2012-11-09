@@ -3,18 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
-    <style type="text/css">
-        body, input {
-            font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
-                "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
-        }
-        div.title {
-            margin-top: 30px;
-        }
-        ul {
-            list-style-type: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8">
     <script type="text/javascript" src="js/default.js"></script>
     <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/options.js"></script>
@@ -28,7 +17,7 @@
 <ul>
     <li><input type="radio" name="release_page" value="normal">
         <span class="in_extensionText"></span>
-        <li style="font-weight: bold; color: red; margin-left: 25px;">
+        <li class="word_of_warning">
             <div class="explanationText"></div>
             <ol>
                 <li><span class="explanation_problem1Text"></span></li>
@@ -38,7 +27,7 @@
     </li>
     <li><input type="radio" name="release_page" value="author">
         <span class="authorText"></span>(<span class="defaultText"></span>)
-        <li style="font-weight: bold; color: red; margin-left: 25px;">
+        <li class="word_of_warning">
             <div class="explanationText"></div>
             <ol>
                 <li><span class="explanation_problem2Text"></span></li>
@@ -51,10 +40,10 @@
         <span class="assignmentText"></span>
         <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
         <ul>
-            <li><input type="text" name="release_url" style="width: 500px;"></li>
+            <li><input type="text" name="release_url"></li>
             <li>
                 <span class="exampleText"></span>:
-                <input type="text" style="width: 472px;" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
+                <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
             </li>
             <li id="assignment_options">
                 <input type="checkbox" name="assignment_title">
@@ -72,13 +61,13 @@
     <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
 </ul>
 
-<div style="margin-top: 15px;">
-    <span class="exclude_urlText"></span>&nbsp;<span class="refURLText"></span>
-    <hr>
+<div>
+    <span class="exclude_urlText"></span>&nbsp;<a class="open_tool" href="#"><span class="regex_toolText"></span></a><hr>
     <textarea name="exclude_url" rows="8" cols="40"></textarea>
+    <div><span class="optionText"></span><input type="text" name="regex_option" size="1" maxlength="2"></div>
 </div>
 
-<div class="otherTitleText" style="margin-top: 15px;"></div>
+<div class="otherTitleText"></div>
 <hr>
 <ul>
     <li><input type="checkbox" name="non_release_https"><span class="non_release_httpsText"></span></li>
@@ -88,5 +77,31 @@
 <button id="save"><span class="saveText"></span></button>
 <button id="load"><span class="clearText"></span></button>
 <button id="init"><span class="initText"></span></button>
+
+<div id="tool_box">
+    <button class="close_btn open_tool">×</button>
+    <div id="regexp">
+        <div class="regexText"></div>
+        /<input type="text" name="regular_expression">/<input type="text" name="options" size="2" maxlength="3">
+    </div>
+    <div class="regex_compare_stringText"></div>
+    <textarea id="compare_string" name="compare_string"></textarea>
+    <span id="result"><span class="regex_result"></span></span>
+    <div id="clear"></div>
+    <div id="reference_area">
+        <div class="regex_referenceText"></div>
+        <div id="regex_reference"></div>
+    </div>
+    <div id="reference_option_area">
+        <div class="regex_option_referenceText"></div>
+        <div id="regex_option_reference"></div>
+
+        <div id="information_area">
+            <div class="regex_informationText"></div>
+            <div class="regex_refURLText"></div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
