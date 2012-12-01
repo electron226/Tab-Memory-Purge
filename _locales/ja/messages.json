@@ -40,7 +40,7 @@
     "description": "ポップアップの項目"
   },
   "restore": {
-    "message": "緊急時復元",
+    "message": "強制終了前のタブの復元",
     "description": "ポップアップの項目"
   },
   "in_extension": {

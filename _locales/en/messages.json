@@ -40,7 +40,7 @@
     "description": "a menu in popup"
   },
   "restore": {
-    "message": "Emergency recovery",
+    "message": "The tabs before crashed is restored.",
     "description": "a menu in popup"
   },
   "in_extension": {

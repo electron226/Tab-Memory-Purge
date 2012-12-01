@@ -41,7 +41,7 @@ function OnRestore()
     chrome.extension.sendRequest({ event : 'restore'});
 }
 
-function Run()
+function TextInitialize()
 {
     // テキストの設定
     for (var i = 0; i < locale_i18n.length; i++) {
@@ -59,8 +59,17 @@ function Run()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    Run();
+    // 文字列初期化
+    TextInitialize();
 
+    // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、
+    // 専用メニューを表示。
+    if (localStorage['release_page'] == 'normal') {
+        var el = document.querySelector('.release_extension_menu');
+        el.style.display = "block";
+    }
+
+    // イベント追加
     document.querySelector('#release').addEventListener('click', OnRelease);
     document.querySelector('#non_release').addEventListener('click', OnNonRelease);
     document.querySelector('#all_unpurge').addEventListener('click', OnAllUnPurge);
