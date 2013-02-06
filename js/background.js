@@ -10,9 +10,12 @@ function Init()
     // purge.jsに記述
     Initialize();
 
-    // 前回、正常にウインドウが閉じられていなかった場合、
-    // 以前の解放済タブの情報が残っていたら復元
-    RestoreTabs();
+    // オプション(強制終了された場合、起動時に以前の解放されたタブを復元)
+    if (localStorage['forcibly_close_restore'] === 'true') {
+        // 前回、正常にウインドウが閉じられていなかった場合、
+        // 以前の解放済タブの情報が残っていたら復元
+        RestoreTabs();
+    }
 }
 
 /**

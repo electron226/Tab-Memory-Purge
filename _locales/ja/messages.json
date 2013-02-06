@@ -91,6 +91,10 @@
     "message": "HTTPSのページでは解放しない。",
     "description": "オプションのその他の項目の設定"
   },
+  "forcibly_close_restore": {
+    "message": "Google Chromeが強制終了した場合、起動時に終了前の解放タブを復元する。",
+    "description": "オプションのその他の項目の設定"
+  },
   "save": {
     "message": "保存",
     "description": "保存ボタン"

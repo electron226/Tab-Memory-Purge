@@ -4,7 +4,7 @@ var locale_i18n = [
     'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle',
     'otherTitle', 'assignment', 'in_extension', 'author', 'explanation',
     'explanation_problem1', 'explanation_solution', 'explanation_problem2',
-    'explanation_problem3', 'explanation_problem4', 
+    'explanation_problem3', 'explanation_problem4', 'forcibly_close_restore',
     'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
     'save', 'clear', 'init', 'minute', 'exclude_url',
     'non_release_https', 'regex_tool',
@@ -132,6 +132,7 @@ function Save()
     SaveElementName('regex_option', Callback_String);
 
     SaveElementName('non_release_https', Callback_Checkbox);
+    SaveElementName('forcibly_close_restore', Callback_Checkbox);
 
     chrome.extension.sendRequest({ event : 'init'});
 }
@@ -150,6 +151,7 @@ function Load()
     LoadElementName('exclude_url', default_exclude_url);
     LoadElementName('regex_option', default_regex_option);
     LoadElementName('non_release_https', true);
+    LoadElementName('forcibly_close_restore', true);
 
     InitOptionItemState();
 }

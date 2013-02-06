@@ -94,6 +94,10 @@
     "message": "Do not run in the https page.",
     "description": "a other option in the options menu"
   },
+  "forcibly_close_restore": {
+    "message": "If Google Chrome forcibly closed, will restore closed release tab on startup.",
+    "description": "a other option in the options menu"
+  },
   "save": {
     "message": "Save",
     "description": "Save Button"
