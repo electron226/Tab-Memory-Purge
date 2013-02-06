@@ -36,6 +36,12 @@ function onInstall() {
  */
 function onUpdate() {
     console.log("Extension Updated.");
+    
+    // オプション(強制終了された場合、起動時に以前の解放されたタブを復元)
+    // が無効の時、アップデートした際に閉じられてしまったタブの復元
+    if (localStorage['forcibly_close_restore'] === 'false') {
+        RestoreTabs();
+    }
 }
 
 /**
