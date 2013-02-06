@@ -92,7 +92,7 @@
     "description": "オプションのその他の項目の設定"
   },
   "forcibly_close_restore": {
-    "message": "Google Chromeが強制終了した場合、起動時に終了前の解放タブを復元する。",
+    "message": "Google Chromeが強制終了した場合、次回起動時に終了前の解放タブを復元する。",
     "description": "オプションのその他の項目の設定"
   },
   "save": {

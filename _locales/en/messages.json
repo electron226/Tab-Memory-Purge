@@ -95,7 +95,7 @@
     "description": "a other option in the options menu"
   },
   "forcibly_close_restore": {
-    "message": "If Google Chrome forcibly closed, will restore closed release tab on startup.",
+    "message": "If Google Chrome forcibly closed, will restore closed release tab on next startup.",
     "description": "a other option in the options menu"
   },
   "save": {
