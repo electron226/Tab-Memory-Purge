@@ -123,3 +123,19 @@ div.otherTitleText {
     color: black;
     padding: 5px;
 }
+
+/* ツールチップ*/
+li.tooltip span.tooltip {
+    display: none;
+    padding: 2px 3px;
+    margin-left: 8px;
+    max-width: 550px;
+}
+
+li.tooltip:hover span.tooltip {
+    display: inline;
+    position: absolute;
+    background: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    color: #6c6c6c;
+}

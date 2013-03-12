@@ -15,29 +15,29 @@
 <div class="setReleaseFileUrlTitleText"></div>
 <hr>
 <ul>
-    <li><input type="radio" name="release_page" value="normal">
-        <span class="in_extensionText"></span>
-        <li class="word_of_warning">
+    <li class="tooltip"><label><input type="radio" name="release_page" value="normal">
+        <span class="in_extensionText"></span></label>
+        <span class="tooltip">
             <div class="explanationText"></div>
             <ol>
                 <li><span class="explanation_problem1Text"></span></li>
             </ol>
             <div class="explanation_solutionText"></div>
-        </li>
+        </span>
     </li>
-    <li><input type="radio" name="release_page" value="author">
-        <span class="authorText"></span>(<span class="defaultText"></span>)
-        <li class="word_of_warning">
+    <li class="tooltip"><label><input type="radio" name="release_page" value="author">
+            <span class="authorText"></span>(<span class="defaultText"></span>)</label>
+        <span class="tooltip">
             <div class="explanationText"></div>
             <ol>
                 <li><span class="explanation_problem2Text"></span></li>
                 <li><span class="explanation_problem3Text"></span></li>
                 <li><span class="explanation_problem4Text"></span></li>
             </ol>
-        </li>
+        </span>
     </li>
-    <li><input type="radio" name="release_page" value="assignment">
-        <span class="assignmentText"></span>
+    <li><label><input type="radio" name="release_page" value="assignment">
+            <span class="assignmentText"></span></label>
         <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
         <ul>
             <li><input type="text" name="release_url"></li>
@@ -70,8 +70,8 @@
 <div class="otherTitleText"></div>
 <hr>
 <ul>
-    <li><input type="checkbox" name="non_release_https"><span class="non_release_httpsText"></span></li>
-    <li><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></li>
+    <li><label><input type="checkbox" name="non_release_https"><span class="non_release_httpsText"></span></label></li>
+    <li><label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></li></label>
 </ul>
 
 <hr>
@@ -79,6 +79,7 @@
 <button id="load"><span class="clearText"></span></button>
 <button id="init"><span class="initText"></span></button>
 
+<!-- 正規表現確認ツール -->
 <div id="tool_box">
     <button class="close_btn open_tool">×</button>
     <div id="regexp">
