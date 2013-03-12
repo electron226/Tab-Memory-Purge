@@ -247,10 +247,6 @@
     "message": "aの3文字から6文字",
     "description": "正規表現リファレンスの項目"
   },
-  "regex_global": {
-    "message": "グローバルマッチ",
-    "description": "正規表現リファレンスのオプションの項目"
-  },
   "regex_confuse": {
     "message": "大文字・小文字の無視",
     "description": "正規表現リファレンスのオプションの項目"

@@ -131,7 +131,7 @@
     "description": "Exclude URL"
   },
   "regex_refURL": {
-    "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a><br>Source of reference:<a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
+    "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a><br>refer to the <a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
     "description": "Reference Link"
   }, 
   "regex_tool": {
@@ -249,10 +249,6 @@
   "regex_between": {
     "message": "Between 3 and 6 of a.",
     "description": "items of Regex Reference."
-  },
-  "regex_global": {
-    "message": "global match.",
-    "description": "options of Regex Reference."
   },
   "regex_confuse": {
     "message": "Ignore uppercase and lowercase letters.",

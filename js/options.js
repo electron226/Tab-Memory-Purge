@@ -295,7 +295,6 @@ function createRegexReference()
         { "a{3,6}" : "regex_between" }, 
     ];
     var regex_options = [
-        { "g" : "regex_global" }, 
         { "i" : "regex_confuse" }, 
     ];
 
