@@ -60,7 +60,7 @@
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "If tabs has closed, you'll use 'Emergency recovery' of popup menu immediately, so restore closed tabs.",
+    "message": "If tabs has closed, you'll use 'The tabs before crashed is restored' of popup menu immediately, so restore closed tabs.",
     "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "explanation_problem2": {
