@@ -12,7 +12,7 @@
     "description": "Option string"
   },
   "setReleaseFileUrlTitle": {
-    "message": "Assignment URL of Release Page",
+    "message": "Specifies the page to be used for release",
     "description": "URL of Release Page"
   },
   "setTimerTitle": {
@@ -46,11 +46,15 @@
   "in_extension": {
     "message": "In the extension",
     "description": "a option menu name"
-  }, 
+  },
   "author": {
     "message": "Author Site(Google App Engine)",
     "description": "a option menu name"
-  }, 
+  },
+  "no_release": {
+    "message": "I don't reload when you release tab is activated.",
+    "description": "a option menu name in author."
+  },
   "explanation": {
     "message": "If you use this option, you must be aware of the following.",
     "description": "Description of the used Release Page"
@@ -90,10 +94,6 @@
     "message": "favicon(&favicon)",
     "description": "a assignment options in the options menu"
   },
-  "non_release_https": {
-    "message": "Don't run in the https page.",
-    "description": "a other option in the options menu"
-  },
   "forcibly_close_restore": {
     "message": "If Google Chrome forcibly closed, will restore closed release tab on next startup.",
     "description": "a other option in the options menu"
@@ -117,15 +117,15 @@
   "minute": {
     "message": "minute",
     "description": "minute"
-  }, 
+  },
   "sample": {
     "message": "Sample",
     "description": "Sample"
-  }, 
+  },
   "example": {
     "message": "Example",
     "description": "Example"
-  }, 
+  },
   "exclude_url": {
     "message": "Exclude URL(Regular expression)",
     "description": "Exclude URL"
@@ -133,7 +133,7 @@
   "regex_refURL": {
     "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a><br>Origin of reference: <a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
     "description": "Reference Link"
-  }, 
+  },
   "regex_tool": {
     "message": "Regular expression validation tool",
     "description": "Regular expression validation tool"

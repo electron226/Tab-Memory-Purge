@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
     <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8">
-    <script type="text/javascript" src="js/default.js"></script>
-    <script type="text/javascript" src="js/common.js"></script>
-    <script type="text/javascript" src="js/options.js"></script>
+    <script type="text/javascript" src="public/javascripts/common.js"></script>
+    <script type="text/javascript" src="public/javascripts/options.js"></script>
 </head>
 <body>
 
@@ -15,8 +14,10 @@
 <div class="setReleaseFileUrlTitleText"></div>
 <hr>
 <ul>
-    <li class="tooltip"><label><input type="radio" name="release_page" value="normal">
-        <span class="in_extensionText"></span></label>
+    <li class="tooltip">
+        <label>
+            <input type="radio" name="release_page" value="normal"><span class="in_extensionText"></span>
+        </label>
         <span class="tooltip">
             <div class="explanationText"></div>
             <ol>
@@ -25,8 +26,10 @@
             <div class="explanation_solutionText"></div>
         </span>
     </li>
-    <li class="tooltip"><label><input type="radio" name="release_page" value="author">
-            <span class="authorText"></span>(<span class="defaultText"></span>)</label>
+    <li class="tooltip">
+        <label>
+            <input type="radio" name="release_page" value="author"><span class="authorText"></span>(<span class="defaultText"></span>)
+        </label>
         <span class="tooltip">
             <div class="explanationText"></div>
             <ol>
@@ -36,22 +39,27 @@
             </ol>
         </span>
     </li>
-    <li><label><input type="radio" name="release_page" value="assignment">
-            <span class="assignmentText"></span></label>
+    <li>
+        <label>
+            <input type="radio" name="release_page" value="assignment"><span class="assignmentText"></span>
+        </label>
         <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
         <ul>
             <li><input type="text" name="release_url"></li>
             <li>
                 <span class="exampleText"></span>:
-                <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
+                <input id="sample_url" name="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
             </li>
             <li id="assignment_options">
-                <input type="checkbox" name="assignment_title">
-                    <span class="assignment_titleText"></span>
-                <input type="checkbox" name="assignment_favicon">
-                    <span class="assignment_faviconText"></span>
+                <input type="checkbox" name="assignment_title"><span class="assignment_titleText"></span>
+                <input type="checkbox" name="assignment_favicon"><span class="assignment_faviconText"></span>
             </li>
         </ul>
+    </li>
+    <li style="margin-top: 1em;">
+        <label>
+            <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
+        </label>
     </li>
 </ul>
 
@@ -64,20 +72,25 @@
 <div>
     <span class="exclude_urlText"></span>&nbsp;<a class="open_tool" href="#"><span class="regex_toolText"></span></a><hr>
     <textarea name="exclude_url" rows="8" cols="40"></textarea>
-    <div><span class="optionText"></span><input type="text" name="regex_option" size="1" maxlength="2"></div>
+    <div><div class="optionText"></div>
+        <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
+    </div>
 </div>
 
 <div class="otherTitleText"></div>
 <hr>
 <ul>
-    <li><label><input type="checkbox" name="non_release_https"><span class="non_release_httpsText"></span></label></li>
     <li><label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></li></label>
 </ul>
 
 <hr>
-<button id="save"><span class="saveText"></span></button>
-<button id="load"><span class="clearText"></span></button>
-<button id="init"><span class="initText"></span></button>
+<div>
+    <button id="save"><span class="saveText"></span></button>
+    <button id="load"><span class="clearText"></span></button>
+    <button id="init"><span class="initText"></span></button>
+</div>
+
+<div id="status"></div>
 
 <!-- 正規表現確認ツール -->
 <div id="tool_box">

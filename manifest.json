@@ -1,11 +1,11 @@
 ﻿{
     "name": "__MSG_extName__",
-    "description": "__MSG_extDescription__", 
-    "version": "1.6.10",
+    "description": "__MSG_extDescription__",
+    "version": "1.7.0",
     "manifest_version": 2,
     "default_locale": "en",
     "icons": {
-      "48": "icon/icon_048.png", 
+      "48": "icon/icon_048.png",
       "128": "icon/icon_128.png"
     },
     "browser_action": {
@@ -15,11 +15,16 @@
     },
     "options_page": "options.html",
     "background" : {
-      "page": "background.html"
+      "scripts": [
+        "public/javascripts/common.js",
+        "public/javascripts/tabclass.js",
+        "public/javascripts/background.js",
+        "public/javascripts/purge.js"
+      ]
     },
     "permissions": [
-      "tabs", "http://*/*", "https://*/*"
-    ], 
+      "tabs", "storage", "http://*/*", "https://*/*"
+    ],
     "web_accessible_resources": [
       "blank.html"
     ]

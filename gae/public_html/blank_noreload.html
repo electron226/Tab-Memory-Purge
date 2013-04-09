@@ -1,3 +1,9 @@
+<!--
+    このページをオプションで使用する場合、
+    「解放したタブのアクティブ時にリロードを行わない。」を有効にしてください。
+    case using this page in options.
+    enable "I don't reload when you release tab is activated."
+-->
 <!DOCTYPE HTML>
 <html lang="jp">
 <head>
@@ -50,24 +56,6 @@
             head.innerHTML = head_html;
         }
 
-        /**
-        * OnFocusイベント時に実行する関数。
-        * この関数はページが読み込まれてから一度しか動かない(連続実行対策)。
-        * @param {Event} event イベントオブジェクト
-        */
-        var lock = false;
-        function OnFocus(event)
-        {
-            if (!lock) {
-                lock = true;
-
-                var args = GetQueryString();
-                if (args['url']) {
-                    location.replace(args['url']);
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
             var args = GetQueryString();
 
@@ -90,9 +78,6 @@
             } else {
                 span.innerHTML = 'None';
             }
-
-            // reload when you focus.
-            addEventListener('focus', OnFocus, true);
         });
     </script>
 </head>
