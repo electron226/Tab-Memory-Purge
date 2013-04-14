@@ -480,21 +480,6 @@ function RestoreTabs()
 
 function UpdateBackup()
 {
-  chrome.storage.local.get(default_values, function(storages) {
-    var storageName = 'release_page_radio';
-    var release_page = storages[storageName] !== undefined ?
-                       storages[storageName] :
-                       default_values[storageName];
-    if (release_page == 'normal') {
-      SetBackup();
-    } else {
-      chrome.storage.local.remove(backupKey);
-    }
-  });
-}
-
-function SetBackup()
-{
   var save = new Object();
   save[backupKey] = JSON.stringify(unloaded);
   chrome.storage.local.set(save);
@@ -711,11 +696,3 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 });
 
 Initialize();
-
-// All show storage
-/* chrome.storage.local.get(null, function(storages) {
-  for (var key in storages) {
-    console.log(key);
-    console.log(storages[key]);
-  }
-}); */
