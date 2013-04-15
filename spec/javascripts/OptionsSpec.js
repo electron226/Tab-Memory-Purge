@@ -99,17 +99,19 @@ describe('Options Function', function() {
         expect(function() { LoadValues(function() {}); }).toThrow();
         expect(function() { LoadValues(document, 1); }).toThrow();
 
-        var values = LoadValues(document, default_values);
-        expect(values).toEqual([ 'release_page', 'timer', 'exclude_url' ]);
+        LoadValues(document, default_values, function(values) {
+          expect(values).toEqual([ 'release_page', 'timer', 'exclude_url' ]);
+        });
     });
 
     it('Save Settings', function() {
         loadFixtures('../../options.html');
 
-        var debug = SaveValues(
-            document, ['checkbox', 'radio', 'text', 'number']);
-        // 最初の要素は空白の要素。evaluteを使った時になぜか入る。
-        // loadFixturesが原因？
-        expect(debug.length).toEqual(13);
+        SaveValues(
+          document, ['checkbox', 'radio', 'text', 'number'], function(debug) {
+          // 最初の要素は空白の要素。evaluteを使った時になぜか入る。
+          // loadFixturesが原因？
+          expect(debug.length).toEqual(13);
+        });
     });
 });

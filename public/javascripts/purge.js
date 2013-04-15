@@ -78,12 +78,12 @@ function Purge(tabId)
 
             var title = '';
             if (tab.title) {
-              title = '&title=' + encodeURIComponent(tab.title);
+              title = '&title=' + tab.title;
             }
 
             var favicon = '';
             if (tab.favIconUrl) {
-              favicon = '&favicon=' + encodeURIComponent(tab.favIconUrl);
+              favicon = '&favicon=' + tab.favIconUrl;
             }
 
             // 解放に使うページを設定
@@ -142,15 +142,15 @@ function Purge(tabId)
             }
 
             if (tab.url) {
-              args += '&url=' + encodeURIComponent(tab.url);
+              args += '&url=' + escape(tab.url);
             }
-            var url = page + '?' + args;
+            var url = encodeURI(page) + '?' + encodeURIComponent(args);
 
             chrome.tabs.update(tabId, { 'url': url }, function(updated) {
               unloaded[updated.id] = {
                 url: tab.url,
                 purgeurl: url,
-                scrollPosition: objScroll[0]
+                scrollPosition: objScroll[0] ? objScroll[0] : 0
               };
 
               deleteTick(tabId);

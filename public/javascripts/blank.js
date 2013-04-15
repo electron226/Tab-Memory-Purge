@@ -10,7 +10,7 @@ function GetQueryString()
 {
   if (1 < document.location.search.length) {
     // 最初の1文字(&)を除いた文字列を取得
-    var query = document.location.search.substring(1);
+    var query = decodeURIComponent(document.location.search.substring(1));
 
     var parameters = query.split('&');
 
@@ -18,10 +18,10 @@ function GetQueryString()
     for (var i = 0; i < parameters.length; i++) {
       var element = parameters[i].split('=');
 
-      var paramName = decodeURIComponent(element[0]);
-      var paramValue = decodeURIComponent(element[1]);
+      var paramName = element[0];
+      var paramValue = unescape(element[1]); // url key used unescape.
 
-      result[paramName] = decodeURIComponent(paramValue);
+      result[paramName] = paramValue;
     }
 
     return result;

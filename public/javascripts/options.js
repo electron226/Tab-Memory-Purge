@@ -16,13 +16,66 @@ var locale_i18n = [
   'regex_confuse'
 ];
 
-function LoadValues(document, default_values)
+function InitValues(document, checkTagList, default_values)
 {
-  if (getType(document) != 'object') {
-    throw 'First argument is not object.';
+  if (getType(document) != 'object' ||
+      getType(checkTagList) != 'array' ||
+      getType(default_values) != 'object') {
+    throw 'InitValues Funciton. Argument Error.';
   }
-  if (getType(default_values) != 'object') {
-    throw 'Second argument Error is not object';
+
+  var debugs = {};
+  for (var i = 0; i < checkTagList.length; i++) {
+    var tag = checkTagList[i];
+    var elements = document.getElementsByTagName(tag);
+    for (var z = 0; z < elements.length; z++) {
+      var el = elements[z];
+      if (tag == 'textarea') {
+        // textarea tags
+        var storageName = el.name + '_' + el.tagName.toLowerCase();
+        var value = default_values[storageName] ?
+                    default_values[storageName] : '';
+        el.value = value;
+        debugs[storageName] = value;
+      } else {
+        // other tags
+        var storageName = el.name + '_' + el.type;
+        var value = default_values[storageName];
+        switch (el.type) {
+          case 'radio':
+            if (el.value == value) {
+              el.checked = true;
+              debugs[storageName] = value;
+            }
+            break;
+          case 'checkbox':
+            el.checked = value;
+            debugs[storageName] = default_values[storageName];
+            break;
+          case 'text':
+            value = value ? value : '';
+            el.value = value;
+            debugs[storageName] = value;
+            break;
+          case 'number':
+            el.value = value ? value : 0;
+            debugs[storageName] = value;
+            break;
+        }
+      }
+    }
+  }
+
+  return debugs;
+}
+
+function LoadValues(document, default_values, callback)
+{
+  if (getType(document) != 'object' ||
+      getType(default_values) != 'object' ||
+      getType(callback) != 'function' &&
+      getType(callback) != 'undefined') {
+    throw new Error('Invalid argument.');
   }
 
   // Get All Option Value.
@@ -89,13 +142,19 @@ function LoadValues(document, default_values)
         }
       }
     }
+    callback(debugList);
   });
-
-  return debugList;
 }
 
-function SaveValues(document, saveTypes)
+function SaveValues(document, saveTypes, callback)
 {
+  if (getType(document) != 'object' ||
+      getType(saveTypes) != 'array' ||
+      getType(callback) != 'function' &&
+      getType(callback) != 'undefined') {
+    throw new Error('Invalid argument.');
+  }
+
   var save = new Object();
 
   // inputタグの保存するtype
@@ -138,68 +197,15 @@ function SaveValues(document, saveTypes)
   }
 
   // save options.
-  chrome.storage.local.set(save);
-
-  // saved key catalog
-  var debug = [];
-  for (var key in save) {
-    debug.push(key);
-  }
-
-  return debug;
-}
-
-function InitValues(document, checkTagList, default_values)
-{
-  if (getType(document) != 'object' ||
-      getType(checkTagList) != 'array' ||
-      getType(default_values) != 'object') {
-    throw 'InitValues Funciton. Argument Error.';
-  }
-
-  var debugs = {};
-  for (var i = 0; i < checkTagList.length; i++) {
-    var tag = checkTagList[i];
-    var elements = document.getElementsByTagName(tag);
-    for (var z = 0; z < elements.length; z++) {
-      var el = elements[z];
-      if (tag == 'textarea') {
-        // textarea tags
-        var storageName = el.name + '_' + el.tagName.toLowerCase();
-        var value = default_values[storageName] ?
-                    default_values[storageName] : '';
-        el.value = value;
-        debugs[storageName] = value;
-      } else {
-        // other tags
-        var storageName = el.name + '_' + el.type;
-        var value = default_values[storageName];
-        switch (el.type) {
-          case 'radio':
-            if (el.value == value) {
-              el.checked = true;
-              debugs[storageName] = value;
-            }
-            break;
-          case 'checkbox':
-            el.checked = value;
-            debugs[storageName] = default_values[storageName];
-            break;
-          case 'text':
-            value = value ? value : '';
-            el.value = value;
-            debugs[storageName] = value;
-            break;
-          case 'number':
-            el.value = value ? value : 0;
-            debugs[storageName] = value;
-            break;
-        }
-      }
+  chrome.storage.local.set(save, function() {
+    // saved key catalog
+    var debug = [];
+    for (var key in save) {
+      debug.push(key);
     }
-  }
 
-  return debugs;
+    callback(debug);
+  });
 }
 
 
@@ -221,8 +227,10 @@ function ReleasePageChangeState()
   if (assi_options.snapshotLength != 2) {
     throw new Error("onReleasePage function. can't get assi_options.");
   }
-  var state = !selectElement.snapshotItem(0).checked;
-  document.querySelector("input[name='release_url']").disabled = state;
+  var state = selectElement.snapshotItem(0).checked;
+  var release_url = document.querySelector("input[name='release_url']");
+  release_url.enabled = state;
+  release_url.disabled = !state;
   for (var j = 0; j < assi_options.snapshotLength; j++) {
     assi_options.snapshotItem(j).disabled = state;
   }
@@ -379,8 +387,9 @@ function createRegexReference()
 document.addEventListener('DOMContentLoaded', function() {
   InitTranslation();
   InitValues(document, ['input', 'textarea'], default_values);
-  LoadValues(document, default_values);
-  ReleasePageChangeState();
+  LoadValues(document, default_values, function() {
+    ReleasePageChangeState();
+  });
 
   // 設定項目など
   var elements = document.querySelectorAll("input[name='release_page']");
@@ -393,25 +402,25 @@ document.addEventListener('DOMContentLoaded', function() {
   var status = document.getElementById('status');
   var timeoutTime = 1000;
   document.querySelector('#save').addEventListener('click', function(e) {
-    SaveValues(document, ['checkbox', 'radio', 'text', 'number']);
-    chrome.runtime.sendMessage({ event: 'initialize' });
+    SaveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
+      chrome.runtime.sendMessage({ event: 'initialize' });
 
-    status.innerHTML = 'Options Saved.';
-    setTimeout(function() {
-      status.innerHTML = '';
-    }, timeoutTime);
+      status.innerHTML = 'Options Saved.';
+      setTimeout(function() {
+        status.innerHTML = '';
+      }, timeoutTime);
+    });
   }, false);
   document.querySelector('#load').addEventListener('click', function(e) {
-    LoadValues(document, default_values);
-
-    status.innerHTML = 'Options Loaded.';
-    setTimeout(function() {
-      status.innerHTML = '';
-    }, timeoutTime);
+    LoadValues(document, default_values, function() {
+      status.innerHTML = 'Options Loaded.';
+      setTimeout(function() {
+        status.innerHTML = '';
+      }, timeoutTime);
+    });
   }, false);
   document.querySelector('#init').addEventListener('click', function(e) {
-    change_options = InitValues(
-        document, ['input', 'textarea'], default_values);
+    InitValues(document, ['input', 'textarea'], default_values);
 
     status.innerHTML = 'Options Initialized.';
     setTimeout(function() {
