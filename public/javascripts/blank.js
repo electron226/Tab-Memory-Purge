@@ -57,7 +57,7 @@ function Initialize()
   // 推奨(recommend)
   if (args['title']) {
     document.title = args['title'];
-    document.querySelector('#title').innerHTML = document.title;
+    document.querySelector('#title').textContent = document.title;
   }
 
   // 推奨(recommend)
