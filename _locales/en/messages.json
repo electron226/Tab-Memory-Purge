@@ -126,6 +126,14 @@
     "message": "Example",
     "description": "Example"
   },
+  "export": {
+    "message": "Export",
+    "description": "Export"
+  },
+  "import": {
+    "message": "Import",
+    "description": "Import"
+  },
   "exclude_url": {
     "message": "Exclude URL(Regular expression)",
     "description": "Exclude URL"

@@ -3,7 +3,8 @@
 
 /* options.htmlで読み込み時に実行するスクリプト */
 var locale_i18n = [
-  'extName', 'option', 'setReleaseFileUrlTitle', 'setTimerTitle',
+  'extName', 'option', 'import', 'export',
+  'setReleaseFileUrlTitle', 'setTimerTitle',
   'otherTitle', 'assignment', 'in_extension', 'author', 'no_release',
   'explanation',
   'explanation_problem1', 'explanation_solution', 'explanation_problem2',
@@ -69,34 +70,32 @@ function InitValues(document, checkTagList, default_values)
   return debugs;
 }
 
-function LoadValues(document, default_values, callback)
+function LoadValues(document, values, callback)
 {
   if (getType(document) != 'object' ||
-      getType(default_values) != 'object' ||
-      getType(callback) != 'function' &&
-      getType(callback) != 'undefined') {
+      getType(values) != 'object' && values != undefined && values != null ||
+      getType(callback) != 'function' && getType(callback) != 'undefined') {
     throw new Error('Invalid argument.');
   }
 
-  // Get All Option Value.
-  var debugList = []; // use Debug
-  var keys = [];
-  for (var key in default_values) {
-    keys.push(key);
-  }
+  var debugList = new Array();
 
-  chrome.storage.local.get(keys, function(items) {
-    for (var key in items) {
-      var value = items[key];
+  chrome.storage.local.get(null, function(items) {
+    values = getType(values) == 'object' ? values : items;
+    for (var key in values) {
+      var value = values[key];
 
-      var elName = key.match(/(^[\w]*)_(text|radio|checkbox|number|textarea)$/);
+      var elName = key.match(
+          /(^[\w]*)_(text|password|radio|checkbox|number|textarea)$/);
       if (elName) {
         switch (elName[2]) {
           case 'number':
             var element = document.evaluate(
-                '//input[@name="' + elName[1] + '"]', document, null, 7, null);
+                '//input[@name="' + elName[1] + '"]',
+                document, null, 7, null);
             if (element.snapshotLength != 1) {
-              throw 'LoadValues() Get ' + elName[2] + ' error.';
+              console.log('LoadValues() Get "' + elName[1] + '" error.');
+              continue;
             }
             element.snapshotItem(0).value = value;
             debugList.push(elName[1]);
@@ -106,25 +105,31 @@ function LoadValues(document, default_values, callback)
                 '//input[@name="' + elName[1] + '"][@value="' + value + '"]',
                 document, null, 7, null);
             if (element.snapshotLength != 1) {
-              throw 'LoadValues() Get ' + elName[2] + ' error.';
+              console.log('LoadValues() Get "' + elName[1] + '" error.');
+              continue;
             }
             element.snapshotItem(0).checked = true;
             debugList.push(elName[1]);
             break;
           case 'checkbox':
             var element = document.evaluate(
-                '//input[@name="' + elName[1] + '"]', document, null, 7, null);
+                '//input[@name="' + elName[1] + '"]',
+                document, null, 7, null);
             if (element.snapshotLength != 1) {
-              throw 'LoadValues() Get ' + elName[2] + ' error.';
+              console.log('LoadValues() Get "' + elName[1] + '" error.');
+              continue;
             }
             element.snapshotItem(0).checked = value;
             debugList.push(elName[1]);
             break;
+          case 'password':
           case 'text':
             var element = document.evaluate(
-                '//input[@name="' + elName[1] + '"]', document, null, 7, null);
+                '//input[@name="' + elName[1] + '"]',
+                document, null, 7, null);
             if (element.snapshotLength != 1) {
-              throw 'LoadValues() Get ' + elName[2] + ' error.';
+              console.log('LoadValues() Get "' + elName[1] + '" error.');
+              continue;
             }
             element.snapshotItem(0).value = Trim(value);
             debugList.push(elName[1]);
@@ -134,7 +139,8 @@ function LoadValues(document, default_values, callback)
                 '//textarea[@name="' + elName[1] + '"]',
                 document, null, 7, null);
             if (element.snapshotLength != 1) {
-              throw 'LoadValues() Get ' + elName[2] + ' error.';
+              console.log('LoadValues() Get "' + elName[1] + '" error.');
+              continue;
             }
             element.snapshotItem(0).value = Trim(value);
             debugList.push(elName[1]);
@@ -142,7 +148,10 @@ function LoadValues(document, default_values, callback)
         }
       }
     }
-    callback(debugList);
+
+    if (callback instanceof Function) {
+      callback(debugList);
+    }
   });
 }
 
@@ -387,7 +396,7 @@ function createRegexReference()
 document.addEventListener('DOMContentLoaded', function() {
   InitTranslation();
   InitValues(document, ['input', 'textarea'], default_values);
-  LoadValues(document, default_values, function() {
+  LoadValues(document, null, function() {
     ReleasePageChangeState();
   });
 
@@ -401,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var status = document.getElementById('status');
   var timeoutTime = 1000;
-  document.querySelector('#save').addEventListener('click', function(e) {
+  document.getElementById('save').addEventListener('click', function(e) {
     SaveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
       chrome.runtime.sendMessage({ event: 'initialize' });
 
@@ -411,21 +420,46 @@ document.addEventListener('DOMContentLoaded', function() {
       }, timeoutTime);
     });
   }, false);
-  document.querySelector('#load').addEventListener('click', function(e) {
-    LoadValues(document, default_values, function() {
+  document.getElementById('load').addEventListener('click', function(e) {
+    LoadValues(document, null, function() {
       status.innerHTML = 'Options Loaded.';
       setTimeout(function() {
         status.innerHTML = '';
       }, timeoutTime);
     });
   }, false);
-  document.querySelector('#init').addEventListener('click', function(e) {
+  document.getElementById('init').addEventListener('click', function(e) {
     InitValues(document, ['input', 'textarea'], default_values);
 
     status.innerHTML = 'Options Initialized.';
     setTimeout(function() {
       status.innerHTML = '';
     }, timeoutTime);
+  }, false);
+
+  // Import and Export
+  var config_view = document.getElementById('config_view');
+  var config_view_status = document.getElementById('config_view_status');
+  document.getElementById('export').addEventListener('click', function(e) {
+    chrome.storage.local.get(null, function(items) {
+      config_view.value = JSON.stringify(items);
+    });
+  }, false);
+  document.getElementById('import').addEventListener('click', function(e) {
+    try {
+      var items = JSON.parse(config_view.value);
+      LoadValues(document, items, function() {
+        config_view_status.textContent = 'Success';
+        config_view_status.style.color = 'green';
+        setTimeout(function() {
+          config_view_status.innerHTML = '';
+        }, 1000);
+      });
+    } catch (e) {
+      config_view_status.textContent = 'Import error. invalid string.';
+      config_view_status.style.color = 'red';
+      return;
+    }
   }, false);
 
   /* 正規表現確認ツール関係 */

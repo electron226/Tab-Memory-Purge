@@ -123,6 +123,14 @@
     "message": "例",
     "description": "例"
   },
+  "export": {
+    "message": "エクスポート",
+    "description": "エクスポート"
+  },
+  "import": {
+    "message": "インポート",
+    "description": "インポート"
+  },
   "exclude_url": {
     "message": "除外するアドレス(正規表現)",
     "description": "除外するアドレス"
