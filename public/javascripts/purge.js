@@ -32,7 +32,7 @@ var tempScrollPositions = new Object();
 var tempRelease = new Array();
 
 // アクティブなタブを選択する前に選択していたタブのID
-var oldActiveIds = new TabIdHistory(5);
+var oldActiveIds = new TabIdHistory();
 
 // the name of key of backup in the local storage.
 var backupKey = 'backup';
@@ -58,6 +58,12 @@ icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
 icons[EXTENSION_EXCLUDE] =
     chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
 
+var extension_exclude_url =
+    '^chrome-*\\w*://\n' +
+    '^view-source:\n' +
+    'tabmemorypurge.appspot.com/\n' +
+    '^file:///\n';
+
 
 /**
 * タブの解放を行います。
@@ -65,7 +71,7 @@ icons[EXTENSION_EXCLUDE] =
 */
 function Purge(tabId)
 {
-  if (getType(tabId) != 'number') {
+  if (toType(tabId) !== 'number') {
     throw new Error("Invalid argument. tabId isn't number.");
   }
 
@@ -89,14 +95,12 @@ function Purge(tabId)
             // 解放に使うページを設定
             var page = local_blank_page;
             var storageName = 'release_page_radio';
-            var release_page = storages[storageName] !== undefined ?
-                               storages[storageName] :
+            var release_page = storages[storageName] ||
                                default_values[storageName];
             switch (release_page) {
               case 'author': // 作者サイト
                 var storageName = 'no_release_checkbox';
-                var no_release = storages[storageName] !== undefined ?
-                                 storages[storageName] :
+                var no_release = storages[storageName] ||
                                  default_values[storageName];
                 if (no_release) {
                   // If release page is activated, it don't reload.
@@ -110,24 +114,21 @@ function Purge(tabId)
                 break;
               case 'assignment': // 指定URL
                 var storageName = 'release_url_text';
-                var release_url = storages[storageName] !== undefined ?
-                                  storages[storageName] :
+                var release_url = storages[storageName] ||
                                   default_values[storageName];
-                if (release_url != '') {
+                if (release_url !== '') {
                   page = release_url;
                 }
 
                 var storageName = 'assignment_title_checkbox';
-                var checked_title = storages[storageName] !== undefined ?
-                                    storages[storageName] :
+                var checked_title = storages[storageName] ||
                                     default_values[storageName];
                 if (checked_title) {
                   args += title;
                 }
 
                 var storageName = 'assignment_favicon_checkbox';
-                var checked_favicon = storages[storageName] !== undefined ?
-                                      storages[storageName] :
+                var checked_favicon = storages[storageName] ||
                                       default_values[storageName];
                 if (checked_favicon) {
                   args += favicon;
@@ -172,7 +173,7 @@ function Purge(tabId)
 function UnPurge(tabId)
 {
   var url = unloaded[tabId]['url'];
-  if (getType(url) != 'string') {
+  if (toType(url) !== 'string') {
     throw new Error("Can't get url of tabId in unloaded.");
   }
 
@@ -194,7 +195,7 @@ function UnPurge(tabId)
 */
 function PurgeToggle(tabId)
 {
-  if (getType(tabId) != 'number') {
+  if (toType(tabId) !== 'number') {
     throw new Error("Invalid argument. tabId isn't number.");
   }
 
@@ -218,27 +219,27 @@ function PurgeToggle(tabId)
 */
 function CheckMatchUrlString(url, excludeOptions, callback)
 {
-  if (getType(url) != 'string') {
+  if (toType(url) !== 'string') {
     throw new Error("Invalid argument. the url isn't string.");
   }
-  if (getType(excludeOptions) != 'object') {
+  if (toType(excludeOptions) !== 'object') {
     throw new Error("Invalid argument. the excludeOptions isn't object.");
   }
-  if (getType(excludeOptions.list) != 'string') {
+  if (toType(excludeOptions.list) !== 'string') {
     throw new Error(
         "Invalid argument. the list in the excludeOptions isn't string.");
   }
-  if (getType(excludeOptions.options) != 'string') {
+  if (toType(excludeOptions.options) !== 'string') {
     throw new Error(
         "Invalid argument. the option in the excludeOptions isn't string.");
   }
-  if (getType(callback) != 'function') {
+  if (toType(callback) !== 'function') {
     throw new Error("Invalid argument. callback argument don't function type.");
   }
 
   var exclude_array = excludeOptions.list.split('\n');
   for (var i = 0; i < exclude_array.length; i++) {
-    if (exclude_array[i] != '') {
+    if (exclude_array[i] !== '') {
       var re = new RegExp(exclude_array[i], excludeOptions.options);
       if (re.test(url)) {
         callback(true);
@@ -261,17 +262,17 @@ function CheckMatchUrlString(url, excludeOptions, callback)
 */
 function CheckExcludeList(url, callback)
 {
-  if (getType(url) != 'string') {
+  if (toType(url) !== 'string') {
     throw new Error("Invalid argument. url isn't string.");
   }
-  if (getType(callback) != 'function') {
+  if (toType(callback) !== 'function') {
     throw new Error("Invalid argument. callback argument don't function type.");
   }
 
   chrome.storage.local.get(default_values, function(storages) {
     CheckMatchUrlString(
         url,
-        { list: default_values['extension_exclude_url'], options: 'i' },
+        { list: 'extension_exclude_url', options: 'i' },
         function(extension_match) {
           if (extension_match) {
             callback(EXTENSION_EXCLUDE);
@@ -280,18 +281,15 @@ function CheckExcludeList(url, callback)
 
           // 除外アドレスと比較
           var storageName = 'exclude_url_textarea';
-          var normal_excludes = storages[storageName] !== undefined ?
-                                storages[storageName] :
+          var normal_excludes = storages[storageName] ||
                                 default_values[storageName];
           // get regular regex option.
           var storageName = 'regex_insensitive_checkbox';
-          var regex_insensitive = storages[storageName] !== undefined ?
-                                  storages[storageName] :
+          var regex_insensitive = storages[storageName] ||
                                   default_values[storageName];
-          var regex_options = (regex_insensitive == true) ? 'i' : '';
           CheckMatchUrlString(
               url,
-              { list: normal_excludes, options: regex_options },
+              { list: normal_excludes, options: regex_insensitive ? 'i' : ''},
               function(normal_match) {
                 if (normal_match) {
                   // Normal Exclude List
@@ -300,7 +298,7 @@ function CheckExcludeList(url, callback)
                 }
 
                 // 一時的な非解放リストと比較
-                if (tempRelease.indexOf(url) != -1) {
+                if (tempRelease.indexOf(url) !== -1) {
                   callback(TEMP_EXCLUDE);
                   return;
                 }
@@ -320,11 +318,11 @@ function CheckExcludeList(url, callback)
 */
 function tick(tabId)
 {
-  if (getType(tabId) != 'number') {
+  if (toType(tabId) !== 'number') {
     throw new Error("Invalid argument. tabId isn't number.");
   }
 
-  if (getType(unloaded[tabId]) != 'object') {
+  if (toType(unloaded[tabId]) !== 'object') {
     chrome.tabs.get(tabId, function(tab) {
       // アクティブタブへの処理の場合、行わない
       if (tab.active) {
@@ -344,7 +342,7 @@ function tick(tabId)
 */
 function setTick(tabId)
 {
-  if (getType(tabId) != 'number') {
+  if (toType(tabId) !== 'number') {
     throw new Error("Invalid argument. tabId isn't number.");
   }
 
@@ -352,12 +350,10 @@ function setTick(tabId)
     chrome.tabs.get(tabId, function(tab) {
       CheckExcludeList(tab.url, function(state) {
         // 全ての除外アドレス一覧と比較
-        if (state == NORMAL_EXCLUDE) {
+        if (state === NORMAL_EXCLUDE) {
           // 除外アドレスに含まれていない場合
           var storageName = 'timer_number';
-          var timer = storages[storageName] !== undefined ?
-                      storages[storageName] :
-                      default_values[storageName];
+          var timer = storages[storageName] || default_values[storageName];
           timer = timer * 60 * 1000; // 分(設定) * 秒数 * ミリ秒
 
           ticked[tabId] = setInterval(function() { tick(tabId); } , timer);
@@ -418,16 +414,16 @@ function AllUnPurge()
 */
 function Restore(object, keys, index, end)
 {
-  if (getType(object) != 'object') {
+  if (toType(object) !== 'object') {
     throw new Error("Invalid argument. object isn't object.");
   }
-  if (keys !== undefined && getType(keys) != 'array') {
+  if (keys !== void 0 && toType(keys) !== 'array') {
     throw new Error("Invalid argument. keys isn't array or undefined.");
   }
-  if (index !== undefined && getType(index) != 'number') {
+  if (index !== void 0 && toType(index) !== 'number') {
     throw new Error("Invalid argument. index isn't number or undefined.");
   }
-  if (end !== undefined && getType(end) != 'number') {
+  if (end !== void 0 && toType(end) !== 'number') {
     throw new Error("Invalid argument. end isn't number or undefined.");
   }
 
@@ -438,7 +434,7 @@ function Restore(object, keys, index, end)
   }
 
   // 初期値
-  if (getType(keys) != 'array') {
+  if (toType(keys) !== 'array') {
     keys = new Array();
     for (var i in object) {
       keys.push(i);
@@ -449,7 +445,7 @@ function Restore(object, keys, index, end)
 
   var tabId = parseInt(keys[index]);
   chrome.tabs.get(tabId, function(tab) {
-    if (tab === undefined || tab === null) {
+    if (tab === void 0 || tab === null) {
       // タブが存在しない場合、新規作成
       var purgeurl = object[tabId]['purgeurl'];
       chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
@@ -472,7 +468,7 @@ function RestoreTabs()
 {
   chrome.storage.local.get(backupKey, function(storages) {
     var backup = storages[backupKey];
-    if (getType(backup) == 'string' && backup != '{}') {
+    if (toType(backup) === 'string' && backup !== '{}') {
       Restore(JSON.parse(backup));
     }
   });
@@ -494,7 +490,7 @@ function UpdateBackup()
  */
 function ReloadBrowserIcon(tab)
 {
-  if (getType(tab) != 'object') {
+  if (toType(tab) !== 'object') {
     throw new Error("Invalid argument. tab isn't object.");
   }
 
@@ -516,12 +512,12 @@ function ReloadBrowserIcon(tab)
 */
 function TempReleaseToggle(tab)
 {
-  if (getType(tab) != 'object') {
+  if (toType(tab) !== 'object') {
     throw new Error("Invalid argument. tab isn't object.");
   }
 
   var index = tempRelease.indexOf(tab.url);
-  if (index == -1) {
+  if (index === -1) {
     // push url in tempRelease.
     tempRelease.push(tab.url);
   } else {
@@ -541,7 +537,7 @@ function TempReleaseToggle(tab)
 */
 function SearchUnloadedTabNearPosition(tab)
 {
-  if (getType(tab) != 'object') {
+  if (toType(tab) !== 'object') {
     throw new Error("Invalid argument. tab isn't object.");
   }
 
@@ -549,20 +545,20 @@ function SearchUnloadedTabNearPosition(tab)
   chrome.windows.get(tab.windowId, { populate: true }, function(win) {
     // Search current tab position.
     var i = 0;
-    while (i < win.tabs.length && win.tabs[i].id != tab.id) {
+    while (i < win.tabs.length && win.tabs[i].id !== tab.id) {
       i++;
     }
 
     // Search right than current tab.
     var j = i + 1;
-    while (j < win.tabs.length && unloaded[win.tabs[j].id] != undefined) {
+    while (j < win.tabs.length && unloaded[win.tabs[j].id] !== void 0) {
       j++;
     }
 
     // Search the left if can't find.
     if (j >= win.tabs.length) {
       var j = i - 1;
-      while (0 <= j && unloaded[win.tabs[j].id] != undefined) {
+      while (0 <= j && unloaded[win.tabs[j].id] !== void 0) {
         j--;
       }
     }
@@ -603,14 +599,12 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
       if (!oldActiveIds.isEmpty(tab.windowId)) {
         UnloadTimeProlong(oldActiveIds.lastPrevious(tab.windowId));
       }
-      oldActiveIds.push({ windowId: tab.windowId, tabId: activeInfo.tabId });
+      oldActiveIds.update({ windowId: tab.windowId, id: activeInfo.tabId });
 
-      if (getType(unloaded[activeInfo.tabId]) == 'object') {
+      if (toType(unloaded[activeInfo.tabId]) === 'object') {
         var storageName = 'no_release_checkbox';
-        var no_release = storages[storageName] !== undefined ?
-                         storages[storageName] :
-                         default_values[storageName];
-        if (no_release == false) {
+        var no_release = storages[storageName] || default_values[storageName];
+        if (no_release === false) {
           // アクティブにしたタブがアンロード済みだった場合、再読込
           // 解放ページ側の処理と二重処理になるが、
           // どちらかが先に実行されるので問題なし。
@@ -646,13 +640,13 @@ chrome.tabs.onDetached.addListener(function(tabId, detachInfo) {
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-  if (changeInfo.status == 'complete') {
+  if (changeInfo.status === 'complete') {
     ReloadBrowserIcon(tab);
 
     // 解放解除時に動作。
     // 指定したタブの解放時のスクロール量があった場合、それを復元する
     var scrollPos = tempScrollPositions[tab.id];
-    if (getType(scrollPos) == 'object') {
+    if (toType(scrollPos) === 'object') {
       chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {

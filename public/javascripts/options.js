@@ -10,81 +10,27 @@ var locale_i18n = [
   'explanation_problem1', 'explanation_solution', 'explanation_problem2',
   'explanation_problem3', 'explanation_problem4', 'forcibly_close_restore',
   'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
-  'save', 'clear', 'init', 'minute', 'exclude_url',
+  'save', 'load', 'init', 'minute', 'exclude_url',
   'regex_tool',
   'regex_refURL', 'regex', 'regex_compare_string', 'regex_reference',
   'regex_option_reference', 'regix_result', 'regex_information',
   'regex_confuse'
 ];
 
-function InitValues(document, checkTagList, default_values)
+function LoadValues(document, values, debugCallback)
 {
-  if (getType(document) != 'object' ||
-      getType(checkTagList) != 'array' ||
-      getType(default_values) != 'object') {
-    throw 'InitValues Funciton. Argument Error.';
+  if (document === void 0 ||
+      toType(values) !== 'object' && values !== null || values === void 0) {
+    throw new Error('Arguments type error.');
   }
 
-  var debugs = {};
-  for (var i = 0; i < checkTagList.length; i++) {
-    var tag = checkTagList[i];
-    var elements = document.getElementsByTagName(tag);
-    for (var z = 0; z < elements.length; z++) {
-      var el = elements[z];
-      if (tag == 'textarea') {
-        // textarea tags
-        var storageName = el.name + '_' + el.tagName.toLowerCase();
-        var value = default_values[storageName] ?
-                    default_values[storageName] : '';
-        el.value = value;
-        debugs[storageName] = value;
-      } else {
-        // other tags
-        var storageName = el.name + '_' + el.type;
-        var value = default_values[storageName];
-        switch (el.type) {
-          case 'radio':
-            if (el.value == value) {
-              el.checked = true;
-              debugs[storageName] = value;
-            }
-            break;
-          case 'checkbox':
-            el.checked = value;
-            debugs[storageName] = default_values[storageName];
-            break;
-          case 'text':
-            value = value ? value : '';
-            el.value = value;
-            debugs[storageName] = value;
-            break;
-          case 'number':
-            el.value = value ? value : 0;
-            debugs[storageName] = value;
-            break;
-        }
-      }
-    }
-  }
-
-  return debugs;
-}
-
-function LoadValues(document, values, callback)
-{
-  if (getType(document) != 'object' ||
-      getType(values) != 'object' && values != undefined && values != null ||
-      getType(callback) != 'function' && getType(callback) != 'undefined') {
-    throw new Error('Invalid argument.');
-  }
-
-  var debugList = new Array();
-
+  // Get All Option Value.
   chrome.storage.local.get(null, function(items) {
-    values = getType(values) == 'object' ? values : items;
-    for (var key in values) {
-      var value = values[key];
+    var debugList = []; // use Debug
 
+    items = values || items;
+    for (var key in items) {
+      var value = items[key];
       var elName = key.match(
           /(^[\w]*)_(text|password|radio|checkbox|number|textarea)$/);
       if (elName) {
@@ -93,8 +39,8 @@ function LoadValues(document, values, callback)
             var element = document.evaluate(
                 '//input[@name="' + elName[1] + '"]',
                 document, null, 7, null);
-            if (element.snapshotLength != 1) {
-              console.log('LoadValues() Get "' + elName[1] + '" error.');
+            if (element.snapshotLength !== 1) {
+              console.log('LoadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).value = value;
@@ -104,8 +50,8 @@ function LoadValues(document, values, callback)
             var element = document.evaluate(
                 '//input[@name="' + elName[1] + '"][@value="' + value + '"]',
                 document, null, 7, null);
-            if (element.snapshotLength != 1) {
-              console.log('LoadValues() Get "' + elName[1] + '" error.');
+            if (element.snapshotLength !== 1) {
+              console.log('LoadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).checked = true;
@@ -113,10 +59,9 @@ function LoadValues(document, values, callback)
             break;
           case 'checkbox':
             var element = document.evaluate(
-                '//input[@name="' + elName[1] + '"]',
-                document, null, 7, null);
-            if (element.snapshotLength != 1) {
-              console.log('LoadValues() Get "' + elName[1] + '" error.');
+                '//input[@name="' + elName[1] + '"]', document, null, 7, null);
+            if (element.snapshotLength !== 1) {
+              console.log('LoadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).checked = value;
@@ -125,10 +70,9 @@ function LoadValues(document, values, callback)
           case 'password':
           case 'text':
             var element = document.evaluate(
-                '//input[@name="' + elName[1] + '"]',
-                document, null, 7, null);
-            if (element.snapshotLength != 1) {
-              console.log('LoadValues() Get "' + elName[1] + '" error.');
+                '//input[@name="' + elName[1] + '"]', document, null, 7, null);
+            if (element.snapshotLength !== 1) {
+              console.log('LoadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).value = Trim(value);
@@ -138,8 +82,8 @@ function LoadValues(document, values, callback)
             var element = document.evaluate(
                 '//textarea[@name="' + elName[1] + '"]',
                 document, null, 7, null);
-            if (element.snapshotLength != 1) {
-              console.log('LoadValues() Get "' + elName[1] + '" error.');
+            if (element.snapshotLength !== 1) {
+              console.log('LoadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).value = Trim(value);
@@ -149,22 +93,17 @@ function LoadValues(document, values, callback)
       }
     }
 
-    if (callback instanceof Function) {
-      callback(debugList);
+    if (toType(debugCallback) === 'function') {
+      debugCallback(debugList);
     }
   });
 }
 
 function SaveValues(document, saveTypes, callback)
 {
-  if (getType(document) != 'object' ||
-      getType(saveTypes) != 'array' ||
-      getType(callback) != 'function' &&
-      getType(callback) != 'undefined') {
+  if (document === void 0 || toType(saveTypes) !== 'array') {
     throw new Error('Invalid argument.');
   }
-
-  var save = new Object();
 
   // inputタグの保存するtype
   var types = '';
@@ -175,6 +114,8 @@ function SaveValues(document, saveTypes, callback)
     }
   }
 
+  var writeData = new Object();
+
   var inputs = document.evaluate(
       '//input[' + types + ']', document, null, 7, null);
   for (var i = 0; i < inputs.snapshotLength; i++) {
@@ -183,17 +124,17 @@ function SaveValues(document, saveTypes, callback)
     switch (inputs.snapshotItem(i).type) {
       case 'radio':
         if (inputs.snapshotItem(i).checked) {
-          save[storageName] = inputs.snapshotItem(i).value;
+          writeData[storageName] = inputs.snapshotItem(i).value;
         }
         break;
       case 'checkbox':
-        save[storageName] = inputs.snapshotItem(i).checked;
+        writeData[storageName] = inputs.snapshotItem(i).checked;
         break;
       case 'text':
-        save[storageName] = Trim(inputs.snapshotItem(i).value);
+        writeData[storageName] = Trim(inputs.snapshotItem(i).value);
         break;
       case 'number':
-        save[storageName] = inputs.snapshotItem(i).value;
+        writeData[storageName] = inputs.snapshotItem(i).value;
         break;
     }
   }
@@ -202,18 +143,20 @@ function SaveValues(document, saveTypes, callback)
   for (var i = 0; i < textareas.snapshotLength; i++) {
     var storageName = textareas.snapshotItem(i).name + '_' +
                       textareas.snapshotItem(i).tagName.toLowerCase();
-    save[storageName] = Trim(textareas.snapshotItem(i).value);
+    writeData[storageName] = Trim(textareas.snapshotItem(i).value);
   }
 
-  // save options.
-  chrome.storage.local.set(save, function() {
-    // saved key catalog
+  // writeData options.
+  chrome.storage.local.set(writeData, function() {
+    // writeDatad key catalog
     var debug = [];
-    for (var key in save) {
+    for (var key in writeData) {
       debug.push(key);
     }
 
-    callback(debug);
+    if (toType(callback) === 'function') {
+      callback(debug);
+    }
   });
 }
 
@@ -226,14 +169,14 @@ function ReleasePageChangeState()
   var selectElement = document.evaluate(
       '//input[@name="release_page" and @value="assignment"]',
       document, null, 7, null);
-  if (selectElement.snapshotLength != 1) {
+  if (selectElement.snapshotLength !== 1) {
     throw new Error("onReleasePage function. can't get selectElement.");
   }
 
   var assi_options = document.evaluate(
       '//li[@id="assignment_options"]/input[@type="checkbox"]',
       document, null, 7, null);
-  if (assi_options.snapshotLength != 2) {
+  if (assi_options.snapshotLength !== 2) {
     throw new Error("onReleasePage function. can't get assi_options.");
   }
   var state = selectElement.snapshotItem(0).checked;
@@ -249,17 +192,22 @@ function ReleasePageChangeState()
 /**
 * ロケール文字列の読み込み
 */
-function InitTranslation()
+function InitTranslation(document, suffix)
 {
+  if (document === void 0 ||
+      toType(suffix) !== 'string') {
+    throw 'InitTranslation Function is Argument Error.';
+  }
+
   // テキストの設定
   for (var i = 0; i < locale_i18n.length; i++) {
-    var el = document.getElementsByClassName(locale_i18n[i] + 'Text');
+    var el = document.getElementsByClassName(locale_i18n[i] + suffix);
     var message = chrome.i18n.getMessage(locale_i18n[i]);
     for (var j = 0; j < el.length; j++) {
       var string = el[j].innerHTML;
       var index = string.lastIndexOf('</');
       el[j].innerHTML = string.substring(0, index) +
-          message + string.substring(index);
+                        message + string.substring(index);
     }
   }
 }
@@ -358,7 +306,7 @@ function createRegexReference()
     }
     count++;
   }
-  if (count != 0) {
+  if (count !== 0) {
     outputRegex += '</tr>';
   }
   outputRegex += '</table>';
@@ -383,7 +331,7 @@ function createRegexReference()
     }
     count++;
   }
-  if (count != 0) {
+  if (count !== 0) {
     outputOption += '</tr>';
   }
   outputOption += '</table>';
@@ -394,8 +342,8 @@ function createRegexReference()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  InitTranslation();
-  InitValues(document, ['input', 'textarea'], default_values);
+  InitTranslation(document, 'Text');
+  LoadValues(document, default_values);
   LoadValues(document, null, function() {
     ReleasePageChangeState();
   });
@@ -429,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, false);
   document.getElementById('init').addEventListener('click', function(e) {
-    InitValues(document, ['input', 'textarea'], default_values);
+    LoadValues(document, default_values);
 
     status.innerHTML = 'Options Initialized.';
     setTimeout(function() {
@@ -449,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       var items = JSON.parse(config_view.value);
       LoadValues(document, items, function() {
-        config_view_status.textContent = 'Success';
+        config_view_status.textContent = 'Success. Please, save';
         config_view_status.style.color = 'green';
         setTimeout(function() {
           config_view_status.innerHTML = '';

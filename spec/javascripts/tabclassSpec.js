@@ -1,119 +1,111 @@
-describe('KeyList class', function() {
+describe('TabIdList class', function() {
     var instance = null;
-    var key = undefined;
+    var windowId = undefined;
 
     beforeEach(function() {
-        instance = new KeyList();
-        key = 0;
+        instance = new TabIdList();
+        windowId = 0;
     });
 
-    it('call push', function() {
-        expect(instance.data[key]).toBeUndefined();
-        instance.push({ key: key, value: 5 });
-        expect(instance.data[key][0]).toEqual(5);
-        expect(instance.data[key].length).toEqual(1);
+    it('call add', function() {
+        expect(instance.data[windowId]).toBeUndefined();
+        instance.add({ windowId: windowId, id: 5 });
+        expect(instance.data[windowId][0]).toEqual(5);
+        expect(instance.data[windowId].length).toEqual(1);
     });
 
     it('call insert', function() {
-        instance.push({ key: key, value: 1 });
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 4 });
+        instance.add({ windowId: windowId, id: 1 });
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 4 });
 
         var id = 5;
         var index = 1;
-        instance.insert({ key: key, index: index, value: id});
-        expect(instance.data[key][index]).toEqual(id);
+        instance.insert({ windowId: windowId, index: index, id: id});
+        expect(instance.data[windowId][index]).toEqual(id);
 
         id = 6;
         index = 7;
-        instance.insert({ key: key, index: index, value: id});
-        expect(instance.data[key][index]).toBeUndefined();
-        expect(instance.data[key].length).toEqual(6);
+        instance.insert({ windowId: windowId, index: index, id: id});
+        expect(instance.data[windowId][index]).toBeUndefined();
+        expect(instance.data[windowId].length).toEqual(6);
     });
 
     it('call move', function() {
-        instance.push({ key: key, value: 1 });
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 4 });
-        instance.push({ key: key, value: 5 });
+        instance.add({ windowId: windowId, id: 1 });
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 4 });
+        instance.add({ windowId: windowId, id: 5 });
 
         var fromIndex = 4;
         var toIndex = 2;
-        instance.move({ key: key,
+        instance.move({ windowId: windowId,
                         fromIndex: fromIndex,
                         toIndex: toIndex });
-        var found = instance.find({ key: key, value: 5 });
+        var found = instance.find({ windowId: windowId, id: 5 });
         expect(found.index).toEqual(toIndex);
 
-        expect(instance.data[key]).toEqual([1, 2, 5, 3, 4]);
+        expect(instance.data[windowId]).toEqual([1, 2, 5, 3, 4]);
     });
 
     it('call find', function() {
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 5 });
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 5 });
 
-        var found = instance.find({ key: key, value: 3 });
+        var found = instance.find({ windowId: windowId, id: 3 });
         expect(found.index).toEqual(1);
-        var found = instance.find({ value: 3 });
-        expect(found.key).toEqual(key);
+        var found = instance.find({ id: 3 });
+        expect(found.windowId).toEqual(windowId);
 
         expect(function() {
-            instance.find({ key: key, value: 6 }) }).toThrow();
+            instance.find({ windowId: windowId, id: 6 }) }).toThrow();
     });
 
     it('call remove', function() {
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 5 });
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 5 });
 
         // remove
-        var value = 2;
-        expect(instance.data[key].length).toEqual(3);
+        var id = 2;
+        expect(instance.data[windowId].length).toEqual(3);
         expect(function() {
-            instance.find({ key: key, value: value });
+            instance.find({ windowId: windowId, id: id });
         }).not.toThrow();
-        instance.remove({ key: key, value: value });
+        instance.remove({ windowId: windowId, id: id });
         expect(function() {
-            instance.find({ key: key, value: value });
+            instance.find({ windowId: windowId, id: id });
         }).toThrow();
-        expect(instance.data[key].length).toEqual(2);
+        expect(instance.data[windowId].length).toEqual(2);
 
-        var value = 3;
+        var id = 3;
         expect(function() {
-            instance.find({ key: key, value: value });
+            instance.find({ windowId: windowId, id: id });
         }).not.toThrow();
-        instance.remove({ key: key });
-        expect(instance.data[key]).toBeUndefined();
+        instance.remove({ windowId: windowId });
+        expect(instance.data[windowId]).toBeUndefined();
     });
 
     it('call get', function() {
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 5 });
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 5 });
 
-        expect(instance.get({ key: key, index: 2 })).toEqual(5);
+        expect(instance.get({ windowId: windowId, index: 2 })).toEqual(5);
         expect(function() {
-            instance.get({ key: key, index: 5 });
+            instance.get({ windowId: windowId, index: 5 });
         }).toThrow();
     });
 
-    it('call length', function() {
-        instance.push({ key: key, value: 2 });
-        instance.push({ key: key, value: 3 });
-        instance.push({ key: key, value: 5 });
+    it('call Length', function() {
+        instance.add({ windowId: windowId, id: 2 });
+        instance.add({ windowId: windowId, id: 3 });
+        instance.add({ windowId: windowId, id: 5 });
 
-        expect(instance.length(key)).toEqual(3);
-        expect(instance.length()).toEqual(1);
-    });
-
-    it('call isEmpty', function() {
-        expect(function() { instance.isEmpty() }).toThrow();
-        expect(instance.isEmpty(key)).toBeTruthy();
-        instance.push({ key: key, value: 2 });
-        expect(instance.isEmpty(key)).toBeFalsy();
+        expect(instance.Length(windowId)).toEqual(3);
     });
 });
 
@@ -122,73 +114,159 @@ describe('TabIdHistory class', function() {
     var windowId = undefined;
 
     beforeEach(function() {
-        instance = new TabIdHistory(2);
+        instance = new TabIdHistory();
         windowId = 0;
     });
 
-    it('initialized history length', function() {
-        instance = new TabIdHistory(6);
-        expect(instance.push({ windowId: windowId, tabId: 0 })).toBeUndefined();
-        expect(instance.history[windowId].length).toEqual(6);
+    it('initialized history', function() {
+        instance = new TabIdHistory();
     });
 
-    it('call push', function() {
-        expect(instance.push({ windowId: windowId, tabId: 0 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 1 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 2 })).toEqual(0);
-        expect(instance.history[windowId].length).toEqual(2);
-        expect(instance.push({ windowId: windowId, tabId: 3 })).toEqual(1);
-        expect(instance.push({ windowId: windowId, tabId: 3 })).toBeNull();
+    it('call update and length', function() {
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+      instance.update({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(3);
+
+      expect(function() {
+        instance.update({ windowId: windowId, id: 2 });
+      }).not.toThrow();
+      expect(function() {
+        instance.update({ windowId: windowId, index: 5 });
+      }).toThrow();
     });
 
     it('call remove', function() {
-        expect(instance.push({ windowId: windowId, tabId: 1 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 2 })).toBeUndefined();
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+      instance.update({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(3);
 
-        // remove
-        instance.remove({ windowId: windowId, tabId: 0 });
-        expect(instance.history[windowId][0]).toEqual(1);
-        expect(instance.history[windowId][1]).toEqual(2);
+      // remove
+      instance.remove({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(2);
+      expect(instance.history[windowId][0]).toEqual(1);
 
-        instance.remove({ windowId: windowId, tabId: 1 });
-        expect(instance.history[windowId][0]).toEqual(2);
-        expect(instance.history[windowId][1]).toEqual(2);
+      instance.remove({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(1);
+      expect(instance.history[windowId][0]).toEqual(1);
+      
+      instance.remove({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(0);
+    });
 
-        instance.remove({ windowId: windowId, tabId: 2 });
-        expect(instance.history[windowId][0]).toBeUndefined();
-        expect(instance.history[windowId][1]).toBeUndefined();
+    it('call remove windowId', function() {
+      // remove windowId
+      expect(instance.Length()).toEqual(0);
 
-        instance.remove({ windowId: windowId });
-        expect(instance.history[windowId]).toBeUndefined();
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+
+      expect(instance.Length()).toEqual(1);
+
+      var differId = 555;
+      expect(instance.Length(differId)).toEqual(0);
+      instance.update({ windowId: differId, id: 3 });
+      expect(instance.Length(differId)).toEqual(1);
+      instance.update({ windowId: differId, id: 4 });
+      expect(instance.Length(differId)).toEqual(2);
+
+      expect(instance.Length()).toEqual(2);
+
+      instance.remove({ windowId: windowId });
+      expect(instance.Length()).toEqual(1);
+      expect(function() {
+        instance.get({ windowId: windowId, index: 0 });
+      }).toThrow();
+
+      expect(instance.get({ windowId: differId, index: 0 })).toEqual(3);
+    });
+
+    it('call isEmpty', function() {
+      expect(instance.isEmpty(windowId)).toEqual(true);
+
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+
+      expect(instance.isEmpty(windowId)).toEqual(false);
+
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+      instance.update({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(3);
+
+      // remove
+      instance.remove({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(2);
+      expect(instance.history[windowId][0]).toEqual(1);
+
+      instance.remove({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(1);
+      expect(instance.history[windowId][0]).toEqual(1);
+      
+      instance.remove({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(0);
+
+      expect(instance.isEmpty(windowId)).toEqual(true);
     });
 
     it('call get', function() {
-        expect(instance.push({ windowId: windowId, tabId: 0 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 1 })).toBeUndefined();
-        expect(instance.get({ windowId: windowId, index: 1 })).toEqual(1);
-        expect(function() {
-            instance.get({ windowId: windowId, index: 5 });
-        }).toThrow();
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+      instance.update({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(3);
+
+      expect(instance.get({ windowId: windowId, index: 1 })).toEqual(1);
+
+      expect(function() {
+        instance.get({ windowId: windowId, index: -1 });
+      }).toThrow();
+      expect(function() {
+        instance.get({ windowId: windowId, index: 4 });
+      }).toThrow();
+
+      expect(function() {
+        instance.get({ windowId: '', index: 1 });
+      }).toThrow();
+      expect(function() {
+        instance.get({ windowId: windowId, index: '' });
+      }).toThrow();
+      expect(function() {
+        instance.get({ windowId: windowId });
+      }).toThrow();
+      expect(function() {
+        instance.get({ index: 1 });
+      }).toThrow();
+      expect(function() {
+        instance.get();
+      }).toThrow();
     });
 
-    it('call getlastPrevious', function() {
-        expect(instance.push({ windowId: windowId, tabId: 1 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 2 })).toBeUndefined();
+    it('call lastPrevious', function() {
+      expect(instance.Length(windowId)).toEqual(0);
+      instance.update({ windowId: windowId, id: 0 });
+      expect(instance.Length(windowId)).toEqual(1);
+      instance.update({ windowId: windowId, id: 1 });
+      expect(instance.Length(windowId)).toEqual(2);
+      instance.update({ windowId: windowId, id: 2 });
+      expect(instance.Length(windowId)).toEqual(3);
 
-        // lastPrevious
-        expect(instance.lastPrevious(windowId)).toEqual(2);
-    });
-
-    it('call update', function() {
-        expect(instance.push({ windowId: windowId, tabId: 0 })).toBeUndefined();
-        expect(instance.push({ windowId: windowId, tabId: 1 })).toBeUndefined();
-        expect(function() {
-            instance.update({ windowId: windowId, index: 5, tabId: 5 });
-        }).toThrow();
-
-        var index = 0;
-        expect(instance.update(
-            { windowId: windowId, index: index, tabId: 5 })).toEqual(0);
-        expect(instance.history[windowId][index]).toEqual(5);
+      // lastPrevious
+      expect(instance.lastPrevious(windowId)).toEqual(2);
+      expect(instance.lastPrevious(windowId, 2)).toEqual(1);
+      expect(instance.lastPrevious(windowId, 3)).toEqual(0);
     });
 });

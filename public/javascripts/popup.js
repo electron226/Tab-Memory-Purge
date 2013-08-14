@@ -7,7 +7,7 @@ function ChangeNonReleaseText()
   var storageName = 'purgeIcon';
   chrome.storage.local.get(storageName, function(storages) {
     var el = document.querySelector('.non_releaseText');
-    console.log(storages[storageName], getType(storages[storageName]));
+    console.log(storages[storageName], toType(storages[storageName]));
     var message = '';
     switch (storages[storageName]) {
       case TEMP_EXCLUDE: // temp release
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、
     // 専用メニューを表示。
-    if (storages[storageName] == 'normal') {
+    if (storages[storageName] === 'normal') {
       var el = document.querySelector('.release_extension_menu');
       el.style.display = 'block';
     }

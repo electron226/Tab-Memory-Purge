@@ -102,9 +102,9 @@
     "message": "Save",
     "description": "Save Button"
   },
-  "clear": {
-    "message": "Clear",
-    "description": "Clear Button"
+  "load": {
+    "message": "Load",
+    "description": "Load Button"
   },
   "init": {
     "message": "Initialize",
