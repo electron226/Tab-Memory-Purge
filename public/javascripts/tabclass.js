@@ -1,6 +1,8 @@
+"use strict"; /*jshint globalstrict: true*/
+
 /* TabIdList class */
 var TabIdList = function() {
-  this.data = new Object();
+  this.data = {};
 };
 
 TabIdList.prototype.get = function(getOptions) {
@@ -38,7 +40,7 @@ TabIdList.prototype.find = function(findOptions) {
                     ' number or undefined type in argument object.');
   }
 
-  var searchObj = new Object();
+  var searchObj = {};
   if (windowId === void 0) {
     searchObj = this.data;
   } else if (toType(id) === 'number') {
@@ -49,9 +51,13 @@ TabIdList.prototype.find = function(findOptions) {
   }
 
   for (var key in searchObj) {
+    if (!searchObj.hasOwnProperty(key)) {
+      continue;
+    }
+
     for (var i = 0; i < this.data[key].length; i++) {
-      if (this.data[key][i] == id) {
-        return { windowId: parseInt(key), index: i };
+      if (this.data[key][i] === id) {
+        return { windowId: parseInt(key, 10), index: i };
       }
     }
   }
@@ -75,7 +81,7 @@ TabIdList.prototype.add = function(addOptions) {
   }
 
   if (this.data[windowId] === void 0) {
-    this.data[windowId] = new Array();
+    this.data[windowId] = [];
   }
   this.data[windowId].push(id);
 };
@@ -156,9 +162,13 @@ TabIdList.prototype.remove = function(removeOptions) {
 
     delete this.data[windowId];
   } else {
-    for (var windowId in this.data) {
+    for (windowId in this.data) {
+      if (!this.data.hasOwnProperty(windowId)) {
+        continue;
+      }
+
       if (toType(removeOptions.windowId) === 'number' &&
-          removeOptions.windowId != parseInt(windowId)) {
+        removeOptions.windowId !== parseInt(windowId, 10)) {
         continue;
       }
 
@@ -195,7 +205,7 @@ TabIdList.prototype.isEmpty = function(windowId) {
 
 /* TabIdHistory class */
 var TabIdHistory = function() {
-  this.history = new Object();
+  this.history = {};
 };
 
 TabIdHistory.prototype.get = function(getOptions) {
@@ -250,7 +260,7 @@ TabIdHistory.prototype.update = function(updateOptions) {
   }
 
   if (this.history[windowId] === void 0) {
-    this.history[windowId] = new Array();
+    this.history[windowId] = [];
   }
 
   var length = this.history[windowId].length;
@@ -277,7 +287,11 @@ TabIdHistory.prototype.remove = function(removeOptions) {
     delete this.history[windowId];
   } else {
     for (var winId in this.history) {
-      winId = parseInt(winId);
+      if (!this.history.hasOwnProperty(winId)) {
+        continue;
+      }
+
+      winId = parseInt(winId, 10);
       if (toType(windowId) === 'number' && windowId !== winId) {
         continue;
       }

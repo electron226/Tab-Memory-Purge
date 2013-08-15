@@ -12,7 +12,7 @@ function Init()
     // 前回、正常にウインドウが閉じられていなかった場合、
     // 以前の解放済タブの情報が残っていたら復元
     if (storages[storageName] || localStorage[storageName] === 'true') {
-      RestoreTabs();
+      chrome.runtime.sendMessage({ event: 'restore' });
     }
   });
 }

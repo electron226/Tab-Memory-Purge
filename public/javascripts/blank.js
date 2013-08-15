@@ -19,7 +19,7 @@ function GetQueryString()
       var element = parameters[i].split('=');
 
       var paramName = element[0];
-      var paramValue = unescape(element[1]); // url key used unescape.
+      var paramValue = decodeURIComponent(element[1]); // url key used unescape.
 
       result[paramName] = paramValue;
     }
