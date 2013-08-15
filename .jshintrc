@@ -1,0 +1,26 @@
+{
+  "strict" : true,  // "use strict" を強制
+//  "indent" : 2,  // インデントの深さ
+  "maxlen" : 80,  // 一行の最大長
+  "curly": true, // if文などが中カッコでブロックされているか
+  "undef": true, // 明示的に宣言されていない変数の使用を禁止
+  "unused" : true,  // 宣言したきり使っていない変数を検出
+  "eqeqeq" : true, // ==演算子と!=演算子の使用を禁止
+  "eqnull" : true, // == nullに対する警告を出さない。この比較は変数がnullまたはundefinedかどうか調べる際に有用です。
+  "expr" : true,  // x || (x = 1); とかができるようにする
+  "trailing" : true, // 行末の空白を禁止
+
+  // グローバル変数へのアクセスの管理
+  "undef" : true,  // グローバル変数へのアクセスを禁止
+  "browser" : true,  // ブラウザ用のやつは許可
+  "devel" : true,  //  consoleやalertを許可
+  "debug"    : true,  // debugger を許可
+  "globals": {
+    "_": false,
+    "chrome": true,
+
+    //"default_values": true,
+    "toType": true,
+    "TabIdHistory": true
+  }
+}
