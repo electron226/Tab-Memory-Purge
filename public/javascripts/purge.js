@@ -78,7 +78,8 @@ var blank_urls = {
 };
 
 // file of get scroll position of tab.
-var get_scrollPos_script = 'public/javascripts/getScrollPosition.js';
+var get_scrollPos_script =
+    'public/javascripts/content_scripts/getScrollPosition.js';
 
 // a value which represents of the exclude list.
 var NORMAL_EXCLUDE = 50000;
@@ -186,7 +187,7 @@ function purge(tabId)
               unloaded[updated.id] = {
                 url: tab.url,
                 purgeurl: url,
-                scrollPosition: objScroll[0] || 0
+                scrollPosition: objScroll[0] || { x: 0 , y: 0 }
               };
               reloadBadge();
               deleteTick(tabId);
@@ -308,6 +309,7 @@ function checkExcludeList(url, callback)
   }
 
   chrome.storage.local.get(null, function(storages) {
+    // Check exclusion list in the extension.
     checkMatchUrlString(
         url,
         { list: extension_exclude_url, options: 'i' },
@@ -317,25 +319,24 @@ function checkExcludeList(url, callback)
             return;
           }
 
-          // 除外アドレスと比較
+          // Check exclusion list in the options page.
           var storageName = 'exclude_url_textarea';
-          var normal_excludes = storages[storageName] ||
-                                default_values[storageName];
+          var exclude_url = storages[storageName] ||
+                            default_values[storageName];
           // get regular regex option.
           storageName = 'regex_insensitive_checkbox';
           var regex_insensitive = storages[storageName] ||
                                   default_values[storageName];
           checkMatchUrlString(
               url,
-              { list: normal_excludes, options: regex_insensitive ? 'i' : ''},
+              { list: exclude_url, options: regex_insensitive ? 'i' : ''},
               function(normal_match) {
                 if (normal_match) {
-                  // Normal Exclude List
                   callback(USE_EXCLUDE);
                   return;
                 }
 
-                // 一時的な非解放リストと比較
+                // Compared to the temporary exclusion list.
                 if (temp_release.indexOf(url) !== -1) {
                   callback(TEMP_EXCLUDE);
                   return;
@@ -550,22 +551,19 @@ function searchUnloadedTabNearPosition(tab)
 
   // 現在のタブの左右の未解放のタブを選択する
   chrome.windows.get(tab.windowId, { populate: true }, function(win) {
-    // Search current tab position.
-    var i = 0;
-    while (i < win.tabs.length && win.tabs[i].id !== tab.id) {
-      i++;
-    }
+    // current tab index.
+    var i = tab.index;
 
     // Search right than current tab.
     var j = i + 1;
-    while (j < win.tabs.length && unloaded[win.tabs[j].id] !== void 0) {
+    while (j < win.tabs.length && unloaded.hasOwnProperty(win.tabs[j].id)) {
       j++;
     }
 
     // Search the left if can't find.
     if (j >= win.tabs.length) {
       j = i - 1;
-      while (0 <= j && unloaded[win.tabs[j].id] !== void 0) {
+      while (0 <= j && unloaded.hasOwnProperty(win.tabs[j].id)) {
         j--;
       }
     }
@@ -589,8 +587,7 @@ function initialize()
   chrome.windows.getAll({ populate: true }, function(wins) {
     for (var i = 0; i < wins.length; i++) {
       for (var j = 0; j < wins[i].tabs.length; j++) {
-        var tab = wins[i].tabs[j];
-        setTick(tab.id);
+        setTick(wins[i].tabs[j].id);
       }
     }
   });
@@ -654,7 +651,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     var scrollPos = temp_scroll_positions[tab.id];
     if (toType(scrollPos) === 'object') {
       chrome.tabs.executeScript(
-          tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
+          tab.id, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {
             delete temp_scroll_positions[tab.id];
           }
