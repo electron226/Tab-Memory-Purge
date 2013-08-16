@@ -101,6 +101,15 @@ var extension_exclude_url =
     'tabmemorypurge.appspot.com/\n' +
     '^file:///\n';
 
+function reloadBadge()
+{
+  var length = 0;
+  for (var i in unloaded) {
+    length++;
+  }
+  var badgeText = length.toString();
+  chrome.browserAction.setBadgeText({ text: badgeText });
+}
 
 /**
 * タブの解放を行います。
@@ -179,6 +188,7 @@ function purge(tabId)
                 purgeurl: url,
                 scrollPosition: objScroll[0] || 0
               };
+              reloadBadge();
               deleteTick(tabId);
               tabBackup.update(unloaded);
             });
@@ -210,6 +220,7 @@ function unPurge(tabId)
     temp_scroll_positions[tabId] = unloaded[tabId].scrollPosition;
 
     delete unloaded[tabId];
+    reloadBadge();
     setTick(tabId);
     tabBackup.update(unloaded);
   });
@@ -583,6 +594,7 @@ function initialize()
       }
     }
   });
+  reloadBadge();
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
