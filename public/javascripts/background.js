@@ -1,19 +1,30 @@
-/* background.htmlで読み込み時に実行するスクリプト */
+'use strict'; /*jshint globalstrict: true*/
 
+var versionKey = 'version';
 
 /**
 * この拡張機能外のスクリプトを使って行う初期化処理
 */
-function Init()
+function init()
 {
-  // オプション(強制終了された場合、起動時に以前の解放されたタブを復元)
-  var storageName = 'forcibly_close_restore_checkbox';
-  chrome.storage.local.get(storageName, function(storages) {
-    // 前回、正常にウインドウが閉じられていなかった場合、
-    // 以前の解放済タブの情報が残っていたら復元
-    if (storages[storageName] || localStorage[storageName] === 'true') {
-      chrome.runtime.sendMessage({ event: 'restore' });
+
+  chrome.storage.local.get(null, function(items) {
+    // All remove invalid options.
+    var removeKeys = [];
+    for (var key in items) {
+      if (!default_values.hasOwnProperty(key) && key !== versionKey) {
+        removeKeys.push(key);
+      }
     }
+    chrome.storage.local.remove(removeKeys, function() {
+      /* オプション(強制終了された場合、起動時に以前の解放されたタブを復元) */
+      var storageName = 'forcibly_close_restore_checkbox';
+      // 前回、正常にウインドウが閉じられていなかった場合、
+      // 以前の解放済タブの情報が残っていたら復元
+      if (items[storageName] || localStorage[storageName] === 'true') {
+        chrome.runtime.sendMessage({ event: 'restore' });
+      }
+    });
   });
 }
 
@@ -48,13 +59,13 @@ function getVersion() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // この拡張機能外のスクリプトを使って行う初期化処理
-  Init();
+  init();
 
   // この拡張機能のバージョンチェック
   var currVersion = getVersion();
-  chrome.storage.local.get('version', function(storages) {
+  chrome.storage.local.get(versionKey, function(storages) {
     // ver chrome.storage.
-    var prevVersion = storages['version'];
+    var prevVersion = storages[versionKey];
     if (currVersion !== prevVersion) {
       // この拡張機能でインストールしたかどうか
       if (prevVersion === void 0) {
@@ -62,7 +73,10 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         onUpdate();
       }
-      chrome.storage.local.set({ 'version': currVersion });
+
+      var write = {};
+      write[versionKey] = currVersion;
+      chrome.storage.local.set(write);
     }
   });
 });

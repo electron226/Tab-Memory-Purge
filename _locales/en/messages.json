@@ -11,6 +11,14 @@
     "message": "Option",
     "description": "Option string"
   },
+  "normal": {
+    "message": "NORMAL",
+    "description": "the string of buttons in the options page."
+  },
+  "keyBind": {
+    "message": "KEYBIND",
+    "description": "the string of buttons in the options page."
+  },
   "setReleaseFileUrlTitle": {
     "message": "Specifies the page to be used for release",
     "description": "URL of Release Page"
@@ -28,12 +36,16 @@
     "description": "a menu in popup"
   },
   "non_release": {
-    "message": "Non-release URL",
-    "description": "a menu in popup"
+    "message": "The url of This tab to prohibit the release.",
+    "description": "the menu in popup"
   },
   "remove_non_release": {
-    "message": "Remove the Non-release URL",
-    "description": "a menu in popup"
+    "message": "Exclude the url of this tab to execute the release.",
+    "description": "the menu in popup"
+  },
+  "switch_not_release": {
+    "message": "Don't release the url of this tab. or to release.",
+    "description": "the menu in popup."
   },
   "all_unpurge": {
     "message": "All the tabs are released",
@@ -60,11 +72,11 @@
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "When expanded function become invalid, the already released tab will be closed.",
+    "message": "When an expanded function become invalid, the released tab will be closed.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "If tabs has closed, you'll use 'The tabs before crashed is restored' of popup menu immediately, so restore closed tabs.",
+    "message": "If tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
     "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "explanation_problem2": {
@@ -73,7 +85,7 @@
       "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "If the server is downed, it does not operate normally.",
+    "message": "If the server is down, it does not operate normally.",
     "description":
       "Description of problem related to the specified author site"
   },
@@ -83,7 +95,7 @@
       "Description of problem related to the specified author site"
   },
   "assignment": {
-    "message": "Assignment Local File",
+    "message": "Assignment the local file",
     "description": "a option menu name"
   },
   "assignment_title": {
@@ -143,7 +155,7 @@
     "description": "Reference Link"
   },
   "regex_tool": {
-    "message": "Regular expression validation tool",
+    "message": "Simple regular expression validation tool",
     "description": "Regular expression validation tool"
   },
   "regex": {

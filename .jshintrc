@@ -21,8 +21,13 @@
     "default_values": true,
     "toType": true,
     "TabIdHistory": true,
+    "trim": true,
+    "NORMAL_EXCLUDE": true,
+    "TEMP_EXCLUDE": true,
+    "USE_EXCLUDE": true,
+    "EXTENSION_EXCLUDE": true,
     
-    //"deleteTick": true,
+    "deleteTick": true,
     "setTick": true,
     "unloadTimeProlong": true
   },

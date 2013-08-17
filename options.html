@@ -3,102 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
-    <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="css/options.css" type="text/css">
     <script type="text/javascript" src="public/javascripts/common.js"></script>
     <script type="text/javascript" src="public/javascripts/options.js"></script>
 </head>
 <body>
 
-<h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
+<header>
+  <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
+</header>
 
-<div class="setReleaseFileUrlTitleText"></div>
-<hr>
-<ul>
-    <li class="tooltip">
-        <label>
-            <input type="radio" name="release_page" value="normal"><span class="in_extensionText"></span>
-        </label>
-        <span class="tooltip">
-            <div class="explanationText"></div>
-            <ol>
-                <li><span class="explanation_problem1Text"></span></li>
-            </ol>
-            <div class="explanation_solutionText"></div>
-        </span>
-    </li>
-    <li class="tooltip">
-        <label>
-            <input type="radio" name="release_page" value="author"><span class="authorText"></span>(<span class="defaultText"></span>)
-        </label>
-        <span class="tooltip">
-            <div class="explanationText"></div>
-            <ol>
-                <li><span class="explanation_problem2Text"></span></li>
-                <li><span class="explanation_problem3Text"></span></li>
-                <li><span class="explanation_problem4Text"></span></li>
-            </ol>
-        </span>
-    </li>
-    <li>
-        <label>
-            <input type="radio" name="release_page" value="assignment"><span class="assignmentText"></span>
-        </label>
-        <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
-        <ul>
-            <li><input type="text" name="release_url"></li>
-            <li>
-                <span class="exampleText"></span>:
-                <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
-            </li>
-            <li id="assignment_options">
-                <input type="checkbox" name="assignment_title"><span class="assignment_titleText"></span>
-                <input type="checkbox" name="assignment_favicon"><span class="assignment_faviconText"></span>
-            </li>
-        </ul>
-    </li>
-    <li style="margin-top: 1em;">
-        <label>
-            <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
-        </label>
-    </li>
-</ul>
+<nav>
+  <div id="config_change">
+    <button id="normal" disabled><span class="normalText"></span></button>
+    <button id="keybind"><span class="keyBindText"></span></button>
+  </div>
+</nav>
 
-<div class="setTimerTitleText"></div>
-<hr>
-<ul>
-    <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
-</ul>
+<article>
+  <!-- options of normally. .-->
+  <section id="normal_options">
+    <div class="setReleaseFileUrlTitleText"></div>
+    <hr>
+    <ul>
+        <li class="tooltip">
+            <label>
+                <input type="radio" name="release_page" value="normal"><span class="in_extensionText"></span>
+            </label>
+            <div class="tooltip">
+                <div class="explanationText"></div>
+                <ol>
+                    <li><span class="explanation_problem1Text"></span></li>
+                </ol>
+                <div class="explanation_solutionText"></div>
+            </div>
+        </li>
+        <li class="tooltip">
+            <label>
+                <input type="radio" name="release_page" value="author"><span class="authorText"></span>(<span class="defaultText"></span>)
+            </label>
+            <div class="tooltip">
+                <div class="explanationText"></div>
+                <ol>
+                    <li><span class="explanation_problem2Text"></span></li>
+                    <li><span class="explanation_problem3Text"></span></li>
+                    <li><span class="explanation_problem4Text"></span></li>
+                </ol>
+            </div>
+        </li>
+        <li>
+            <label>
+                <input type="radio" name="release_page" value="assignment"><span class="assignmentText"></span>
+            </label>
+            <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
+            <ul>
+                <li><input type="text" name="release_url"></li>
+                <li>
+                    <span class="exampleText"></span>:
+                    <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
+                </li>
+                <li id="assignment_options">
+                    <input type="checkbox" name="assignment_title"><span class="assignment_titleText"></span>
+                    <input type="checkbox" name="assignment_favicon"><span class="assignment_faviconText"></span>
+                </li>
+            </ul>
+        </li>
+        <li style="margin-top: 1em;">
+            <label>
+                <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
+            </label>
+        </li>
+    </ul>
 
-<div>
-    <span class="exclude_urlText"></span>&nbsp;<a class="open_tool" href="#"><span class="regex_toolText"></span></a><hr>
-    <textarea name="exclude_url" rows="8" cols="40"></textarea>
-    <div><div class="optionText"></div>
-        <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
+    <div class="setTimerTitleText"></div>
+    <hr>
+    <ul>
+        <li><input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span></li>
+    </ul>
+
+    <div>
+        <span class="exclude_urlText"></span>&nbsp;<a class="open_tool" href="#"><span class="regex_toolText"></span></a><hr>
+        <textarea name="exclude_url" rows="8" cols="40"></textarea>
+        <div><div class="optionText"></div>
+            <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
+        </div>
     </div>
-</div>
 
-<div class="otherTitleText"></div>
-<hr>
-<ul>
-    <li><label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></li></label>
-</ul>
+    <div class="otherTitleText"></div>
+    <hr>
+    <ul>
+        <li><label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></label></li>
+    </ul>
+  </section>
 
-<hr>
-<div>
-    <button id="save"><span class="saveText"></span></button>
-    <button id="load"><span class="loadText"></span></button>
-    <button id="init"><span class="initText"></span></button>
-    <span id="status" style="color: green;"></span>
-</div>
+  <!-- options of the keybind. -->
+  <section id="keybind_options" style="display: none;">
+    <div class="keyBindText"></div>
+    <hr>
+    <table>
+      <tr name="release">
+        <td><span class="releaseText"></span></td>
+        <td><button class="bindStart">SET</button></td>
+        <td><span class="pressKey"></span></td>
+        <td><input type="text" name="release_keybind" class="keydata" style="display: none" disabled></td>
+        <td class="status" style="width: 100px; color: red"></td>
+      </tr>
+      <tr name="switch_not_release">
+        <td><span class="switch_not_releaseText"></span></td>
+        <td><button class="bindStart">SET</button></td>
+        <td><span class="pressKey"></span></td>
+        <td><input type="text" name="switch_not_release_keybind" class="keydata" style="display: none" disabled></td>
+        <td class="status" style="width: 100px; color: red"></td>
+      </tr>
+      <tr name="all_unpurge">
+        <td><span class="all_unpurgeText"></span></td>
+        <td><button class="bindStart">SET</button></td>
+        <td><span class="pressKey"></span></td>
+        <td><input type="text" name="all_unpurge_keybind" class="keydata" style="display: none" disabled></td>
+        <td class="status" style="width: 100px; color: red"></td>
+      </tr>
+      <tr name="restore">
+        <td><span class="restoreText"></span></td>
+        <td><button class="bindStart">SET</button></td>
+        <td><span class="pressKey"></span></td>
+        <td><input type="text" name="restore_keybind" class="keydata" style="display: none" disabled></td>
+        <td class="status" style="width: 100px; color: red"></td>
+      </tr>
+    </table>
+  </section>
+</article>
 
-<hr>
-<div>
-    <button id="export"><span class="exportText"></span></button>
-    <button id="import"><span class="importText"></span></button>
-    <span id="config_view_status"></span>
-</div>
+<footer>
+  <hr>
+  <div>
+      <button id="save"><span class="saveText"></span></button>
+      <button id="load"><span class="loadText"></span></button>
+      <button id="init"><span class="initText"></span></button>
+      <span id="status" style="color: green;"></span>
+  </div>
 
-<textarea id="config_view" cols="50" rows="5"></textarea>
+  <hr>
+  <div>
+      <button id="export"><span class="exportText"></span></button>
+      <button id="import"><span class="importText"></span></button>
+      <span id="config_view_status"></span>
+  </div>
+
+  <textarea id="config_view" cols="50" rows="5"></textarea>
+</footer>
 
 <!-- 正規表現確認ツール -->
 <div id="tool_box">

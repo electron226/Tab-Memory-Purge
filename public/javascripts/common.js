@@ -1,4 +1,5 @@
-"use strict"; /*jshint globalstrict: true*/
+/*jshint globalstrict: true*/
+"use strict";
 
 // Default Values.
 var default_values = default_values || {
@@ -16,8 +17,20 @@ var default_values = default_values || {
       'nicovideo.jp\n' +
       'youtube.com',
   'regex_insensitive_checkbox': true,
-  'forcibly_close_restore_checkbox': false
+  'forcibly_close_restore_checkbox': false,
+
+  // keybind
+  'release_keybind_text': JSON.stringify({}),
+  'switch_not_release_keybind_text': JSON.stringify({}),
+  'all_unpurge_keybind_text': JSON.stringify({}),
+  'restore_keybind_text': JSON.stringify({}),
 };
+
+// a value which represents of the exclude list.
+var NORMAL_EXCLUDE = 50000;
+var USE_EXCLUDE = 50001;
+var TEMP_EXCLUDE = 50002;
+var EXTENSION_EXCLUDE = 50003;
 
 /* base program.
  * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
@@ -32,14 +45,14 @@ var toType = toType || function(obj) {
 };
 var getType = getType || toType;
 
-var Trim = Trim || function(string) {
+var trim = trim || function(string) {
   if (toType(string) !== 'string') {
     throw new Error('Argument error. used not string object.');
   }
   return string.replace(/(^\s+)|(\s+$)/g, '');
 };
 
-var Unique = Unique || function(array) {
+var unique = unique || function(array) {
   if (toType(array) !== 'array') {
     throw new Error('Argument error. used not array object.');
   }
@@ -58,7 +71,7 @@ var Unique = Unique || function(array) {
 };
 
 
-var ArrayEqual = ArrayEqual || function(x1, x2) {
+var arrayEqual = arrayEqual || function(x1, x2) {
   if (x1.length !== x2.length) {
     return false;
   }
@@ -75,7 +88,7 @@ var ArrayEqual = ArrayEqual || function(x1, x2) {
 };
 
 // ブラウザの応答性は下がる(ビジーウェイト)
-var Sleep = Sleep || function(T) {
+var sleep = sleep || function(T) {
   var d1 = new Date().getTime();
   var d2 = new Date().getTime();
   while (d2 < d1 + T) {

@@ -1,9 +1,10 @@
-﻿;/** use options.html */
+﻿/*jshint globalstrict: true*/
+/*jshint shadow: true*/
+/*jshint loopfunc: true*/
+'use strict';
 
-
-/* options.htmlで読み込み時に実行するスクリプト */
 var locale_i18n = [
-  'extName', 'option', 'import', 'export',
+  'extName', 'option', 'normal', 'keyBind', 'import', 'export',
   'setReleaseFileUrlTitle', 'setTimerTitle',
   'otherTitle', 'assignment', 'in_extension', 'author', 'no_release',
   'explanation',
@@ -11,13 +12,14 @@ var locale_i18n = [
   'explanation_problem3', 'explanation_problem4', 'forcibly_close_restore',
   'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
   'save', 'load', 'init', 'minute', 'exclude_url',
+  'release', 'switch_not_release', 'all_unpurge', 'restore',
   'regex_tool',
   'regex_refURL', 'regex', 'regex_compare_string', 'regex_reference',
   'regex_option_reference', 'regix_result', 'regex_information',
   'regex_confuse'
 ];
 
-function LoadValues(document, values, debugCallback)
+function loadValues(document, values, debugCallback)
 {
   if (document === void 0 ||
       toType(values) !== 'object' && values !== null || values === void 0) {
@@ -29,6 +31,7 @@ function LoadValues(document, values, debugCallback)
     var debugList = []; // use Debug
 
     items = values || items;
+    var element = null;
     for (var key in items) {
       var value = items[key];
       var elName = key.match(
@@ -36,32 +39,32 @@ function LoadValues(document, values, debugCallback)
       if (elName) {
         switch (elName[2]) {
           case 'number':
-            var element = document.evaluate(
+            element = document.evaluate(
                 '//input[@name="' + elName[1] + '"]',
                 document, null, 7, null);
             if (element.snapshotLength !== 1) {
-              console.log('LoadValues() Get ' + elName[1] + ' error.');
+              console.log('loadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).value = value;
             debugList.push(elName[1]);
             break;
           case 'radio':
-            var element = document.evaluate(
+            element = document.evaluate(
                 '//input[@name="' + elName[1] + '"][@value="' + value + '"]',
                 document, null, 7, null);
             if (element.snapshotLength !== 1) {
-              console.log('LoadValues() Get ' + elName[1] + ' error.');
+              console.log('loadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).checked = true;
             debugList.push(elName[1]);
             break;
           case 'checkbox':
-            var element = document.evaluate(
+            element = document.evaluate(
                 '//input[@name="' + elName[1] + '"]', document, null, 7, null);
             if (element.snapshotLength !== 1) {
-              console.log('LoadValues() Get ' + elName[1] + ' error.');
+              console.log('loadValues() Get ' + elName[1] + ' error.');
               continue;
             }
             element.snapshotItem(0).checked = value;
@@ -69,24 +72,24 @@ function LoadValues(document, values, debugCallback)
             break;
           case 'password':
           case 'text':
-            var element = document.evaluate(
+            element = document.evaluate(
                 '//input[@name="' + elName[1] + '"]', document, null, 7, null);
             if (element.snapshotLength !== 1) {
-              console.log('LoadValues() Get ' + elName[1] + ' error.');
+              console.log('loadValues() Get ' + elName[1] + ' error.');
               continue;
             }
-            element.snapshotItem(0).value = Trim(value);
+            element.snapshotItem(0).value = trim(value);
             debugList.push(elName[1]);
             break;
           case 'textarea':
-            var element = document.evaluate(
+            element = document.evaluate(
                 '//textarea[@name="' + elName[1] + '"]',
                 document, null, 7, null);
             if (element.snapshotLength !== 1) {
-              console.log('LoadValues() Get ' + elName[1] + ' error.');
+              console.log('loadValues() Get ' + elName[1] + ' error.');
               continue;
             }
-            element.snapshotItem(0).value = Trim(value);
+            element.snapshotItem(0).value = trim(value);
             debugList.push(elName[1]);
             break;
         }
@@ -99,7 +102,7 @@ function LoadValues(document, values, debugCallback)
   });
 }
 
-function SaveValues(document, saveTypes, callback)
+function saveValues(document, saveTypes, callback)
 {
   if (document === void 0 || toType(saveTypes) !== 'array') {
     throw new Error('Invalid argument.');
@@ -114,12 +117,12 @@ function SaveValues(document, saveTypes, callback)
     }
   }
 
-  var writeData = new Object();
-
+  var storageName;
+  var writeData = {};
   var inputs = document.evaluate(
       '//input[' + types + ']', document, null, 7, null);
   for (var i = 0; i < inputs.snapshotLength; i++) {
-    var storageName = inputs.snapshotItem(i).name +
+    storageName = inputs.snapshotItem(i).name +
                       '_' + inputs.snapshotItem(i).type;
     switch (inputs.snapshotItem(i).type) {
       case 'radio':
@@ -131,7 +134,7 @@ function SaveValues(document, saveTypes, callback)
         writeData[storageName] = inputs.snapshotItem(i).checked;
         break;
       case 'text':
-        writeData[storageName] = Trim(inputs.snapshotItem(i).value);
+        writeData[storageName] = trim(inputs.snapshotItem(i).value);
         break;
       case 'number':
         writeData[storageName] = inputs.snapshotItem(i).value;
@@ -141,9 +144,9 @@ function SaveValues(document, saveTypes, callback)
 
   var textareas = document.evaluate('//textarea', document, null, 7, null);
   for (var i = 0; i < textareas.snapshotLength; i++) {
-    var storageName = textareas.snapshotItem(i).name + '_' +
+    storageName = textareas.snapshotItem(i).name + '_' +
                       textareas.snapshotItem(i).tagName.toLowerCase();
-    writeData[storageName] = Trim(textareas.snapshotItem(i).value);
+    writeData[storageName] = trim(textareas.snapshotItem(i).value);
   }
 
   // writeData options.
@@ -164,7 +167,7 @@ function SaveValues(document, saveTypes, callback)
 /**
 * 「解放に使うぺージを指定」の項目の有効無効状態を確認・変更
 */
-function ReleasePageChangeState()
+function releasePageChangeState()
 {
   var selectElement = document.evaluate(
       '//input[@name="release_page" and @value="assignment"]',
@@ -192,11 +195,11 @@ function ReleasePageChangeState()
 /**
 * ロケール文字列の読み込み
 */
-function InitTranslation(document, suffix)
+function initTranslation(document, suffix)
 {
   if (document === void 0 ||
       toType(suffix) !== 'string') {
-    throw 'InitTranslation Function is Argument Error.';
+    throw 'initTranslation Function is Argument Error.';
   }
 
   // テキストの設定
@@ -216,10 +219,8 @@ function InitTranslation(document, suffix)
 /**
 * 正規表現検証ツールの一致文字列を置き換える際に使用する関数
 * @param {string} str マッチした部分文字列.
-* @param {integer} offset マッチが現れた文字列内のオフセット.
-* @param {string} s マッチが現れた文字列自体.
 */
-function replacer(str, offset, s) {
+function replacer(str) {
   return '<span style=\"background: red;\">' + str + '</span>';
 }
 
@@ -289,7 +290,7 @@ function createRegexReference()
   var outputRegex = '<table>';
   var count = 0;
   for (var i in regex_items) {
-    if (count == 0) {
+    if (count === 0) {
       outputRegex += '<tr>';
     }
 
@@ -314,7 +315,7 @@ function createRegexReference()
   // オプション部分作成
   var outputOption = '<table>';
   for (var i in regex_options) {
-    if (count == 0) {
+    if (count === 0) {
       outputOption += '<tr>';
     }
 
@@ -342,24 +343,176 @@ function createRegexReference()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  InitTranslation(document, 'Text');
-  LoadValues(document, default_values);
-  LoadValues(document, null, function() {
-    ReleasePageChangeState();
+  initTranslation(document, 'Text');
+  loadValues(document, default_values, function() {
+    initKeybind(document, null, function() {
+      loadValues(document, null, function() {
+        releasePageChangeState();
+      });
+    });
   });
+
+  var timeoutTime = 1000;
 
   // 設定項目など
   var elements = document.querySelectorAll("input[name='release_page']");
   for (var i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('click', function() {
-      ReleasePageChangeState();
-    });
+    elements[i].addEventListener('click', releasePageChangeState);
   }
 
+  // section buttons.
+  var normal = document.getElementById('normal');
+  var keybind = document.getElementById('keybind');
+  normal.addEventListener('click', function() {
+      document.getElementById('normal_options').style.display = 'block';
+      normal.disabled = true;
+      document.getElementById('keybind_options').style.display = 'none';
+      keybind.disabled = false;
+  });
+  keybind.addEventListener('click', function() {
+      document.getElementById('normal_options').style.display = 'none';
+      normal.disabled = false;
+      document.getElementById('keybind_options').style.display = 'block';
+      keybind.disabled = true;
+  });
+
+  // keybind
+  var bindButtons = document.evaluate(
+                '//button[@class="bindStart"]', document, null, 7, null);
+  var bindStart= null;
+  for (var i = 0; i < bindButtons.snapshotLength; i++) {
+    bindButtons.snapshotItem(i).addEventListener('click', function() {
+        bindStart = this.parentNode.parentNode.attributes.name.nodeValue;
+    });
+  }
+  function initKeybind(document, values, callback)
+  {
+    if (document === void 0 ||
+        toType(values) !== 'object' && values !== null) {
+      throw new Error(
+        'initKeybind function is error. Invalid type of arguments.');
+    }
+
+    // show current key.
+    chrome.storage.local.get(null, function(items) {
+      var regex = /([\w_]+)_keybind_text/;
+      var items = values || items;
+      for (var key in items) {
+        var matches = key.match(regex);
+        if (matches) {
+          var keyElement = document.getElementsByClassName(matches.input);
+          if (keyElement !== void 0 && keyElement !== null) {
+            var keyInfo = JSON.parse(items[key]);
+            var output = generateKeyString(keyInfo);
+            showKey(document, matches[1], output);
+            copyKeyInfoToSaveArea(matches[1], keyInfo);
+
+            if (toType(callback) === 'function') {
+              callback();
+            }
+          }
+        }
+      }
+    });
+  }
+  function keyCheck(e)
+  {
+    if (e === void 0) {
+      throw new Error("Invalid argument. don't get event object.");
+    }
+
+    return {
+      ctrl: e.ctrlKey,
+      alt: e.altKey,
+      shift: e.shiftKey,
+      meta: e.metaKey,
+      keyCode: e.keyCode
+    };
+  }
+  function generateKeyString(keyInfo)
+  {
+    if (toType(keyInfo) !== 'object') {
+      throw new Error('Invalid type of argument.');
+    }
+
+    var output = '';
+    if (keyInfo.meta) { output += 'Meta +'; }
+    if (keyInfo.ctrl) { output += 'Ctrl +'; }
+    if (keyInfo.alt) { output += 'Alt +'; }
+    if (keyInfo.shift) { output += 'Shift +'; }
+    var charKey = String.fromCharCode(keyInfo.keyCode);
+    output += charKey;
+    return output;
+  }
+  function showKey(document, bindStart, output)
+  {
+    if (document === void 0 ||
+        toType(bindStart) !== 'string' || toType(output) !== 'string') {
+      throw new Error('showKey function is error. invalid type of arguments.');
+    }
+
+    var elementCode =
+        '//section[@id="keybind_options"]//tr[@name="' + bindStart + '"]';
+
+    var outElement = document.evaluate(
+        elementCode + '//*[@class="pressKey"]', document, null, 7, null);
+    if (outElement.snapshotLength !== 1) {
+      throw new Error('snapshotLength is not 1 in showKey.');
+    }
+    outElement.snapshotItem(0).textContent = output;
+  }
+  function copyKeyInfoToSaveArea(bindStart, keyInfo)
+  {
+    var elementCode =
+        '//section[@id="keybind_options"]//tr[@name="' + bindStart + '"]';
+
+    var keydata = document.evaluate(
+        elementCode + '//input[@class="keydata"]', document, null, 7, null);
+    if (keydata.snapshotLength !== 1) {
+        throw new Error('snapshotLength is not 1 in copyKeyInfoToSaveArea.');
+    }
+    keydata.snapshotItem(0).value = JSON.stringify(keyInfo);
+  }
+
+  document.addEventListener('keyup', function(event) {
+    try {
+      if (bindStart !== null) {
+        var keyInfo = keyCheck(event);
+        if (32 < keyInfo.keyCode && keyInfo.keyCode < 123) {
+          var output = generateKeyString(keyInfo);
+          showKey(document, bindStart, output);
+          copyKeyInfoToSaveArea(bindStart, keyInfo);
+        } else {
+          throw new Error("It don't correspond.");
+        }
+      }
+    } catch (e) {
+      if (e.message !== "It don't correspond.") {
+        console.log(e.message);
+        return;
+      }
+
+      var elementCode =
+          '//section[@id="keybind_options"]//tr[@name="' + bindStart + '"]';
+
+      var bind_status = document.evaluate(
+          elementCode + '//*[@class="status"]', document, null, 7, null);
+      if (bind_status.snapshotLength !== 1) {
+          throw new Error('snapshotLength is not 1.');
+      }
+      var item = bind_status.snapshotItem(0);
+      item.innerText = e.message;
+      setTimeout(function() {
+        item.innerText = '';
+      }, timeoutTime);
+    } finally {
+      bindStart = null;
+    }
+  });
+
   var status = document.getElementById('status');
-  var timeoutTime = 1000;
-  document.getElementById('save').addEventListener('click', function(e) {
-    SaveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
+  document.getElementById('save').addEventListener('click', function() {
+    saveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
       chrome.runtime.sendMessage({ event: 'initialize' });
 
       status.innerHTML = 'Options Saved.';
@@ -368,42 +521,44 @@ document.addEventListener('DOMContentLoaded', function() {
       }, timeoutTime);
     });
   }, false);
-  document.getElementById('load').addEventListener('click', function(e) {
-    LoadValues(document, null, function() {
+  document.getElementById('load').addEventListener('click', function() {
+    loadValues(document, null, function() {
       status.innerHTML = 'Options Loaded.';
       setTimeout(function() {
         status.innerHTML = '';
       }, timeoutTime);
     });
   }, false);
-  document.getElementById('init').addEventListener('click', function(e) {
-    LoadValues(document, default_values);
-
-    status.innerHTML = 'Options Initialized.';
-    setTimeout(function() {
-      status.innerHTML = '';
-    }, timeoutTime);
+  document.getElementById('init').addEventListener('click', function() {
+    loadValues(document, default_values, function() {
+      initKeybind(document, default_values, function() {
+        status.innerHTML = 'Options Initialized.';
+        setTimeout(function() {
+          status.innerHTML = '';
+        }, timeoutTime);
+      });
+    });
   }, false);
 
   // Import and Export
   var config_view = document.getElementById('config_view');
   var config_view_status = document.getElementById('config_view_status');
-  document.getElementById('export').addEventListener('click', function(e) {
+  document.getElementById('export').addEventListener('click', function() {
     chrome.storage.local.get(null, function(items) {
       config_view.value = JSON.stringify(items);
     });
   }, false);
-  document.getElementById('import').addEventListener('click', function(e) {
+  document.getElementById('import').addEventListener('click', function() {
     try {
       var items = JSON.parse(config_view.value);
-      LoadValues(document, items, function() {
+      loadValues(document, items, function() {
         config_view_status.textContent = 'Success. Please, save';
         config_view_status.style.color = 'green';
         setTimeout(function() {
           config_view_status.innerHTML = '';
         }, 1000);
       });
-    } catch (e) {
+    } catch (error) {
       config_view_status.textContent = 'Import error. invalid string.';
       config_view_status.style.color = 'red';
       return;
@@ -424,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var clicked = false;
   var elOpenTool = document.querySelectorAll('.open_tool');
   for (var i = 0; i < elOpenTool.length; i++) {
-    elOpenTool[i].addEventListener('click', function(event) {
+    elOpenTool[i].addEventListener('click', function() {
       if (clicked) {
         elTool.style.webkitTransform = 'translate(0px, ' + move_pixelY + 'px)';
         clicked = false;

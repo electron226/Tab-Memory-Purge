@@ -1,4 +1,5 @@
-﻿"use strict"; /*jshint globalstrict: true*/
+﻿/*jshint globalstrict: true, unused: false*/
+"use strict";
 
 /**
  * set setInterval return value.
@@ -80,12 +81,6 @@ var blank_urls = {
 // file of get scroll position of tab.
 var get_scrollPos_script =
     'public/javascripts/content_scripts/getScrollPosition.js';
-
-// a value which represents of the exclude list.
-var NORMAL_EXCLUDE = 50000;
-var USE_EXCLUDE = 50001;
-var TEMP_EXCLUDE = 50002;
-var EXTENSION_EXCLUDE = 50003;
 
 // the path of icons.
 // defined NORMAL_EXCLUDE etc... in common.js.
@@ -363,6 +358,11 @@ function tick(tabId)
 
   if (toType(unloaded[tabId]) !== 'object') {
     chrome.tabs.get(tabId, function(tab) {
+      if (tab === void 0 || !tab.hasOwnProperty('active')) {
+        console.log('tick function is skipped.', tabId);
+        return 0;
+      }
+
       // アクティブタブへの処理の場合、行わない
       if (tab.active) {
         // アクティブにしたタブのアンロード時間更新
@@ -387,6 +387,7 @@ function setTick(tabId)
   chrome.storage.local.get(null, function(storages) {
     chrome.tabs.get(tabId, function(tab) {
       if (tab === void 0 || !tab.hasOwnProperty('url')) {
+        console.log('setTick function is skipped.');
         return;
       }
 
@@ -592,6 +593,7 @@ function initialize()
     }
   });
   reloadBadge();
+  chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
 }
 
 chrome.tabs.onActivated.addListener(function(activeInfo) {
@@ -667,7 +669,7 @@ chrome.windows.onRemoved.addListener(function(windowId) {
   }
 });
 
-chrome.runtime.onMessage.addListener(function(message) {
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   switch (message.event) {
     case 'initialize':
       initialize();
@@ -678,7 +680,7 @@ chrome.runtime.onMessage.addListener(function(message) {
         searchUnloadedTabNearPosition(tab);
       });
       break;
-    case 'non_release':
+    case 'switch_not_release':
       chrome.tabs.getSelected(function(tab) {
         tempReleaseToggle(tab);
       });
@@ -693,6 +695,9 @@ chrome.runtime.onMessage.addListener(function(message) {
       tabBackup.get(function(json) {
         restore(json);
       });
+      break;
+    case 'getDefaultOptions':
+      sendResponse(default_values);
       break;
   }
 });

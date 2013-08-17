@@ -22,6 +22,12 @@
         "public/javascripts/purge.js"
       ]
     },
+    "content_scripts": [
+      {
+        "matches": ["http://*/*", "https://*/*"],
+        "js": ["public/javascripts/content_scripts/keyBind.js"]
+      }
+    ],
     "permissions": [
       "tabs", "storage", "http://*/*", "https://*/*"
     ],

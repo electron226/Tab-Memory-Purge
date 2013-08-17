@@ -11,31 +11,31 @@ describe('Common Function', function () {
     });
 
     it("重複要素削除", function() {
-        expect( function() { Unique([]) } ).not.toThrow();
-        expect( function() { Unique(1) } ).toThrow();
-        expect( function() { Unique({}) } ).toThrow();
-        expect( Unique(["array", "bebe", "array", "bebe"]) ).toEqual(["array",
+        expect( function() { unique([]) } ).not.toThrow();
+        expect( function() { unique(1) } ).toThrow();
+        expect( function() { unique({}) } ).toThrow();
+        expect( unique(["array", "bebe", "array", "bebe"]) ).toEqual(["array",
                                                                       "bebe"]);
     });
 
     it("trim", function() {
-        expect(function() { Trim("") }).not.toThrow();
-        expect(function() { Trim(1) }).toThrow();
-        expect(function() { Trim(new Object()) }).toThrow();
-        expect( Trim(" hello  ") ).toEqual("hello");
+        expect(function() { trim("") }).not.toThrow();
+        expect(function() { trim(1) }).toThrow();
+        expect(function() { trim(new Object()) }).toThrow();
+        expect( trim(" hello  ") ).toEqual("hello");
     });
 
-    it('ArrayEqual', function() {
+    it('arrayEqual', function() {
         var i = [ 1, 2, 3, 4, 5 ];
         var j = [ 1, 2, 3, 4, 5 ];
         var z = [ 1, 2, 3, 4 ];
-        expect(ArrayEqual(i, j)).toBeTruthy();
-        expect(ArrayEqual(i, z)).toBeFalsy();
+        expect(arrayEqual(i, j)).toBeTruthy();
+        expect(arrayEqual(i, z)).toBeFalsy();
     });
 
-    it('Sleep', function() {
+    it('sleep', function() {
         /* var d1 = new Date().getTime();
-        Sleep(1);
+        sleep(1);
         var d2 = new Date().getTime();
         expect(d2 - d1).toBeLessThan(1.1); */
     });
