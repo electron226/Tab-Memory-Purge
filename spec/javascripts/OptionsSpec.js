@@ -48,18 +48,18 @@ describe('Options Function', function() {
     it('Load Settings', function() {
         loadFixtures('../../options.html');
 
-        expect(function() { LoadValues(document, {}); }).not.toThrow();
-        expect(function() { LoadValues(function() {}); }).toThrow();
-        expect(function() { LoadValues(document, 1); }).toThrow();
+        expect(function() { loadValues(document, {}); }).not.toThrow();
+        expect(function() { loadValues(function() {}); }).toThrow();
+        expect(function() { loadValues(document, 1); }).toThrow();
 
         var values = {
             'release_page_radio': 'author',
             'timer_number': 20
         };
-        LoadValues(document, values, function(values) {
+        loadValues(document, values, function(values) {
           expect(values).toEqual([ 'release_page', 'timer' ]);
         });
-        LoadValues(document, null, function(values) {
+        loadValues(document, null, function(values) {
           expect(values).toEqual([ 'release_page', 'timer', 'exclude_url' ]);
         });
     });
@@ -67,9 +67,9 @@ describe('Options Function', function() {
     it('Save Settings', function() {
         loadFixtures('../../options.html');
 
-        SaveValues(
+        saveValues(
           document, ['checkbox', 'radio', 'text', 'number'], function(debug) {
-          expect(debug.length).toEqual(14);
+          expect(debug.length).toEqual(18);
         });
     });
 });
