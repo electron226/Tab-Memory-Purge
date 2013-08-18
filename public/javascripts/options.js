@@ -475,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (outElement.snapshotLength !== 1) {
       throw new Error('snapshotLength is not 1 in showKey.');
     }
-    outElement.snapshotItem(0).textContent = output;
+    outElement.snapshotItem(0).value = output;
   }
   function copyKeyInfoToSaveArea(bindStart, keyInfo)
   {

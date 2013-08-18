@@ -7,12 +7,6 @@ header > h2 {
     margin-bottom: 5px;
 }
 
-section#keybind_options .pressKey {
-    min-width: 200px;
-    padding: 0 2em 0 2em;
-    background-color: lightblue;
-}
-
 nav {
     margin-bottom: 1em;
 }
