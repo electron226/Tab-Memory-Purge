@@ -376,13 +376,29 @@ document.addEventListener('DOMContentLoaded', function() {
       keybind.disabled = true;
   });
 
-  // keybind
+  /* keybind */
+  // Set Button
   var bindButtons = document.evaluate(
                 '//button[@class="bindStart"]', document, null, 7, null);
-  var bindStart= null;
+  var bindStart = null;
   for (var i = 0; i < bindButtons.snapshotLength; i++) {
     bindButtons.snapshotItem(i).addEventListener('click', function() {
         bindStart = this.parentNode.parentNode.attributes.name.nodeValue;
+    });
+  }
+  // Clear Button
+  var bindClears = document.evaluate(
+                '//button[@class="bindClear"]', document, null, 7, null);
+  for (var i = 0; i < bindClears.snapshotLength; i++) {
+    bindClears.snapshotItem(i).addEventListener('click', function() {
+      var name = this.parentNode.parentNode.attributes.name.nodeValue;
+      var optionName = name + '_keybind_text';
+      if (default_values.hasOwnProperty(optionName)) {
+        var keyInfo = JSON.parse(default_values[optionName]);
+        var output = generateKeyString(keyInfo);
+        showKey(document, name, output);
+        copyKeyInfoToSaveArea(name, keyInfo);
+      }
     });
   }
   function initKeybind(document, values, callback)
@@ -510,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  /* status */
   var status = document.getElementById('status');
   document.getElementById('save').addEventListener('click', function() {
     saveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
