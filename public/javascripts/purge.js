@@ -628,14 +628,14 @@ chrome.tabs.onCreated.addListener(function(tab) {
   setTick(tab.id);
 });
 
-chrome.tabs.onAttached.addListener(function(tabId) {
-  setTick(tabId);
-});
-
 chrome.tabs.onRemoved.addListener(function(tabId) {
   delete unloaded[tabId];
   deleteTick(tabId);
   tabBackup.update(unloaded);
+});
+
+chrome.tabs.onAttached.addListener(function(tabId) {
+  setTick(tabId);
 });
 
 chrome.tabs.onDetached.addListener(function(tabId) {
