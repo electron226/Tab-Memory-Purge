@@ -17,15 +17,23 @@
   "globals": { // is not defined対策
     "_": false,
     "chrome": true,
+
+    "describe": true,
+    "it": true,
+    "expect": true,
     
-    "default_values": true,
     "toType": true,
-    "TabIdHistory": true,
+    "unique": true,
     "trim": true,
+    "arrayEqual": true,
+
+    "default_values": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
+
+    "TabIdHistory": true,
     
     "deleteTick": true,
     "setTick": true,
