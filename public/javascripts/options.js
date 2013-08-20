@@ -1,6 +1,7 @@
 ﻿/*jshint globalstrict: true*/
 /*jshint shadow: true*/
 /*jshint loopfunc: true*/
+/*global generateRegexTool: true*/
 'use strict';
 
 function loadValues(document, values, debugCallback)
@@ -106,31 +107,35 @@ function saveValues(document, saveTypes, callback)
   var inputs = document.evaluate(
       '//input[' + types + ']', document, null, 7, null);
   for (var i = 0; i < inputs.snapshotLength; i++) {
-    storageName = inputs.snapshotItem(i).name +
-                      '_' + inputs.snapshotItem(i).type;
-    switch (inputs.snapshotItem(i).type) {
+    var item = inputs.snapshotItem(i);
+    if (item.name.length === 0) {
+      continue;
+    }
+
+    storageName = item.name + '_' + item.type;
+    switch (item.type) {
       case 'radio':
-        if (inputs.snapshotItem(i).checked) {
-          writeData[storageName] = inputs.snapshotItem(i).value;
+        if (item.checked) {
+          writeData[storageName] = item.value;
         }
         break;
       case 'checkbox':
-        writeData[storageName] = inputs.snapshotItem(i).checked;
+        writeData[storageName] = item.checked;
         break;
       case 'text':
-        writeData[storageName] = trim(inputs.snapshotItem(i).value);
+        writeData[storageName] = trim(item.value);
         break;
       case 'number':
-        writeData[storageName] = inputs.snapshotItem(i).value;
+        writeData[storageName] = item.value;
         break;
     }
   }
 
   var textareas = document.evaluate('//textarea', document, null, 7, null);
   for (var i = 0; i < textareas.snapshotLength; i++) {
-    storageName = textareas.snapshotItem(i).name + '_' +
-                      textareas.snapshotItem(i).tagName.toLowerCase();
-    writeData[storageName] = trim(textareas.snapshotItem(i).value);
+    var item = textareas.snapshotItem(i);
+    storageName = item.name + '_' + item.tagName.toLowerCase();
+    writeData[storageName] = trim(item.value);
   }
 
   // writeData options.
@@ -173,131 +178,6 @@ function releasePageChangeState()
   for (var j = 0; j < assi_options.snapshotLength; j++) {
     assi_options.snapshotItem(j).disabled = state;
   }
-}
-
-/**
-* 正規表現検証ツールの一致文字列を置き換える際に使用する関数
-* @param {string} str マッチした部分文字列.
-*/
-function replacer(str) {
-  return '<span style=\"background: red;\">' + str + '</span>';
-}
-
-/**
-* 正規表現検証ツールの入力をチェック
-*/
-function checkRegex()
-{
-  var elRegularExpression =
-      document.querySelector('input[name="regular_expression"]');
-  var elOptions = document.querySelector('input[name="options"]');
-  var elCompareString = document.querySelector('#compare_string');
-  var elResult = document.querySelector('#result');
-
-  // 正規表現で比較・置き換え
-  var re = new RegExp(elRegularExpression.value,
-                      elOptions.value ? elOptions.value : '');
-  var replacedString = '';
-  var compareStringSplit = elCompareString.value.split('\n');
-  for (var i = 0; i < compareStringSplit.length; i++) {
-    replacedString += compareStringSplit[i].replace(re, replacer) + '<br>';
-  }
-
-  // 結果を表示する領域の高さ変更
-  elResult.style.height = compareStringSplit.length * 1.5 + 'em';
-
-  // 表示
-  elResult.innerHTML = replacedString;
-}
-
-
-/**
-* 正規表現クイックリファレンスの生成と表示
-*/
-function createRegexReference()
-{
-  var regex_items = [
-    { '[abc]' : 'regex_single' },
-    { '.' : 'regex_any_single' },
-    { '(...)' : 'regex_capture' },
-    { '[^abc]' : 'regex_any_except' },
-    { '\\s' : 'regex_whitespace' },
-    { '(a|b)' : 'regex_or' },
-    { '[a-z]' : 'regex_range' },
-    { '\\S' : 'regex_non_whitespace' },
-    { 'a?' : 'regex_zero_one' },
-    { '[a-zA-Z]' : 'regex_range_or' },
-    { '\\d' : 'regex_digit' },
-    { 'a*' : 'regex_zero_more' },
-    { '^' : 'regex_start' },
-    { '\\D' : 'regex_non_digit' },
-    { 'a+' : 'regex_one_more' },
-    { '$' : 'regex_end' },
-    { '\\w' : 'regex_word' },
-    { 'a{3}' : 'regex_exactly' },
-    { '\\W' : 'regex_non_word' },
-    { 'a{3,}' : 'regex_three_or_more' },
-    { '\\b' : 'regex_word_boundary' },
-    { 'a{3,6}' : 'regex_between' }
-  ];
-  var regex_options = [
-    { 'i' : 'regex_confuse' }
-  ];
-
-  // リファレンス作成
-  var outputRegex = '<table>';
-  var count = 0;
-  for (var i in regex_items) {
-    if (count === 0) {
-      outputRegex += '<tr>';
-    }
-
-    for (var j in regex_items[i]) {
-      outputRegex += '<th>' + j + '</th>';
-      outputRegex += '<td>' +
-          chrome.i18n.getMessage(regex_items[i][j]) + '</td>';
-    }
-
-    if (count >= 2) {
-      outputRegex += '</tr>';
-      count = 0;
-      continue;
-    }
-    count++;
-  }
-  if (count !== 0) {
-    outputRegex += '</tr>';
-  }
-  outputRegex += '</table>';
-
-  // オプション部分作成
-  var outputOption = '<table>';
-  for (var i in regex_options) {
-    if (count === 0) {
-      outputOption += '<tr>';
-    }
-
-    for (var j in regex_options[i]) {
-      outputOption += '<th>' + j + '</th>';
-      outputOption += '<td>' +
-          chrome.i18n.getMessage(regex_options[i][j]) + '</td>';
-    }
-
-    if (count >= 3) {
-      outputOption += '</tr>';
-      count = 0;
-      continue;
-    }
-    count++;
-  }
-  if (count !== 0) {
-    outputOption += '</tr>';
-  }
-  outputOption += '</table>';
-
-  // 出力
-  document.querySelector('#regex_reference').innerHTML = outputRegex;
-  document.querySelector('#regex_option_reference').innerHTML = outputOption;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -542,36 +422,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
   /* 正規表現確認ツール関係 */
   // 正規表現確認ツールの表示・非表示アニメーション
-  var move_pixelY = 460; // 表示サイズ
-  var elTool = document.querySelector('#tool_box');
-  elTool.style.webkitTransitionProperty = '-webkit-transform';
-  elTool.style.webkitTransitionDelay = '0.0s';
-  elTool.style.webkitTransitionDuration = '1.0s';
-  elTool.style.webkitTransitionTimingFunction = 'ease';
-  elTool.style.height = move_pixelY + 'px';
+  var switch_button_name = 'close_button';
+  var tool_box = document.getElementById('tool_box');
+  tool_box.appendChild(
+    generateRegexTool('460px', switch_button_name, 'Text'));
 
   // toggle
-  var clicked = false;
-  var elOpenTool = document.querySelectorAll('.open_tool');
-  for (var i = 0; i < elOpenTool.length; i++) {
-    elOpenTool[i].addEventListener('click', function() {
-      if (clicked) {
-        elTool.style.webkitTransform = 'translate(0px, ' + move_pixelY + 'px)';
-        clicked = false;
-      } else {
-        elTool.style.webkitTransform = 'translate(0px, ' + -move_pixelY + 'px)';
-        clicked = true;
+  var switchButton = document.getElementsByClassName('switch_tool');
+  for (var i = 0; i < switchButton.length; i++) {
+    switchButton[i].addEventListener('click', function() {
+      var close_button = tool_box.getElementsByClassName(switch_button_name);
+      for (var j = 0; j < close_button.length; j++) {
+        var evt = document.createEvent('UIEvent');
+        evt.initEvent('click', false, false);
+        close_button[j].dispatchEvent(evt);
       }
     });
   }
-
-  document.querySelector('input[name="regular_expression"]').addEventListener(
-      'keyup', checkRegex);
-  document.querySelector('input[name="options"]').addEventListener(
-      'keyup', checkRegex);
-  document.querySelector('#compare_string').addEventListener(
-      'keyup', checkRegex);
-
-  // 正規表現クイックリファレンス
-  createRegexReference();
 });

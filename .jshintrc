@@ -22,6 +22,7 @@
     "it": true,
     "expect": true,
     "beforeEach": true,
+    "loadFixtures": true,
     
     "initTranslations": true,
     "toType": true,

@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
-    <link rel="stylesheet" href="css/options.css" type="text/css">
     <script type="text/javascript" src="public/javascripts/common.js"></script>
+    <script type="text/javascript" src="public/javascripts/regex_tool.js"></script>
     <script type="text/javascript" src="public/javascripts/options.js"></script>
+    <link rel="stylesheet" href="css/options.css" type="text/css">
 </head>
 <body>
 
@@ -82,7 +83,7 @@
     </ul>
 
     <div>
-        <span class="exclude_urlText"></span>&nbsp;<a class="open_tool" href="#"><span class="regex_toolText"></span></a><hr>
+        <span class="exclude_urlText"></span>&nbsp;<a class="switch_tool" href="#"><span class="regex_toolText"></span></a><hr>
         <textarea name="exclude_url" rows="8" cols="40"></textarea>
         <div><div class="optionText"></div>
             <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
@@ -157,30 +158,7 @@
 </footer>
 
 <!-- 正規表現確認ツール -->
-<div id="tool_box">
-    <button class="close_btn open_tool">×</button>
-    <div id="regexp">
-        <div class="regexText"></div>
-        /<input type="text" name="regular_expression">/<input type="text" name="options" size="2" maxlength="3">
-    </div>
-    <div class="regex_compare_stringText"></div>
-    <textarea id="compare_string" name="compare_string"></textarea>
-    <span id="result"><span class="regex_result"></span></span>
-    <div id="clear"></div>
-    <div id="reference_area">
-        <div class="regex_referenceText"></div>
-        <div id="regex_reference"></div>
-    </div>
-    <div id="reference_option_area">
-        <div class="regex_option_referenceText"></div>
-        <div id="regex_option_reference"></div>
-
-        <div id="information_area">
-            <div class="regex_informationText"></div>
-            <div class="regex_refURLText"></div>
-        </div>
-    </div>
-</div>
+<div id="tool_box"></div>
 
 </body>
 </html>
