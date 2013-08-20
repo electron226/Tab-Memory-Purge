@@ -233,7 +233,12 @@ document.addEventListener('DOMContentLoaded', function() {
       var optionName = name + '_keybind_text';
       if (default_values.hasOwnProperty(optionName)) {
         var keyInfo = JSON.parse(default_values[optionName]);
-        var output = generateKeyString(keyInfo);
+        var output = null;
+        try {
+          output = generateKeyString(keyInfo);
+        } catch (e) {
+          output = '';
+        }
         showKey(document, name, output);
         copyKeyInfoToSaveArea(name, keyInfo);
       }
@@ -257,15 +262,18 @@ document.addEventListener('DOMContentLoaded', function() {
           var keyElement = document.getElementsByClassName(matches.input);
           if (keyElement !== void 0 && keyElement !== null) {
             var keyInfo = JSON.parse(items[key]);
-            var output = generateKeyString(keyInfo);
-            showKey(document, matches[1], output);
-            copyKeyInfoToSaveArea(matches[1], keyInfo);
-
-            if (toType(callback) === 'function') {
-              callback();
+            try {
+              var output = generateKeyString(keyInfo);
+              showKey(document, matches[1], output);
+              copyKeyInfoToSaveArea(matches[1], keyInfo);
+            } catch (e) {
+              console.log('initKeyBind loop skip.');
             }
           }
         }
+      }
+      if (toType(callback) === 'function') {
+        callback();
       }
     });
   }
@@ -294,8 +302,62 @@ document.addEventListener('DOMContentLoaded', function() {
     if (keyInfo.ctrl) { output += 'Ctrl +'; }
     if (keyInfo.alt) { output += 'Alt +'; }
     if (keyInfo.shift) { output += 'Shift +'; }
-    var charKey = String.fromCharCode(keyInfo.keyCode);
-    output += charKey;
+
+    output += ' ';
+
+    /* refernece to
+     * http://www.javascripter.net/faq/keycodes.htm */
+    switch (keyInfo.keyCode) {
+      case 8: output += 'BackSpace'; break;
+      case 9: output += 'Tab'; break;
+      case 12: output += 'Numpad 5'; break;
+      case 13: output += 'Enter'; break;
+      case 19: output += 'Pause'; break;
+      case 20: output += 'CapsLock'; break;
+      case 27: output += 'Esc'; break;
+      case 32: output += 'Space'; break;
+      case 33: output += 'Page Up'; break;
+      case 34: output += 'Page Down'; break;
+      case 35: output += 'End'; break;
+      case 36: output += 'Home'; break;
+      case 37: output += 'Left'; break;
+      case 38: output += 'Up'; break;
+      case 39: output += 'Right'; break;
+      case 40: output += 'Down'; break;
+      case 44: output += 'PrintScreen'; break;
+      case 45: output += 'Insert'; break;
+      case 46: output += 'Delete'; break;
+      case 106: output += 'Numpad*'; break;
+      case 107: output += 'Numpad+'; break;
+      case 109: output += 'Numpad-'; break;
+      case 110: output += 'Numpad.'; break;
+      case 111: output += 'Numpad/'; break;
+      case 144: output += 'NumLock'; break;
+      case 145: output += 'ScrollLock'; break;
+      case 188: output += ','; break;
+      case 190: output += '.'; break;
+      case 191: output += '/'; break;
+      case 192: output += '`'; break;
+      case 219: output += '['; break;
+      case 220: output += '\\'; break;
+      case 221: output += ']'; break;
+      case 222: output += '\''; break;
+      default:
+        if (48 <= keyInfo.keyCode && keyInfo.keyCode <= 57 || // 0 to 9
+            65 <= keyInfo.keyCode && keyInfo.keyCode <= 90) { // A to Z
+          output += String.fromCharCode(keyInfo.keyCode);
+        } else if (96 <= keyInfo.keyCode && keyInfo.keyCode <= 105) {
+          // Numpad 0 to Numpad 9
+          output += 'Numpad ' + (keyInfo.keyCode - 96);
+        } else if (112 <= keyInfo.keyCode && keyInfo.keyCode <= 123) {
+          // F1 to F12
+          output += 'F' + (keyInfo.keyCode - 111);
+        } else {
+          throw new Error('Invalid keyCode.');
+        }
+        break;
+    }
+
     return output;
   }
   function showKey(document, bindStart, output)
@@ -332,13 +394,9 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       if (bindStart !== null) {
         var keyInfo = keyCheck(event);
-        if (32 < keyInfo.keyCode && keyInfo.keyCode < 123) {
-          var output = generateKeyString(keyInfo);
-          showKey(document, bindStart, output);
-          copyKeyInfoToSaveArea(bindStart, keyInfo);
-        } else {
-          throw new Error("It don't correspond.");
-        }
+        var output = generateKeyString(keyInfo);
+        showKey(document, bindStart, output);
+        copyKeyInfoToSaveArea(bindStart, keyInfo);
       }
     } catch (e) {
       if (e.message !== "It don't correspond.") {
