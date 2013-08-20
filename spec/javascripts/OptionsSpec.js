@@ -1,3 +1,7 @@
+/*jshint globalstrict: true*/
+/*global loadFixtures, loadValues, saveValues*/
+'use strict';
+
 var chrome = null;
 describe('Options Function', function() {
     beforeEach(function() {
@@ -15,16 +19,16 @@ describe('Options Function', function() {
                 'youtube.com'
             },
             get: function(getValues, callback) {
-              if (getValues != null && getType(getValues) != 'object') {
+              if (getValues !== null && toType(getValues) !== 'object') {
                 throw new Error('chrome.storage.local.get mock error.');
               }
-              if (getType(callback) != 'function') {
+              if (toType(callback) !== 'function') {
                 throw new Error('chrome.storage.local.get mock error.' +
                                 ' callback is not function.');
               }
 
               if (getValues != null) {
-                var returnData = new Object();
+                var returnData = {};
                 for (var key in getValues) {
                   returnData[key] = this.data[key];
                 }

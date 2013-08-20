@@ -3,22 +3,6 @@
 /*jshint loopfunc: true*/
 'use strict';
 
-var locale_i18n = [
-  'extName', 'option', 'normal', 'keyBind', 'import', 'export',
-  'setReleaseFileUrlTitle', 'setTimerTitle',
-  'otherTitle', 'assignment', 'in_extension', 'author', 'no_release',
-  'explanation',
-  'explanation_problem1', 'explanation_solution', 'explanation_problem2',
-  'explanation_problem3', 'explanation_problem4', 'forcibly_close_restore',
-  'sample', 'example', 'assignment_title', 'assignment_favicon', 'default',
-  'save', 'load', 'init', 'minute', 'exclude_url',
-  'release', 'switch_not_release', 'all_unpurge', 'restore',
-  'regex_tool',
-  'regex_refURL', 'regex', 'regex_compare_string', 'regex_reference',
-  'regex_option_reference', 'regix_result', 'regex_information',
-  'regex_confuse'
-];
-
 function loadValues(document, values, debugCallback)
 {
   if (document === void 0 ||
@@ -191,31 +175,6 @@ function releasePageChangeState()
   }
 }
 
-
-/**
-* ロケール文字列の読み込み
-*/
-function initTranslation(document, suffix)
-{
-  if (document === void 0 ||
-      toType(suffix) !== 'string') {
-    throw 'initTranslation Function is Argument Error.';
-  }
-
-  // テキストの設定
-  for (var i = 0; i < locale_i18n.length; i++) {
-    var el = document.getElementsByClassName(locale_i18n[i] + suffix);
-    var message = chrome.i18n.getMessage(locale_i18n[i]);
-    for (var j = 0; j < el.length; j++) {
-      var string = el[j].innerHTML;
-      var index = string.lastIndexOf('</');
-      el[j].innerHTML = string.substring(0, index) +
-                        message + string.substring(index);
-    }
-  }
-}
-
-
 /**
 * 正規表現検証ツールの一致文字列を置き換える際に使用する関数
 * @param {string} str マッチした部分文字列.
@@ -223,7 +182,6 @@ function initTranslation(document, suffix)
 function replacer(str) {
   return '<span style=\"background: red;\">' + str + '</span>';
 }
-
 
 /**
 * 正規表現検証ツールの入力をチェック
@@ -343,7 +301,7 @@ function createRegexReference()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  initTranslation(document, 'Text');
+  initTranslations(document, translation_path, 'Text');
   loadValues(document, default_values, function() {
     initKeybind(document, null, function() {
       loadValues(document, null, function() {

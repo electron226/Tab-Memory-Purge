@@ -1,10 +1,6 @@
 /*jshint globalstrict: true*/
 "use strict";
 
-var locale_i18n = [
-  'restore', 'release', 'not_release', 'remove_not_release', 'all_unpurge'
-];
-
 function changeNotReleaseText()
 {
   var storageName = 'purgeIcon';
@@ -14,11 +10,11 @@ function changeNotReleaseText()
     switch (storages[storageName]) {
       case TEMP_EXCLUDE: // temp release
         // not_release
-        message = chrome.i18n.getMessage(locale_i18n[3]);
+        message = chrome.i18n.getMessage('remove_not_release');
         break;
       default:
         // remove_not_release
-        message = chrome.i18n.getMessage(locale_i18n[2]);
+        message = chrome.i18n.getMessage('not_release');
         break;
     }
     el.innerHTML = message;
@@ -47,28 +43,11 @@ function OnRestore()
   chrome.runtime.sendMessage({ event: 'restore'});
 }
 
-function initialize()
-{
-  // テキストの設定
-  for (var i = 0; i < locale_i18n.length; i++) {
-    var el = document.getElementsByClassName(locale_i18n[i] + 'Text');
-    var message = chrome.i18n.getMessage(locale_i18n[i]);
-    for (var j = 0; j < el.length; j++) {
-      var string = el[j].innerHTML;
-      var index = string.lastIndexOf('</');
-      el[j].innerHTML = string.substring(0, index) +
-                            message + string.substring(index);
-    }
-  }
-
-  changeNotReleaseText();
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   var storageName = 'release_page_radio';
   chrome.storage.local.get(storageName, function(storages) {
-    // 文字列初期化
-    initialize();
+    initTranslations(document, translation_path, 'Text');
+    changeNotReleaseText();
 
     // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、
     // 専用メニューを表示。

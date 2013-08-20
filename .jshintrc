@@ -21,12 +21,15 @@
     "describe": true,
     "it": true,
     "expect": true,
+    "beforeEach": true,
     
+    "initTranslations": true,
     "toType": true,
     "unique": true,
     "trim": true,
     "arrayEqual": true,
 
+    "translation_path": true,
     "default_values": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
