@@ -2,7 +2,7 @@
 "use strict";
 
 // Default Values.
-var default_values = {
+var default_values = default_values || {
   // Set item in Options, and Extensions
   'release_page_radio': 'author',
   'release_url_text': '',
@@ -27,41 +27,42 @@ var default_values = {
 };
 
 // a value which represents of the exclude list.
-var NORMAL_EXCLUDE = 50000;
-var USE_EXCLUDE = 50001;
-var TEMP_EXCLUDE = 50002;
-var EXTENSION_EXCLUDE = 50003;
+var NORMAL_EXCLUDE = NORMAL_EXCLUDE || 50000;
+var USE_EXCLUDE = USE_EXCLUDE || 50001;
+var TEMP_EXCLUDE = TEMP_EXCLUDE ||50002;
+var EXTENSION_EXCLUDE = EXTENSION_EXCLUDE || 50003;
 
-var translation_path = chrome.runtime.getURL('_locales/ja/messages.json');
+var translation_path = translation_path ||
+                       chrome.runtime.getURL('_locales/ja/messages.json');
 
 // get data from assignment file.
 // then search class in the document.
 // and change string of its element inside.
-function initTranslations(document, load_file, suffix)
-{
-  if (document === void 0 ||
-      toType(load_file) !== 'string' ||
-      toType(suffix) !== 'string') {
-    throw new Error('Invalid type of arguments.');
-  }
-
-  var request = new XMLHttpRequest();
-  request.onload = function() {
-    var translations = JSON.parse(this.responseText);
-    for (var key in translations) {
-      var el = document.getElementsByClassName(key + suffix);
-      var message = chrome.i18n.getMessage(key);
-      for (var j = 0; j < el.length; j++) {
-        var string = el[j].innerHTML;
-        var index = string.lastIndexOf('</');
-        el[j].innerHTML = string.substring(0, index) +
-                          message + string.substring(index);
-      }
+var initTranslations = initTranslations ||
+  function(document, load_file, suffix) {
+    if (document === void 0 ||
+        toType(load_file) !== 'string' ||
+        toType(suffix) !== 'string') {
+      throw new Error('Invalid type of arguments.');
     }
+
+    var request = new XMLHttpRequest();
+    request.onload = function() {
+      var translations = JSON.parse(this.responseText);
+      for (var key in translations) {
+        var el = document.getElementsByClassName(key + suffix);
+        var message = chrome.i18n.getMessage(key);
+        for (var j = 0; j < el.length; j++) {
+          var string = el[j].innerHTML;
+          var index = string.lastIndexOf('</');
+          el[j].innerHTML = string.substring(0, index) +
+                            message + string.substring(index);
+        }
+      }
+    };
+    request.open('GET', load_file, true);
+    request.send(null);
   };
-  request.open('GET', load_file, true);
-  request.send(null);
-}
 
 /**
  * keyCheck
@@ -70,8 +71,7 @@ function initTranslations(document, load_file, suffix)
  * @param {Event} e Event on keypress, keydown or keyup.
  * @return {Object} object of key information.
  */
-function keyCheck(e)
-{
+var keyCheck = keyCheck || function(e) {
   if (e === void 0) {
     throw new Error("Invalid argument. don't get event object.");
   }
@@ -83,7 +83,7 @@ function keyCheck(e)
     meta: e.metaKey,
     keyCode: e.keyCode
   };
-}
+};
 
 /**
  * generateKeyString
@@ -92,8 +92,7 @@ function keyCheck(e)
  * @param {Object} keyInfo has got return value of keyCheck function.
  * @return {String} result string.
  */
-function generateKeyString(keyInfo)
-{
+var generateKeyString = generateKeyString || function(keyInfo) {
   if (toType(keyInfo) !== 'object') {
     throw new Error('Invalid type of argument.');
   }
@@ -160,19 +159,19 @@ function generateKeyString(keyInfo)
   }
 
   return output;
-}
+};
 
 /* base program.
  * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
  */
-function toType(obj) {
+var toType = toType || function(obj) {
   var type = ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
   if (type === 'global') {
     if (obj === void 0) { return 'undefined'; }
     if (obj === null) { return 'null'; }
   }
   return type;
-}
+};
 
 function trim(string) {
   if (toType(string) !== 'string') {
@@ -181,7 +180,27 @@ function trim(string) {
   return string.replace(/(^\s+)|(\s+$)/g, '');
 }
 
-function unique(array) {
+var compareObject = compareObject || function(leftObj, rightObj) {
+  if (leftObj === void 0 || rightObj === void 0) {
+    throw new Error('Invalid type of arguments.');
+  }
+
+  var key;
+  for (key in leftObj) {
+    if (!rightObj.hasOwnProperty(key) || leftObj[key] !== rightObj[key]) {
+      return false;
+    }
+  }
+
+  for (key in rightObj) {
+    if (!leftObj.hasOwnProperty(key) || leftObj[key] !== rightObj[key]) {
+      return false;
+    }
+  }
+  return true;
+};
+
+var unique = unique || function(array) {
   if (toType(array) !== 'array') {
     throw new Error('Argument error. used not array object.');
   }
@@ -197,9 +216,9 @@ function unique(array) {
   }
 
   return ret;
-}
+};
 
-function arrayEqual(x1, x2) {
+var arrayEqual = arrayEqual || function(x1, x2) {
   if (x1.length !== x2.length) {
     return false;
   }
@@ -213,13 +232,13 @@ function arrayEqual(x1, x2) {
     j++;
   }
   return true;
-}
+};
 
 // ブラウザの応答性は下がる(ビジーウェイト)
-function sleep(T) {
+var sleep = sleep || function(T) {
   var d1 = new Date().getTime();
   var d2 = new Date().getTime();
   while (d2 < d1 + T) {
     d2 = new Date().getTime();
   }
-}
+};

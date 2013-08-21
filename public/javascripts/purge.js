@@ -696,9 +696,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         restore(json);
       });
       break;
-    case 'getDefaultOptions':
-      sendResponse(default_values);
-      break;
   }
 });
 

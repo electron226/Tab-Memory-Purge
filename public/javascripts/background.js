@@ -7,7 +7,6 @@ var versionKey = 'version';
 */
 function init()
 {
-
   chrome.storage.local.get(null, function(items) {
     // All remove invalid options.
     var removeKeys = [];

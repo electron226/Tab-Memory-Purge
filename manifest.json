@@ -25,7 +25,10 @@
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*"],
-        "js": ["public/javascripts/content_scripts/keyBind.js"]
+        "js": [ 
+            "public/javascripts/common.js",
+            "public/javascripts/content_scripts/keyBind.js"
+        ]
       }
     ],
     "permissions": [
