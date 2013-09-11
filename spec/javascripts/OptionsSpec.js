@@ -1,4 +1,4 @@
-/*jshint globalstrict: true*/
+/*jshint globalstrict: true, unused: false*/
 /*global loadFixtures, loadValues, saveValues*/
 'use strict';
 
@@ -73,7 +73,11 @@ describe('Options Function', function() {
 
         saveValues(
           document, ['checkbox', 'radio', 'text', 'number'], function(debug) {
-          expect(debug.length).toEqual(18);
+          var length = 0;
+          for (var i in default_values) {
+            length++;
+          }
+          expect(debug.length).toEqual(length);
         });
     });
 });

@@ -32,37 +32,36 @@ var USE_EXCLUDE = USE_EXCLUDE || 50001;
 var TEMP_EXCLUDE = TEMP_EXCLUDE ||50002;
 var EXTENSION_EXCLUDE = EXTENSION_EXCLUDE || 50003;
 
-var translation_path = translation_path ||
-                       chrome.runtime.getURL('_locales/ja/messages.json');
+var translation_path = chrome.runtime.getURL('_locales/ja/messages.json') ||
+                       chrome.runtime.getURL('_locales/en/messages.json');
 
 // get data from assignment file.
 // then search class in the document.
 // and change string of its element inside.
-var initTranslations = initTranslations ||
-  function(document, load_file, suffix) {
-    if (document === void 0 ||
-        toType(load_file) !== 'string' ||
-        toType(suffix) !== 'string') {
-      throw new Error('Invalid type of arguments.');
-    }
+function initTranslations(document, load_file, suffix) {
+  if (document === void 0 ||
+    toType(load_file) !== 'string' ||
+    toType(suffix) !== 'string') {
+    throw new Error('Invalid type of arguments.');
+  }
 
-    var request = new XMLHttpRequest();
-    request.onload = function() {
-      var translations = JSON.parse(this.responseText);
-      for (var key in translations) {
-        var el = document.getElementsByClassName(key + suffix);
-        var message = chrome.i18n.getMessage(key);
-        for (var j = 0; j < el.length; j++) {
-          var string = el[j].innerHTML;
-          var index = string.lastIndexOf('</');
-          el[j].innerHTML = string.substring(0, index) +
-                            message + string.substring(index);
-        }
+  var request = new XMLHttpRequest();
+  request.onload = function() {
+    var translations = JSON.parse(this.responseText);
+    for (var key in translations) {
+      var el = document.getElementsByClassName(key + suffix);
+      var message = chrome.i18n.getMessage(key);
+      for (var j = 0; j < el.length; j++) {
+        var string = el[j].innerHTML;
+        var index = string.lastIndexOf('</');
+        el[j].innerHTML = string.substring(0, index) +
+                        message + string.substring(index);
       }
-    };
-    request.open('GET', load_file, true);
-    request.send(null);
+    }
   };
+  request.open('GET', load_file, true);
+  request.send(null);
+}
 
 /**
  * keyCheck
@@ -71,7 +70,7 @@ var initTranslations = initTranslations ||
  * @param {Event} e Event on keypress, keydown or keyup.
  * @return {Object} object of key information.
  */
-var keyCheck = keyCheck || function(e) {
+function keyCheck(e) {
   if (e === void 0) {
     throw new Error("Invalid argument. don't get event object.");
   }
@@ -83,7 +82,7 @@ var keyCheck = keyCheck || function(e) {
     meta: e.metaKey,
     keyCode: e.keyCode
   };
-};
+}
 
 /**
  * generateKeyString
@@ -92,7 +91,7 @@ var keyCheck = keyCheck || function(e) {
  * @param {Object} keyInfo has got return value of keyCheck function.
  * @return {String} result string.
  */
-var generateKeyString = generateKeyString || function(keyInfo) {
+function generateKeyString(keyInfo) {
   if (toType(keyInfo) !== 'object') {
     throw new Error('Invalid type of argument.');
   }
@@ -159,19 +158,19 @@ var generateKeyString = generateKeyString || function(keyInfo) {
   }
 
   return output;
-};
+}
 
 /* base program.
  * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
  */
-var toType = toType || function(obj) {
+function toType(obj) {
   var type = ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
   if (type === 'global') {
     if (obj === void 0) { return 'undefined'; }
-    if (obj === null) { return 'null'; }
+    else if (obj === null) { return 'null'; }
   }
   return type;
-};
+}
 
 function trim(string) {
   if (toType(string) !== 'string') {
@@ -180,7 +179,7 @@ function trim(string) {
   return string.replace(/(^\s+)|(\s+$)/g, '');
 }
 
-var compareObject = compareObject || function(leftObj, rightObj) {
+function compareObject(leftObj, rightObj) {
   if (leftObj === void 0 || rightObj === void 0) {
     throw new Error('Invalid type of arguments.');
   }
@@ -198,9 +197,9 @@ var compareObject = compareObject || function(leftObj, rightObj) {
     }
   }
   return true;
-};
+}
 
-var unique = unique || function(array) {
+function unique(array) {
   if (toType(array) !== 'array') {
     throw new Error('Argument error. used not array object.');
   }
@@ -216,9 +215,9 @@ var unique = unique || function(array) {
   }
 
   return ret;
-};
+}
 
-var arrayEqual = arrayEqual || function(x1, x2) {
+function arrayEqual(x1, x2) {
   if (x1.length !== x2.length) {
     return false;
   }
@@ -232,13 +231,13 @@ var arrayEqual = arrayEqual || function(x1, x2) {
     j++;
   }
   return true;
-};
+}
 
 // ブラウザの応答性は下がる(ビジーウェイト)
-var sleep = sleep || function(T) {
+function sleep(T) {
   var d1 = new Date().getTime();
   var d2 = new Date().getTime();
   while (d2 < d1 + T) {
     d2 = new Date().getTime();
   }
-};
+}
