@@ -1,80 +1,72 @@
 /** blank.htmlで行う処理のスクリプトファイル */
+(function(window, document) {
+  "use strict";
 
+  /**
+   * 受け取った引数を分解し、連想配列(ハッシュ)として返す。
+   * @return {Object} 引数を表す連想配列。キーは受け取った引数名。
+   *                  引数がない場合はnullが返る。
+   */
+  function getQueryString()
+  {
+    if (1 < document.location.search.length) {
+      // 最初の1文字(?)を除いた文字列を取得
+      var query = decodeURIComponent(document.location.search.substring(1));
 
-/**
-* 受け取った引数を分解し、連想配列(ハッシュ)として返す。
-* @return {Object} 引数を表す連想配列。キーは受け取った引数名。
-*                  引数がない場合はnullが返る.
-*/
-function GetQueryString()
-{
-  if (1 < document.location.search.length) {
-    // 最初の1文字(&)を除いた文字列を取得
-    var query = decodeURIComponent(document.location.search.substring(1));
+      // 引数ごとに分割
+      var parameters = query.split('&');
+      var result = {};
+      for (var i = 0; i < parameters.length; i++) {
+        var element = parameters[i].split('=');
+        var paramName = element[0];
+        var paramValue = decodeURIComponent(element[1]);
+        result[paramName] = paramValue;
+      }
 
-    var parameters = query.split('&');
-
-    var result = new Object();
-    for (var i = 0; i < parameters.length; i++) {
-      var element = parameters[i].split('=');
-
-      var paramName = element[0];
-      var paramValue = decodeURIComponent(element[1]); // url key used unescape.
-
-      result[paramName] = paramValue;
+      return result;
     }
 
-    return result;
+    return null;
   }
 
-  return null;
-}
-
-
-/**
-* ファビコン変更
-* @param {String} favicon 変更するファビコンを表すURL.
-*/
-function ChangeFavicon(favicon)
-{
-  var head = document.querySelector('head');
-  var head_html = head.innerHTML;
-  var insert_pos = head_html.lastIndexOf('</head>');
-  var head_html = head_html +
-      '<link rel="icon" href="' + favicon + '" type="image/' +
-      favicon.substr(favicon.lastIndexOf('.') + 1) + '">';
-  head.innerHTML = head_html;
-}
-
-
-/**
-* 初期化
-*/
-function Initialize()
-{
-  var args = GetQueryString();
-
-  // 推奨(recommend)
-  if (args['title']) {
-    document.title = args['title'];
-    document.querySelector('#title').textContent = document.title;
+  /**
+   * ファビコン変更
+   * @param {String} favicon 変更するファビコンを表すURL
+   */
+  function changeFavicon(favicon)
+  {
+    var head = document.querySelector('head');
+    var link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = favicon;
+    link.type = 'image/' + favicon.substr(favicon.lastIndexOf('.') + 1);
+    head.appendChild(link);
   }
 
-  // 推奨(recommend)
-  if (args['favicon']) {
-    ChangeFavicon(args['favicon']);
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var args = getQueryString();
 
-  // 必須(Indispensable)
-  var span = document.querySelector('#url');
-  if (args['url']) {
-    var url = args['url'];
-    span.innerHTML = '<a href="' + url + '">' + url + '</a>';
-  } else {
-    span.innerHTML = 'None';
-  }
-}
+    // recommend element.
+    if (args.title) {
+      document.title = args.title;
+      document.querySelector('#title').textContent = document.title;
+    }
 
-document.addEventListener('DOMContentLoaded', function() {
-  Initialize();
-});
+    // recommend element.
+    if (args.favicon) {
+      changeFavicon(args.favicon);
+    }
+
+    // Indispensable element.
+    var span = document.querySelector('#url');
+    if (args.url) {
+      var url = args.url;
+      var a = document.createElement('a');
+      a.href = url;
+      a.innerText = url;
+      span.appendChild(a);
+    } else {
+      span.innerHTML = 'None';
+    }
+  });
+})(window, document);
