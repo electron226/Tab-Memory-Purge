@@ -8,25 +8,37 @@ var versionKey = 'version';
 function init()
 {
   chrome.storage.local.get(null, function(items) {
-    // All remove invalid options.
-    var removeKeys = [];
+    // ver 1.8.4 later.
+    // changed option name.
+    var re = /(^[\w]*)_(text|password|radio|checkbox|number|textarea)$/;
+    var saves = {};
     for (var key in items) {
-      if (!default_values.hasOwnProperty(key) && key !== versionKey) {
-        removeKeys.push(key);
+      if (re.test(key)) {
+        var new_name = key.substring(0, key.lastIndexOf('_'));
+        saves[new_name] = items[key];
       }
     }
-    chrome.storage.local.remove(removeKeys, function() {
-      /* オプション(強制終了された場合、起動時に以前の解放されたタブを復元) */
-      var storageName = 'forcibly_close_restore_checkbox';
-      // 前回、正常にウインドウが閉じられていなかった場合、
-      // 以前の解放済タブの情報が残っていたら復元
-      if (items[storageName] || localStorage[storageName] === 'true') {
-        chrome.runtime.sendMessage({ event: 'restore' });
+
+    chrome.storage.local.set(saves, function() {
+      // All remove invalid options.
+      var removeKeys = [];
+      for (var key in items) {
+        if (!default_values.hasOwnProperty(key) && key !== versionKey) {
+          removeKeys.push(key);
+        }
       }
+      chrome.storage.local.remove(removeKeys, function() {
+        /* オプション(強制終了された場合、起動時に以前の解放されたタブを復元) */
+        var storageName = 'forcibly_close_restore_checkbox';
+        // 前回、正常にウインドウが閉じられていなかった場合、
+        // 以前の解放済タブの情報が残っていたら復元
+        if (items[storageName] || localStorage[storageName] === 'true') {
+          chrome.runtime.sendMessage({ event: 'restore' });
+        }
+      });
     });
   });
 }
-
 
 /**
  * 拡張機能がインストールされたときの処理
@@ -45,7 +57,6 @@ function onInstall() {
 function onUpdate() {
   console.log('Extension Updated.');
 }
-
 
 /**
  * 拡張機能のバージョンを返す

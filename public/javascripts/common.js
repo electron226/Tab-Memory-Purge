@@ -4,26 +4,26 @@
 // Default Values.
 var default_values = default_values || {
   // Set item in Options, and Extensions
-  'release_page_radio': 'author',
-  'release_url_text': '',
-  'no_release_checkbox': false,
-  'assignment_title_checkbox': true,
-  'assignment_favicon_checkbox': true,
-  'timer_number': 20,
-  'exclude_url_textarea':
+  'release_page': 'author',
+  'release_url': '',
+  'no_release': false,
+  'assignment_title': true,
+  'assignment_favicon': true,
+  'timer': 20,
+  'exclude_url':
       '^https://\n' +
       '(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
       'youtube.com',
-  'regex_insensitive_checkbox': true,
-  'forcibly_close_restore_checkbox': false,
+  'regex_insensitive': true,
+  'forcibly_close_restore': false,
 
   // keybind
-  'release_keybind_text': JSON.stringify({}),
-  'switch_not_release_keybind_text': JSON.stringify({}),
-  'all_unpurge_keybind_text': JSON.stringify({}),
-  'restore_keybind_text': JSON.stringify({}),
+  'release_keybind': JSON.stringify({}),
+  'switch_not_release_keybind': JSON.stringify({}),
+  'all_unpurge_keybind': JSON.stringify({}),
+  'restore_keybind': JSON.stringify({}),
 };
 
 // a value which represents of the exclude list.

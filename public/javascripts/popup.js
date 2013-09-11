@@ -44,7 +44,7 @@ function OnRestore()
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var storageName = 'release_page_radio';
+  var storageName = 'release_page';
   chrome.storage.local.get(storageName, function(storages) {
     initTranslations(document, translation_path, 'Text');
     changeNotReleaseText();

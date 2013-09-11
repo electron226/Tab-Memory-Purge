@@ -79,7 +79,7 @@ var blank_urls = {
 
 // file of get scroll position of tab.
 var get_scrollPos_script =
-    'public/javascripts/content_scripts/getScrollPosition.js';
+  'public/javascripts/content_scripts/getScrollPosition.js';
 
 // the path of icons.
 // defined NORMAL_EXCLUDE etc... in common.js.
@@ -167,41 +167,34 @@ function checkExcludeList(url, callback)
 
   // Check exclusion list in the extension.
   checkMatchUrlString(
-      url,
-      { list: extension_exclude_url, options: 'i' },
-      function(extension_match) {
-        if (extension_match) {
-          callback(EXTENSION_EXCLUDE);
-          return;
-        }
-
-        // Check exclusion list in the options page.
-        var storageName = 'exclude_url_textarea';
-        var exclude_url = myOptions[storageName] ||
-                          default_values[storageName];
-        // get regular regex option.
-        storageName = 'regex_insensitive_checkbox';
-        var regex_insensitive = myOptions[storageName] ||
-                                default_values[storageName];
-        checkMatchUrlString(
-            url,
-            { list: exclude_url, options: regex_insensitive ? 'i' : ''},
-            function(normal_match) {
-              if (normal_match) {
-                callback(USE_EXCLUDE);
-                return;
-              }
-
-              // Compared to the temporary exclusion list.
-              if (temp_release.indexOf(url) !== -1) {
-                callback(TEMP_EXCLUDE);
-                return;
-              }
-
-              callback(NORMAL_EXCLUDE);
-            }
-        );
+    url,
+    { list: extension_exclude_url, options: 'i' },
+    function(extension_match) {
+      if (extension_match) {
+        callback(EXTENSION_EXCLUDE);
+        return;
       }
+
+      checkMatchUrlString(
+        url,
+        { list: myOptions.exclude_url,
+          options: myOptions.regex_insensitive ? 'i' : '' },
+        function(normal_match) {
+          if (normal_match) {
+            callback(USE_EXCLUDE);
+            return;
+          }
+
+          // Compared to the temporary exclusion list.
+          if (temp_release.indexOf(url) !== -1) {
+            callback(TEMP_EXCLUDE);
+            return;
+          }
+
+          callback(NORMAL_EXCLUDE);
+        }
+      );
+    }
   );
 }
 
@@ -219,11 +212,11 @@ function reloadBrowserIcon(tab)
 
   checkExcludeList(tab.url, function(change_icon) {
     chrome.browserAction.setIcon(
-        { path: icons[change_icon], tabId: tab.id }, function() {
-          var save = {};
-          save.purgeIcon = change_icon;
-          chrome.storage.local.set(save);
-        }
+      { path: icons[change_icon], tabId: tab.id }, function() {
+        var save = {};
+        save.purgeIcon = change_icon;
+        chrome.storage.local.set(save);
+      }
     );
   });
 }
@@ -238,8 +231,7 @@ function reloadBadge()
   for (var i in unloaded) {
     length++;
   }
-  var badgeText = length.toString();
-  chrome.browserAction.setBadgeText({ text: badgeText });
+  chrome.browserAction.setBadgeText({ text: length.toString() });
 }
 
 /**
@@ -257,79 +249,61 @@ function purge(tabId)
   chrome.tabs.get(tabId, function(tab) {
     // objScroll = タブのスクロール量(x, y)
     chrome.tabs.executeScript(
-        tabId, { file: get_scrollPos_script }, function(objScroll) {
-          var args = '';
+      tabId, { file: get_scrollPos_script }, function(objScroll) {
+        var args = '';
 
-          var title = tab.title ? '&title=' + tab.title : '';
-          var favicon = tab.favIconUrl ? '&favicon=' + tab.favIconUrl : '';
+        var title = tab.title ? '&title=' + tab.title : '';
+        var favicon = tab.favIconUrl ? '&favicon=' + tab.favIconUrl : '';
 
-          // 解放に使うページを設定
-          var page = null;
-          var storageName = 'release_page_radio';
-          var release_page = myOptions[storageName] ||
-                             default_values[storageName];
-          switch (release_page) {
-            case 'author': // 作者サイト
-              page =  blank_urls.normal;
-              args += title + favicon;
-              break;
-            case 'normal': // 拡張機能内
-              page = blank_urls.local;
-              args += title + favicon;
-              break;
-            case 'assignment': // 指定URL
-              storageName = 'release_url_text';
-              var assignment_url = myOptions[storageName] ||
-                                   default_values[storageName];
-              if (assignment_url !== '') {
-                page = assignment_url;
-              }
+        // 解放に使うページを設定
+        var page = null;
+        var storageName = 'release_page';
+        switch (myOptions[storageName]) {
+        case 'author': // 作者サイト
+          page =  blank_urls.normal;
+          args += title + favicon;
+          break;
+        case 'normal': // 拡張機能内
+          page = blank_urls.local;
+          args += title + favicon;
+          break;
+        case 'assignment': // 指定URL
+          page = myOptions.release_url;
 
-              storageName = 'assignment_title_checkbox';
-              var checked_title = myOptions[storageName] ||
-                                  default_values[storageName];
-              if (checked_title) {
-                args += title;
-              }
-
-              storageName = 'assignment_favicon_checkbox';
-              var checked_favicon = myOptions[storageName] ||
-                                    default_values[storageName];
-              if (checked_favicon) {
-                args += favicon;
-              }
-              break;
-            default: // 該当なしの時は初期値を設定
-              console.log("'release page' setting error." +
-                          ' so to set default value.');
-              chrome.storage.local.remove(storageName);
-              purge(tabId); // この関数を実行し直す
-              break;
+          if (myOptions.assignment_title) {
+            args += title;
           }
-
-          // Do you reload tab when you focus tab?.
-          storageName = 'no_release_checkbox';
-          var no_release = myOptions[storageName] ||
-                           default_values[storageName];
-          args += '&focus=' + (no_release ? 'false' : 'true');
-
-          if (tab.url) {
-            args += '&url=' + encodeURIComponent(tab.url);
+          if (myOptions.assignment_favicon) {
+            args += favicon;
           }
-          var url = encodeURI(page) + '?' + encodeURIComponent(args);
+          break;
+        default: // 該当なしの時は初期値を設定
+          console.log("'release page' setting error. so to set default value.");
+          chrome.storage.local.remove(storageName);
+          purge(tabId); // この関数を実行し直す
+          break;
+        }
 
-          chrome.tabs.update(tabId, { url: url }, function(updated) {
-            unloaded[updated.id] = {
-              url: tab.url,
-              purgeurl: url,
-              scrollPosition: objScroll[0] || { x: 0 , y: 0 }
-            };
-            reloadBadge();
-            deleteTick(tabId);
-            tabBackup.update(unloaded);
-          });
+        // Do you reload tab when you focus tab?.
+        args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
+
+        if (tab.url) {
+          args += '&url=' + encodeURIComponent(tab.url);
+        }
+        var url = encodeURI(page) + '?' + encodeURIComponent(args);
+
+        chrome.tabs.update(tabId, { url: url }, function(updated) {
+          unloaded[updated.id] = {
+            url: tab.url,
+            purgeurl: url,
+            scrollPosition: objScroll[0] || { x: 0 , y: 0 }
+          };
+          reloadBadge();
+          deleteTick(tabId);
+          tabBackup.update(unloaded);
         });
-  });
+      });
+    });
 }
 
 /**
@@ -411,7 +385,7 @@ function tick(tabId)
       // アクティブタブへの処理の場合、行わない
       if (tab.active) {
         // アクティブにしたタブのアンロード時間更新
-        unloadTimeProlong(tabId);
+        setTick(tabId);
       } else {
         purge(tabId);
       }
@@ -421,6 +395,7 @@ function tick(tabId)
 
 /**
 * 定期的に解放処理の判断が行われるよう設定します。
+* 既に設定済みなら時間を延長します。
 * @param {Number} tabId 設定するタブのID.
 */
 function setTick(tabId)
@@ -435,17 +410,18 @@ function setTick(tabId)
       return;
     }
 
+    // 全ての除外アドレス一覧と比較
     checkExcludeList(tab.url, function(state) {
-      // 全ての除外アドレス一覧と比較
-      if (state === NORMAL_EXCLUDE) {
         // 除外アドレスに含まれていない場合
-        var storageName = 'timer_number';
-        var timer = myOptions[storageName] || default_values[storageName];
-        timer = timer * 60 * 1000; // 分(設定) * 秒数 * ミリ秒
+      if (state === NORMAL_EXCLUDE) {
+        // 分(設定) * 秒数 * ミリ秒
+        var timer = myOptions.timer * 60 * 1000;
 
+        // Update.
+        deleteTick(tabId);
         ticked[tabId] = setInterval(function() { tick(tabId); } , timer);
       } else { // include exclude list
-        deleteTick();
+        deleteTick(tabId);
       }
     });
   });
@@ -464,22 +440,12 @@ function deleteTick(tabId)
 }
 
 /**
-* アンロード時間の延長
-* @param {Number} tabId 延長するタブのID.
-*/
-function unloadTimeProlong(tabId)
-{
-  deleteTick(tabId);
-  setTick(tabId);
-}
-
-/**
 * 指定した辞書型の再帰処理し、タブを復元する。
 * 引数は第一引数のみを指定。
 *
 * @param {Object} object オブジェクト型。これのみを指定する.
 *                        基本的にオブジェクト型unloaded変数のバックアップを渡す.
-* @param {String} keys オブジェクト型のキー名の配列.省略可能.
+* @param {Array} keys オブジェクト型のキー名の配列.省略可能.
 * @param {Number} index keysの再帰処理開始位置.デフォルトは0、省略可能.
 * @param {Number} end keysの最後の要素から一つ後の位置.
 *                     デフォルトはkeys.length、省略可能.
@@ -508,8 +474,8 @@ function restore(object, keys, index, end)
   // 初期値
   if (toType(keys) !== 'array') {
     keys = [];
-    for (var i in object) {
-      keys.push(i);
+    for (var key in object) {
+      keys.push(key);
     }
     index = 0;
     end = keys.length;
@@ -550,7 +516,7 @@ function tempReleaseToggle(tab)
     temp_release.splice(index, 1);
   }
   reloadBrowserIcon(tab);
-  unloadTimeProlong(tab.id);
+  setTick(tab.id);
 }
 
 /**
@@ -606,11 +572,18 @@ function initialize()
       }
     }
   });
-  reloadBadge();
   chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
+  reloadBadge();
 
+  // My options are initialized.
   chrome.storage.local.get(null, function(items) {
     myOptions = items;
+
+    for(var key in default_values) {
+      if (!myOptions.hasOwnProperty(key)) {
+        myOptions[key] = default_values[key];
+      }
+    }
   });
 }
 
@@ -621,15 +594,13 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 
     // 前にアクティブにされていたタブのアンロード時間を更新
     if (!old_active_ids.isEmpty(tab.windowId)) {
-      unloadTimeProlong(old_active_ids.lastPrevious(tab.windowId));
+      setTick(old_active_ids.lastPrevious(tab.windowId));
     }
     old_active_ids.update({ windowId: tab.windowId, id: activeInfo.tabId });
 
     // アクティブにしたタブがアンロード済みだった場合、再読込
     if (unloaded.hasOwnProperty(activeInfo.tabId)) {
-      var storageName = 'no_release_checkbox';
-      var no_release = myOptions[storageName] || default_values[storageName];
-      if (no_release === false) {
+      if (myOptions.no_release === false) {
         unPurge(activeInfo.tabId);
       }
     }
@@ -642,9 +613,9 @@ chrome.tabs.onCreated.addListener(function(tab) {
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
   delete unloaded[tabId];
-  reloadBadge();
   deleteTick(tabId);
   tabBackup.update(unloaded);
+  reloadBadge();
 });
 
 chrome.tabs.onAttached.addListener(function(tabId) {
@@ -653,9 +624,9 @@ chrome.tabs.onAttached.addListener(function(tabId) {
 
 chrome.tabs.onDetached.addListener(function(tabId) {
   delete unloaded[tabId];
-  reloadBadge();
   deleteTick(tabId);
   tabBackup.update(unloaded);
+  reloadBadge();
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
