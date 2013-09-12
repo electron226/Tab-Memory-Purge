@@ -150,6 +150,7 @@
     }
   }
 
+  /* DOM Content Loaded. */
   document.addEventListener('DOMContentLoaded', function() {
     initTranslations(document, translation_path, 'Text');
     loadValues(document, default_values, function() {
@@ -226,21 +227,19 @@
       // show current key.
       chrome.storage.local.get(null, function(items) {
         var regex = /([\w_]+)_keybind/;
-        var items = values || items;
+        items = values || items;
         for (var key in items) {
           var matches = key.match(regex);
           if (matches) {
-            var keyElement = document.getElementsByClassName(matches.input);
-            if (keyElement !== void 0 && keyElement !== null) {
-              var keyInfo = JSON.parse(items[key]);
-              try {
-                var output = generateKeyString(keyInfo);
-                showKey(document, matches[1], output);
-                copyKeyInfoToSaveArea(matches[1], keyInfo);
-              } catch (e) {
-                console.log('initKeyBind loop skip.');
-              }
+            var keyInfo = JSON.parse(items[key]);
+            var output = null;
+            try {
+              output = generateKeyString(keyInfo);
+            } catch (e) {
+              output = '';
             }
+            showKey(document, matches[1], output);
+            copyKeyInfoToSaveArea(matches[1], keyInfo);
           }
         }
         if (toType(callback) === 'function') {
@@ -270,6 +269,10 @@
 
     function copyKeyInfoToSaveArea(bindStart, keyInfo)
     {
+      if (toType(bindStart) !== 'string' || toType(keyInfo) !== 'object') {
+        throw new Error('copyKeyInfoToSaveArea function is arguments error.');
+      }
+
       var elementCode =
           '//section[@id="keybind_options"]//tr[@name="' + bindStart + '"]';
 
@@ -327,10 +330,12 @@
     }, false);
     document.getElementById('load').addEventListener('click', function() {
       loadValues(document, null, function() {
-        status.innerHTML = 'Options Loaded.';
-        setTimeout(function() {
-          status.innerHTML = '';
-        }, timeoutTime);
+        initKeybind(document, null, function() {
+          status.innerHTML = 'Options Loaded.';
+          setTimeout(function() {
+            status.innerHTML = '';
+          }, timeoutTime);
+        });
       });
     }, false);
     document.getElementById('init').addEventListener('click', function() {
