@@ -4,7 +4,7 @@
     "description": "Extension Name"
   },
   "extDescription": {
-    "message": "Release Memory of Tab on regular basis.",
+    "message": "Release the memory of the tabs on a regular basis.",
     "description": "Extension Work"
   },
   "option": {
@@ -35,20 +35,20 @@
     "message": "Release Tab",
     "description": "a menu in popup"
   },
-  "non_release": {
+  "not_release": {
     "message": "The url of This tab to prohibit the release.",
     "description": "the menu in popup"
   },
-  "remove_non_release": {
-    "message": "Exclude the url of this tab to execute the release.",
+  "remove_not_release": {
+    "message": "Cancel 'The url of This tab to prohibit the release'.",
     "description": "the menu in popup"
   },
   "switch_not_release": {
-    "message": "Don't release the url of this tab. or to release.",
+    "message": "The url of this tab to switch to either cancel or prohibit.",
     "description": "the menu in popup."
   },
   "all_unpurge": {
-    "message": "All the tabs are released",
+    "message": "All cancel the released tabs.",
     "description": "a menu in popup"
   },
   "restore": {
@@ -68,7 +68,7 @@
     "description": "a option menu name in author."
   },
   "explanation": {
-    "message": "If you use this option, you must be aware of the following.",
+    "message": "When you use this option, you must be aware of the following.",
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
@@ -76,8 +76,8 @@
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "If tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
-    "description": "拡張機能内に関する問題の発生時の解決策"
+    "message": "When tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
+    "description": "Solution to when occured about the problem in this extension."
   },
   "explanation_problem2": {
     "message": "Unless the internet connection environment is possible, it does not work properly.",
@@ -85,7 +85,7 @@
       "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "If the server is down, it does not operate normally.",
+    "message": "When the server is down, it does not operate normally.",
     "description":
       "Description of problem related to the specified author site"
   },
