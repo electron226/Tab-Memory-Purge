@@ -37,8 +37,11 @@ function loadValues(document, values, debugCallback)
           element.snapshotItem(0).checked = true;
           debugList.push(element.snapshotItem(0).name);
           break;
-        case 'number':
         case 'checkbox':
+          element.snapshotItem(0).checked = value;
+          debugList.push(element.snapshotItem(0).name);
+          break;
+        case 'number':
           element.snapshotItem(0).value = value;
           debugList.push(element.snapshotItem(0).name);
           break;
@@ -144,10 +147,9 @@ function releasePageChangeState()
   }
   var state = selectElement.snapshotItem(0).checked;
   var release_url = document.querySelector("input[name='release_url']");
-  release_url.enabled = state;
   release_url.disabled = !state;
   for (var j = 0; j < assi_options.snapshotLength; j++) {
-    assi_options.snapshotItem(j).disabled = state;
+    assi_options.snapshotItem(j).disabled = !state;
   }
 }
 
