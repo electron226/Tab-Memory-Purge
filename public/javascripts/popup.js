@@ -33,8 +33,11 @@ function OnSwitchNotRelease()
   });
 }
 
-function OnAllUnPurge()
-{
+function OnAllPurge() {
+  chrome.runtime.sendMessage({ event: 'all_purge'});
+}
+
+function OnAllUnPurge() {
   chrome.runtime.sendMessage({ event: 'all_unpurge'});
 }
 
@@ -60,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#release').addEventListener('click', OnRelease);
     document.querySelector('#not_release').addEventListener(
         'click', OnSwitchNotRelease);
+    document.querySelector('#all_purge').addEventListener('click', OnAllPurge);
     document.querySelector('#all_unpurge').addEventListener(
         'click', OnAllUnPurge);
     document.querySelector('#restore').addEventListener('click', OnRestore);

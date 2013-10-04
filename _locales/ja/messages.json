@@ -47,6 +47,10 @@
     "message": "このタブのURLの解放を禁止/解除",
     "description": "ポップアップの項目"
   },
+  "all_purge": {
+    "message": "全てのタブを解放",
+    "description": "ポップアップの項目"
+  },
   "all_unpurge": {
     "message": "全ての解放されているタブを解除",
     "description": "ポップアップの項目"

@@ -47,6 +47,10 @@
     "message": "The url of this tab to switch to either cancel or prohibit.",
     "description": "the menu in popup."
   },
+  "all_purge": {
+    "message": "release all tabs.",
+    "description": "a menu in popup."
+  },
   "all_unpurge": {
     "message": "All cancel the released tabs.",
     "description": "a menu in popup"
