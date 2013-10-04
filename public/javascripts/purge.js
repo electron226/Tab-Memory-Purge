@@ -2,7 +2,13 @@
 "use strict";
 
 // debug settings.
-console.log = function() {};
+/* console.log = function() {};
+console.warn = function() {};
+console.debug = function() {};
+console.assert = function() {};
+console.time = function() {};
+console.timeEnd = function() {};
+console.timeStamp = function() {}; */
 
 /**
  * set setInterval return value.
@@ -42,7 +48,8 @@ var Backup = function(key) {
 Backup.prototype.update = function(data, callback) {
   console.log('update function of Backup class.');
   if (data === void 0 || data === null) {
-    throw new Error('a invalid type of arguments.');
+    console.error('a invalid type of arguments.');
+    return;
   }
   var write = {};
   write[this.key] = JSON.stringify(data);
@@ -55,7 +62,8 @@ Backup.prototype.update = function(data, callback) {
 Backup.prototype.get = function(callback) {
   console.log('get function of Backup class.');
   if (toType(callback) !== 'function') {
-    throw new Error('A invalid type of arugments.');
+    console.error('A invalid type of arugments.');
+    return;
   }
 
   chrome.storage.local.get(this.key, function(storages) {
@@ -68,7 +76,8 @@ Backup.prototype.get = function(callback) {
 Backup.prototype.remove = function(callback) {
   console.log('remove function of Backup class.');
   if (toType(callback) !== 'function') {
-    throw new Error('A invalid type of arugments.');
+    console.error('A invalid type of arugments.');
+    return;
   }
 
   chrome.storage.local.remove(this.key, function() {
@@ -128,21 +137,21 @@ function checkMatchUrlString(url, excludeOptions, callback)
 {
   console.log('checkMatchUrlString');
   if (toType(url) !== 'string') {
-    throw new Error("Invalid argument. the url isn't string.");
+    console.error("Invalid argument. the url isn't string.");
   }
   if (toType(excludeOptions) !== 'object') {
-    throw new Error("Invalid argument. the excludeOptions isn't object.");
+    console.error("Invalid argument. the excludeOptions isn't object.");
   }
   if (toType(excludeOptions.list) !== 'string') {
-    throw new Error(
+    console.error(
         "Invalid argument. the list in the excludeOptions isn't string.");
   }
   if (toType(excludeOptions.options) !== 'string') {
-    throw new Error(
+    console.error(
         "Invalid argument. the option in the excludeOptions isn't string.");
   }
   if (toType(callback) !== 'function') {
-    throw new Error("Invalid argument. callback argument don't function type.");
+    console.error("Invalid argument. callback argument don't function type.");
   }
 
   var exclude_array = excludeOptions.list.split('\n');
@@ -171,10 +180,10 @@ function checkExcludeList(url, callback)
 {
   console.log('checkExcludeList');
   if (toType(url) !== 'string') {
-    throw new Error("Invalid argument. url isn't string.");
+    console.error("Invalid argument. url isn't string.");
   }
   if (toType(callback) !== 'function') {
-    throw new Error("Invalid argument. callback argument don't function type.");
+    console.error("Invalid argument. callback argument don't function type.");
   }
 
   // Check exclusion list in the extension.
@@ -220,7 +229,7 @@ function reloadBrowserIcon(tab)
 {
   console.log('reloadBrowserIcon');
   if (toType(tab) !== 'object') {
-    throw new Error("Invalid argument. tab isn't object.");
+    console.error("Invalid argument. tab isn't object.");
   }
 
   checkExcludeList(tab.url, function(change_icon) {
@@ -229,6 +238,28 @@ function reloadBrowserIcon(tab)
         var save = {};
         save.purgeIcon = change_icon;
         chrome.storage.local.set(save);
+
+        var title = 'Tab Memory Purge\n';
+        switch (change_icon) {
+          case NORMAL_EXCLUDE:
+            title += "The url of this tab isn't include exclude list.";
+            break;
+          case USE_EXCLUDE:
+            title += "The url of this tab is included your exclude list.";
+            break;
+          case TEMP_EXCLUDE:
+            title += "The url of this tab is included" +
+                    " your temporary exclude list.";
+            break;
+          case EXTENSION_EXCLUDE:
+            title += "The url of this tab is included" +
+                    " exclude list of in this extension.";
+            break;
+          default:
+            console.error('Invalid state.');
+            break;
+        }
+        chrome.browserAction.setTitle({ tabId: tab.id, title: title });
       }
     );
   });
@@ -256,7 +287,7 @@ function purge(tabId)
 {
   console.log('purge');
   if (toType(tabId) !== 'number') {
-    throw new Error("Invalid argument. tabId isn't number.");
+    console.error("Invalid argument. tabId isn't number.");
   }
 
   run_purge[tabId] = true;
@@ -359,12 +390,12 @@ function unPurge(tabId)
 {
   console.log('unPurge');
   if (toType(tabId) !== 'number') {
-    throw new Error("Invalid argument. tabId isn't number.");
+    console.error("Invalid argument. tabId isn't number.");
   }
 
   var url = unloaded[tabId].url;
   if (toType(url) !== 'string') {
-    throw new Error("Can't get url of tabId in unloaded.");
+    console.error("Can't get url of tabId in unloaded.");
   }
 
   chrome.tabs.update(tabId, { url: url }, function() {
@@ -380,7 +411,7 @@ function purgeToggle(tabId)
 {
   console.log('purgeToggle');
   if (toType(tabId) !== 'number') {
-    throw new Error("Invalid argument. tabId isn't number.");
+    console.error("Invalid argument. tabId isn't number.");
   }
 
   if (unloaded[tabId]) {
@@ -398,7 +429,7 @@ function tick(tabId)
 {
   console.log('tick');
   if (toType(tabId) !== 'number') {
-    throw new Error("Invalid argument. tabId isn't number.");
+    console.error("Invalid argument. tabId isn't number.");
   }
 
   if (toType(unloaded[tabId]) !== 'object') {
@@ -428,7 +459,7 @@ function setTick(tabId)
 {
   console.log('setTick');
   if (toType(tabId) !== 'number') {
-    throw new Error("Invalid argument. tabId isn't number.");
+    console.error("Invalid argument. tabId isn't number.");
   }
 
   chrome.tabs.get(tabId, function(tab) {
@@ -482,16 +513,16 @@ function restore(object, keys, index, end)
 {
   console.log('restore');
   if (toType(object) !== 'object') {
-    throw new Error("Invalid argument. object isn't object.");
+    console.error("Invalid argument. object isn't object.");
   }
   if (keys !== void 0 && toType(keys) !== 'array') {
-    throw new Error("Invalid argument. keys isn't array or undefined.");
+    console.error("Invalid argument. keys isn't array or undefined.");
   }
   if (index !== void 0 && toType(index) !== 'number') {
-    throw new Error("Invalid argument. index isn't number or undefined.");
+    console.error("Invalid argument. index isn't number or undefined.");
   }
   if (end !== void 0 && toType(end) !== 'number') {
-    throw new Error("Invalid argument. end isn't number or undefined.");
+    console.error("Invalid argument. end isn't number or undefined.");
   }
 
   // 最後まで処理を行ったらunloadedに上書き
@@ -534,7 +565,7 @@ function tempReleaseToggle(tab)
 {
   console.log('tempReleaseToggle');
   if (toType(tab) !== 'object') {
-    throw new Error("Invalid argument. tab isn't object.");
+    console.error("Invalid argument. tab isn't object.");
   }
 
   var index = temp_release.indexOf(tab.url);
@@ -559,7 +590,7 @@ function searchUnloadedTabNearPosition(tab)
 {
   console.log('searchUnloadedTabNearPosition');
   if (toType(tab) !== 'object') {
-    throw new Error("Invalid argument. tab isn't object.");
+    console.error("Invalid argument. tab isn't object.");
   }
 
   // 現在のタブの左右の未解放のタブを選択する
