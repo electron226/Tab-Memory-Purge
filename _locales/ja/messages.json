@@ -36,16 +36,16 @@
     "description": "ポップアップの項目"
   },
   "not_release": {
-    "message": "このタブのURLの解放を禁止",
+    "message": "このタブのURLの解放を一時的に禁止",
     "description": "ポップアップの項目"
   },
   "remove_not_release": {
-    "message": "このタブのURLの解放を禁止を解除",
+    "message": "「このタブのURLの解放を一時的に禁止」を解除",
     "description": "ポップアップの項目"
   },
   "switch_not_release": {
-    "message": "このタブのURLの解放を禁止/解除",
-    "description": "ポップアップの項目"
+    "message": "このタブのURLの解放を一時的に禁止/解除",
+    "description": "オプションページの項目"
   },
   "all_purge": {
     "message": "全てのタブを解放",

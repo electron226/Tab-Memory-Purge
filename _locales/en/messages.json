@@ -36,16 +36,16 @@
     "description": "a menu in popup"
   },
   "not_release": {
-    "message": "The url of This tab to prohibit the release.",
+    "message": "The url of This tab to prohibit the release temporarily",
     "description": "the menu in popup"
   },
   "remove_not_release": {
-    "message": "Cancel 'The url of This tab to prohibit the release'.",
+    "message": "Cancel 'The url of This tab to prohibit the release temporarily'.",
     "description": "the menu in popup"
   },
   "switch_not_release": {
-    "message": "The url of this tab to switch to either cancel or prohibit.",
-    "description": "the menu in popup."
+    "message": "The url of this tab to switch to either to prohibit release temporary or cancel.",
+    "description": "the menu in the options page."
   },
   "all_purge": {
     "message": "release all tabs.",
@@ -72,15 +72,15 @@
     "description": "a option menu name in author."
   },
   "explanation": {
-    "message": "When you use this option, you must be aware of the following.",
+    "message": "If you use this option, you must be aware of the following.",
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "When an expanded function become invalid, the released tab will be closed.",
+    "message": "If an expanded function become invalid, the released tab will be closed.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "When tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
+    "message": "If tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
     "description": "Solution to when occured about the problem in this extension."
   },
   "explanation_problem2": {
@@ -89,7 +89,7 @@
       "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "When the server is down, it does not operate normally.",
+    "message": "If the server is down, it does not operate normally.",
     "description":
       "Description of problem related to the specified author site"
   },
