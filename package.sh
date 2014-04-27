@@ -1,1 +1,1 @@
-zip -r package.zip _locales css icon public manifest.json blank_sample.zip *.html -x public/javascripts/jasmine-dom-*.js
+zip -r package.zip _locales css icon src manifest.json blank_sample.zip *.html

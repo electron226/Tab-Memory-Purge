@@ -56,7 +56,7 @@
 
       var args = getQueryString();
       if (args.url) {
-        location.href = args.url;
+        window.location.replace(args.url);
       }
 
       lock--;
@@ -82,8 +82,12 @@
     if (args.url) {
       var url = args.url;
       var a = document.createElement('a');
-      a.href = url;
+      a.href = '#';
       a.innerText = url;
+      a.onclick = function() {
+        window.location.replace(url);
+        return false;
+      };
       span.appendChild(a);
     } else {
       span.innerHTML = 'None';
