@@ -2,13 +2,13 @@
 "use strict";
 
 // debug settings.
-/* console.log = function() {};
+console.log = function() {};
 console.warn = function() {};
 console.debug = function() {};
 console.assert = function() {};
 console.time = function() {};
 console.timeEnd = function() {};
-console.timeStamp = function() {}; */
+console.timeStamp = function() {};
 
 /**
  * set setInterval return value.
@@ -93,8 +93,7 @@ var blank_urls = {
 };
 
 // file of get scroll position of tab.
-var get_scrollPos_script =
-  'public/javascripts/content_scripts/getScrollPosition.js';
+var get_scrollPos_script = 'src/content_scripts/getScrollPosition.js';
 
 // the path of icons.
 // defined NORMAL_EXCLUDE etc... in common.js.
@@ -344,7 +343,7 @@ function purge(tabId)
           }
           var url = encodeURI(page) + '?' + encodeURIComponent(args);
 
-          chrome.tabs.update(tabId, { url: url }, function(updated) {
+          var afterPurge = function(updated) {
             unloaded[updated.id] = {
               url: tab.url,
               purgeurl: url,
@@ -353,7 +352,16 @@ function purge(tabId)
             reloadBadge();
             deleteTick(tabId);
             tabBackup.update(unloaded);
-          });
+          };
+
+          if (myOptions[storageName] === 'assignment') {
+            chrome.tabs.update(tabId, { url: url }, afterPurge);
+          } else {
+            chrome.tabs.executeScript(tabId, {
+              code: 'window.location.replace("' + url + '");' }, function() {
+              chrome.tabs.get(tabId, afterPurge);
+            });
+          }
         });
       });
     });
@@ -398,7 +406,8 @@ function unPurge(tabId)
     console.error("Can't get url of tabId in unloaded.");
   }
 
-  chrome.tabs.update(tabId, { url: url }, function() {
+  chrome.tabs.executeScript(tabId, {
+    code: 'window.location.replace("' + url + '");', }, function() {
     afterUnPurge(tabId);
   });
 }
