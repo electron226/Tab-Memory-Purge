@@ -16,18 +16,18 @@
     "options_page": "options.html",
     "background" : {
       "scripts": [
-        "public/javascripts/common.js",
-        "public/javascripts/tabclass.js",
-        "public/javascripts/background.js",
-        "public/javascripts/purge.js"
+        "src/common.js",
+        "src/tabclass.js",
+        "src/background.js",
+        "src/purge.js"
       ]
     },
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*"],
         "js": [
-            "public/javascripts/common.js",
-            "public/javascripts/content_scripts/keyBind.js"
+            "src/common.js",
+            "src/content_scripts/keyBind.js"
         ]
       }
     ],

@@ -93,8 +93,7 @@ var blank_urls = {
 };
 
 // file of get scroll position of tab.
-var get_scrollPos_script =
-  'public/javascripts/content_scripts/getScrollPosition.js';
+var get_scrollPos_script = 'src/content_scripts/getScrollPosition.js';
 
 // the path of icons.
 // defined NORMAL_EXCLUDE etc... in common.js.
