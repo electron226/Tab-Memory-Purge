@@ -2,13 +2,13 @@
 "use strict";
 
 // debug settings.
-console.log = function() {};
+/* console.log = function() {};
 console.warn = function() {};
 console.debug = function() {};
 console.assert = function() {};
 console.time = function() {};
 console.timeEnd = function() {};
-console.timeStamp = function() {};
+console.timeStamp = function() {}; */
 
 /**
  * set setInterval return value.
@@ -482,7 +482,7 @@ function setTick(tabId)
         // 除外アドレスに含まれていない場合
       if (state === NORMAL_EXCLUDE) {
         // 分(設定) * 秒数 * ミリ秒
-        var timer = myOptions.timer * 60 * 1000;
+        var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
         // Update.
         deleteTick(tabId);
@@ -683,6 +683,20 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
 chrome.tabs.onCreated.addListener(function(tab) {
   console.log('chrome.tabs.onCreated.');
   setTick(tab.id);
+
+  if (myOptions.enable_auto_purge === true) {
+    chrome.system.memory.getInfo(function(info) {
+      var ratio = info.availableCapacity / Math.pow(1024.0, 2);
+      console.log('availableCapacity(MByte):', ratio);
+      if (ratio < parseFloat(myOptions.remaiming_memory)) {
+        // loop at once only.
+        for (var id in ticked) {
+          purge(parseInt(id, 10));
+          break;
+        }
+      }
+    });
+  }
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId) {

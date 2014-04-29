@@ -319,6 +319,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  var inputNumbers = document.querySelectorAll('input[type="number"]');
+  for (var i in inputNumbers) {
+    inputNumbers[i].onchange = function() {
+      var min = parseInt(this.min, 10);
+      var max = parseInt(this.max, 10);
+      var value = parseInt(this.value, 10);
+      if (this.min && value < min) {
+        this.value = this.min;
+      }
+      if (this.max && value > max) {
+        this.value = this.max;
+      }
+    };
+  }
+
   /* status */
   var status = document.getElementById('status');
   document.getElementById('save').addEventListener('click', function() {

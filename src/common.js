@@ -18,12 +18,14 @@ var default_values = default_values || {
       'youtube.com',
   'regex_insensitive': true,
   'forcibly_close_restore': false,
+  'enable_auto_purge': true,
+  'remaiming_memory': 200,
 
   // keybind
   'release_keybind': JSON.stringify({}),
   'switch_not_release_keybind': JSON.stringify({}),
   'all_unpurge_keybind': JSON.stringify({}),
-  'restore_keybind': JSON.stringify({}),
+  'restore_keybind': JSON.stringify({})
 };
 
 // a value which represents of the exclude list.

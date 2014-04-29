@@ -32,7 +32,7 @@
       }
     ],
     "permissions": [
-      "tabs", "storage", "http://*/*", "https://*/*"
+      "tabs", "storage", "system.memory", "http://*/*", "https://*/*"
     ],
     "web_accessible_resources": [
       "blank.html"

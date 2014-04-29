@@ -114,6 +114,10 @@
     "message": "If Google Chrome forcibly closed, will restore closed release tab on next startup.",
     "description": "a other option in the options menu"
   },
+  "remaiming_memory": {
+    "message": "If the remaining memory less than this, I do the releasing tab automatically",
+    "description": "a other option in the options menu"
+  },
   "save": {
     "message": "Save",
     "description": "Save Button"
