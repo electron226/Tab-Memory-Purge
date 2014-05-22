@@ -18,6 +18,11 @@
       var result = {};
       for (var i = 0; i < parameters.length; i++) {
         var element = parameters[i].split('=');
+        if (element[0] === '' ||
+          element[1] === undefined || element[1] === null) {
+          continue;
+        }
+
         var paramName = element[0];
         var paramValue = decodeURIComponent(element[1]);
         result[paramName] = paramValue;

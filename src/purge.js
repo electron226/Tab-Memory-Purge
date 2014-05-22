@@ -302,8 +302,10 @@ function purge(tabId)
         tabId, { file: get_scrollPos_script }, function(objScroll) {
           var args = '';
 
-          var title = tab.title ? '&title=' + tab.title : '';
-          var favicon = tab.favIconUrl ? '&favicon=' + tab.favIconUrl : '';
+          var title = tab.title ?
+            '&title=' + encodeURIComponent(tab.title) : '';
+          var favicon = tab.favIconUrl ?
+            '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
 
           // 解放に使うページを設定
           var page = null;
