@@ -4,7 +4,7 @@
     "description": "Extension Name"
   },
   "extDescription": {
-    "message": "Release the memory of the tabs on a regular basis.",
+    "message": "This extension release the memory of the inactive tabs after regular time.",
     "description": "Extension Work"
   },
   "option": {
@@ -20,11 +20,11 @@
     "description": "the string of buttons in the options page."
   },
   "setReleaseFileUrlTitle": {
-    "message": "Specifies the page to be used for release",
+    "message": "Specifies the page to be used for memory release.",
     "description": "URL of Release Page"
   },
   "setTimerTitle": {
-    "message": "Time to unload of inactive tab",
+    "message": "The time to unload of the inactive tab.",
     "description": "Memory Release Time"
   },
   "otherTitle": {
@@ -36,19 +36,15 @@
     "description": "a menu in popup"
   },
   "not_release": {
-    "message": "The url of This tab to prohibit the release temporarily",
+    "message": "To temporarily prohibit the release of the URL of this tab.",
     "description": "the menu in popup"
   },
   "remove_not_release": {
-    "message": "Cancel 'The url of This tab to prohibit the release temporarily'.",
+    "message": "Cancel 'To temporarily prohibit the release of the URL of this tab'.",
     "description": "the menu in popup"
   },
-  "switch_not_release": {
-    "message": "The url of this tab to switch to either to prohibit release temporary or cancel.",
-    "description": "the menu in the options page."
-  },
   "all_purge": {
-    "message": "release all tabs.",
+    "message": "Release all tabs.",
     "description": "a menu in popup."
   },
   "all_unpurge": {
@@ -56,8 +52,12 @@
     "description": "a menu in popup"
   },
   "restore": {
-    "message": "The tabs before crashed is restored.",
+    "message": "The tabs before to crash are restored.",
     "description": "a menu in popup"
+  },
+  "switch_not_release": {
+    "message": "Switch to temporarily prohibit the release or cancel.",
+    "description": "the menu in the options page."
   },
   "in_extension": {
     "message": "In the extension",
@@ -68,38 +68,35 @@
     "description": "a option menu name"
   },
   "no_release": {
-    "message": "I don't reload when you release tab is activated.",
+    "message": "Don't reload when the released tabs are activated.",
     "description": "a option menu name in author."
   },
   "explanation": {
-    "message": "If you use this option, you must be aware of the following.",
+    "message": "If you to used this options, to the following thing must be attention.",
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "If an expanded function become invalid, the released tab will be closed.",
+    "message": "If this extension become invalid, the released tabs will be closed.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "If tabs have closed, you'll immediately use 'The tabs before crashed is restored.' of a popup menu, then restore closed tabs.",
+    "message": "you run the popup menu 'The tabs before to crash are restored.' Immediately when this extension closed your tabs. The result, be restoring your closed tabs.",
     "description": "Solution to when occured about the problem in this extension."
   },
   "explanation_problem2": {
-    "message": "Unless the internet connection environment is possible, it does not work properly.",
-    "description":
-      "Description of problem related to the specified author site"
+    "message": "If you can't use the Internet, this item isn't to operate normally.",
+    "description": "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "If the server is down, it does not operate normally.",
-    "description":
-      "Description of problem related to the specified author site"
+    "message": "If the server is down, this item isn't to operate normally.",
+    "description": "Description of problem related to the specified author site"
   },
   "explanation_problem4": {
-    "message": "The information on the page which is looking at self leaks outside.(URL or Title)",
-    "description":
-      "Description of problem related to the specified author site"
+    "message": "Information of the page you are viewing is leak to the outside.(URL or Title)",
+    "description": "Description of problem related to the specified author site"
   },
   "assignment": {
-    "message": "Assignment the local file",
+    "message": "Specify the local file",
     "description": "a option menu name"
   },
   "assignment_title": {
@@ -111,11 +108,11 @@
     "description": "a assignment options in the options menu"
   },
   "forcibly_close_restore": {
-    "message": "If Google Chrome forcibly closed, will restore closed release tab on next startup.",
+    "message": "If Google Chrome is crushed, the next startup restore the release tabs.",
     "description": "a other option in the options menu"
   },
   "remaiming_memory": {
-    "message": "If the remaining memory less than this, I do the releasing tab automatically",
+    "message": "If the remaining memory less than this, This extension run the releasing tab automatically",
     "description": "a other option in the options menu"
   },
   "save": {

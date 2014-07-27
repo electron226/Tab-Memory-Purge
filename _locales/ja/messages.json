@@ -43,10 +43,6 @@
     "message": "「このタブのURLの解放を一時的に禁止」を解除",
     "description": "ポップアップの項目"
   },
-  "switch_not_release": {
-    "message": "このタブのURLの解放を一時的に禁止/解除",
-    "description": "オプションページの項目"
-  },
   "all_purge": {
     "message": "全てのタブを解放",
     "description": "ポップアップの項目"
@@ -58,6 +54,10 @@
   "restore": {
     "message": "強制終了前のタブの復元",
     "description": "ポップアップの項目"
+  },
+  "switch_not_release": {
+    "message": "このタブのURLの解放を一時的に禁止/解除",
+    "description": "オプションページの項目"
   },
   "in_extension": {
     "message": "拡張機能内",
