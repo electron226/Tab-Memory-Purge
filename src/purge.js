@@ -186,8 +186,7 @@ function checkExcludeList(url, callback)
   }
 
   // Check exclusion list in the extension.
-  checkMatchUrlString(
-    url,
+  checkMatchUrlString(url,
     { list: extension_exclude_url, options: 'i' },
     function(extension_match) {
       if (extension_match) {
@@ -195,8 +194,7 @@ function checkExcludeList(url, callback)
         return;
       }
 
-      checkMatchUrlString(
-        url,
+      checkMatchUrlString(url,
         { list: myOptions.exclude_url,
           options: myOptions.regex_insensitive ? 'i' : '' },
         function(normal_match) {
@@ -281,8 +279,10 @@ function reloadBadge()
 /**
 * タブの解放を行います。
 * @param {Number} tabId タブのID.
+* @param {Function} callback コールバック関数。
+*                            引数は解放したタブのオブジェクトかnull.
 */
-function purge(tabId)
+function purge(tabId, callback)
 {
   console.log('purge');
   if (toType(tabId) !== 'number') {
@@ -294,6 +294,9 @@ function purge(tabId)
   chrome.tabs.get(tabId, function(tab) {
     checkExcludeList(tab.url, function(state) {
       if (state === EXTENSION_EXCLUDE) {
+        if (toType(callback) === 'function') {
+          callback(null);
+        }
         return;
       }
 
@@ -354,6 +357,10 @@ function purge(tabId)
             reloadBadge();
             deleteTick(tabId);
             tabBackup.update(unloaded);
+
+            if (toType(callback) === 'function') {
+              callback(updated);
+            }
           };
 
           if (myOptions[storageName] === 'assignment') {
@@ -435,8 +442,9 @@ function purgeToggle(tabId)
 /**
 * 定期的に実行される関数。アンロードするかどうかを判断。
 * @param {Number} tabId 処理を行うタブのID.
+* @param {Function} callback コールバック関数。引数はなし.
 */
-function tick(tabId)
+function tick(tabId, callback)
 {
   console.log('tick');
   if (toType(tabId) !== 'number') {
@@ -447,17 +455,23 @@ function tick(tabId)
     chrome.tabs.get(tabId, function(tab) {
       if (tab === void 0 || !tab.hasOwnProperty('active')) {
         console.log('tick function is skipped.', tabId);
+
+        if (toType(callback) === 'function') {
+          callback();
+        }
         return 0;
       }
 
       // アクティブタブへの処理の場合、行わない
       if (tab.active) {
         // アクティブにしたタブのアンロード時間更新
-        setTick(tabId);
+        setTick(tabId, callback);
       } else {
-        purge(tabId);
+        purge(tabId, callback);
       }
     });
+  } else {
+    callback();
   }
 }
 
@@ -465,8 +479,9 @@ function tick(tabId)
 * 定期的に解放処理の判断が行われるよう設定します。
 * 既に設定済みなら時間を延長します。
 * @param {Number} tabId 設定するタブのID.
+* @param {Function} callback コールバック関数。引数はなし.
 */
-function setTick(tabId)
+function setTick(tabId, callback)
 {
   console.log('setTick');
   if (toType(tabId) !== 'number') {
@@ -476,6 +491,9 @@ function setTick(tabId)
   chrome.tabs.get(tabId, function(tab) {
     if (tab === void 0 || !tab.hasOwnProperty('url')) {
       console.log('setTick function is skipped.');
+      if (toType(callback) === 'function') {
+        callback();
+      }
       return;
     }
 
@@ -491,6 +509,10 @@ function setTick(tabId)
         ticked[tabId] = setInterval(function() { tick(tabId); } , timer);
       } else { // include exclude list
         deleteTick(tabId);
+      }
+
+      if (toType(callback) === 'function') {
+        callback();
       }
     });
   });
@@ -661,6 +683,74 @@ function initialize()
   });
 }
 
+/**
+ * isLackTheMemory
+ * This function will check memory capacity.
+ * If the memory is shortage, return true.
+ *
+ * @param criteria_memory_size criteria memory size(MByte).
+ * @param callback callback function. return values is boolean.
+ */
+function isLackTheMemory(criteria_memory_size, callback)
+{
+  chrome.system.memory.getInfo(function(info) {
+    var ratio = info.availableCapacity / Math.pow(1024.0, 2);
+    console.log('availableCapacity(MByte):', ratio);
+    if (ratio < parseFloat(criteria_memory_size)) {
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });
+}
+
+/**
+ * autoPurgeLoop
+ * This function repeats the process of releasing the tab
+ * when the memory is shortage.
+ *
+ * @param ids target array of the id of the tabs.
+ * @param index first index of the array.
+ */
+function autoPurgeLoop(ids, index)
+{
+  if (index === undefined || index == null) {
+    index = 0;
+  }
+
+  if (ids.length <= index) {
+    console.log('autoPurgeLoop is out of length.');
+    return;
+  }
+
+  tick(ids[index], function() {
+    isLackTheMemory(myOptions.remaiming_memory, function(result) {
+      if (result) {
+        autoPurgeLoop(ids, index + 1);
+      }
+    });
+  });
+}
+
+/**
+ * autoPurgeCheck
+ * check run auto purge or not.
+ */
+function autoPurgeCheck()
+{
+  if (myOptions.enable_auto_purge === true) {
+    isLackTheMemory(myOptions.remaiming_memory, function(result) {
+      if (result) {
+        var ids = [];
+        for (var i in ticked) {
+          ids.push(parseInt(i, 10));
+        }
+        autoPurgeLoop(ids);
+      }
+    });
+  }
+}
+
 chrome.tabs.onActivated.addListener(function(activeInfo) {
   console.log('chrome.tabs.onActivated.');
   chrome.tabs.get(activeInfo.tabId, function(tab) {
@@ -679,6 +769,10 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
         unPurge(activeInfo.tabId);
       }
     }
+
+    // 自動開放処理が有効かつメモリ不足の場合は
+    // アクティブタブと除外対象以外を自動開放。
+    autoPurgeCheck();
   });
 });
 
@@ -686,19 +780,7 @@ chrome.tabs.onCreated.addListener(function(tab) {
   console.log('chrome.tabs.onCreated.');
   setTick(tab.id);
 
-  if (myOptions.enable_auto_purge === true) {
-    chrome.system.memory.getInfo(function(info) {
-      var ratio = info.availableCapacity / Math.pow(1024.0, 2);
-      console.log('availableCapacity(MByte):', ratio);
-      if (ratio < parseFloat(myOptions.remaiming_memory)) {
-        // loop at once only.
-        for (var id in ticked) {
-          purge(parseInt(id, 10));
-          break;
-        }
-      }
-    });
-  }
+  autoPurgeCheck();
 });
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
@@ -725,6 +807,7 @@ chrome.tabs.onDetached.addListener(function(tabId) {
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if (changeInfo.status === 'loading') {
     console.log('chrome.tabs.onUpdated. loading.');
+
     // 自動リロード機能を無効にしている際、
     // 手動で元ページに移動した際に解放処理の後処理を行う。
     if (!run_purge.hasOwnProperty(tabId) && unloaded.hasOwnProperty(tabId)) {
