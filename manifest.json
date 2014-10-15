@@ -16,6 +16,7 @@
     "options_page": "options.html",
     "background" : {
       "scripts": [
+        "src/debug.js",
         "src/common.js",
         "src/tabclass.js",
         "src/background.js",
@@ -26,6 +27,7 @@
       {
         "matches": ["http://*/*", "https://*/*"],
         "js": [
+            "src/debug.js",
             "src/common.js",
             "src/content_scripts/keyBind.js"
         ]
