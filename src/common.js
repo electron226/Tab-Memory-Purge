@@ -18,7 +18,7 @@ var default_values = default_values || {
       'youtube.com',
   'regex_insensitive': true,
   'forcibly_close_restore': false,
-  'enable_auto_purge': true,
+  'enable_auto_purge': false,
   'remaiming_memory': 200,
 
   // keybind

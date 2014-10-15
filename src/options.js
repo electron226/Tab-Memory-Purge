@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   var inputNumbers = document.querySelectorAll('input[type="number"]');
-  for (var i in inputNumbers) {
+  for (var i = 0; i < inputNumbers.length; i++) {
     inputNumbers[i].onchange = function() {
       var min = parseInt(this.min, 10);
       var max = parseInt(this.max, 10);
