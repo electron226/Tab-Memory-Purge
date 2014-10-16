@@ -615,6 +615,7 @@ function searchUnloadedTabNearPosition(tab)
   console.log('searchUnloadedTabNearPosition');
   if (toType(tab) !== 'object') {
     console.error("Invalid argument. tab isn't object.");
+    return;
   }
 
   // 現在のタブの左右の未解放のタブを選択する
@@ -832,17 +833,20 @@ chrome.windows.onRemoved.addListener(function(windowId) {
   }
 });
 
-// switch all purge process
+// switch the functions of all_purge process.
 var all_purge_functions = {
-  'all_purge': function(tab) {
-    purge(tab.id);
+  'all_purge': function(tab, callback) {
+    purge(tab.id, callback);
   },
-  'all_purge_without_exclude_list': function(tab) {
+  'all_purge_without_exclude_list': function(tab, callback) {
     checkExcludeList(tab.url, function(state) {
       if (state !== NORMAL_EXCLUDE) {
+        if (toType(callback) === 'function') {
+          callback();
+        }
         return;
       }
-      purge(tab.id);
+      purge(tab.id, callback);
     });
   },
 };
@@ -868,14 +872,16 @@ chrome.runtime.onMessage.addListener(function(message) {
     case 'all_purge_without_exclude_list':
       chrome.tabs.query({}, function(results) {
         var tabId = null;
-        var i;
-        for (i = 0; i < results.length; i++) {
+        for (var i = 0; i < results.length; i++) {
           tabId = results[i].id;
           if (!(tabId in unloaded)) {
             all_purge_functions[message.event](results[i]);
           }
         }
-        searchUnloadedTabNearPosition(results[i - 1]);
+
+        chrome.tabs.getSelected(function(tab) {
+          searchUnloadedTabNearPosition(tab);
+        });
       });
       break;
     case 'all_unpurge':
