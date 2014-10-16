@@ -850,6 +850,17 @@ var all_purge_functions = {
     });
   },
 };
+// and run the functions after the process.
+var all_purge_after_functions = {
+  'all_purge': function(callback) {
+    chrome.tabs.create({ active: true });
+  },
+  'all_purge_without_exclude_list': function(callback) {
+    chrome.tabs.getSelected(function(tab) {
+      searchUnloadedTabNearPosition(tab);
+    });
+  },
+};
 
 chrome.runtime.onMessage.addListener(function(message) {
   console.log('chrome.tabs.onMessage.');
@@ -878,10 +889,7 @@ chrome.runtime.onMessage.addListener(function(message) {
             all_purge_functions[message.event](results[i]);
           }
         }
-
-        chrome.tabs.getSelected(function(tab) {
-          searchUnloadedTabNearPosition(tab);
-        });
+        all_purge_after_functions[message.event]();
       });
       break;
     case 'all_unpurge':
