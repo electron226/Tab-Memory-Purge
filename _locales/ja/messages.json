@@ -47,6 +47,10 @@
     "message": "全てのタブを解放",
     "description": "ポップアップの項目"
   },
+  "all_purge_without_exclude_list": {
+    "message": "全てのタブを解放(除外リスト除く)",
+    "description": "ポップアップの項目"
+  },
   "all_unpurge": {
     "message": "全ての解放されているタブを解除",
     "description": "ポップアップの項目"

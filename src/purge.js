@@ -832,6 +832,21 @@ chrome.windows.onRemoved.addListener(function(windowId) {
   }
 });
 
+// switch all purge process
+var all_purge_functions = {
+  'all_purge': function(tab) {
+    purge(tab.id);
+  },
+  'all_purge_without_exclude_list': function(tab) {
+    checkExcludeList(tab.url, function(state) {
+      if (state !== NORMAL_EXCLUDE) {
+        return;
+      }
+      purge(tab.id);
+    });
+  },
+};
+
 chrome.runtime.onMessage.addListener(function(message) {
   console.log('chrome.tabs.onMessage.');
   switch (message.event) {
@@ -850,22 +865,17 @@ chrome.runtime.onMessage.addListener(function(message) {
       });
       break;
     case 'all_purge':
+    case 'all_purge_without_exclude_list':
       chrome.tabs.query({}, function(results) {
         var tabId = null;
-        for (var i = 0; i < results.length; i++) {
+        var i;
+        for (i = 0; i < results.length; i++) {
           tabId = results[i].id;
           if (!(tabId in unloaded)) {
-            purge(tabId);
+            all_purge_functions[message.event](results[i]);
           }
         }
-
-        chrome.tabs.getSelected(function(tab) {
-          checkExcludeList(tab.url, function(state) {
-            if (state !== EXTENSION_EXCLUDE) {
-              chrome.tabs.create();
-            }
-          });
-        });
+        searchUnloadedTabNearPosition(results[i - 1]);
       });
       break;
     case 'all_unpurge':

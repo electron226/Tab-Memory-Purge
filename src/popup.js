@@ -21,29 +21,9 @@ function changeNotReleaseText()
   });
 }
 
-function OnRelease()
+function sendEMes(event_mes, callback)
 {
-  chrome.runtime.sendMessage({ event: 'release'});
-}
-
-function OnSwitchNotRelease()
-{
-  chrome.runtime.sendMessage({ event: 'switch_not_release'}, function() {
-    changeNotReleaseText();
-  });
-}
-
-function OnAllPurge() {
-  chrome.runtime.sendMessage({ event: 'all_purge'});
-}
-
-function OnAllUnPurge() {
-  chrome.runtime.sendMessage({ event: 'all_unpurge'});
-}
-
-function OnRestore()
-{
-  chrome.runtime.sendMessage({ event: 'restore'});
+  chrome.runtime.sendMessage({ event: event_mes }, callback);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -60,12 +40,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // イベント追加
-    document.querySelector('#release').addEventListener('click', OnRelease);
+    document.querySelector('#release').addEventListener(
+      'click', function() {
+        sendEMes('release');
+      }
+    );
     document.querySelector('#not_release').addEventListener(
-        'click', OnSwitchNotRelease);
-    document.querySelector('#all_purge').addEventListener('click', OnAllPurge);
+      'click', function() {
+        sendEMes('switch_not_release', function() {
+          changeNotReleaseText();
+        });
+      }
+    );
+    document.querySelector('#all_purge').addEventListener(
+      'click', function() {
+        sendEMes('all_purge');
+      }
+    );
+    document.querySelector('#all_purge_without_exclude_list').addEventListener(
+      'click', function() {
+        sendEMes('all_purge_without_exclude_list');
+      }
+    );
     document.querySelector('#all_unpurge').addEventListener(
-        'click', OnAllUnPurge);
-    document.querySelector('#restore').addEventListener('click', OnRestore);
+      'click', function() {
+        sendEMes('all_unpurge');
+      }
+    );
+    document.querySelector('#restore').addEventListener(
+      'click', function() {
+        sendEMes('restore');
+      }
+    );
   });
 });

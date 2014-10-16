@@ -47,6 +47,10 @@
     "message": "Release all tabs.",
     "description": "a menu in popup."
   },
+  "all_purge_without_exclude_list": {
+    "message": "Release all tabs without the exclude lists.",
+    "description": "a menu in popup."
+  },
   "all_unpurge": {
     "message": "All cancel the released tabs.",
     "description": "a menu in popup"
