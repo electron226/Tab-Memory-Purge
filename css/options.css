@@ -11,6 +11,12 @@ nav {
     margin-bottom: 1em;
 }
 
+fieldset {
+    border-width: 1px solid;
+    border-radius: 10px;
+    margin: 1em auto;
+}
+
 ul {
     list-style-type: none;
 }
@@ -38,14 +44,14 @@ div.otherTitleText {
 }
 
 /* ツールチップ*/
-li.tooltip > div.tooltip {
+div.tooltip > div.tooltip {
     display: none;
     padding: 2px 3px;
     margin-left: 8px;
     max-width: 550px;
 }
 
-li.tooltip:hover > div.tooltip {
+div.tooltip:hover > div.tooltip {
     display: inline;
     position: absolute;
     background: #FFFFFF;

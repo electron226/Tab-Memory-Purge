@@ -119,6 +119,14 @@
     "message": "これよりも残りのメモリが少ない場合、自動的にタブの解放処理を行う",
     "description": "オプションのその他の項目の設定"
   },
+  "operateTitle": {
+    "message": "ストレージ操作",
+    "description": "オプションの項目"
+  },
+  "getSettings": {
+    "message": "設定取得",
+    "description": "a option title on the option page."
+  },
   "save": {
     "message": "保存",
     "description": "保存ボタン"
@@ -160,7 +168,7 @@
     "description": "除外するアドレス"
   },
   "regex_refURL": {
-    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>より詳細なリファレンス</a><br>参考元:<a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
+    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>より詳細なリファレンス</a>",
     "description": "参考リンク"
   },
   "regex_tool": {

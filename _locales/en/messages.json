@@ -119,6 +119,14 @@
     "message": "If the remaining memory less than this, This extension run the releasing tab automatically",
     "description": "a other option in the options menu"
   },
+  "operateTitle": {
+    "message": "Operate storage",
+    "description": "a option title on the option page."
+  },
+  "getSettings": {
+    "message": "Get settings",
+    "description": "a option title on the option page."
+  },
   "save": {
     "message": "Save",
     "description": "Save Button"
@@ -160,7 +168,7 @@
     "description": "Exclude URL"
   },
   "regex_refURL": {
-    "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a><br>Origin of reference: <a href='http://www.rubular.com/' target='_blank'>Rubular</a>",
+    "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a>",
     "description": "Reference Link"
   },
   "regex_tool": {
