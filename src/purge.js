@@ -755,13 +755,6 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
     }
     old_active_ids.update({ windowId: tab.windowId, id: activeInfo.tabId });
 
-    // アクティブにしたタブがアンロード済みだった場合、再読込
-    if (unloaded.hasOwnProperty(activeInfo.tabId)) {
-      if (myOptions.no_release === false) {
-        unPurge(activeInfo.tabId);
-      }
-    }
-
     // 自動開放処理が有効かつメモリ不足の場合は
     // アクティブタブと除外対象以外を自動開放。
     autoPurgeCheck();

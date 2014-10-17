@@ -48,6 +48,29 @@
     head.appendChild(link);
   }
 
+  /**
+   * onFocusイベント時に実行する関数。
+   * タブのフォーカス時に元ページにジャンプする際には以下のコードを手動で使用。
+   * example:
+   *   window.addEventListener('focus', onFocus, true);
+   */
+  var lock = 0;
+  function onFocus() {
+    console.log('OnFocus');
+    if (lock === 0) {
+      lock++;
+
+      var args = getQueryString();
+      if (args.url) {
+        window.location.replace(args.url);
+      }
+
+      lock--;
+    }
+  }
+
+  document.addEventListener('click', onFocus, true);
+
   document.addEventListener('DOMContentLoaded', function() {
     var args = getQueryString();
 
@@ -72,6 +95,11 @@
       span.appendChild(a);
     } else {
       span.innerHTML = 'None';
+    }
+
+    // reload tab when you focus tab.
+    if (args.focus === 'true') {
+      addEventListener('focus', onFocus, true);
     }
   });
 })(window, document);
