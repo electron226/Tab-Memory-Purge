@@ -167,26 +167,54 @@ document.addEventListener('DOMContentLoaded', function() {
   var timeoutTime = 1000;
 
   // 設定項目など
-  var elements = document.querySelectorAll("input[name='release_page']");
-  for (var i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('click', releasePageChangeState);
+  var release_elements = document.evaluate(
+      '//input[@name="release_page"]', document, null, 7, null);
+  for (var i = 0; i < release_elements.snapshotLength; i++) {
+    release_elements.snapshotItem(i).addEventListener(
+      'click', releasePageChangeState);
   }
 
   /* section buttons. */
-  var normal = document.getElementById('normal');
-  var keybind = document.getElementById('keybind');
-  normal.addEventListener('click', function() {
-      document.getElementById('normal_options').style.display = 'block';
-      normal.disabled = true;
-      document.getElementById('keybind_options').style.display = 'none';
-      keybind.disabled = false;
-  });
-  keybind.addEventListener('click', function() {
-      document.getElementById('normal_options').style.display = 'none';
-      normal.disabled = false;
-      document.getElementById('keybind_options').style.display = 'block';
-      keybind.disabled = true;
-  });
+  var switch_section = {
+    'switch': function(menus, id_name) {
+      for (var i = 0; i < menus.snapshotLength; i++) {
+        var mId = menus.snapshotItem(i).id;
+        if (mId !== id_name) {
+          this.disable(mId);
+        } else {
+          this.enable(mId);
+        }
+      }
+    },
+    'enable': function(id_name) {
+      var el = document.getElementById(id_name);
+      var bar = el.getElementsByClassName('change_bar')[0];
+      var option = document.getElementById(id_name + '_options');
+      option.style.display = 'block';
+      bar.style.display = 'inline';
+      el.style.color = 'gray';
+    },
+    'disable': function(id_name) {
+      var el = document.getElementById(id_name);
+      var bar = el.getElementsByClassName('change_bar')[0];
+      var option = document.getElementById(id_name + '_options');
+      option.style.display = 'none';
+      bar.style.display = 'none';
+      el.style.color = 'lightgray';
+    },
+  };
+
+  var section_menus = document.evaluate('//nav//tr', document, null, 7, null);
+  for (var i = 0; i < section_menus.snapshotLength; i++) {
+    section_menus.snapshotItem(i).addEventListener('click', function() {
+      switch_section.switch(section_menus, this.id);
+    });
+  }
+  if (section_menus.snapshotLength > 0) {
+    switch_section.switch(section_menus, section_menus.snapshotItem(0).id);
+  } else {
+    console.error('a section menu is not find.');
+  }
 
   /* keybind */
   // Set Button
@@ -319,9 +347,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  var inputNumbers = document.querySelectorAll('input[type="number"]');
-  for (var i = 0; i < inputNumbers.length; i++) {
-    inputNumbers[i].onchange = function() {
+  var inputNumbers = document.evaluate(
+    '//input[@type="number"]', document, null, 7, null);
+  for (var i = 0; i < inputNumbers.snapshotLength; i++) {
+    inputNumbers.snapshotItem(i).onchange = function() {
       var min = parseInt(this.min, 10);
       var max = parseInt(this.max, 10);
       var value = parseInt(this.value, 10);

@@ -9,23 +9,29 @@
     <link rel="stylesheet" href="css/options.css" type="text/css">
   </head>
   <body>
-
-    <header>
-      <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
-    </header>
-
-    <nav>
-      <div id="config_change">
-        <button id="normal" disabled><span class="normalText"></span></button>
-        <button id="keybind"><span class="keyBindText"></span></button>
-      </div>
+    <nav id="config_change">
+      <table>
+        <tr id="normal">
+          <td><span class="change_bar">&nbsp;</span></td>
+          <td><span class="normalText"></span></td>
+        </tr>
+        <tr id="keybind">
+          <td><span class="change_bar">&nbsp;</span></td>
+          <td><span class="keyBindText"></span></td>
+        </tr>
+      </table>
     </nav>
 
-    <article>
-      <!-- options of normally. .-->
-      <section id="normal_options">
-        <fieldset>
-          <legend class="setReleaseFileUrlTitleText"></legend>
+    <div id="config_page">
+      <header>
+        <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
+      </header>
+
+      <article>
+        <!-- options of normally. .-->
+        <section id="normal_options">
+          <fieldset>
+            <legend class="setReleaseFileUrlTitleText"></legend>
             <div class="tooltip">
               <label>
                 <input type="radio" name="release_page" value="normal"><span class="in_extensionText"></span>
@@ -69,105 +75,104 @@
                   <input type="checkbox" name="assignment_favicon"><span class="assignment_faviconText"></span>
                 </li>
               </ul>
-            <div style="margin-top: 1em;">
-              <label>
-                <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
-              </label>
+              <div style="margin-top: 1em;">
+                <label>
+                  <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
+                </label>
+              </div>
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
 
-        <fieldset>
-          <legend class="setTimerTitleText"></legend>
+          <fieldset>
+            <legend class="setTimerTitleText"></legend>
             <input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span>
+          </fieldset>
+
+          <fieldset>
+            <legend>
+              <span class="exclude_urlText"></span>&nbsp;<a class="switch_tool" href="#"><span class="regex_toolText"></span></a>
+            </legend>
+            <textarea name="exclude_url" rows="8" cols="40"></textarea>
+            <div><div class="optionText"></div>
+              <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend class="otherTitleText"></legend>
+            <div>
+              <label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></label>
+            </div>
+            <div>
+              <label><input type="checkbox" name="enable_auto_purge"><span class="remaiming_memoryText"></span></label>&nbsp;:&nbsp;<input type="number" name="remaiming_memory" style="width: 50px;" min="1">M
+            </div>
+          </fieldset>
+        </section>
+
+        <!-- options of the keybind. -->
+        <section id="keybind_options" style="display: none;">
+          <fieldset>
+            <legend class="keyBindText"></legend>
+            <table>
+              <tr name="release">
+                <td><span class="releaseText"></span></td>
+                <td><button class="bindStart">SET</button></td>
+                <td><input type="text" class="pressKey" disabled></input></td>
+                <td><input type="text" name="release_keybind" class="keydata" style="display: none" disabled></td>
+                <td><button class="bindClear">CLEAR</button></td>
+                <td class="status" style="width: 100px; color: red"></td>
+              </tr>
+              <tr name="switch_not_release">
+                <td><span class="switch_not_releaseText"></span></td>
+                <td><button class="bindStart">SET</button></td>
+                <td><input type="text" class="pressKey" disabled></input></td>
+                <td><input type="text" name="switch_not_release_keybind" class="keydata" style="display: none" disabled></td>
+                <td><button class="bindClear">CLEAR</button></td>
+                <td class="status" style="width: 100px; color: red"></td>
+              </tr>
+              <tr name="all_unpurge">
+                <td><span class="all_unpurgeText"></span></td>
+                <td><button class="bindStart">SET</button></td>
+                <td><input type="text" class="pressKey" disabled></input></td>
+                <td><input type="text" name="all_unpurge_keybind" class="keydata" style="display: none" disabled></td>
+                <td><button class="bindClear">CLEAR</button></td>
+                <td class="status" style="width: 100px; color: red"></td>
+              </tr>
+              <tr name="restore">
+                <td><span class="restoreText"></span></td>
+                <td><button class="bindStart">SET</button></td>
+                <td><input type="text" class="pressKey" disabled></input></td>
+                <td><input type="text" name="restore_keybind" class="keydata" style="display: none" disabled></td>
+                <td><button class="bindClear">CLEAR</button></td>
+                <td class="status" style="width: 100px; color: red"></td>
+              </tr>
+            </table>
+          </fieldset>
+        </section>
+      </article>
+
+      <footer>
+        <fieldset>
+          <legend class="operateTitleText"></legend>
+          <button id="save"><span class="saveText"></span></button>
+          <button id="load"><span class="loadText"></span></button>
+          <button id="init"><span class="initText"></span></button>
+          <span id="status" style="color: green;"></span>
         </fieldset>
 
         <fieldset>
-          <legend>
-            <span class="exclude_urlText"></span>&nbsp;<a class="switch_tool" href="#"><span class="regex_toolText"></span></a>
-          </legend>
-          <textarea name="exclude_url" rows="8" cols="40"></textarea>
-          <div><div class="optionText"></div>
-            <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend class="otherTitleText"></legend>
+          <legend class="getSettingsText"></legend>
           <div>
-            <label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></label>
+            <button id="export"><span class="exportText"></span></button>
+            <button id="import"><span class="importText"></span></button>
+            <span id="config_view_status"></span>
           </div>
-          <div>
-            <label><input type="checkbox" name="enable_auto_purge"><span class="remaiming_memoryText"></span></label>&nbsp;:&nbsp;<input type="number" name="remaiming_memory" style="width: 50px;" min="1">M
-          </div>
+          <textarea id="config_view" cols="50" rows="5"></textarea>
         </fieldset>
-      </section>
-
-      <!-- options of the keybind. -->
-      <section id="keybind_options" style="display: none;">
-        <fieldset>
-          <legend class="keyBindText"></legend>
-          <table>
-            <tr name="release">
-              <td><span class="releaseText"></span></td>
-              <td><button class="bindStart">SET</button></td>
-              <td><input type="text" class="pressKey" disabled></input></td>
-              <td><input type="text" name="release_keybind" class="keydata" style="display: none" disabled></td>
-              <td><button class="bindClear">CLEAR</button></td>
-              <td class="status" style="width: 100px; color: red"></td>
-            </tr>
-            <tr name="switch_not_release">
-              <td><span class="switch_not_releaseText"></span></td>
-              <td><button class="bindStart">SET</button></td>
-              <td><input type="text" class="pressKey" disabled></input></td>
-              <td><input type="text" name="switch_not_release_keybind" class="keydata" style="display: none" disabled></td>
-              <td><button class="bindClear">CLEAR</button></td>
-              <td class="status" style="width: 100px; color: red"></td>
-            </tr>
-            <tr name="all_unpurge">
-              <td><span class="all_unpurgeText"></span></td>
-              <td><button class="bindStart">SET</button></td>
-              <td><input type="text" class="pressKey" disabled></input></td>
-              <td><input type="text" name="all_unpurge_keybind" class="keydata" style="display: none" disabled></td>
-              <td><button class="bindClear">CLEAR</button></td>
-              <td class="status" style="width: 100px; color: red"></td>
-            </tr>
-            <tr name="restore">
-              <td><span class="restoreText"></span></td>
-              <td><button class="bindStart">SET</button></td>
-              <td><input type="text" class="pressKey" disabled></input></td>
-              <td><input type="text" name="restore_keybind" class="keydata" style="display: none" disabled></td>
-              <td><button class="bindClear">CLEAR</button></td>
-              <td class="status" style="width: 100px; color: red"></td>
-            </tr>
-          </table>
-        </fieldset>
-      </section>
-    </article>
-
-    <footer>
-      <fieldset>
-        <legend class="operateTitleText"></legend>
-        <button id="save"><span class="saveText"></span></button>
-        <button id="load"><span class="loadText"></span></button>
-        <button id="init"><span class="initText"></span></button>
-        <span id="status" style="color: green;"></span>
-      </fieldset>
-
-      <fieldset>
-        <legend class="getSettingsText"></legend>
-        <div>
-          <button id="export"><span class="exportText"></span></button>
-          <button id="import"><span class="importText"></span></button>
-          <span id="config_view_status"></span>
-        </div>
-        <textarea id="config_view" cols="50" rows="5"></textarea>
-      </fieldset>
-
-    </footer>
+      </footer>
+    </div>
 
     <!-- 正規表現確認ツール -->
     <div id="tool_box"></div>
-
   </body>
 </html>

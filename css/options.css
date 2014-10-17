@@ -21,6 +21,23 @@ ul {
     list-style-type: none;
 }
 
+#config_change {
+    width: 100px;
+    position: absolute;
+    top: 50px;
+    text-align: center;
+}
+
+#config_page {
+    position: relative;
+    left: 110px;
+}
+
+.change_bar {
+    width: 3px;
+    background-color: gray;
+}
+
 .word_of_warning {
     font-weight: bold;
     color: red;
