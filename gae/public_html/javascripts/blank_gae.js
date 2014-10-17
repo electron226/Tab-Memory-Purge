@@ -68,6 +68,8 @@
     }
   }
 
+  document.addEventListener('click', onFocus, true);
+
   document.addEventListener('DOMContentLoaded', function() {
     var args = getQueryString();
 
