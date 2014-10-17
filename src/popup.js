@@ -5,7 +5,7 @@ function changeNotReleaseText()
 {
   var storageName = 'purgeIcon';
   chrome.storage.local.get(storageName, function(storages) {
-    var el = document.querySelector('.not_releaseText');
+    var el = document.getElementsByClassName('not_releaseText')[0];
     var message = '';
     switch (storages[storageName]) {
       case TEMP_EXCLUDE: // temp release
@@ -40,34 +40,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // イベント追加
-    document.querySelector('#release').addEventListener(
+    document.getElementById('release').addEventListener(
       'click', function() {
         sendEMes('release');
       }
     );
-    document.querySelector('#not_release').addEventListener(
+    document.getElementById('not_release').addEventListener(
       'click', function() {
         sendEMes('switch_not_release', function() {
           changeNotReleaseText();
         });
       }
     );
-    document.querySelector('#all_purge').addEventListener(
+    document.getElementById('all_purge').addEventListener(
       'click', function() {
         sendEMes('all_purge');
       }
     );
-    document.querySelector('#all_purge_without_exclude_list').addEventListener(
+    document.getElementById('all_purge_without_exclude_list').addEventListener(
       'click', function() {
         sendEMes('all_purge_without_exclude_list');
       }
     );
-    document.querySelector('#all_unpurge').addEventListener(
+    document.getElementById('all_unpurge').addEventListener(
       'click', function() {
         sendEMes('all_unpurge');
       }
     );
-    document.querySelector('#restore').addEventListener(
+    document.getElementById('restore').addEventListener(
       'click', function() {
         sendEMes('restore');
       }

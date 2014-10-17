@@ -1,0 +1,37 @@
+body {
+    min-width: 230px;
+
+    font-family: "Meiryo UI", "Meiryo", "MS P Gothic",
+    "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
+    font-size: 14px;
+}
+
+div {
+  width: 200px;
+  text-align: center;
+	color: #ffffff;
+  margin: 5px auto;
+	padding: 5px 15px;
+	background: -webkit-gradient(
+		linear, left top, left bottom,
+		from(#3d99c9),
+		to(#245a9c));
+	border-radius: 45px;
+	border: 0px solid #ffffff;
+	box-shadow:
+    0px 3px 3px rgba(0,0,0,0.5),
+		inset 0px 0px 0px rgba(255,000,217,0);
+	text-shadow:
+		0px -1px 0px rgba(000,000,000,0.2),
+		0px 1px 0px rgba(255,255,255,0.3);
+}
+
+div:hover {
+  box-shadow:
+  	0px 3px 8px rgba(0,0,128,0.75),
+  	inset 0px 0px 5px rgba(0,0,255,1);
+}
+
+div:active {
+  background: rgba(0,0,212,0.5);
+}
