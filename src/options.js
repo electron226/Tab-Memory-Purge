@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         legend = document.createElement('legend');
 
         date = new Date(parseInt(history_date[i], 10));
-        legend.textContent = formatDate(date, 'MM/DD');
+        legend.textContent = formatDate(date, 'YYYY/MM/DD');
         fieldset.appendChild(legend);
 
         list = data[history_date[i]].reverse();
