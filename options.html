@@ -11,25 +11,29 @@
   <body>
     <nav id="config_change">
       <table>
-        <tr id="normal">
+        <tr id="option">
           <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="normalText"></span></td>
+          <td><span class="optionText"></span></td>
         </tr>
         <tr id="keybind">
           <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="keyBindText"></span></td>
+          <td><span class="keybindText"></span></td>
+        </tr>
+        <tr id="history">
+          <td><span class="change_bar">&nbsp;</span></td>
+          <td><span class="historyText"></span></td>
         </tr>
       </table>
     </nav>
 
     <div id="config_page">
       <header>
-        <h2><span class="extNameText"></span>&nbsp;<span class="optionText"></span></h2>
+        <h2><span class="extNameText"></span>&nbsp;<span id="menu_title"><span class="optionText"></span></span></h2>
       </header>
 
       <article>
         <!-- options of normally. .-->
-        <section id="normal_options">
+        <section id="option_options">
           <fieldset>
             <legend class="setReleaseFileUrlTitleText"></legend>
             <div class="tooltip">
@@ -112,7 +116,7 @@
         <!-- options of the keybind. -->
         <section id="keybind_options" style="display: none;">
           <fieldset>
-            <legend class="keyBindText"></legend>
+            <legend class="keybindText"></legend>
             <table>
               <tr name="release">
                 <td><span class="releaseText"></span></td>
@@ -148,6 +152,10 @@
               </tr>
             </table>
           </fieldset>
+        </section>
+
+        <!-- my histories on this option page. -->
+        <section id="history_options">
         </section>
       </article>
 

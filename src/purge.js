@@ -34,7 +34,7 @@ var old_active_ids = new TabIdHistory();
 
 // the backup of released tabs.
 var Backup = function(key) {
-  this.key = key || '__backup_TABMEMORYPURGE__';
+  this.key = key || 'backup';
 };
 Backup.prototype.update = function(data, callback) {
   console.log('update function of Backup class.');
@@ -112,6 +112,9 @@ var run_purge = {};
 
 // my option settings.
 var myOptions = null;
+
+// the history key name on the local storage.
+var history_name = 'history';
 
 /**
 * 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
@@ -296,6 +299,7 @@ function purge(tabId, callback)
         tabId, { file: get_scrollPos_script }, function(objScroll) {
           var args = '';
 
+          var t = tab.title;
           var title = tab.title ?
             '&title=' + encodeURIComponent(tab.title) : '';
           var favicon = tab.favIconUrl ?
@@ -339,7 +343,7 @@ function purge(tabId, callback)
           }
           var url = encodeURI(page) + '?' + encodeURIComponent(args);
 
-          var afterPurge = function(updated) {
+          var afterPurge = function(updated, callback) {
             unloaded[updated.id] = {
               url: tab.url,
               purgeurl: url,
@@ -349,9 +353,27 @@ function purge(tabId, callback)
             deleteTick(tabId);
             tabBackup.update(unloaded);
 
-            if (toType(callback) === 'function') {
-              callback(updated);
+            // the histories are writing.
+            var his = myOptions[history_name];
+            var purgeHistory = (his !== undefined && his !== null) ?
+                               myOptions[history_name] : {};
+            var now = new Date();
+            var date = new Date(
+              now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+            var write_date = date.getTime();
+            if (purgeHistory[write_date] === undefined ||
+                purgeHistory[write_date] === null) {
+              purgeHistory[write_date] = [];
             }
+            purgeHistory[write_date].push({
+              'title': tab.title ? tab.title : 'Unknown',
+              'url': tab.url,
+              'time': now.getTime(),
+            });
+
+            var write = {};
+            write[history_name] = purgeHistory;
+            chrome.storage.local.set(write, callback);
           };
 
           if (myOptions[storageName] === 'assignment') {

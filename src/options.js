@@ -1,6 +1,7 @@
 ﻿/*jshint globalstrict: true*/
 /*jshint shadow: true, loopfunc: true*/
-/*global generateRegexTool: true, generateKeyString: true, keyCheck: true*/
+/*global generateRegexTool: true, generateKeyString: true, keyCheck: true,
+  formatDate: true */
 'use strict';
 
 function loadValues(document, values, debugCallback)
@@ -204,14 +205,75 @@ document.addEventListener('DOMContentLoaded', function() {
     },
   };
 
+  function showHistory(callback) {
+    chrome.storage.local.get('history', function(items) {
+      var i, j;
+      var data = items.history;
+      var history_date = [];
+      for (i in data) {
+        history_date.push(i);
+      }
+      history_date.reverse();
+
+      var section = document.getElementById('history_options');
+      section.innerHTML = '';
+      var fieldset, legend, date, list;
+      var div, span, a;
+      for (i = 0; i < history_date.length; i++) {
+        fieldset = document.createElement('fieldset');
+        legend = document.createElement('legend');
+
+        date = new Date(parseInt(history_date[i], 10));
+        legend.textContent = formatDate(date, 'MM/DD');
+        fieldset.appendChild(legend);
+
+        list = data[history_date[i]].reverse();
+        for (j = 0; j < list.length; j++) {
+          div = document.createElement('div');
+
+          span = document.createElement('span');
+          span.textContent = formatDate(new Date(list[j].time), 'hh:mm:ss');
+          span.style.marginRight = '2em';
+          div.appendChild(span);
+
+          a = document.createElement('a');
+          a.href = list[j].url;
+          a.textContent = list[j].title;
+          div.appendChild(a);
+
+          fieldset.appendChild(div);
+        }
+
+        section.appendChild(fieldset);
+      }
+
+      if (toType(callback) === 'function') {
+        callback();
+      }
+    });
+  }
+
   var section_menus = document.evaluate('//nav//tr', document, null, 7, null);
   for (var i = 0; i < section_menus.snapshotLength; i++) {
     section_menus.snapshotItem(i).addEventListener('click', function() {
       switch_section.switch(section_menus, this.id);
+
+      var page_title = this.getElementsByClassName(this.id + 'Text')[0];
+      document.getElementById('menu_title').textContent =
+        page_title.textContent;
+
+      var footer = document.getElementsByTagName('footer')[0];
+      if (this.id === 'history') {
+        footer.style.display = 'none';
+        showHistory();
+      } else {
+        footer.style.display = 'block';
+      }
     });
   }
   if (section_menus.snapshotLength > 0) {
-    switch_section.switch(section_menus, section_menus.snapshotItem(0).id);
+    var menu_item = section_menus.snapshotItem(0);
+    switch_section.switch(section_menus, menu_item.id);
   } else {
     console.error('a section menu is not find.');
   }

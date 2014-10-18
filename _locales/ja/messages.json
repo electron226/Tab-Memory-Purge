@@ -11,12 +11,12 @@
     "message": "オプション",
     "description": "オプションの文字列"
   },
-  "normal": {
-    "message": "通常",
+  "keybind": {
+    "message": "キーバインド",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
-  "keyBind": {
-    "message": "キーバインド",
+  "history": {
+    "message": "履歴",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
   "setReleaseFileUrlTitle": {

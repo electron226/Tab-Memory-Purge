@@ -31,6 +31,7 @@ ul {
 #config_page {
     position: relative;
     left: 110px;
+    max-width: 1200px;
 }
 
 .change_bar {

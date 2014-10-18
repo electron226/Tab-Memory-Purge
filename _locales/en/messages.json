@@ -11,12 +11,12 @@
     "message": "Option",
     "description": "Option string"
   },
-  "normal": {
-    "message": "NORMAL",
+  "keybind": {
+    "message": "KEYBIND",
     "description": "the string of buttons in the options page."
   },
-  "keyBind": {
-    "message": "KEYBIND",
+  "history": {
+    "message": "HISTORY",
     "description": "the string of buttons in the options page."
   },
   "setReleaseFileUrlTitle": {
