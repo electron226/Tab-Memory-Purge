@@ -32,6 +32,9 @@ var temp_release = [];
 // アクティブなタブを選択する前に選択していたタブのID
 var old_active_ids = new TabIdHistory();
 
+// This items want to add to the context menu.
+// var adds_context_menu = ['keybind', 'history'];
+
 // the backup of released tabs.
 var Backup = function(key) {
   this.key = key;
@@ -82,6 +85,8 @@ var blank_urls = {
   'local': chrome.runtime.getURL('blank.html'),
   'normal': 'https://tabmemorypurge.appspot.com/blank.html',
 };
+
+// var option_page = chrome.runtime.getURL('options.html');
 
 // file of get scroll position of tab.
 var get_scrollPos_script = 'src/content_scripts/getScrollPosition.js';
@@ -705,6 +710,25 @@ function searchUnloadedTabNearPosition(tab)
 }
 
 /**
+ * initializeContextMenu
+ * the context menu is initializing.
+ */
+// function initializeContextMenu()
+// {
+//   // Remove all context menu. then create context menu on the browser action.
+//   chrome.contextMenus.removeAll(function() {
+//     var opt;
+//     for (var i in adds_context_menu) {
+//       opt = chrome.i18n.getMessage(adds_content_menus[i]);
+//       chrome.contextMenus.create(
+//         { id: adds_content_menus[i],
+//           title: opt,
+//           contexts: ['browser_action'] });
+//     }
+//   });
+// }
+
+/**
  * 初期化.
  */
 function initialize()
@@ -719,6 +743,8 @@ function initialize()
   });
   chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
   reloadBadge();
+
+  // initializeContextMenu();
 
   // My options are initialized.
   chrome.storage.local.get(null, function(items) {
@@ -958,5 +984,10 @@ chrome.runtime.onMessage.addListener(function(message) {
       break;
   }
 });
+
+// chrome.contextMenus.onClicked.addListener(function(info) {
+//   chrome.tabs.create({ url: option_page }, function(tab) {
+//   });
+// });
 
 initialize();
