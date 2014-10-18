@@ -119,6 +119,10 @@
     "message": "これよりも残りのメモリが少ない場合、自動的にタブの解放処理を行う",
     "description": "オプションのその他の項目の設定"
   },
+  "max_history": {
+    "message": "履歴の保存日数",
+    "description": "オプションのその他の項目の設定"
+  },
   "operateTitle": {
     "message": "ストレージ操作",
     "description": "オプションの項目"

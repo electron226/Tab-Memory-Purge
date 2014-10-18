@@ -119,6 +119,10 @@
     "message": "If the remaining memory less than this, This extension run the releasing tab automatically",
     "description": "a other option in the options menu"
   },
+  "max_history": {
+    "message": "Do you want to save the number of days the history?",
+    "description": "a other option in the options menu"
+  },
   "operateTitle": {
     "message": "Operate storage",
     "description": "a option title on the option page."

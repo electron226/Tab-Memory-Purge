@@ -271,6 +271,37 @@ function reloadBadge()
 }
 
 /**
+ * deleteOldHistory
+ * Search history and delete.
+ */
+function deleteOldHistory()
+{
+  var purgeHistory = myOptions[history_name];
+  if (purgeHistory === undefined ||
+      purgeHistory === null ||
+      purgeHistory === {}) {
+    return;
+  }
+
+  // Delete the history of pre-history
+  // than the maximum number of days.
+  var max_history = myOptions.max_history;
+  // milliseconds * seconds * minutes * hours * days
+  var now = new Date();
+  var criterion = 1000 * 60 * 60 * 24 * max_history;
+  var remove_time = now.getTime() - criterion;
+  var remove_dates = [];
+  for (var date_time in purgeHistory) {
+    if (parseInt(date_time, 10) < remove_time) {
+      remove_dates.push(date_time);
+    }
+  }
+  for (var i in remove_dates) {
+    delete purgeHistory[remove_dates[i]];
+  }
+}
+
+/**
 * タブの解放を行います。
 * @param {Number} tabId タブのID.
 * @param {Function} callback コールバック関数。
@@ -357,6 +388,8 @@ function purge(tabId, callback)
             var his = myOptions[history_name];
             var purgeHistory = (his !== undefined && his !== null) ?
                                myOptions[history_name] : {};
+            
+            // Save new history.
             var now = new Date();
             var date = new Date(
               now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
@@ -370,6 +403,8 @@ function purge(tabId, callback)
               'url': tab.url,
               'time': now.getTime(),
             });
+
+            deleteOldHistory();
 
             var write = {};
             write[history_name] = purgeHistory;
@@ -694,6 +729,9 @@ function initialize()
         myOptions[key] = default_values[key];
       }
     }
+
+    // Old history is deleting.
+    deleteOldHistory();
   });
 }
 

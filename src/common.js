@@ -20,6 +20,7 @@ var default_values = default_values || {
   'forcibly_close_restore': false,
   'enable_auto_purge': true,
   'remaiming_memory': 200,
+  'max_history': 30,
 
   // keybind
   'release_keybind': JSON.stringify({}),
