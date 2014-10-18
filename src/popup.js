@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     );
     document.getElementById('not_release').addEventListener(
       'click', function() {
+        window.close();
         sendEMes('switch_not_release', function() {
           changeNotReleaseText();
         });
