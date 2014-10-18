@@ -34,7 +34,7 @@ var old_active_ids = new TabIdHistory();
 
 // the backup of released tabs.
 var Backup = function(key) {
-  this.key = key || 'backup';
+  this.key = key;
 };
 Backup.prototype.update = function(data, callback) {
   console.log('update function of Backup class.');
@@ -75,7 +75,7 @@ Backup.prototype.remove = function(callback) {
       callback();
   });
 };
-var tabBackup = new Backup();
+var tabBackup = new Backup("backup");
 
 // The url of the release point.
 var blank_urls = {
