@@ -127,6 +127,10 @@
     "message": "Operate storage",
     "description": "a option title on the option page."
   },
+  "operateSyncTitle": {
+    "message": "Chrome Sync",
+    "description": "a option title on the option page."
+  },
   "getSettings": {
     "message": "Get settings",
     "description": "a option title on the option page."

@@ -127,6 +127,10 @@
     "message": "ストレージ操作",
     "description": "オプションの項目"
   },
+  "operateSyncTitle": {
+    "message": "Chrome Sync",
+    "description": "オプションの項目"
+  },
   "getSettings": {
     "message": "設定取得",
     "description": "a option title on the option page."

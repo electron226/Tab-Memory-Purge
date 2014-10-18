@@ -4,15 +4,18 @@
   formatDate: true */
 'use strict';
 
-function loadValues(document, values, debugCallback)
+function loadValues(document, values, callback, storageType)
 {
   if (document === void 0 ||
       toType(values) !== 'object' && values !== null || values === void 0) {
     throw new Error('Arguments type error.');
   }
+  if (storageType === undefined || storageType === null) {
+    storageType = chrome.storage.local;
+  }
 
   // Get All Option Value.
-  chrome.storage.local.get(null, function(items) {
+  storageType.get(null, function(items) {
     var debugList = []; // use Debug
 
     items = values || items;
@@ -55,16 +58,19 @@ function loadValues(document, values, debugCallback)
       }
     }
 
-    if (toType(debugCallback) === 'function') {
-      debugCallback(debugList);
+    if (toType(callback) === 'function') {
+      callback(debugList);
     }
   });
 }
 
-function saveValues(document, saveTypes, callback)
+function saveValues(document, saveTypes, callback, storageType)
 {
   if (document === void 0 || toType(saveTypes) !== 'array') {
     throw new Error('Invalid argument.');
+  }
+  if (storageType === undefined || storageType === null) {
+    storageType = chrome.storage.local;
   }
 
   // inputタグの保存するtype
@@ -115,7 +121,7 @@ function saveValues(document, saveTypes, callback)
   }
 
   // writeData options.
-  chrome.storage.local.set(writeData, function() {
+  storageType.set(writeData, function() {
     if (toType(callback) === 'function') {
       // writeDatad key catalog
       var debug = [];
@@ -426,8 +432,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /* status */
-  var status = document.getElementById('status');
-  document.getElementById('save').addEventListener('click', function() {
+  function saveProcess(status, storageType)
+  {
     saveValues(document, ['checkbox', 'radio', 'text', 'number'], function() {
       chrome.runtime.sendMessage({ event: 'initialize' });
 
@@ -435,9 +441,10 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         status.innerHTML = '';
       }, timeoutTime);
-    });
-  }, false);
-  document.getElementById('load').addEventListener('click', function() {
+    }, storageType);
+  }
+  function loadProcess(status, storageType)
+  {
     loadValues(document, null, function() {
       initKeybind(document, null, function() {
         status.innerHTML = 'Options Loaded.';
@@ -445,9 +452,10 @@ document.addEventListener('DOMContentLoaded', function() {
           status.innerHTML = '';
         }, timeoutTime);
       });
-    });
-  }, false);
-  document.getElementById('init').addEventListener('click', function() {
+    }, storageType);
+  }
+  function initProcess(status)
+  {
     loadValues(document, default_values, function() {
       initKeybind(document, default_values, function() {
         status.innerHTML = 'Options Initialized.';
@@ -456,6 +464,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }, timeoutTime);
       });
     });
+  }
+  var status = document.getElementById('status');
+  var status_sync = document.getElementById('status_sync');
+  document.getElementById('save').addEventListener('click', function() {
+    saveProcess(status);
+  }, false);
+  document.getElementById('load').addEventListener('click', function() {
+    loadProcess(status);
+  }, false);
+  document.getElementById('init').addEventListener('click', function() {
+    initProcess(status);
+  }, false);
+  document.getElementById('save_sync').addEventListener('click', function() {
+    saveProcess(status_sync, chrome.storage.sync);
+  }, false);
+  document.getElementById('load_sync').addEventListener('click', function() {
+    loadProcess(status_sync, chrome.storage.sync);
   }, false);
 
   // Import and Export
