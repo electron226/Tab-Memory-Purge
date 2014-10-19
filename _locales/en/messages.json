@@ -4,136 +4,136 @@
     "description": "Extension Name"
   },
   "extDescription": {
-    "message": "This extension release the memory of the inactive tabs after regular time.",
+    "message": "This extension releases the memory of inactive tabs after a specified time.",
     "description": "Extension Work"
   },
   "option": {
-    "message": "Option",
+    "message": "OPTIONS",
     "description": "Option string"
   },
   "keybind": {
-    "message": "KEYBIND",
-    "description": "the string of buttons in the options page."
+    "message": "KEYBINDS",
+    "description": "the string of buttons in the options page"
   },
   "history": {
     "message": "HISTORY",
-    "description": "the string of buttons in the options page."
+    "description": "the string of buttons in the options page"
   },
   "setReleaseFileUrlTitle": {
     "message": "Specifies the page to be used for memory release.",
     "description": "URL of Release Page"
   },
   "setTimerTitle": {
-    "message": "The time to unload of the inactive tab.",
+    "message": "The duration to unload inactive tabs",
     "description": "Memory Release Time"
   },
   "otherTitle": {
     "message": "Other",
-    "description": "a option menu name"
+    "description": "an option menu name"
   },
   "release": {
-    "message": "Release Tab",
+    "message": "Purge tab",
     "description": "a menu in popup"
   },
   "not_release": {
-    "message": "To temporarily prohibit the release of the URL of this tab.",
+    "message": "Temporarily exclude URL",
     "description": "the menu in popup"
   },
   "remove_not_release": {
-    "message": "Cancel 'To temporarily prohibit the release of the URL of this tab'.",
+    "message": "Cancel 'Temporarily exclude URL'",
     "description": "the menu in popup"
   },
   "all_purge": {
-    "message": "Release all tabs.",
-    "description": "a menu in popup."
+    "message": "Purge all tabs",
+    "description": "a menu in popup"
   },
   "all_purge_without_exclude_list": {
-    "message": "Release all tabs without the exclude lists.",
-    "description": "a menu in popup."
+    "message": "Purge all tabs except excluded",
+    "description": "a menu in popup"
   },
   "all_unpurge": {
-    "message": "All cancel the released tabs.",
+    "message": "Restore purged",
     "description": "a menu in popup"
   },
   "restore": {
-    "message": "The tabs before to crash are restored.",
+    "message": "Tabs before the crash are restored",
     "description": "a menu in popup"
   },
   "switch_not_release": {
-    "message": "Switch to temporarily prohibit the release or cancel.",
-    "description": "the menu in the options page."
+    "message": "Switch to temporarily exclude purge or restore",
+    "description": "the menu in the options page"
   },
   "in_extension": {
     "message": "In the extension",
-    "description": "a option menu name"
+    "description": "an option menu name"
   },
   "author": {
     "message": "Author Site(Google App Engine)",
-    "description": "a option menu name"
+    "description": "an option menu name"
   },
   "no_release": {
-    "message": "Don't reload when the released tabs are activated.",
-    "description": "a option menu name in author."
+    "message": "Don't reload tabs automatiaclly",
+    "description": "an option menu name in author"
   },
   "explanation": {
-    "message": "If you to used this options, to the following thing must be attention.",
+    "message": "Please keep in mind the following when using this extension:",
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "If this extension become invalid, the released tabs will be closed.",
+    "message": "If this extension become invalid, the purged tabs will close.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "you run the popup menu 'The tabs before to crash are restored.' Immediately when this extension closed your tabs. The result, be restoring your closed tabs.",
-    "description": "Solution to when occured about the problem in this extension."
+    "message": "Use the popup menu 'Tabs before the crash are restored' to restore the closed tabs.",
+    "description": "Solution to when occured about the problem in this extension"
   },
   "explanation_problem2": {
-    "message": "If you can't use the Internet, this item isn't to operate normally.",
+    "message": "Needs a working Internet connection",
     "description": "Description of problem related to the specified author site"
   },
   "explanation_problem3": {
-    "message": "If the server is down, this item isn't to operate normally.",
+    "message": "If the server is down, this might not work correctly.",
     "description": "Description of problem related to the specified author site"
   },
   "explanation_problem4": {
-    "message": "Information of the page you are viewing is leak to the outside.(URL or Title)",
+    "message": "Information of the page you are viewing is leaked to the outside (URL and Title).",
     "description": "Description of problem related to the specified author site"
   },
   "assignment": {
-    "message": "Specify the local file",
-    "description": "a option menu name"
+    "message": "Use a local file",
+    "description": "an option menu name"
   },
   "assignment_title": {
-    "message": "title(&title)",
-    "description": "a assignment options in the options menu"
+    "message": "Include title",
+    "description": "an assignment options in the options menu"
   },
   "assignment_favicon": {
-    "message": "favicon(&favicon)",
-    "description": "a assignment options in the options menu"
+    "message": "Include favicon",
+    "description": "an assignment options in the options menu"
   },
   "forcibly_close_restore": {
-    "message": "If Google Chrome is crushed, the next startup restore the release tabs.",
-    "description": "a other option in the options menu"
+    "message": "If Google Chrome has crashed, restore the purged tabs next startup",
+    "description": "another option in the options menu"
   },
   "remaiming_memory": {
-    "message": "If the remaining memory less than this, This extension run the releasing tab automatically",
-    "description": "a other option in the options menu"
+    "message": "If remaining RAM is less than this, tabs purges automatically",
+    "description": "another option in the options menu"
   },
   "max_history": {
-    "message": "Do you want to save the number of days the history?",
-    "description": "a other option in the options menu"
+    "message": "Days to keep history of purged URLs",
+    "description": "another option in the options menu"
   },
   "operateTitle": {
     "message": "Operate storage",
-    "description": "a option title on the option page."
+    "description": "an option title on the option page"
   },
   "operateSyncTitle": {
     "message": "Chrome Sync",
-    "description": "a option title on the option page."
+    "description": "an option title on the option page"
   },
   "getSettings": {
     "message": "Get settings",
-    "description": "a option title on the option page."
+    "description": "an option title on the option page"
   },
   "save": {
     "message": "Save",
@@ -152,7 +152,7 @@
     "description": "Default"
   },
   "minute": {
-    "message": "minute",
+    "message": "minute(s)",
     "description": "minute"
   },
   "sample": {
@@ -172,7 +172,7 @@
     "description": "Import"
   },
   "exclude_url": {
-    "message": "Exclude URL(Regular expression)",
+    "message": "Exclude URLs (Regular expression)",
     "description": "Exclude URL"
   },
   "regex_refURL": {
@@ -196,7 +196,7 @@
     "description": "Item of Regular expression validation tool"
   },
   "regex_option_reference": {
-    "message": "Option of Regex",
+    "message": "Regex options",
     "description": "Item of Regular expression validation tool"
   },
   "regex_result": {
@@ -209,94 +209,94 @@
   },
   "regex_single": {
     "message": "A single character of a, b or c.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_any_single": {
     "message": "Any single character.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_capture": {
     "message": "Capture everything enclosed.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_any_except": {
     "message": "Any single character except a, b, or c.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_whitespace": {
     "message": "Any whitespace character.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_or": {
     "message": "a or b",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_range": {
     "message": "Any single character in the range a-z.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_non_whitespace": {
     "message": "Any non-whitespace character.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_zero_one": {
     "message": "Zero or one of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_range_or": {
     "message": "Any single character in the range a-z or A-Z.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_digit": {
     "message": "Any digit.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_zero_more": {
     "message": "Zero or more of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_start": {
     "message": "Start of line.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_non_digit": {
     "message": "Any non-digit.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_one_more": {
     "message": "One or more of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_end": {
     "message": "End of line.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_word": {
     "message": "Any word character (letter, number, underscore).",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_exactly": {
     "message": "Exactly 3 of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_non_word": {
     "message": "Any non-word character.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_three_or_more": {
     "message": "3 or more of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_word_boundary": {
     "message": "Any word boundary.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_between": {
     "message": "Between 3 and 6 of a.",
-    "description": "items of Regex Reference."
+    "description": "items of Regex Reference"
   },
   "regex_confuse": {
     "message": "Ignore uppercase and lowercase letters.",
-    "description": "options of Regex Reference."
+    "description": "options of Regex Reference"
   }
 }
