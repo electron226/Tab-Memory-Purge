@@ -36,75 +36,7 @@ var old_active_ids = new TabIdHistory();
 // var adds_context_menu = ['keybind', 'history'];
 
 // the backup of released tabs.
-var Backup = function(key) {
-  this.key = key;
-};
-Backup.prototype.update = function(data, callback) {
-  console.log('update function of Backup class.');
-  if (data === void 0 || data === null) {
-    console.error('a invalid type of arguments.');
-    return;
-  }
-  var write = {};
-  write[this.key] = JSON.stringify(data);
-  chrome.storage.local.set(write, function() {
-    if (toType(callback) === 'function') {
-      callback();
-    }
-  });
-};
-Backup.prototype.get = function(callback) {
-  console.log('get function of Backup class.');
-  if (toType(callback) !== 'function') {
-    console.error('A invalid type of arugments.');
-    return;
-  }
-
-  chrome.storage.local.get(this.key, function(storages) {
-    var backup = storages[this.key];
-    if (toType(backup) === 'string' && backup !== '{}') {
-      callback(JSON.parse(backup));
-    }
-  });
-};
-Backup.prototype.remove = function(callback) {
-  console.log('remove function of Backup class.');
-  if (toType(callback) !== 'function') {
-    console.error('A invalid type of arugments.');
-    return;
-  }
-
-  chrome.storage.local.remove(this.key, function() {
-      callback();
-  });
-};
 var tabBackup = new Backup("backup");
-
-// The url of the release point.
-var blank_urls = {
-  'local': chrome.runtime.getURL('blank.html'),
-  'normal': 'https://tabmemorypurge.appspot.com/blank.html',
-};
-
-// var option_page = chrome.runtime.getURL('options.html');
-
-// file of get scroll position of tab.
-var get_scrollPos_script = 'src/content_scripts/getScrollPosition.js';
-
-// the path of icons.
-// defined NORMAL_EXCLUDE etc... in common.js.
-var icons = {};
-icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
-icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
-icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
-icons[EXTENSION_EXCLUDE] =
-    chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
-
-var extension_exclude_url =
-    '^chrome-*\\w*://\n' +
-    '^view-source:\n' +
-    'tabmemorypurge.appspot.com/\n' +
-    '^file:///\n';
 
 /* purge関数が実行された際に追加される。
  * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、

@@ -17,12 +17,6 @@
   "globals": { // is not defined対策
     "_": false,
     "chrome": true,
-
-    "describe": true,
-    "it": true,
-    "expect": true,
-    "beforeEach": true,
-    "loadFixtures": true,
     
     "initTranslations": true,
     "toType": true,
@@ -30,13 +24,18 @@
     "trim": true,
     "arrayEqual": true,
 
-    "translation_path": true,
     "default_values": true,
+    "translation_path": true,
+    "extension_exclude_url": true,
+    "icons": true,
+    "get_scrollPos_script": true,
+    "blank_urls": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
+    "Backup": true,
     "TabIdHistory": true,
     
     "deleteTick": true,
