@@ -11,34 +11,22 @@
     }
 
     chrome.storage.local.get(null, function(items) {
-      var storageName = 'release_keybind';
-      var releaseKey = JSON.parse(
-        items[storageName] || default_values[storageName]);
-
-      storageName = 'switch_not_release_keybind';
-      var switchKey = JSON.parse(
-        items[storageName] || default_values[storageName]);
-
-      storageName = 'all_unpurge_keybind';
-      var all_unpurgeKey = JSON.parse(
-        items[storageName] || default_values[storageName]);
-
-      storageName = 'restore_keybind';
-      var restoreKey = JSON.parse(
-        items[storageName] || default_values[storageName]);
+      var keys = {};
+      var command = ['release', 'switch_not_release', 'all_unpurge', 'restore'];
+      var stName;
+      for (var i = 0; i < command.length; i++) {
+        stName = command[i] + '_keybind';
+        keys[command[i]] = JSON.parse(items[stName] || default_values[stName]);
+      }
 
       var pushKey = keyCheck(e);
-      if (compareObject(releaseKey, pushKey)) {
-        chrome.runtime.sendMessage({ event: 'release'});
-      } else if (compareObject(switchKey, pushKey)) {
-        chrome.runtime.sendMessage({ event: 'switch_not_release'});
-      } else if (compareObject(all_unpurgeKey, pushKey)) {
-        chrome.runtime.sendMessage({ event: 'all_unpurge'});
-      } else if (compareObject(restoreKey, pushKey)) {
-        chrome.runtime.sendMessage({ event: 'restore'});
+      for (var key in keys) {
+        if (compareObject(keys[key], pushKey)) {
+          chrome.runtime.sendMessage({ event: key});
+        }
       }
     });
   });
 
-  console.log('loading keybind of Tab Memory Purge.');
+  console.log('Loading keybinds of Tab Memory Purge.');
 })(document);
