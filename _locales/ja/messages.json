@@ -19,6 +19,14 @@
     "message": "履歴",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "change_history": {
+    "message": "変更履歴",
+    "description": "オプションページ内のページ切り替えボタンなど"
+  },
+  "information": {
+    "message": "情報",
+    "description": "オプションページ内のページ切り替えボタンなど"
+  },
   "setReleaseFileUrlTitle": {
     "message": "解放に使うページを指定",
     "description": "オプションの解放先URLの指定項目"
@@ -167,6 +175,68 @@
     "message": "除外するアドレス(正規表現)",
     "description": "除外するアドレス"
   },
+
+  "specification": {
+    "message": "簡単な仕様",
+    "description": "オプションページの情報ページの項目"
+  },
+  "spec1": {
+    "message": "タブごとにsetIntervalを設定し、指定したアンロード時間ごとにアンロードするか否かを判断。",
+    "description": "仕様の説明"
+  },
+  "spec2": {
+    "message": "タブをアクティブにすると、そのタブと前のタブの時間はリセット。",
+    "description": "仕様の説明"
+  },
+  "spec3": {
+    "message": "アンロードする場合、ほぼ空のページを読み込み、メモリを解放します。",
+    "description": "仕様の説明"
+  },
+  "spec4": {
+    "message": "現在のタブが除外リストに追加されているかどうかでツールバーのアイコンが変化します。",
+    "description": "仕様の説明"
+  },
+  "spec5": {
+    "message": "ブラウザアクションのアイコンに現在、解放しているタブの数を表示します。",
+    "description": "仕様の説明"
+  },
+  "spec_icon": {
+    "message": "どの除外リストにもマッチしませんでした。",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_use": {
+    "message": "ユーザが指定した除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_extension": {
+    "message": "拡張機能内で固定された除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_temp": {
+    "message": "一時的な除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "feedback": {
+    "message": "フィードバック",
+    "description": "オプションページの情報ページの項目"
+  },
+  "feedback_explanation": {
+    "message": "拡張機能のバグの報告、質問、機能の提案はこちらから",
+    "description": "フィードバックの説明"
+  },
+  "feedback_send": {
+    "message": "フィードバックを送信",
+    "description": "フィードバックを送信する"
+  },
+  "infomation_other": {
+    "message": "その他",
+    "description": "オプションページの情報ページの項目"
+  },
+  "source_code": {
+    "message": "ソースコード",
+    "description": "オプションページの情報ページのその他の項目"
+  },
+
   "regex_refURL": {
     "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>より詳細なリファレンス</a>",
     "description": "参考リンク"

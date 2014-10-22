@@ -1,4 +1,4 @@
-body, input {
+body, input, textarea {
     font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
     "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
 }

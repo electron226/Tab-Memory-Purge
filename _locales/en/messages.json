@@ -19,6 +19,14 @@
     "message": "HISTORY",
     "description": "the string of buttons in the options page"
   },
+  "change_history": {
+    "message": "CHANGE HISTORY",
+    "description": "the string of buttons in the options page"
+  },
+  "information": {
+    "message": "INFORMATION",
+    "description": "the string of buttons in the options page"
+  },
   "setReleaseFileUrlTitle": {
     "message": "Specifies the page to be used for memory release.",
     "description": "URL of Release Page"
@@ -167,6 +175,68 @@
     "message": "Exclude URLs (Regular expression)",
     "description": "Exclude URL"
   },
+
+  "specification": {
+    "message": "Brief description of specification.",
+    "description": "A item in information of option page."
+  },
+  "spec1": {
+    "message": "Each tab is setting setInterval. If come specified unload time, The extension to judge run unload or not.",
+    "description": "A explanation in specification."
+  },
+  "spec2": {
+    "message": "If a tab become active, its tab and previous tab are resetting time.",
+    "description": "A explanation in specification."
+  },
+  "spec3": {
+    "message": "If to unload a tab, the extension load the empty page, and purge memory.",
+    "description": "A explanation in specification."
+  },
+  "spec4": {
+    "message": "If the current tab contains a exclude list, the icon of extension is changed.",
+    "description": "A explanation in specification."
+  },
+  "spec5": {
+    "message": "Display the number of tabs that are currently released to the icon of the extension.",
+    "description": "A explanation in specification."
+  },
+  "spec_icon": {
+    "message": "Are not included in the exclusion list of all.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_use": {
+    "message": "Matched the exclusion list of specified the users.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_extension": {
+    "message": "Matched the exclusion list which is fixed within the extension.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_temp": {
+    "message": "Matched the temporary exclusion list.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "feedback": {
+    "message": "Feedback",
+    "description": "A item in information of option page."
+  },
+  "feedback_explanation": {
+    "message": "A bug report of this extension, and question, feature suggestions are from here.",
+    "description": "The explanation of feedback."
+  },
+  "feedback_send": {
+    "message": "Send feedback",
+    "description": "Send feedback."
+  },
+  "infomation_other": {
+    "message": "Other",
+    "description": "A item in information of option page."
+  },
+  "source_code": {
+    "message": "Source Code",
+    "description": "A item in other of information of option page."
+  },
+
   "regex_refURL": {
     "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a>",
     "description": "Reference Link"

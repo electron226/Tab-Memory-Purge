@@ -130,6 +130,122 @@
     },
   };
 
+  function switchPage(id)
+  {
+    var page_title = document.getElementsByClassName(id + 'Text')[0];
+    document.getElementById('menu_title').textContent =
+    page_title.textContent;
+
+    var footer = document.getElementsByTagName('footer')[0];
+    switch (id) {
+      case 'option':
+      case 'keybind':
+        footer.style.display = 'block';
+        break;
+      case 'history':
+        footer.style.display = 'none';
+        showHistory();
+        break;
+      case 'change_history':
+        footer.style.display = 'none';
+        showChangeHistory();
+        break;
+      case 'information':
+        footer.style.display = 'none';
+        break;
+    }
+  }
+
+  function showHistory(callback) {
+    chrome.storage.local.get('history', function(items) {
+      var i, j;
+      var data = items.history;
+      var history_date = [];
+      for (i in data) {
+        history_date.push(i);
+      }
+      history_date.reverse();
+
+      var section = document.getElementById('history_options');
+      section.innerHTML = '';
+      var fieldset, legend, date, list;
+      var div, span, a;
+      for (i = 0; i < history_date.length; i++) {
+        fieldset = document.createElement('fieldset');
+        legend = document.createElement('legend');
+
+        date = new Date(parseInt(history_date[i], 10));
+        legend.textContent = formatDate(date, 'YYYY/MM/DD');
+        fieldset.appendChild(legend);
+
+        list = data[history_date[i]].reverse();
+        for (j = 0; j < list.length; j++) {
+          div = document.createElement('div');
+
+          span = document.createElement('span');
+          span.textContent = formatDate(new Date(list[j].time), 'hh:mm:ss');
+          span.style.marginRight = '2em';
+          div.appendChild(span);
+
+          a = document.createElement('a');
+          a.href = list[j].url;
+          a.textContent = list[j].title;
+          div.appendChild(a);
+
+          fieldset.appendChild(div);
+        }
+
+        section.appendChild(fieldset);
+      }
+
+      if (toType(callback) === 'function') {
+        callback();
+      }
+    });
+  }
+
+  /* Update History */
+  function readHistoryFile(file_path, callback)
+  {
+    var h = new XMLHttpRequest();
+    h.open("GET", file_path, true);
+    h.onreadystatechange = function() {
+      if (h.readyState !== 4) {
+        return;
+      }
+      var text = h.responseText.split('\n');
+      var t;
+      for (var i = 0; i < text.length; i++) {
+        t = text[i];
+        if (t === '') {
+          continue;
+        }
+
+        callback(t);
+      }
+    };
+    h.send(null);
+  }
+
+  function showChangeHistory()
+  {
+    var elChangeHistory = document.getElementById('change_history_options');
+    readHistoryFile(changeHistory, function(text) {
+      var el;
+      if (text.match(/^\d+\/\d+\/\d+/) !== null) {
+        el = 'h3';
+      } else {
+        el = 'div';
+      }
+      var cElement = document.createElement(el);
+      cElement.textContent = text;
+      if (el === 'div') {
+        cElement.style.marginLeft = '1.5em';
+      }
+      elChangeHistory.appendChild(cElement);
+    });
+  }
+
   /* DOM Content Loaded. */
   document.addEventListener('DOMContentLoaded', function() {
     initTranslations(document, translationPath, 'Text');
@@ -166,72 +282,14 @@
         'click', releasePageChangeState);
     }
 
-    function showHistory(callback) {
-      chrome.storage.local.get('history', function(items) {
-        var i, j;
-        var data = items.history;
-        var history_date = [];
-        for (i in data) {
-          history_date.push(i);
-        }
-        history_date.reverse();
-
-        var section = document.getElementById('history_options');
-        section.innerHTML = '';
-        var fieldset, legend, date, list;
-        var div, span, a;
-        for (i = 0; i < history_date.length; i++) {
-          fieldset = document.createElement('fieldset');
-          legend = document.createElement('legend');
-
-          date = new Date(parseInt(history_date[i], 10));
-          legend.textContent = formatDate(date, 'YYYY/MM/DD');
-          fieldset.appendChild(legend);
-
-          list = data[history_date[i]].reverse();
-          for (j = 0; j < list.length; j++) {
-            div = document.createElement('div');
-
-            span = document.createElement('span');
-            span.textContent = formatDate(new Date(list[j].time), 'hh:mm:ss');
-            span.style.marginRight = '2em';
-            div.appendChild(span);
-
-            a = document.createElement('a');
-            a.href = list[j].url;
-            a.textContent = list[j].title;
-            div.appendChild(a);
-
-            fieldset.appendChild(div);
-          }
-
-          section.appendChild(fieldset);
-        }
-
-        if (toType(callback) === 'function') {
-          callback();
-        }
-      });
-    }
-
     var section_menus = document.evaluate('//nav//tr', document, null, 7, null);
     for (var i = 0; i < section_menus.snapshotLength; i++) {
       section_menus.snapshotItem(i).addEventListener('click', function() {
         switch_section.switch(section_menus, this.id);
-
-        var page_title = this.getElementsByClassName(this.id + 'Text')[0];
-        document.getElementById('menu_title').textContent =
-          page_title.textContent;
-
-        var footer = document.getElementsByTagName('footer')[0];
-        if (this.id === 'history') {
-          footer.style.display = 'none';
-          showHistory();
-        } else {
-          footer.style.display = 'block';
-        }
+        switchPage(this.id);
       });
     }
+
     if (section_menus.snapshotLength > 0) {
       var menu_item = section_menus.snapshotItem(0);
       switch_section.switch(section_menus, menu_item.id);
@@ -494,6 +552,7 @@
         '//nav//tr', document, null, 7, null);
       if (section_menus.snapshotLength > 0) {
         switch_section.switch(section_menus, message.target);
+        switchPage(message.target);
       } else {
         console.error('a section menu is not find.');
       }

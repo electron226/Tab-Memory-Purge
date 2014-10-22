@@ -31,13 +31,13 @@
     "getScrollPosScript": true,
     "blankUrls": true,
     "optionPage": true,
+    "changeHistory": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
     "Backup": true,
-    "TabIdHistory": true,
     
     "deleteTick": true,
     "setTick": true,

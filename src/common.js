@@ -64,3 +64,4 @@ var extensionExcludeUrl =
     '^file:///\n';
 
 var optionPage = chrome.runtime.getURL('options.html');
+var changeHistory = chrome.runtime.getURL('History.txt');

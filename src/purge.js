@@ -34,7 +34,7 @@
   var oldActiveIds = {};
 
   // This items want to add to the context menu.
-  var addContextMenus = ['keybind', 'history'];
+  var addContextMenus = ['keybind', 'history', 'change_history', 'information'];
 
   // the backup of released tabs.
   var tabBackup = new Backup("backup");

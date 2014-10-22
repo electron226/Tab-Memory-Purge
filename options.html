@@ -24,6 +24,14 @@
           <td><span class="change_bar">&nbsp;</span></td>
           <td><span class="historyText"></span></td>
         </tr>
+        <tr id="change_history">
+          <td><span class="change_bar">&nbsp;</span></td>
+          <td><span class="change_historyText"></span></td>
+        </tr>
+        <tr id="information">
+          <td><span class="change_bar">&nbsp;</span></td>
+          <td><span class="informationText"></span></td>
+        </tr>
       </table>
     </nav>
 
@@ -93,7 +101,7 @@
             <legend>
               <span class="exclude_urlText"></span>&nbsp;<a class="switch_tool" href="#"><span class="regex_toolText"></span></a>
             </legend>
-            <textarea name="exclude_url" rows="8" cols="40"></textarea>
+            <textarea name="exclude_url" rows="8" cols="60"></textarea>
             <div><div class="optionText"></div>
               <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
             </div>
@@ -156,6 +164,35 @@
 
         <!-- my histories on this option page. -->
         <section id="history_options">
+        </section>
+
+        <section id="change_history_options">
+        </section>
+
+        <section id="information_options">
+          <h3><span class="specificationText"></span></h3>
+          <ul style="list-style-type: disc">
+            <li><span class="spec1Text"></span></li>
+            <li><span class="spec2Text"></span></li>
+            <li><span class="spec3Text"></span></li>
+            <li>
+              <div class="spec4Text"></div>
+              <ul>
+                <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span class="spec_icon_useText"></span></li>
+                <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span class="spec_icon_extensionText"></span></li>
+                <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span class="spec_icon_tempText"></span></li>
+                <li><img src="icon/icon_019.png">&nbsp;<span class="spec_iconText"></span></li>
+              </ul>
+            </li>
+            <li><span class="spec5Text"></span></li>
+          </ul>
+
+          <h3><span class="feedbackText"></span></h3>
+          <div><span class="feedback_explanationText"></span></div>
+          <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span class="feedback_sendText"></span></a></div>
+
+          <h3><span class="infomation_otherText"></span></h3>
+          <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span class="source_codeText"></span></a></div>
         </section>
       </article>
 
