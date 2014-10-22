@@ -29,7 +29,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     var storageName = 'release_page';
     chrome.storage.local.get(storageName, function(storages) {
-      initTranslations(document, translation_path, 'Text');
+      initTranslations(document, translationPath, 'Text');
       changeNotReleaseText();
 
       // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、

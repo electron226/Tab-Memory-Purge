@@ -2,7 +2,7 @@
 "use strict";
 
 // Default Values.
-var default_values = default_values || {
+var defualtValues = defualtValues || {
   'release_page': 'author',
   'release_url': '',
   'no_release': false,
@@ -32,17 +32,17 @@ var default_values = default_values || {
 
 // initTranslationsでキー名を使用するときに使う。
 // どのファイルを選択しても問題ない。
-var translation_path = chrome.runtime.getURL('_locales/ja/messages.json') ||
+var translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
                        chrome.runtime.getURL('_locales/en/messages.json');
 
 // The url of the release point.
-var blank_urls = {
+var blankUrls = {
   'local': chrome.runtime.getURL('blank.html'),
   'normal': 'https://tabmemorypurge.appspot.com/blank.html',
 };
 
 // file of get scroll position of tab.
-var get_scrollPos_script = 'src/content_scripts/getScrollPosition.js';
+var getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
 
 // a value which represents of the exclude list.
 var NORMAL_EXCLUDE = NORMAL_EXCLUDE || 50000;
@@ -59,7 +59,7 @@ icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
 icons[EXTENSION_EXCLUDE] =
     chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
 
-var extension_exclude_url =
+var extensionExcludeUrl =
     '^chrome-*\\w*://\n' +
     '^view-source:\n' +
     'tabmemorypurge.appspot.com/\n' +

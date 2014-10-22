@@ -121,7 +121,7 @@
 
     // Check exclusion list in the extension.
     checkMatchUrlString(url,
-      { list: extension_exclude_url, options: 'i' },
+      { list: extensionExcludeUrl, options: 'i' },
       function(extensionMatch) {
         if (extensionMatch) {
           callback(EXTENSION_EXCLUDE);
@@ -267,7 +267,7 @@
 
         // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
-          tabId, { file: get_scrollPos_script }, function(objScroll) {
+          tabId, { file: getScrollPosScript }, function(objScroll) {
             var args = '';
 
             var t = tab.title;
@@ -281,11 +281,11 @@
             var storageName = 'release_page';
             switch (myOptions[storageName]) {
             case 'author': // 作者サイト
-              page =  blank_urls.normal;
+              page =  blankUrls.normal;
               args += title + favicon;
               break;
             case 'normal': // 拡張機能内
-              page = blank_urls.local;
+              page = blankUrls.local;
               args += title + favicon;
               break;
             case 'assignment': // 指定URL
@@ -570,8 +570,8 @@
    chrome.tabs.get(tabId, function(tab) {
      if (tab === void 0 || toType(tab) === 'object') {
        if (tab !== void 0) {
-         for (var i in blank_urls) {
-           if (tab.url.indexOf(blank_urls[i]) === 0) {
+         for (var i in blankUrls) {
+           if (tab.url.indexOf(blankUrls[i]) === 0) {
              return;
            }
          }
@@ -737,7 +737,7 @@
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (var key in items) {
-        if (!default_values.hasOwnProperty(key) && key !== versionKey) {
+        if (!defualtValues.hasOwnProperty(key) && key !== versionKey) {
           removeKeys.push(key);
         }
       }
@@ -745,9 +745,9 @@
       chrome.storage.local.remove(removeKeys, function() {
         // My options are initialized.
         myOptions = items;
-        for(var key in default_values) {
+        for(var key in defualtValues) {
           if (!myOptions.hasOwnProperty(key)) {
-            myOptions[key] = default_values[key];
+            myOptions[key] = defualtValues[key];
           }
         }
 

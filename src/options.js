@@ -103,8 +103,8 @@
 
   /* DOM Content Loaded. */
   document.addEventListener('DOMContentLoaded', function() {
-    initTranslations(document, translation_path, 'Text');
-    loadValues(document, default_values, function() {
+    initTranslations(document, translationPath, 'Text');
+    loadValues(document, defualtValues, function() {
       initKeybind(document, null, function() {
         loadValues(document, null, function() {
           releasePageChangeState();
@@ -267,8 +267,8 @@
       bindClears.snapshotItem(i).addEventListener('click', function() {
         var name = this.parentNode.parentNode.attributes.name.nodeValue;
         var optionName = name + '_keybind';
-        if (default_values.hasOwnProperty(optionName)) {
-          var keyInfo = JSON.parse(default_values[optionName]);
+        if (defualtValues.hasOwnProperty(optionName)) {
+          var keyInfo = JSON.parse(defualtValues[optionName]);
           var output = null;
           try {
             output = generateKeyString(keyInfo);
@@ -420,8 +420,8 @@
     }
     function initProcess(status)
     {
-      loadValues(document, default_values, function() {
-        initKeybind(document, default_values, function() {
+      loadValues(document, defualtValues, function() {
+        initKeybind(document, defualtValues, function() {
           status.innerHTML = 'Options Initialized.';
           setTimeout(function() {
             status.innerHTML = '';

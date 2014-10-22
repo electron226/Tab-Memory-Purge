@@ -16,13 +16,13 @@
       var stName;
       for (var i = 0; i < command.length; i++) {
         stName = command[i] + '_keybind';
-        keys[command[i]] = JSON.parse(items[stName] || default_values[stName]);
+        keys[command[i]] = JSON.parse(items[stName] || defualtValues[stName]);
       }
 
       var pushKey = keyCheck(e);
       for (var key in keys) {
         if (compareObject(keys[key], pushKey)) {
-          chrome.runtime.sendMessage({ event: key});
+          chrome.runtime.sendMessage({ event: key });
         }
       }
     });
