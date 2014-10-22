@@ -103,14 +103,6 @@
     "message": "指定ローカルファイル",
     "description": "オプションの項目名"
   },
-  "assignment_title": {
-    "message": "タイトル(&title)",
-    "description": "オプションの指定URLの項目"
-  },
-  "assignment_favicon": {
-    "message": "アイコン(&favicon)",
-    "description": "オプションの指定URLの項目"
-  },
   "forcibly_close_restore": {
     "message": "Google Chromeが強制終了した場合、次回起動時に終了前の解放タブを復元する。",
     "description": "オプションのその他の項目の設定"

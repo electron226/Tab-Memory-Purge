@@ -268,35 +268,25 @@
         // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
-            var args = '';
-
-            var t = tab.title;
             var title = tab.title ?
               '&title=' + encodeURIComponent(tab.title) : '';
             var favicon = tab.favIconUrl ?
               '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
+
+            var args = title + favicon;
 
             // 解放に使うページを設定
             var page = null;
             var storageName = 'release_page';
             switch (myOptions[storageName]) {
             case 'author': // 作者サイト
-              page =  blankUrls.normal;
-              args += title + favicon;
+              page = blankUrls.normal;
               break;
             case 'normal': // 拡張機能内
               page = blankUrls.local;
-              args += title + favicon;
               break;
             case 'assignment': // 指定URL
               page = myOptions.release_url;
-
-              if (myOptions.assignment_title) {
-                args += title;
-              }
-              if (myOptions.assignment_favicon) {
-                args += favicon;
-              }
               break;
             default: // 該当なしの時は初期値を設定
               console.log(

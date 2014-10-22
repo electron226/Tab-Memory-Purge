@@ -103,14 +103,6 @@
     "message": "Use a local file",
     "description": "an option menu name"
   },
-  "assignment_title": {
-    "message": "Include title",
-    "description": "an assignment options in the options menu"
-  },
-  "assignment_favicon": {
-    "message": "Include favicon",
-    "description": "an assignment options in the options menu"
-  },
   "forcibly_close_restore": {
     "message": "If Google Chrome has crashed, restore the purged tabs next startup",
     "description": "another option in the options menu"

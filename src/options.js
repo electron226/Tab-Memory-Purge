@@ -157,16 +157,6 @@
       var state = selectElement.snapshotItem(0).checked;
       var release_url = document.querySelector("input[name='release_url']");
       release_url.disabled = !state;
-
-      var assi_options = document.evaluate(
-          '//li[@id="assignment_options"]/input[@type="checkbox"]',
-          document, null, 7, null);
-      if (assi_options.snapshotLength !== 2) {
-        throw new Error("onReleasePage function. can't get assi_options.");
-      }
-      for (var j = 0; j < assi_options.snapshotLength; j++) {
-        assi_options.snapshotItem(j).disabled = !state;
-      }
     }
 
     var release_elements = document.evaluate(

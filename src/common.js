@@ -6,8 +6,6 @@ var defualtValues = defualtValues || {
   'release_page': 'author',
   'release_url': '',
   'no_release': false,
-  'assignment_title': true,
-  'assignment_favicon': true,
   'timer': 20,
   'exclude_url':
       '^https://\n' +
