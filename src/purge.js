@@ -25,10 +25,10 @@
    * key = tabId
    * value = スクロール量(x, y)を表す連想配列
    */
-  var temp_scroll_positions = {};
+  var tempScrollPositions = {};
 
   // the string that represents the temporary exclusion list
-  var temp_release = [];
+  var tempRelease = [];
 
   // アクティブなタブを選択する前に選択していたタブのID
   var oldActiveIds = {};
@@ -46,14 +46,13 @@
    * key: タブのID
    * value: 常にtrue
    */
-  var run_purge = {};
+  var runPurge = {};
 
   // my option settings.
   var myOptions = null;
 
   // the history key name on the local storage.
-  var history_name = 'history';
-
+  var historyKey = 'history';
   // the key name for the version of this extension on storage.
   var versionKey = 'version';
 
@@ -88,10 +87,10 @@
       console.error("Invalid argument. callback argument don't function type.");
     }
 
-    var exclude_array = excludeOptions.list.split('\n');
-    for (var i = 0; i < exclude_array.length; i++) {
-      if (exclude_array[i] !== '') {
-        var re = new RegExp(exclude_array[i], excludeOptions.options);
+    var excludeArray = excludeOptions.list.split('\n');
+    for (var i = 0; i < excludeArray.length; i++) {
+      if (excludeArray[i] !== '') {
+        var re = new RegExp(excludeArray[i], excludeOptions.options);
         if (re.test(url)) {
           callback(true);
           return;
@@ -123,8 +122,8 @@
     // Check exclusion list in the extension.
     checkMatchUrlString(url,
       { list: extension_exclude_url, options: 'i' },
-      function(extension_match) {
-        if (extension_match) {
+      function(extensionMatch) {
+        if (extensionMatch) {
           callback(EXTENSION_EXCLUDE);
           return;
         }
@@ -132,14 +131,14 @@
         checkMatchUrlString(url,
           { list: myOptions.exclude_url,
             options: myOptions.regex_insensitive ? 'i' : '' },
-          function(normal_match) {
-            if (normal_match) {
+          function(normalMatch) {
+            if (normalMatch) {
               callback(USE_EXCLUDE);
               return;
             }
 
             // Compared to the temporary exclusion list.
-            if (temp_release.indexOf(url) !== -1) {
+            if (tempRelease.indexOf(url) !== -1) {
               callback(TEMP_EXCLUDE);
               return;
             }
@@ -164,15 +163,15 @@
       console.error("Invalid argument. tab isn't object.");
     }
 
-    checkExcludeList(tab.url, function(change_icon) {
+    checkExcludeList(tab.url, function(changeIcon) {
       chrome.browserAction.setIcon(
-        { path: icons[change_icon], tabId: tab.id }, function() {
+        { path: icons[changeIcon], tabId: tab.id }, function() {
           var save = {};
-          save.purgeIcon = change_icon;
+          save.purgeIcon = changeIcon;
           chrome.storage.local.set(save);
 
           var title = 'Tab Memory Purge\n';
-          switch (change_icon) {
+          switch (changeIcon) {
             case NORMAL_EXCLUDE:
               title += "The url of this tab isn't include exclude list.";
               break;
@@ -217,8 +216,8 @@
    */
   function deleteOldHistory()
   {
-    var purgeHistory = myOptions[history_name];
-    if (purgeHistory === undefined ||
+    var purgeHistory = myOptions[historyKey];
+    if (purgeHistory === void 0 ||
         purgeHistory === null ||
         purgeHistory === {}) {
       return;
@@ -230,15 +229,15 @@
     // milliseconds * seconds * minutes * hours * days
     var now = new Date();
     var criterion = 1000 * 60 * 60 * 24 * max_history;
-    var remove_time = now.getTime() - criterion;
-    var remove_dates = [];
-    for (var date_time in purgeHistory) {
-      if (parseInt(date_time, 10) < remove_time) {
-        remove_dates.push(date_time);
+    var removeTime = now.getTime() - criterion;
+    var removeDates = [];
+    for (var dateTime in purgeHistory) {
+      if (parseInt(dateTime, 10) < removeTime) {
+        removeDates.push(dateTime);
       }
     }
-    for (var i in remove_dates) {
-      delete purgeHistory[remove_dates[i]];
+    for (var i in removeDates) {
+      delete purgeHistory[removeDates[i]];
     }
   }
 
@@ -255,7 +254,7 @@
       console.error("Invalid argument. tabId isn't number.");
     }
 
-    run_purge[tabId] = true;
+    runPurge[tabId] = true;
 
     chrome.tabs.get(tabId, function(tab) {
       checkExcludeList(tab.url, function(state) {
@@ -326,16 +325,16 @@
               tabBackup.set(unloaded);
 
               // the histories are writing.
-              var his = myOptions[history_name];
-              var purgeHistory = (his !== undefined && his !== null) ?
-                                 myOptions[history_name] : {};
+              var his = myOptions[historyKey];
+              var purgeHistory = (his !== void 0 && his !== null) ?
+                                 myOptions[historyKey] : {};
               
               // Save new history.
               var now = new Date();
               var date = new Date(
                 now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
               var write_date = date.getTime();
-              if (purgeHistory[write_date] === undefined ||
+              if (purgeHistory[write_date] === void 0 ||
                   purgeHistory[write_date] === null) {
                 purgeHistory[write_date] = [];
               }
@@ -348,7 +347,7 @@
               deleteOldHistory();
 
               var write = {};
-              write[history_name] = purgeHistory;
+              write[historyKey] = purgeHistory;
               chrome.storage.local.set(write, callback);
             };
 
@@ -377,7 +376,7 @@
     if (unloaded.hasOwnProperty(tabId)) {
       // スクロール位置を一時的に保存
       // chrome.tabs.updated.addlistenerで使用。
-      temp_scroll_positions[tabId] = unloaded[tabId].scrollPosition;
+      tempScrollPositions[tabId] = unloaded[tabId].scrollPosition;
 
       delete unloaded[tabId];
       reloadBadge();
@@ -584,7 +583,7 @@
          var temp = object[tabId];
          delete object[tabId];
          object[tab.id] = temp;
-         run_purge[tab.id] = true;
+         runPurge[tab.id] = true;
 
          restore(object, callback, keys, ++index, end);
        });
@@ -603,13 +602,13 @@
       console.error("Invalid argument. tab isn't object.");
     }
 
-    var index = temp_release.indexOf(tab.url);
+    var index = tempRelease.indexOf(tab.url);
     if (index === -1) {
-      // push url in temp_release.
-      temp_release.push(tab.url);
+      // push url in tempRelease.
+      tempRelease.push(tab.url);
     } else {
-      // remove url in temp_release.
-      temp_release.splice(index, 1);
+      // remove url in tempRelease.
+      tempRelease.splice(index, 1);
     }
     reloadBrowserIcon(tab);
     setTick(tab.id);
@@ -807,7 +806,7 @@
    */
   function autoPurgeLoop(ids, index)
   {
-    if (index === undefined || index == null) {
+    if (index === void 0 || index == null) {
       index = 0;
     }
 
@@ -896,7 +895,7 @@
 
       // 自動リロード機能を無効にしている際、
       // 手動で元ページに移動した際に解放処理の後処理を行う。
-      if (!run_purge.hasOwnProperty(tabId)) {
+      if (!runPurge.hasOwnProperty(tabId)) {
         afterUnPurge(tabId);
       }
     } else {
@@ -905,18 +904,18 @@
 
       // 解放解除時に動作。
       // 指定したタブの解放時のスクロール量があった場合、それを復元する
-      var scrollPos = temp_scroll_positions[tabId];
+      var scrollPos = tempScrollPositions[tabId];
       if (toType(scrollPos) === 'object') {
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {
-            delete temp_scroll_positions[tabId];
-            delete run_purge[tabId];
+            delete tempScrollPositions[tabId];
+            delete runPurge[tabId];
           }
         );
       }
     }
-    delete run_purge[tabId];
+    delete runPurge[tabId];
   });
 
   chrome.windows.onRemoved.addListener(function(windowId) {
@@ -961,7 +960,7 @@
     },
   };
 
-  chrome.runtime.onMessage.addListener(function(message) {
+  chrome.runtime.onMessage.addListener(function(message, _, sendResponse) {
     console.log('chrome.tabs.onMessage.');
     switch (message.event) {
       case 'initialize':
