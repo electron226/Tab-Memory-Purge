@@ -64,3 +64,5 @@ var extensionExcludeUrl =
     '^view-source:\n' +
     'tabmemorypurge.appspot.com/\n' +
     '^file:///\n';
+
+var optionPage = chrome.runtime.getURL('options.html');

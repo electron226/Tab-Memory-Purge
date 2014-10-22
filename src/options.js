@@ -100,6 +100,35 @@
     storageType.set(writeData, callback);
   }
 
+  /* section buttons. */
+  var switch_section = {
+    'switch': function(menus, id_name) {
+      for (var i = 0; i < menus.snapshotLength; i++) {
+        var mId = menus.snapshotItem(i).id;
+        if (mId !== id_name) {
+          this.disable(mId);
+        } else {
+          this.enable(mId);
+        }
+      }
+    },
+    'enable': function(id_name) {
+      var el = document.getElementById(id_name);
+      var bar = el.getElementsByClassName('change_bar')[0];
+      var option = document.getElementById(id_name + '_options');
+      option.style.display = 'block';
+      bar.style.display = 'inline';
+      el.style.color = 'gray';
+    },
+    'disable': function(id_name) {
+      var el = document.getElementById(id_name);
+      var bar = el.getElementsByClassName('change_bar')[0];
+      var option = document.getElementById(id_name + '_options');
+      option.style.display = 'none';
+      bar.style.display = 'none';
+      el.style.color = 'lightgray';
+    },
+  };
 
   /* DOM Content Loaded. */
   document.addEventListener('DOMContentLoaded', function() {
@@ -146,36 +175,6 @@
       release_elements.snapshotItem(i).addEventListener(
         'click', releasePageChangeState);
     }
-
-    /* section buttons. */
-    var switch_section = {
-      'switch': function(menus, id_name) {
-        for (var i = 0; i < menus.snapshotLength; i++) {
-          var mId = menus.snapshotItem(i).id;
-          if (mId !== id_name) {
-            this.disable(mId);
-          } else {
-            this.enable(mId);
-          }
-        }
-      },
-      'enable': function(id_name) {
-        var el = document.getElementById(id_name);
-        var bar = el.getElementsByClassName('change_bar')[0];
-        var option = document.getElementById(id_name + '_options');
-        option.style.display = 'block';
-        bar.style.display = 'inline';
-        el.style.color = 'gray';
-      },
-      'disable': function(id_name) {
-        var el = document.getElementById(id_name);
-        var bar = el.getElementsByClassName('change_bar')[0];
-        var option = document.getElementById(id_name + '_options');
-        option.style.display = 'none';
-        bar.style.display = 'none';
-        el.style.color = 'lightgray';
-      },
-    };
 
     function showHistory(callback) {
       chrome.storage.local.get('history', function(items) {
@@ -490,6 +489,25 @@
           close_button[j].dispatchEvent(evt);
         }
       });
+    }
+  });
+
+  chrome.runtime.onMessage.addListener(function(message) {
+    switch (message.event) {
+    case 'contextMenus':
+      if (message.target === void 0 || message.target === null) {
+        console.error('runtime.onMessage is failed. target was not found.');
+        return;
+      }
+
+      var section_menus = document.evaluate(
+        '//nav//tr', document, null, 7, null);
+      if (section_menus.snapshotLength > 0) {
+        switch_section.switch(section_menus, message.target);
+      } else {
+        console.error('a section menu is not find.');
+      }
+      break;
     }
   });
 })(document);

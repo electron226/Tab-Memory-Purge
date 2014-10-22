@@ -34,7 +34,7 @@
   var oldActiveIds = {};
 
   // This items want to add to the context menu.
-  // var adds_context_menu = ['keybind', 'history'];
+  var addContextMenus = ['keybind', 'history'];
 
   // the backup of released tabs.
   var tabBackup = new Backup("backup");
@@ -661,21 +661,21 @@
    * initializeContextMenu
    * the context menu is initializing.
    */
-  // function initializeContextMenu()
-  // {
-  //   // Remove all context menu.
-  //   // then create context menu on the browser action.
-  //   chrome.contextMenus.removeAll(function() {
-  //     var opt;
-  //     for (var i in adds_context_menu) {
-  //       opt = chrome.i18n.getMessage(adds_content_menus[i]);
-  //       chrome.contextMenus.create(
-  //         { id: adds_content_menus[i],
-  //           title: opt,
-  //           contexts: ['browser_action'] });
-  //     }
-  //   });
-  // }
+  function initializeContextMenu()
+  {
+    // Remove all context menu.
+    // then create context menu on the browser action.
+    chrome.contextMenus.removeAll(function() {
+      var opt;
+      for (var i in addContextMenus) {
+        opt = chrome.i18n.getMessage(addContextMenus[i]);
+        chrome.contextMenus.create(
+          { id: addContextMenus[i],
+            title: opt,
+            contexts: ['browser_action'] });
+      }
+    });
+  }
 
   /**
    * 拡張機能がインストールされたときの処理
@@ -684,7 +684,7 @@
     console.log('Extension Installed.');
 
     // インストール時にオプションページを表示
-    chrome.tabs.create({ url: chrome.runtime.getURL('options.html') });
+    chrome.tabs.create({ url: optionPage });
   }
 
   /**
@@ -760,7 +760,7 @@
           }
         });
 
-        // initializeContextMenu();
+        initializeContextMenu();
         chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
         reloadBadge();
 
@@ -1009,10 +1009,12 @@
     }
   });
 
-  // chrome.contextMenus.onClicked.addListener(function(info) {
-  //   chrome.tabs.create({ url: option_page }, function(tab) {
-  //   });
-  // });
+  chrome.contextMenus.onClicked.addListener(function(info) {
+    chrome.tabs.create({ url: optionPage }, function(tab) {
+      chrome.runtime.sendMessage(
+        { event: 'contextMenus', target: info.menuItemId });
+    });
+  });
 
   initialize();
 })();

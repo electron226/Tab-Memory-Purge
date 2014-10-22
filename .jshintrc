@@ -30,6 +30,7 @@
     "icons": true,
     "getScrollPosScript": true,
     "blankUrls": true,
+    "optionPage": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,

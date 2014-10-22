@@ -35,7 +35,7 @@
       }
     ],
     "permissions": [
-      "tabs", "storage", "system.memory", "http://*/*", "https://*/*"
+      "tabs", "storage", "system.memory", "contextMenus", "http://*/*", "https://*/*"
     ],
     "web_accessible_resources": [
       "blank.html"
