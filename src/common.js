@@ -3,7 +3,6 @@
 
 // Default Values.
 var default_values = default_values || {
-  // Set item in Options, and Extensions
   'release_page': 'author',
   'release_url': '',
   'no_release': false,
@@ -22,14 +21,13 @@ var default_values = default_values || {
   'remaiming_memory': 200,
   'max_history': 7,
 
-  // keybind
   'release_keybind': JSON.stringify({}),
   'switch_not_release_keybind': JSON.stringify({}),
   'all_unpurge_keybind': JSON.stringify({}),
   'restore_keybind': JSON.stringify({}),
 
-  // history
   'history': {},
+  'backup': {},
 };
 
 // initTranslationsでキー名を使用するときに使う。

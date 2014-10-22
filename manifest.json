@@ -19,8 +19,6 @@
         "src/debug.js",
         "src/common.js",
         "src/common_func.js",
-        "src/tabclass.js",
-        "src/background.js",
         "src/backup.js",
         "src/purge.js"
       ]
