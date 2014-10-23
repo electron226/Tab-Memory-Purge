@@ -34,7 +34,8 @@
   var oldActiveIds = {};
 
   // This items want to add to the context menu.
-  var addContextMenus = ['keybind', 'history', 'change_history', 'information'];
+  var addContextMenus = [
+    'option', 'keybind', 'history', 'change_history', 'information'];
 
   // the backup of released tabs.
   var tabBackup = new Backup("backup");
@@ -1000,9 +1001,16 @@
   });
 
   chrome.contextMenus.onClicked.addListener(function(info) {
-    chrome.tabs.create({ url: optionPage }, function(tab) {
-      chrome.runtime.sendMessage(
-        { event: 'contextMenus', target: info.menuItemId });
+    chrome.tabs.query({ url: optionPage }, function(results) {
+      if (results.length === 0) {
+        chrome.tabs.create({ url: optionPage }, function(tab) {
+          chrome.runtime.sendMessage(
+            { event: 'contextMenus', target: info.menuItemId });
+        });
+      } else {
+          chrome.runtime.sendMessage(
+            { event: 'contextMenus', target: info.menuItemId });
+      }
     });
   });
 
