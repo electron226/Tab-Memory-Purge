@@ -65,6 +65,11 @@ History.prototype.write = function(tab, callback) {
   if (this.history[write_date] === void 0 ||
       this.history[write_date] === null) {
     this.history[write_date] = [];
+  } else {
+    // Check to if previously purge url.
+    this.history[write_date] = this.history[write_date].filter(function(v) {
+      return v.url !== tab.url;
+    });
   }
   this.history[write_date].push({
     'title': tab.title ? tab.title : 'Unknown',
