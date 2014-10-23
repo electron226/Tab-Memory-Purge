@@ -630,6 +630,11 @@
    */
   function onUpdate() {
     console.log('Extension Updated.');
+
+    chrome.tabs.create({ url: optionPage }, function(tab) {
+      chrome.runtime.sendMessage(
+        { event: 'contextMenus', target: 'change_history' });
+    });
   }
 
   /**
