@@ -1,1 +1,1 @@
-zip -r package.zip _locales css icon src manifest.json blank_sample.zip *.html
+zip -r package.zip _locales css icon src *.json *.zip *.html *.txt
