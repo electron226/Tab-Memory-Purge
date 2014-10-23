@@ -39,6 +39,7 @@
     "EXTENSION_EXCLUDE": true,
 
     "Backup": true,
+    "History": true,
     
     "deleteTick": true,
     "setTick": true,

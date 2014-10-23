@@ -19,7 +19,7 @@
         "src/debug.js",
         "src/common.js",
         "src/common_func.js",
-        "src/backup.js",
+        "src/storages.js",
         "src/purge.js"
       ]
     },

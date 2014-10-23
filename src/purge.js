@@ -39,6 +39,8 @@
 
   // the backup of released tabs.
   var tabBackup = new Backup("backup");
+  // the history of released tabs.
+  var history = new History(historyKey);
 
   /* purge関数が実行された際に追加される。
    * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、
@@ -210,37 +212,6 @@
   }
 
   /**
-   * deleteOldHistory
-   * Search history and delete.
-   */
-  function deleteOldHistory()
-  {
-    var purgeHistory = myOptions[historyKey];
-    if (purgeHistory === void 0 ||
-        purgeHistory === null ||
-        purgeHistory === {}) {
-      return;
-    }
-
-    // Delete the history of pre-history
-    // than the maximum number of days.
-    var max_history = myOptions.max_history;
-    // milliseconds * seconds * minutes * hours * days
-    var now = new Date();
-    var criterion = 1000 * 60 * 60 * 24 * max_history;
-    var removeTime = now.getTime() - criterion;
-    var removeDates = [];
-    for (var dateTime in purgeHistory) {
-      if (parseInt(dateTime, 10) < removeTime) {
-        removeDates.push(dateTime);
-      }
-    }
-    for (var i in removeDates) {
-      delete purgeHistory[removeDates[i]];
-    }
-  }
-
-  /**
   * タブの解放を行います。
   * @param {Number} tabId タブのID.
   * @param {Function} callback コールバック関数。
@@ -314,30 +285,8 @@
               tabBackup.set(unloaded);
 
               // the histories are writing.
-              var his = myOptions[historyKey];
-              var purgeHistory = (his !== void 0 && his !== null) ?
-                                 myOptions[historyKey] : {};
-              
-              // Save new history.
-              var now = new Date();
-              var date = new Date(
-                now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-              var write_date = date.getTime();
-              if (purgeHistory[write_date] === void 0 ||
-                  purgeHistory[write_date] === null) {
-                purgeHistory[write_date] = [];
-              }
-              purgeHistory[write_date].push({
-                'title': tab.title ? tab.title : 'Unknown',
-                'url': tab.url,
-                'time': now.getTime(),
+              history.write(tab, function() {
               });
-
-              deleteOldHistory();
-
-              var write = {};
-              write[historyKey] = purgeHistory;
-              chrome.storage.local.set(write, callback);
             };
 
             if (myOptions[storageName] === 'assignment') {
@@ -740,6 +689,10 @@
           }
         }
 
+        // initialize history.
+        history.read(myOptions.history);
+        history.setMaxHistory(parseInt(myOptions.max_history, 10));
+
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
           for (var i = 0; i < wins.length; i++) {
@@ -752,9 +705,6 @@
         initializeContextMenu();
         chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
         reloadBadge();
-
-        // Old history is deleting.
-        deleteOldHistory();
 
         /* オプション(強制終了された場合、起動時に以前の解放されたタブを復元) */
         if (items.forcibly_close_restore) {
