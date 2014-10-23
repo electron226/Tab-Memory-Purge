@@ -728,7 +728,7 @@
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (var key in items) {
-        if (!defualtValues.hasOwnProperty(key) && key !== versionKey) {
+        if (!defaultValues.hasOwnProperty(key) && key !== versionKey) {
           removeKeys.push(key);
         }
       }
@@ -736,9 +736,9 @@
       chrome.storage.local.remove(removeKeys, function() {
         // My options are initialized.
         myOptions = items;
-        for(var key in defualtValues) {
+        for(var key in defaultValues) {
           if (!myOptions.hasOwnProperty(key)) {
-            myOptions[key] = defualtValues[key];
+            myOptions[key] = defaultValues[key];
           }
         }
 

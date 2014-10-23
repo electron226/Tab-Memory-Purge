@@ -16,7 +16,7 @@
       var stName;
       for (var i = 0; i < command.length; i++) {
         stName = command[i] + '_keybind';
-        keys[command[i]] = JSON.parse(items[stName] || defualtValues[stName]);
+        keys[command[i]] = JSON.parse(items[stName] || defaultValues[stName]);
       }
 
       var pushKey = keyCheck(e);

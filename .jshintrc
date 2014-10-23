@@ -24,7 +24,7 @@
     "trim": true,
     "arrayEqual": true,
 
-    "defualtValues": true,
+    "defaultValues": true,
     "translationPath": true,
     "extensionExcludeUrl": true,
     "icons": true,

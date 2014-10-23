@@ -1,8 +1,8 @@
 /*jshint globalstrict: true, maxlen: 100, unused: false*/
 "use strict";
 
-// Default Values.
-var defualtValues = defualtValues || {
+/* Default Values. */
+var defaultValues = defaultValues || {
   'release_page': 'author',
   'release_url': '',
   'no_release': false,
