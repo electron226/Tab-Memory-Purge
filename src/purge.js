@@ -52,8 +52,6 @@
   // my option settings.
   var myOptions = null;
 
-  // the history key name on the local storage.
-  var historyKey = 'history';
   // the key name for the version of this extension on storage.
   var versionKey = 'version';
 

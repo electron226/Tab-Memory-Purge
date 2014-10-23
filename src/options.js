@@ -162,7 +162,7 @@
   }
 
   function showHistory(callback) {
-    chrome.storage.local.get('history', function(items) {
+    chrome.storage.local.get(historyKey, function(items) {
       var i, j;
       var data = items.history;
       var history_date = [];

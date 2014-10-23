@@ -24,9 +24,11 @@ var defaultValues = defaultValues || {
   'all_unpurge_keybind': JSON.stringify({}),
   'restore_keybind': JSON.stringify({}),
 
-  'history': {},
   'backup': {},
 };
+// the history key name on the local storage.
+var historyKey = 'history';
+defaultValues[historyKey] = {};
 
 // initTranslationsでキー名を使用するときに使う。
 // どのファイルを選択しても問題ない。

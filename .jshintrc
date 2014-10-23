@@ -24,6 +24,7 @@
     "trim": true,
     "arrayEqual": true,
 
+    "historyKey": true,
     "defaultValues": true,
     "translationPath": true,
     "extensionExcludeUrl": true,
