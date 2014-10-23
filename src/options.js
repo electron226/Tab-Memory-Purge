@@ -136,6 +136,11 @@
     document.getElementById('menu_title').textContent =
     page_title.textContent;
 
+    if (id !== 'history') {
+      var history_list = document.getElementById('history_date_list');
+      history_list.style.display = 'none';
+    }
+
     var footer = document.getElementsByTagName('footer')[0];
     switch (id) {
       case 'option':
@@ -166,16 +171,22 @@
       }
       history_date.reverse();
 
+      var history_list = document.getElementById('history_date_list');
+      history_list.innerHTML = '';
+      history_list.style.display ='block';
+
       var section = document.getElementById('history_options');
       section.innerHTML = '';
-      var fieldset, legend, date, list;
+      var fieldset, legend, date, dateText, list, listBtn, btnDiv;
       var div, span, a;
       for (i = 0; i < history_date.length; i++) {
         fieldset = document.createElement('fieldset');
         legend = document.createElement('legend');
 
         date = new Date(parseInt(history_date[i], 10));
-        legend.textContent = formatDate(date, 'YYYY/MM/DD');
+        legend.id = date.getTime();
+        dateText = formatDate(date, 'YYYY/MM/DD');
+        legend.textContent = dateText;
         fieldset.appendChild(legend);
 
         list = data[history_date[i]].reverse();
@@ -196,6 +207,16 @@
         }
 
         section.appendChild(fieldset);
+
+        btnDiv = document.createElement('div');
+        listBtn = document.createElement('button');
+        listBtn.name = date.getTime();
+        listBtn.textContent = dateText;
+        listBtn.onclick = function() {
+          window.location.replace(optionPage + '#' + this.name);
+        };
+        btnDiv.appendChild(listBtn);
+        history_list.appendChild(btnDiv);
       }
 
       if (toType(callback) === 'function') {

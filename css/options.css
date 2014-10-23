@@ -1,4 +1,4 @@
-body, input, textarea {
+body, input, textarea, button {
     font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
     "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
 }
@@ -13,7 +13,7 @@ nav {
 
 fieldset {
     border-width: 1px solid;
-    border-radius: 10px;
+    border-radius: 5px;
     margin: 1em auto;
 }
 
@@ -23,14 +23,14 @@ ul {
 
 #config_change {
     width: 100px;
-    position: absolute;
+    position: fixed;
     top: 50px;
     text-align: center;
 }
 
 #config_page {
     position: relative;
-    left: 110px;
+    left: 120px;
     max-width: 1200px;
 }
 
@@ -59,6 +59,15 @@ textarea[name="exclude_url"] {
 
 div.otherTitleText {
     clear: both;
+}
+
+div#history_date_list {
+    margin-top: 12px;
+    position: absolute;
+    left: -1em;
+    overflow: auto;
+    width: 120px;
+    height: 400px;
 }
 
 /* ツールチップ*/
