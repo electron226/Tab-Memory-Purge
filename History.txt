@@ -1,3 +1,8 @@
+10/25/2014 ver 2.2.2
+Fixed: If the users open the option page from context menus, sometimes can't move a page after open it. (Issues #22)
+Fixed: If the users use export button is clicked, unnecessary options is deleted and output.
+Fixed: But also to unrelated pages at default exclude list. it's fixed.
+
 10/24/2014 ver 2.2.1
 Fixed: When this extension is updated, be opening the tab of option page, and show change history page.
 
