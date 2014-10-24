@@ -520,7 +520,11 @@
     var config_view_status = document.getElementById('config_view_status');
     document.getElementById('export').addEventListener('click', function() {
       chrome.storage.local.get(null, function(items) {
-        config_view.value = JSON.stringify(items);
+        // unecessary options to delete.
+        delete items.backup;
+        delete items.history;
+
+        config_view.value = JSON.stringify(items, null, '    ');
       });
     }, false);
     document.getElementById('import').addEventListener('click', function() {
