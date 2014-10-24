@@ -1,5 +1,5 @@
 ﻿/*jshint unused: false*/
-(function() {
+(function(document) {
   "use strict";
 
   /**
@@ -32,10 +32,6 @@
 
   // アクティブなタブを選択する前に選択していたタブのID
   var oldActiveIds = {};
-
-  // This items want to add to the context menu.
-  var addContextMenus = [
-    'option', 'keybind', 'history', 'change_history', 'information'];
 
   // the backup of released tabs.
   var tabBackup = new Backup("backup");
@@ -594,23 +590,85 @@
     });
   }
 
+  function getArrayStringWithInElement(array, elementName)
+  {
+    var first = null, last = null;
+    var reF = new RegExp('<' + elementName + '.*>', 'i');
+    var reE = new RegExp('</' + elementName + '>', 'i');
+    for (var i = 0; i < array.length; i++) {
+      var text = array[i].trim();
+      array[i] = text;
+      if (first === null) {
+        if (reF.test(text)) {
+          first = i;
+        }
+      } else if (last === null) {
+        if (reE.test(text)) {
+          last = i;
+        }
+      } else {
+        break;
+      }
+    }
+
+    if (first === null || first === last) {
+      console.error('getArrayStringWithInElement is failed.');
+      return null;
+    }
+
+    return array.slice(first, last + 1);
+  }
+
+  function getIdNamesOfConfigPageInOption(optionPage, callback)
+  {
+    var request = new XMLHttpRequest();
+    request.onload = function() {
+      var response = this.responseText;
+      var resArray = response.split('\n');
+      var first = null, last = null;
+
+      var inBody = getArrayStringWithInElement(resArray, 'body');
+      var inNav = getArrayStringWithInElement(inBody, 'nav');
+
+      var div = document.createElement('div');
+      div.innerHTML = inNav.join('');
+
+      var trOptions = document.evaluate('//nav//tr', div, null, 7, null);
+      if (trOptions.snapshotLength === 0) {
+        console.error('getIdNamesOfConfigPageInOption is failed. ' +
+                      'Do not get id names.');
+      }
+      var idNames = [];
+      for (var i = 0; i < trOptions.snapshotLength; i++) {
+        idNames.push(trOptions.snapshotItem(i).id);
+      }
+      if (toType(callback) === 'function') {
+        callback(idNames);
+      }
+    };
+    request.open('GET', optionPage, true);
+    request.send(null);
+  }
+
   /**
    * initializeContextMenu
    * the context menu is initializing.
    */
   function initializeContextMenu()
   {
-    // Remove all context menu.
-    // then create context menu on the browser action.
-    chrome.contextMenus.removeAll(function() {
-      var opt;
-      for (var i in addContextMenus) {
-        opt = chrome.i18n.getMessage(addContextMenus[i]);
-        chrome.contextMenus.create(
-          { id: addContextMenus[i],
-            title: opt,
-            contexts: ['browser_action'] });
-      }
+    getIdNamesOfConfigPageInOption(optionPage, function(idNames) {
+      // Remove all context menu.
+      // then create context menu on the browser action.
+      chrome.contextMenus.removeAll(function() {
+        var opt;
+        for (var i in idNames) {
+          opt = chrome.i18n.getMessage(idNames[i]);
+          chrome.contextMenus.create(
+            { id: idNames[i],
+              title: opt,
+              contexts: ['browser_action'] });
+        }
+      });
     });
   }
 
@@ -975,4 +1033,4 @@
   });
 
   initialize();
-})();
+})(document);
