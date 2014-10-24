@@ -9,7 +9,7 @@ var defaultValues = defaultValues || {
   'timer': 20,
   'exclude_url':
       '^https://\n' +
-      '(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
+      '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
       'youtube.com',
