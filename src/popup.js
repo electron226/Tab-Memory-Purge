@@ -3,11 +3,9 @@
 
   function changeNotReleaseText()
   {
-    var storageName = 'purgeIcon';
-    chrome.storage.local.get(storageName, function(storages) {
-      var el = document.getElementsByClassName('not_releaseText')[0];
+    chrome.runtime.sendMessage({ event: 'current_icon' }, function(iconValue) {
       var message = '';
-      switch (storages[storageName]) {
+      switch (iconValue) {
         case TEMP_EXCLUDE: // temp release
           // not_release
           message = chrome.i18n.getMessage('remove_not_release');
@@ -17,6 +15,8 @@
           message = chrome.i18n.getMessage('not_release');
           break;
       }
+
+      var el = document.getElementsByClassName('not_releaseText')[0];
       el.innerHTML = message;
     });
   }

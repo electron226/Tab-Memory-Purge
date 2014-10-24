@@ -54,6 +54,8 @@
   // my option settings.
   var myOptions = null;
 
+  var currentIcon = null;
+
   // the key name for the version of this extension on storage.
   var versionKey = 'version';
 
@@ -153,8 +155,6 @@
 
   /**
    * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
-   * 保存データには変更したアイコンファイルを表す文字列が入る。
-   * この値はハッシュ変数(icons)のキー名でもある。
    * @param {Tab} tab 対象のタブ.
    */
   function reloadBrowserIcon(tab)
@@ -167,9 +167,7 @@
     checkExcludeList(tab.url, function(changeIcon) {
       chrome.browserAction.setIcon(
         { path: icons[changeIcon], tabId: tab.id }, function() {
-          var save = {};
-          save.purgeIcon = changeIcon;
-          chrome.storage.local.set(save);
+          currentIcon = changeIcon;
 
           var title = 'Tab Memory Purge\n';
           switch (changeIcon) {
@@ -949,6 +947,9 @@
             reloadBadge();
           });
         });
+        break;
+      case 'current_icon':
+        sendResponse(currentIcon);
         break;
     }
   });
