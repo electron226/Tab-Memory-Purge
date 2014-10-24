@@ -42,6 +42,9 @@
   // the history of released tabs.
   var history = new History(historyKey);
 
+  var currentIcon = null;
+  var displayPageOfOption = null;
+
   /* purge関数が実行された際に追加される。
    * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、
    * 全ての処理が終わった際に削除される。
@@ -53,8 +56,6 @@
 
   // my option settings.
   var myOptions = null;
-
-  var currentIcon = null;
 
   // the key name for the version of this extension on storage.
   var versionKey = 'version';
@@ -951,15 +952,20 @@
       case 'current_icon':
         sendResponse(currentIcon);
         break;
+      case 'display_option_page':
+        sendResponse(displayPageOfOption);
+        displayPageOfOption = null;
+        break;
     }
   });
 
   chrome.contextMenus.onClicked.addListener(function(info) {
     chrome.tabs.query({ url: optionPage }, function(results) {
       if (results.length === 0) {
+        displayPageOfOption = info.menuItemId;
         chrome.tabs.create({ url: optionPage }, function(tab) {
-          chrome.runtime.sendMessage(
-            { event: 'contextMenus', target: info.menuItemId });
+          // chrome.runtime.sendMessage(
+          //   { event: 'contextMenus', target: info.menuItemId });
         });
       } else {
           chrome.runtime.sendMessage(

@@ -311,12 +311,13 @@
       });
     }
 
-    if (section_menus.snapshotLength > 0) {
-      var menu_item = section_menus.snapshotItem(0);
-      switch_section.switch(section_menus, menu_item.id);
-    } else {
-      console.error('a section menu is not find.');
-    }
+    chrome.runtime.sendMessage({ event: 'display_option_page' }, function(id) {
+      if (id === void 0 || id === null) {
+        id = section_menus.snapshotItem(0).id;
+      }
+      switch_section.switch(section_menus, id);
+      switchPage(id);
+    });
 
     /* KeyBinds */
     // Set Button
