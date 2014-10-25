@@ -1026,8 +1026,10 @@
           //   { event: 'contextMenus', target: info.menuItemId });
         });
       } else {
+        chrome.tabs.update(results[0].id, { active: true }, function() {
           chrome.runtime.sendMessage(
             { event: 'contextMenus', target: info.menuItemId });
+        });
       }
     });
   });
