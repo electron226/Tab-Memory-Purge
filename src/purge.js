@@ -164,6 +164,10 @@
     checkExcludeList(tab.url, function(changeIcon) {
       chrome.browserAction.setIcon(
         { path: icons[changeIcon], tabId: tab.id }, function() {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
           currentIcon = changeIcon;
 
           var title = 'Tab Memory Purge\n';
@@ -222,6 +226,11 @@
     runPurge[tabId] = true;
 
     chrome.tabs.get(tabId, function(tab) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       checkExcludeList(tab.url, function(state) {
         if (state === EXTENSION_EXCLUDE) {
           if (toType(callback) === 'function') {
@@ -233,6 +242,11 @@
         // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.messsage);
+              return;
+            }
+
             var title = tab.title ?
               '&title=' + encodeURIComponent(tab.title) : '';
             var favicon = tab.favIconUrl ?
@@ -270,6 +284,11 @@
             var url = encodeURI(page) + '?' + encodeURIComponent(args);
 
             var afterPurge = function(updated, callback) {
+              if (chrome.runtime.lastError) {
+                console.error(chrome.runtime.lastError.messsage);
+                return;
+              }
+
               unloaded[updated.id] = {
                 url: tab.url,
                 purgeurl: url,
@@ -338,6 +357,11 @@
 
     chrome.tabs.executeScript(tabId, {
       code: 'window.location.replace("' + url + '");', }, function() {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       afterUnPurge(tabId);
     });
   }
@@ -374,7 +398,7 @@
 
     if (toType(unloaded[tabId]) !== 'object') {
       chrome.tabs.get(tabId, function(tab) {
-        if (tab === void 0 || !tab.hasOwnProperty('active')) {
+        if (chrome.runtime.lastError) {
           console.log('tick function is skipped.', tabId);
 
           if (toType(callback) === 'function') {
@@ -410,7 +434,7 @@
     }
 
     chrome.tabs.get(tabId, function(tab) {
-      if (tab === void 0 || !tab.hasOwnProperty('url')) {
+      if (chrome.runtime.lastError) {
         console.log('setTick function is skipped.');
         if (toType(callback) === 'function') {
           callback();
@@ -501,7 +525,7 @@
 
    var tabId = parseInt(keys[index], 10);
    chrome.tabs.get(tabId, function(tab) {
-     if (tab === void 0 || toType(tab) === 'object') {
+    if (chrome.runtime.lastError) {
        if (tab !== void 0) {
          for (var i in blankUrls) {
            if (tab.url.indexOf(blankUrls[i]) === 0) {
@@ -513,10 +537,14 @@
        // タブが存在しない場合、新規作成
        var purgeurl = object[tabId].purgeurl;
        chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
-         var temp = object[tabId];
-         delete object[tabId];
-         object[tab.id] = temp;
-         runPurge[tab.id] = true;
+         if (chrome.runtime.lastError) {
+           console.error(chrome.runtime.lastError.messsage);
+         } else {
+           var temp = object[tabId];
+           delete object[tabId];
+           object[tab.id] = temp;
+           runPurge[tab.id] = true;
+         }
 
          restore(object, callback, keys, ++index, end);
        });
@@ -552,8 +580,9 @@
   * 右側から探索され、見つからなかったら左側を探索する。
   * 何も見つからなければ新規タブを作成してそのタブをアクティブにする。
   * @param {Tab} tab 基準点となるタブ.
+  * @param {Function} callback コールバック関数.
   */
-  function searchUnloadedTabNearPosition(tab)
+ function searchUnloadedTabNearPosition(tab, callback)
   {
     console.log('searchUnloadedTabNearPosition');
     if (toType(tab) !== 'object') {
@@ -563,6 +592,11 @@
 
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       // current tab index.
       var i = tab.index;
 
@@ -582,10 +616,10 @@
 
       if (0 <= j && j < win.tabs.length) {
         // If found tab, It's active.
-        chrome.tabs.update(win.tabs[j].id, { active: true });
+        chrome.tabs.update(win.tabs[j].id, { active: true }, callback);
       } else {
         // If can not find the tab to activate to create a new tab.
-        chrome.tabs.create({ active: true });
+        chrome.tabs.create({ active: true }, callback);
       }
     });
   }
@@ -689,6 +723,11 @@
     console.log('Extension Updated.');
 
     chrome.tabs.create({ url: optionPage }, function(tab) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       chrome.runtime.sendMessage(
         { event: 'contextMenus', target: 'change_history' });
     });
@@ -708,6 +747,10 @@
     // この拡張機能のバージョンチェック
     var currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+      }
+
       // ver chrome.storage.
       var prevVersion = storages[versionKey];
       if (currVersion !== prevVersion) {
@@ -734,6 +777,10 @@
     versionCheckAndUpdate();
 
     chrome.storage.local.get(null, function(items) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+      }
+
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (var key in items) {
@@ -743,6 +790,10 @@
       }
 
       chrome.storage.local.remove(removeKeys, function() {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.messsage);
+        }
+
         // My options are initialized.
         myOptions = items;
         for(var key in defaultValues) {
@@ -757,6 +808,11 @@
 
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
+
           for (var i = 0; i < wins.length; i++) {
             for (var j = 0; j < wins[i].tabs.length; j++) {
               setTick(wins[i].tabs[j].id);
@@ -787,6 +843,11 @@
   function isLackTheMemory(criteria_memory_size, callback)
   {
     chrome.system.memory.getInfo(function(info) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       var ratio = info.availableCapacity / Math.pow(1024.0, 2);
       console.log('availableCapacity(MByte):', ratio);
       if (ratio < parseFloat(criteria_memory_size)) {
@@ -847,6 +908,11 @@
   chrome.tabs.onActivated.addListener(function(activeInfo) {
     console.log('chrome.tabs.onActivated.');
     chrome.tabs.get(activeInfo.tabId, function(tab) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       // アイコンの状態を変更
       reloadBrowserIcon(tab);
 
@@ -910,6 +976,10 @@
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.messsage);
+            }
+
             delete tempScrollPositions[tabId];
             delete runPurge[tabId];
           }
@@ -956,6 +1026,11 @@
     },
     'all_purge_without_exclude_list': function(callback) {
       chrome.tabs.getSelected(function(tab) {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.messsage);
+          return;
+        }
+
         searchUnloadedTabNearPosition(tab);
       });
     },
@@ -969,18 +1044,33 @@
         break;
       case 'release':
         chrome.tabs.getSelected(function(tab) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
+
           purgeToggle(tab.id);
           searchUnloadedTabNearPosition(tab);
         });
         break;
       case 'switch_not_release':
         chrome.tabs.getSelected(function(tab) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
+
           tempReleaseToggle(tab);
         });
         break;
       case 'all_purge':
       case 'all_purge_without_exclude_list':
         chrome.tabs.query({}, function(results) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
+
           var tabId = null;
           for (var i = 0; i < results.length; i++) {
             tabId = results[i].id;
@@ -1019,14 +1109,27 @@
 
   chrome.contextMenus.onClicked.addListener(function(info) {
     chrome.tabs.query({ url: optionPage }, function(results) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       if (results.length === 0) {
         displayPageOfOption = info.menuItemId;
         chrome.tabs.create({ url: optionPage }, function(tab) {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+            return;
+          }
           // chrome.runtime.sendMessage(
           //   { event: 'contextMenus', target: info.menuItemId });
         });
       } else {
         chrome.tabs.update(results[0].id, { active: true }, function() {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.messsage);
+          }
+
           chrome.runtime.sendMessage(
             { event: 'contextMenus', target: info.menuItemId });
         });

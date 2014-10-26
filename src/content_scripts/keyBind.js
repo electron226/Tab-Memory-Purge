@@ -11,6 +11,11 @@
     }
 
     chrome.storage.local.get(null, function(items) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       var keys = {};
       var command = ['release', 'switch_not_release', 'all_unpurge', 'restore'];
       var stName;

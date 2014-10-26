@@ -4,6 +4,11 @@
   function changeNotReleaseText()
   {
     chrome.runtime.sendMessage({ event: 'current_icon' }, function(iconValue) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       var message = '';
       switch (iconValue) {
         case TEMP_EXCLUDE: // temp release
@@ -29,6 +34,11 @@
   document.addEventListener('DOMContentLoaded', function() {
     var storageName = 'release_page';
     chrome.storage.local.get(storageName, function(storages) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       initTranslations(document, translationPath, 'Text');
       changeNotReleaseText();
 

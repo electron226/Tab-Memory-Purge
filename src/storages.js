@@ -23,6 +23,11 @@ Backup.prototype.get = function(callback) {
   // this.keyのまま使うとthis.keyの値が消滅する
   var key = this.key;
   chrome.storage.local.get(key, function(storages) {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.messsage);
+      return;
+    }
+
     var backup = storages[key];
     if (toType(backup) === 'string' && backup !== '{}') {
       callback(JSON.parse(backup));
@@ -45,6 +50,11 @@ var History = function(key, max_history) {
 History.prototype.read = function(dataObj, callback) {
   if (dataObj === void 0 || dataObj === null) {
     chrome.storage.local.get(this.key, function(items) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
       this.history = items[this.key];
       if (toType(callback) === 'function') {
         callback();
