@@ -2,22 +2,28 @@
 <html lang="jp">
 <head>
     <meta charset="UTF-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
     <title>blank page</title>
-    <style type="text/css">
-    body {
-        font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
-        "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
-    }
+    <style>
+        body {
+            font-size: 16px;
+            font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
+            "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
+        }
+        ul#page_info {
+          list-style-type: none;
+        }
     </style>
-    <script type="text/javascript" src="src/blank.js"></script>
 </head>
 
 <body>
     <p>Tab Memory Purge</p>
-    <ul style="list-style-type: none;">
+    <ul id="page_info">
         <li>title&nbsp;:&nbsp;<span id="title"></span></li>
         <li>url&nbsp;&nbsp;&nbsp;:&nbsp;<span id="url"></span></li>
     </ul>
-    <div>If you are clicked on this page, this page is jumped to the page of the url.</div>
+    <div>If you are clicked on this page, th
+
+    <script src="src/blank.js"></script>
 </body>
 </html>
