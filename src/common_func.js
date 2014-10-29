@@ -244,3 +244,12 @@ function sleep(T) {
     d2 = new Date().getTime();
   }
 }
+
+function dictSize(dict)
+{
+  var c = 0;
+  for (var _ in dict) {
+    c++;
+  }
+  return c;
+}

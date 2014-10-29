@@ -194,10 +194,7 @@
   function reloadBadge()
   {
     console.debug('reloadBadge');
-    var length = 0;
-    for (var i in unloaded) {
-      length++;
-    }
+    var length = dictSize(unloaded);
     chrome.browserAction.setBadgeText({ text: length.toString() });
   }
 
@@ -991,11 +988,8 @@
   chrome.windows.onRemoved.addListener(function(windowId) {
     console.debug('chrome.tabs.onRemoved.');
     delete oldActiveIds[windowId];
-    var count = 0;
-    for (var i in oldActiveIds) {
-      count++;
-    }
-    if (count <= 0) {
+    var length = dictSize(oldActiveIds);
+    if (length <= 0) {
       tabBackup.remove();
     }
   });

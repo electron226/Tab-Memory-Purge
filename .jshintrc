@@ -23,6 +23,7 @@
     "unique": true,
     "trim": true,
     "arrayEqual": true,
+    "dictSize": true,
 
     "historyKey": true,
     "backupKey": true,
