@@ -14,7 +14,8 @@
  *                           any file is good.
  * @param {String} suffix suffix.
  */
-function initTranslations(document, load_file, suffix) {
+function initTranslations(document, load_file, suffix)
+{
   if (document === void 0 ||
     toType(load_file) !== 'string' ||
     toType(suffix) !== 'string') {
@@ -46,7 +47,8 @@ function initTranslations(document, load_file, suffix) {
  * @param {Event} e Event on keypress, keydown or keyup.
  * @return {Object} object of key information.
  */
-function keyCheck(e) {
+function keyCheck(e)
+{
   if (e === void 0) {
     throw new Error("Invalid argument. don't get event object.");
   }
@@ -67,7 +69,8 @@ function keyCheck(e) {
  * @param {Object} keyInfo has got return value of keyCheck function.
  * @return {String} result string.
  */
-function generateKeyString(keyInfo) {
+function generateKeyString(keyInfo)
+{
   if (toType(keyInfo) !== 'object') {
     throw new Error('Invalid type of argument.');
   }
@@ -139,7 +142,8 @@ function generateKeyString(keyInfo) {
 /* base program.
  * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
  */
-function toType(obj) {
+function toType(obj)
+{
   var type = ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
   if (type === 'global') {
     if (obj === void 0) { return 'undefined'; }
@@ -155,7 +159,8 @@ function toType(obj) {
  * @param  {String} [format] フォーマット
  * @return {String}          フォーマット済み日付
  */
-var formatDate = function (date, format) {
+function formatDate(date, format)
+{
   if (!format) {
     format = 'YYYY-MM-DD hh:mm:ss.SSS';
   }
@@ -175,14 +180,16 @@ var formatDate = function (date, format) {
   return format;
 };
 
-function trim(string) {
+function trim(string)
+{
   if (toType(string) !== 'string') {
     throw new Error('Argument error. used not string object.');
   }
   return string.replace(/(^\s+)|(\s+$)/g, '');
 }
 
-function compareObject(leftObj, rightObj) {
+function compareObject(leftObj, rightObj)
+{
   if (leftObj === void 0 || rightObj === void 0) {
     throw new Error('Invalid type of arguments.');
   }
@@ -202,7 +209,8 @@ function compareObject(leftObj, rightObj) {
   return true;
 }
 
-function unique(array) {
+function unique(array)
+{
   if (toType(array) !== 'array') {
     throw new Error('Argument error. used not array object.');
   }
@@ -220,7 +228,8 @@ function unique(array) {
   return ret;
 }
 
-function arrayEqual(x1, x2) {
+function arrayEqual(x1, x2)
+{
   if (x1.length !== x2.length) {
     return false;
   }
@@ -237,7 +246,8 @@ function arrayEqual(x1, x2) {
 }
 
 // ブラウザの応答性は下がる(ビジーウェイト)
-function sleep(T) {
+function sleep(T)
+{
   var d1 = new Date().getTime();
   var d2 = new Date().getTime();
   while (d2 < d1 + T) {

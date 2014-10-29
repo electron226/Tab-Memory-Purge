@@ -209,6 +209,11 @@
     console.debug('purge');
     if (toType(tabId) !== 'number') {
       console.error("Invalid argument. tabId isn't number.");
+      return;
+    }
+    if (runPurge.hasOwnProperty(tabId)) {
+      console.error('Already purging. "' + tabId + '"');
+      return;
     }
 
     runPurge[tabId] = true;
@@ -365,7 +370,7 @@
       console.error("Invalid argument. tabId isn't number.");
     }
 
-    if (unloaded[tabId]) {
+    if (unloaded.hasOwnProperty(tabId)) {
       unPurge(tabId);
     } else {
       purge(tabId);
@@ -384,7 +389,7 @@
       console.error("Invalid argument. tabId isn't number.");
     }
 
-    if (toType(unloaded[tabId]) !== 'object') {
+    if (!unloaded.hasOwnProperty(tabId)) {
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
           console.log('tick function is skipped.', tabId);
@@ -1067,7 +1072,7 @@
           var tabId = null;
           for (var i = 0; i < results.length; i++) {
             tabId = results[i].id;
-            if (!(tabId in unloaded)) {
+            if (!unloaded.hasOwnProperty(tabId)) {
               all_purge_functions[message.event](results[i]);
             }
           }
