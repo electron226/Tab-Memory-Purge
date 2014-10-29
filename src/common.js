@@ -23,12 +23,13 @@ var defaultValues = defaultValues || {
   'switch_not_release_keybind': JSON.stringify({}),
   'all_unpurge_keybind': JSON.stringify({}),
   'restore_keybind': JSON.stringify({}),
-
-  'backup': {},
 };
-// the history key name on the local storage.
-var historyKey = 'history';
+var historyKey = 'history'; // the history key name on chrome.storage.local.
 defaultValues[historyKey] = {};
+var backupKey = 'backup';   // the history key name on chrome.storage.local.
+defaultValues[backupKey] = {};
+var versionKey = 'version'; // the history key name on chrome.storage.local.
+defaultValues[versionKey] = {};
 
 // initTranslationsでキー名を使用するときに使う。
 // どのファイルを選択しても問題ない。

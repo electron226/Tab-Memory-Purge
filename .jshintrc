@@ -25,6 +25,8 @@
     "arrayEqual": true,
 
     "historyKey": true,
+    "backupKey": true,
+    "versionKey": true,
     "defaultValues": true,
     "translationPath": true,
     "extensionExcludeUrl": true,
