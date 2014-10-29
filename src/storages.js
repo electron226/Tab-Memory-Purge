@@ -2,10 +2,11 @@
 "use strict";
 
 var Backup = function(key) {
+  console.debug('the constructor of Backup class.');
   this.key = key;
 };
 Backup.prototype.set = function(data, callback) {
-  console.log('update function of Backup class.');
+  console.debug('update function of Backup class.');
   if (data === void 0 || data === null) {
     console.error('a invalid type of arguments.');
     return;
@@ -15,7 +16,7 @@ Backup.prototype.set = function(data, callback) {
   chrome.storage.local.set(write, callback);
 };
 Backup.prototype.get = function(callback) {
-  console.log('get function of Backup class.');
+  console.debug('get function of Backup class.');
   if (toType(callback) !== 'function') {
     console.error('A invalid type of arugments.');
     return;
@@ -37,17 +38,19 @@ Backup.prototype.get = function(callback) {
   });
 };
 Backup.prototype.remove = function(callback) {
-  console.log('remove function of Backup class.');
+  console.debug('remove function of Backup class.');
 
   chrome.storage.local.remove(this.key, callback);
 };
 
 var History = function(key, max_history) {
+  console.debug('the constructor of History class.');
   this.key = key;
   this.max_history = max_history || 7;
   this.history = {};
 };
 History.prototype.read = function(dataObj, callback) {
+  console.debug('read function of History class.');
   if (dataObj === void 0 || dataObj === null) {
     chrome.storage.local.get(this.key, function(items) {
       if (chrome.runtime.lastError) {
@@ -68,6 +71,7 @@ History.prototype.read = function(dataObj, callback) {
   }
 };
 History.prototype.write = function(tab, callback) {
+  console.debug('write function of History class.');
   var now = new Date();
   var date = new Date(
     now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
@@ -95,6 +99,7 @@ History.prototype.write = function(tab, callback) {
 };
 // Delete the history of pre-history
 History.prototype.oldDelete = function() {
+  console.debug('oldDelete function of History class.');
   // milliseconds * seconds * minutes * hours * days
   var criterion = 1000 * 60 * 60 * 24 * this.max_history;
   var now = new Date();
@@ -110,6 +115,7 @@ History.prototype.oldDelete = function() {
   }
 };
 History.prototype.setKey = function(keyName) {
+  console.debug('setKey function of History class.');
   if (toType(keyName) === 'string') {
     this.key = keyName;
   } else {
@@ -118,6 +124,7 @@ History.prototype.setKey = function(keyName) {
   }
 };
 History.prototype.setMaxHistory = function(max) {
+  console.debug('setMaxHistory function of History class.');
   if (toType(max) === 'number') {
     this.max_history = max;
   } else {
