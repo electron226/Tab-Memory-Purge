@@ -39,7 +39,7 @@ var translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
 // The url of the release point.
 var blankUrls = {
   'local': chrome.runtime.getURL('blank.html'),
-  'normal': 'https://tabmemorypurge.appspot.com/blank.html',
+  'normal': 'http://electron226.github.io/Tab-Memory-Purge',
 };
 
 // file of get scroll position of tab.
