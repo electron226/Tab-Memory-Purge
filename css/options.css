@@ -1,87 +1,118 @@
-body, input, textarea, button {
-    font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
-    "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
+body,
+input,
+textarea,
+button
+{
+    font-family: 'Meiryo', 'メイリオ', 'ＭＳ Ｐゴシック',
+    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
 }
 
-header > h2 {
+header > h2
+{
     margin-bottom: 5px;
 }
 
-nav {
+nav
+{
     margin-bottom: 1em;
 }
 
-fieldset {
+fieldset
+{
+    margin: 1em auto;
+
     border-width: 1px solid;
     border-radius: 5px;
-    margin: 1em auto;
 }
 
-ul {
+ul
+{
     list-style-type: none;
 }
 
-#config_change {
-    width: 100px;
+#config_change
+{
     position: fixed;
     top: 50px;
+
+    width: 100px;
+
     text-align: center;
 }
 
-#config_page {
+#config_page
+{
     position: relative;
     left: 120px;
+
     max-width: 1200px;
 }
 
-.change_bar {
+.change_bar
+{
     width: 3px;
+
     background-color: gray;
 }
 
-.word_of_warning {
+.word_of_warning
+{
     font-weight: bold;
-    color: red;
+
     margin-left: 25px;
+
+    color: red;
 }
 
-input[name="release_url"] {
+input[name='release_url']
+{
     width: 700px;
 }
 
-#sample_url {
+#sample_url
+{
     width: 472px;
 }
 
-textarea[name="exclude_url"] {
+textarea[name='exclude_url']
+{
     float: left;
 }
 
-div.otherTitleText {
+div.otherTitleText
+{
     clear: both;
 }
 
-div#history_date_list {
-    margin-top: 12px;
+div#history_date_list
+{
     position: absolute;
     left: -1em;
+
     overflow: auto;
+
     width: 120px;
     height: 400px;
+    margin-top: 12px;
 }
 
 /* ツールチップ*/
-div.tooltip > div.tooltip {
+div.tooltip > div.tooltip
+{
     display: none;
-    padding: 2px 3px;
-    margin-left: 8px;
+
     max-width: 550px;
+    margin-left: 8px;
+    padding: 2px 3px;
 }
 
-div.tooltip:hover > div.tooltip {
-    display: inline;
+div.tooltip:hover > div.tooltip
+{
     position: absolute;
-    background: #FFFFFF;
-    border: 1px solid #CCCCCC;
+
+    display: inline;
+
     color: #6c6c6c;
+    border: 1px solid #ccc;
+    background: #fff;
 }
