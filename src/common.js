@@ -19,10 +19,12 @@ var defaultValues = defaultValues || {
   'remaiming_memory': 200,
   'max_history': 7,
 
-  'release_keybind': JSON.stringify({}),
-  'switch_not_release_keybind': JSON.stringify({}),
-  'all_unpurge_keybind': JSON.stringify({}),
-  'restore_keybind': JSON.stringify({}),
+  'keybind': {
+    'release': JSON.stringify({}),
+    'switch_not_release': JSON.stringify({}),
+    'all_unpurge': JSON.stringify({}),
+    'restore': JSON.stringify({}),
+  },
 };
 var historyKey = 'history'; // the history key name on chrome.storage.local.
 defaultValues[historyKey] = {};
@@ -63,8 +65,8 @@ icons[EXTENSION_EXCLUDE] =
 var extensionExcludeUrl =
     '^chrome-*\\w*://\n' +
     '^view-source:\n' +
-    'tabmemorypurge.appspot.com/\n' +
-    '^file:///\n';
+    '^file:///\n' +
+    '^' + blankUrls['normal'];
 
 var optionPage = chrome.runtime.getURL('options.html');
 var changeHistory = chrome.runtime.getURL('History.txt');

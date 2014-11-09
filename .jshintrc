@@ -16,6 +16,7 @@
   "debug"    : true,  // debugger を許可
   "globals": { // is not defined対策
     "_": false,
+    "angular": true,
     "chrome": true,
     
     "initTranslations": true,

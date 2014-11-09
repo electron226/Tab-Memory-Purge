@@ -136,7 +136,7 @@ function generateKeyString(keyInfo)
       break;
   }
 
-  return output;
+  return trim(output);
 }
 
 /* base program.

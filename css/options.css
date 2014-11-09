@@ -64,22 +64,17 @@ ul
     color: red;
 }
 
-input[name='release_url']
-{
-    width: 700px;
-}
-
 #sample_url
 {
     width: 472px;
 }
 
-textarea[name='exclude_url']
+textarea[ng-model='options.exclude_url']
 {
     float: left;
 }
 
-div.otherTitleText
+div.otherTitle
 {
     clear: both;
 }
@@ -115,4 +110,19 @@ div.tooltip:hover > div.tooltip
     color: #6c6c6c;
     border: 1px solid #ccc;
     background: #fff;
+}
+
+/* 正規表現ツール */
+[ng-controller="RegexToolController"] {
+    padding: 10px;
+    transition: 1.0s ease 0.0s;
+    top: 100%;
+    background-color: lightcyan;
+    position: fixed;
+    height: 100%;
+}
+
+[ng-controller="RegexToolController"] button {
+    position: absolute;
+    right: 1%;
 }

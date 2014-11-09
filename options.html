@@ -1,232 +1,243 @@
 ﻿<!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" ng-app="options" ng-csp>
   <head>
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
+    <link rel="stylesheet" href="css/angular-csp.css" type="text/css">
     <link rel="stylesheet" href="css/options.css" type="text/css">
   </head>
-  <body>
+  <body ng-controller="OptionController">
     <nav id="config_change">
       <table>
-        <tr id="option">
+        <tr ng-repeat="item in menu.items" ng-click="menuSelect($event)" class="{{ item.name }}">
           <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="optionText"></span></td>
-        </tr>
-        <tr id="keybind">
-          <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="keybindText"></span></td>
-        </tr>
-        <tr id="history">
-          <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="historyText"></span></td>
-        </tr>
-        <tr id="change_history">
-          <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="change_historyText"></span></td>
-        </tr>
-        <tr id="information">
-          <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="informationText"></span></td>
+          <td><span class="{{ item.name }} text"></span></td>
         </tr>
       </table>
-      <div id="history_date_list"></div>
+      <div id="historyList" ng-controller="historyController" style="display: none;">
+        <div ng-repeat="data in history | orderBy:'date':true">
+          <button ng-click="jump($index)">{{ data.date | date:'yyyy/MM/dd' }}</button>
+        </div>
+      </div>
     </nav>
 
-    <div id="config_page">
-      <header>
-        <h2><span class="extNameText"></span>&nbsp;<span id="menu_title"><span class="optionText"></span></span></h2>
-      </header>
+    <form>
+      <div id="config_page">
+        <header>
+          <h2><span class="extName text"></span>&nbsp;<span id="menu_title"><span class="option text"></span></span></h2>
+        </header>
 
-      <article id="option_items">
-        <!-- options of normally. .-->
-        <section id="option_options">
-          <fieldset>
-            <legend class="setReleaseFileUrlTitleText"></legend>
-            <div class="tooltip">
-              <label>
-                <input type="radio" name="release_page" value="normal"><span class="in_extensionText"></span>
-              </label>
+        <article id="option_items">
+          <!-- options of normally. .-->
+          <section class="option">
+            <fieldset>
+              <legend class="setReleaseFileUrlTitle text"></legend>
               <div class="tooltip">
-                <div class="explanationText"></div>
-                <ol>
-                  <li><span class="explanation_problem1Text"></span></li>
-                </ol>
-                <div class="explanation_solutionText"></div>
-              </div>
-            </div>
-
-            <div class="tooltip">
-              <label>
-                <input type="radio" name="release_page" value="author"><span class="authorText"></span>(<span class="defaultText"></span>)
-              </label>
-              <div class="tooltip">
-                <div class="explanationText"></div>
-                <ol>
-                  <li><span class="explanation_problem2Text"></span></li>
-                  <li><span class="explanation_problem3Text"></span></li>
-                  <li><span class="explanation_problem4Text"></span></li>
-                </ol>
-              </div>
-            </div>
-
-            <div>
-              <label>
-                <input type="radio" name="release_page" value="assignment"><span class="assignmentText"></span>
-              </label>
-              <span>(<a href="blank_sample.zip"><span class="sampleText"></span></a>)</span>
-              <ul>
-                <li><input type="text" name="release_url"></li>
-                <li>
-                  <span class="exampleText"></span>:
-                  <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
-                </li>
-              </ul>
-              <div style="margin-top: 1em;">
                 <label>
-                  <input type="checkbox" name="no_release">&nbsp;<span class="no_releaseText"></span>
+                  <input type="radio" ng-model="options.release_page" value="normal"><span class="in_extension text"></span>
                 </label>
+                <div class="tooltip">
+                  <div class="explanation text"></div>
+                  <ol>
+                    <li><span class="explanation_problem1 text"></span></li>
+                  </ol>
+                  <div class="explanation_solution text"></div>
+                </div>
+              </div>
+
+              <div class="tooltip">
+                <label>
+                  <input type="radio" ng-model="options.release_page" value="author"><span class="author text"></span>
+                </label>
+                <div class="tooltip">
+                  <div class="explanation text"></div>
+                  <ol>
+                    <li><span class="explanation_problem2 text"></span></li>
+                    <li><span class="explanation_problem3 text"></span></li>
+                    <li><span class="explanation_problem4 text"></span></li>
+                  </ol>
+                </div>
+              </div>
+
+              <div>
+                <label>
+                  <input type="radio" ng-model="options.release_page" value="assignment"><span class="assignment text"></span>
+                </label>
+                <span>(<a href="blank_sample.zip"><span class="sample text"></span></a>)</span>
+                <ul>
+                  <li><input type="text" ng-model="options.release_url" ng-disabled="options.release_page !== 'assignment'" style="width: 700px;"></li>
+                  <li>
+                    <span class="example text"></span>:
+                    <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
+                  </li>
+                </ul>
+                <div style="margin-top: 1rem;">
+                  <label>
+                    <input type="checkbox" ng-model="options.no_release">&nbsp;<span class="no_release text"></span>
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="setTimerTitle text"></legend>
+              <input type="number" ng-model="options.timer" style="width: 75px;" min="1">&nbsp;<span class="minute text"></span>
+            </fieldset>
+
+            <fieldset>
+              <legend>
+                <span class="exclude_url text"></span>&nbsp;<button ng-click="showRegexTool()"><span class="regex_tool text"></span></button>
+              </legend>
+              <textarea ng-model="options.exclude_url" rows="8" cols="60"></textarea>
+              <div>
+                <div class="option text"></div>
+                <input type="checkbox" ng-model="options.regex_insensitive"><span class="regex_confuse text"></span>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="otherTitle text"></legend>
+              <div>
+                <label><input type="checkbox" ng-model="options.forcibly_close_restore"><span class="forcibly_close_restore text"></span></label>
+              </div>
+              <div>
+                <label><input type="checkbox" ng-model="options.enable_auto_purge"><span class="remaiming_memory text"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.remaiming_memory" style="width: 50px;" min="1">&nbsp;M
+              </div>
+              <div>
+                <label><span class="max_history text"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
+              </div>
+            </fieldset>
+          </section>
+
+          <!-- options of the keybind. -->
+          <section class="keybind" ng-controller="keybindController">
+            <fieldset>
+              <legend class="keybind text"></legend>
+              <table>
+                <tr ng-repeat="item in keys" class="{{ item.name }}">
+                  <td><span class="{{ item.name }} text"></span></td>
+                  <td><button ng-click="setBind($event)">SET</button></td>
+                  <td><input type="text" class="pressKey" disabled></input></td>
+                  <td><input type="text" class="keydata" style="display: none;" disabled></td>
+                  <td><button ng-click="clearBind($event)">CLEAR</button></td>
+                  <td class="status" style="width: 100px; color: red"></td>
+                </tr>
+              </table>
+            </fieldset>
+          </section>
+
+          <!-- my histories on this option page. -->
+          <section class="history" ng-controller="historyController">
+            <fieldset ng-repeat="data in history | orderBy:'date':true">
+              <legend><a id="history{{ $index }}"></a>{{ data.date | date:'yyyy/MM/dd' }}</legend>
+              <div ng-repeat="item in data.history | orderBy:'time':true">
+                <span style="margin-right: 2rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
+                <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+              </div>
+            </fieldset>
+          </section>
+
+          <section class="change_history" ng-controller="changeHistoryController">
+            <div ng-repeat="data in changed">
+              <h3>{{ data.dateVer }}</h3>
+              <div ng-repeat="item in data.items" style="margin-left: 1.5rem;">
+                {{ item }}
               </div>
             </div>
+          </section>
+
+          <section class="information">
+            <h3><span class="specification text"></span></h3>
+            <ul style="list-style-type: disc">
+              <li><span class="spec1 text"></span></li>
+              <li><span class="spec2 text"></span></li>
+              <li><span class="spec3 text"></span></li>
+              <li>
+                <div class="spec4 text"></div>
+                <ul>
+                  <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span class="spec_icon_use text"></span></li>
+                  <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span class="spec_icon_extension text"></span></li>
+                  <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span class="spec_icon_temp text"></span></li>
+                  <li><img src="icon/icon_019.png">&nbsp;<span class="spec_icon text"></span></li>
+                </ul>
+              </li>
+              <li><span class="spec5 text"></span></li>
+            </ul>
+
+            <h3><span class="feedback text"></span></h3>
+            <div><span class="feedback_explanation text"></span></div>
+            <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span class="feedback_send text"></span></a></div>
+
+            <h3><span class="infomation_other text"></span></h3>
+            <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span class="source_code text"></span></a></div>
+          </section>
+        </article>
+
+        <footer ng-controller="storageController">
+          <fieldset>
+            <legend class="operateTitle text"></legend>
+            <button ng-click="save()"><span class="save text"></span></button>
+            <button ng-click="load()"><span class="load text"></span></button>
+            <button ng-click="init()"><span class="init text"></span></button>
+            <span id="status" style="color: green;"></span>
           </fieldset>
 
           <fieldset>
-            <legend class="setTimerTitleText"></legend>
-            <input type="number" name="timer" style="width: 75px;" min="1">&nbsp;<span class="minuteText"></span>
+            <legend class="operateSyncTitle text"></legend>
+            <button ng-click="syncSave()"><span class="save text"></span></button>
+            <button ng-click="syncLoad()"><span class="load text"></span></button>
+            <span id="status_sync" style="color: green;"></span>
           </fieldset>
 
           <fieldset>
-            <legend>
-              <span class="exclude_urlText"></span>&nbsp;<a class="switch_tool" href="#"><span class="regex_toolText"></span></a>
-            </legend>
-            <textarea name="exclude_url" rows="8" cols="60"></textarea>
-            <div><div class="optionText"></div>
-              <input type="checkbox" name="regex_insensitive"><span class="regex_confuseText"></span>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend class="otherTitleText"></legend>
+            <legend class="getSettings text"></legend>
             <div>
-              <label><input type="checkbox" name="forcibly_close_restore"><span class="forcibly_close_restoreText"></span></label>
+              <button ng-click="export()"><span class="export text"></span></button>
+              <button ng-click="import()"><span class="import text"></span></button>
+              <span id="config_view_status" style="color: green;"></span>
             </div>
-            <div>
-              <label><input type="checkbox" name="enable_auto_purge"><span class="remaiming_memoryText"></span></label>&nbsp;:&nbsp;<input type="number" name="remaiming_memory" style="width: 50px;" min="1">&nbsp;M
-            </div>
-            <div>
-              <label><span class="max_historyText"></span></label>&nbsp;:&nbsp;<input type="number" name="max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
-            </div>
+            <textarea id="config_view" cols="50" rows="5"></textarea>
           </fieldset>
-        </section>
-
-        <!-- options of the keybind. -->
-        <section id="keybind_options" style="display: none;">
-          <fieldset>
-            <legend class="keybindText"></legend>
-            <table>
-              <tr name="release">
-                <td><span class="releaseText"></span></td>
-                <td><button class="bindStart">SET</button></td>
-                <td><input type="text" class="pressKey" disabled></input></td>
-                <td><input type="text" name="release_keybind" class="keydata" style="display: none" disabled></td>
-                <td><button class="bindClear">CLEAR</button></td>
-                <td class="status" style="width: 100px; color: red"></td>
-              </tr>
-              <tr name="switch_not_release">
-                <td><span class="switch_not_releaseText"></span></td>
-                <td><button class="bindStart">SET</button></td>
-                <td><input type="text" class="pressKey" disabled></input></td>
-                <td><input type="text" name="switch_not_release_keybind" class="keydata" style="display: none" disabled></td>
-                <td><button class="bindClear">CLEAR</button></td>
-                <td class="status" style="width: 100px; color: red"></td>
-              </tr>
-              <tr name="all_unpurge">
-                <td><span class="all_unpurgeText"></span></td>
-                <td><button class="bindStart">SET</button></td>
-                <td><input type="text" class="pressKey" disabled></input></td>
-                <td><input type="text" name="all_unpurge_keybind" class="keydata" style="display: none" disabled></td>
-                <td><button class="bindClear">CLEAR</button></td>
-                <td class="status" style="width: 100px; color: red"></td>
-              </tr>
-              <tr name="restore">
-                <td><span class="restoreText"></span></td>
-                <td><button class="bindStart">SET</button></td>
-                <td><input type="text" class="pressKey" disabled></input></td>
-                <td><input type="text" name="restore_keybind" class="keydata" style="display: none" disabled></td>
-                <td><button class="bindClear">CLEAR</button></td>
-                <td class="status" style="width: 100px; color: red"></td>
-              </tr>
-            </table>
-          </fieldset>
-        </section>
-
-        <!-- my histories on this option page. -->
-        <section id="history_options">
-        </section>
-
-        <section id="change_history_options">
-        </section>
-
-        <section id="information_options">
-          <h3><span class="specificationText"></span></h3>
-          <ul style="list-style-type: disc">
-            <li><span class="spec1Text"></span></li>
-            <li><span class="spec2Text"></span></li>
-            <li><span class="spec3Text"></span></li>
-            <li>
-              <div class="spec4Text"></div>
-              <ul>
-                <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span class="spec_icon_useText"></span></li>
-                <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span class="spec_icon_extensionText"></span></li>
-                <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span class="spec_icon_tempText"></span></li>
-                <li><img src="icon/icon_019.png">&nbsp;<span class="spec_iconText"></span></li>
-              </ul>
-            </li>
-            <li><span class="spec5Text"></span></li>
-          </ul>
-
-          <h3><span class="feedbackText"></span></h3>
-          <div><span class="feedback_explanationText"></span></div>
-          <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span class="feedback_sendText"></span></a></div>
-
-          <h3><span class="infomation_otherText"></span></h3>
-          <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span class="source_codeText"></span></a></div>
-        </section>
-      </article>
-
-      <footer>
-        <fieldset>
-          <legend class="operateTitleText"></legend>
-          <button id="save"><span class="saveText"></span></button>
-          <button id="load"><span class="loadText"></span></button>
-          <button id="init"><span class="initText"></span></button>
-          <span id="status" style="color: green;"></span>
-        </fieldset>
-
-        <fieldset>
-          <legend class="operateSyncTitleText"></legend>
-          <button id="save_sync"><span class="saveText"></span></button>
-          <button id="load_sync"><span class="loadText"></span></button>
-          <span id="status_sync" style="color: green;"></span>
-        </fieldset>
-
-        <fieldset>
-          <legend class="getSettingsText"></legend>
-          <div>
-            <button id="export"><span class="exportText"></span></button>
-            <button id="import"><span class="importText"></span></button>
-            <span id="config_view_status"></span>
-          </div>
-          <textarea id="config_view" cols="50" rows="5"></textarea>
-        </fieldset>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </form>
 
     <!-- 正規表現確認ツール -->
-    <div id="tool_box"></div>
+    <div ng-controller="RegexToolController">
+      <div>
+        <button ng-click="showRegexTool()">x</button>
+        <div class="regex text"></div>
+        <input type="text" ng-model="regex.word" style="width: 400px;"><input type="checkbox" ng-model="regex.option"><span class="regex_confuse text"></span>
+      </div>
+      <div style="float: left;">
+        <div class="regex_compare_string text"></div>
+        <textarea ng-model="regex.target" style="width: 400px; height: 100px; resize: none;"></textarea>
+      </div>
+      <div>
+        <div class="regex_result text"></div>
+        <span ng-bind-html="regex.result" style="background-color: lightgray; position: absolute; width: 400px; height: 100px;"></span>
+      </div>
+      <div style="clear: float;"></div>
 
+      <div style="float: left;">
+        <fieldset ng-repeat="reg in regex">
+          <legend class="{{ reg.translationName }} text"></legend>
+          <table style="border-spacing: 0px;">
+            <tr ng-repeat="items in reg.reference">
+              <td ng-repeat-start="item in items" style="padding: 0 1rem;">{{ item.word }}</td>
+              <td ng-repeat-end class="{{ item.translationName }} text"></td>
+            </tr>
+          </table>
+        </fieldset>
+      </div>
+      <div style="clear: left;"></div>
+    </div>
+
+    <script type="text/javascript" src="src/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="src/angular.min.js"></script>
+    <script type="text/javascript" src="src/angular-sanitize.min.js"></script>
     <script type="text/javascript" src="src/common.js"></script>
     <script type="text/javascript" src="src/common_func.js"></script>
-    <script type="text/javascript" src="src/regex_tool.js"></script>
     <script type="text/javascript" src="src/options.js"></script>
   </body>
 </html>
