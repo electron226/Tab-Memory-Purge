@@ -1,7 +1,7 @@
 ﻿(function(document) {
   'use strict';
 
-  var optionModule = angular.module('options', ['ngSanitize']);
+  var optionModule = angular.module('options', ['ngSanitize', 'myCommons']);
   optionModule.controller('OptionController', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
 
@@ -20,24 +20,6 @@
       clicked = !clicked;
     };
 
-    // translation
-    var translationTargetClassName = 'text';
-    $http.get(translationPath)
-    .success(function(data) {
-      var t = null;
-      for (var key in data) {
-        t = $('.' + key + '.' + translationTargetClassName);
-        if (t.length !== 0) {
-          for (var i = 0; i < t.length; i++) {
-            t[i].textContent = data[key].message;
-          }
-        }
-      }
-    })
-    .error(function(data, status, headers, config){
-      console.error(data, status, headers, config);
-    });
-
     // select menu.
     $scope.menu = {
       menuElement: angular.element(document.getElementById('config_change')),
@@ -50,7 +32,6 @@
         { 'name': 'information' },
       ],
       select: '',
-      menuTextClassName: translationTargetClassName,
       enable: function(name) {
         this.commonFunc(name, 'inline', 'black');
       },
@@ -66,7 +47,7 @@
         var t = this.menuElement.find('.' + name);
         if (t.length !== 0) {
           t.find('.' + this.barName).css('display', displayType);
-          t.find('.' + name + '.' + this.menuTextClassName).css('color', color);
+          t.find('[translation="' + name + '"]').css('color', color);
         }
       },
     };
@@ -94,7 +75,7 @@
 
     $scope.menuSelect = function($event) {
       $scope.menu.select = angular.element($event.target)
-                           .attr('class').replace(/text/, '').trim();
+                           .attr('translation').trim();
     };
 
     $(document).ready(function(){
@@ -156,8 +137,9 @@
       if (angular.isObject($scope.start)) {
         var keyBinds = angular.copy($scope.options.keybind);
         keyBinds[$scope.start[0].className] = angular.toJson(keyCheck(event));
-        $scope.options.keybind = keyBinds;
-        $scope.$digest();
+        $scope.$apply(function() {
+          $scope.options.keybind = keyBinds;
+        });
 
         $scope.start = null;
       }
@@ -252,7 +234,7 @@
       $scope.updateMessage(status, 'saved.');
     };
     $scope.load = function() {
-      $scope.get(chrome.storage.local, function() {
+      $scope.loadFunc(chrome.storage.local, function() {
         $scope.updateMessage(status, 'loaded.');
       });
     };
@@ -265,20 +247,27 @@
       $scope.updateMessage(statusSync, 'saved.');
     };
     $scope.syncLoad = function() {
-      $scope.get(chrome.storage.sync, function() {
+      $scope.loadFunc(chrome.storage.sync, function() {
         $scope.updateMessage(statusSync, 'loaded.');
       });
     };
-    $scope.get = function(storageType, callback) {
+    $scope.loadFunc = function(storageType, callback) {
+      $scope.getStorage(storageType, function(items) {
+        $scope.$apply(function () {
+          angular.copy(items, $scope.options);
+          (callback || angular.noop)(options);
+        });
+      });
+    };
+    $scope.getStorage = function(storageType, callback) {
       storageType.get(null, function(items) {
+        var options = {};
         for (var key in items) {
           if (defaultValues.hasOwnProperty(key)) {
-            $scope.options[key] = items[key];
+            options[key] = items[key];
           }
         }
-        $scope.$digest();
-
-        (callback || angular.noop)();
+        (callback || angular.noop)(options);
       });
     };
     $scope.export = function() {

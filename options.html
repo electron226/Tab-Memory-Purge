@@ -11,7 +11,7 @@
       <table>
         <tr ng-repeat="item in menu.items" ng-click="menuSelect($event)" class="{{ item.name }}">
           <td><span class="change_bar">&nbsp;</span></td>
-          <td><span class="{{ item.name }} text"></span></td>
+          <td><span translation="{{ item.name }}"></span></td>
         </tr>
       </table>
       <div id="historyList" ng-controller="historyController" style="display: none;">
@@ -24,87 +24,87 @@
     <form>
       <div id="config_page">
         <header>
-          <h2><span class="extName text"></span>&nbsp;<span id="menu_title"><span class="option text"></span></span></h2>
+          <h2><span translation="extName"></span>&nbsp;<span id="menu_title"><span translation="option"></span></span></h2>
         </header>
 
         <article id="option_items">
           <!-- options of normally. .-->
           <section class="option">
             <fieldset>
-              <legend class="setReleaseFileUrlTitle text"></legend>
+              <legend translation="setReleaseFileUrlTitle"></legend>
               <div class="tooltip">
                 <label>
-                  <input type="radio" ng-model="options.release_page" value="normal"><span class="in_extension text"></span>
+                  <input type="radio" ng-model="options.release_page" value="normal"><span translation="in_extension"></span>
                 </label>
                 <div class="tooltip">
-                  <div class="explanation text"></div>
+                  <div translation="explanation"></div>
                   <ol>
-                    <li><span class="explanation_problem1 text"></span></li>
+                    <li><span translation="explanation_problem1"></span></li>
                   </ol>
-                  <div class="explanation_solution text"></div>
+                  <div translation="explanation_solution"></div>
                 </div>
               </div>
 
               <div class="tooltip">
                 <label>
-                  <input type="radio" ng-model="options.release_page" value="author"><span class="author text"></span>
+                  <input type="radio" ng-model="options.release_page" value="author"><span translation="author"></span>
                 </label>
                 <div class="tooltip">
-                  <div class="explanation text"></div>
+                  <div translation="explanation"></div>
                   <ol>
-                    <li><span class="explanation_problem2 text"></span></li>
-                    <li><span class="explanation_problem3 text"></span></li>
-                    <li><span class="explanation_problem4 text"></span></li>
+                    <li><span translation="explanation_problem2"></span></li>
+                    <li><span translation="explanation_problem3"></span></li>
+                    <li><span translation="explanation_problem4"></span></li>
                   </ol>
                 </div>
               </div>
 
               <div>
                 <label>
-                  <input type="radio" ng-model="options.release_page" value="assignment"><span class="assignment text"></span>
+                  <input type="radio" ng-model="options.release_page" value="assignment"><span translation="assignment"></span>
                 </label>
-                <span>(<a href="blank_sample.zip"><span class="sample text"></span></a>)</span>
+                <span>(<a href="blank_sample.zip"><span translation="sample"></span></a>)</span>
                 <ul>
                   <li><input type="text" ng-model="options.release_url" ng-disabled="options.release_page !== 'assignment'" style="width: 700px;"></li>
                   <li>
-                    <span class="example text"></span>:
+                    <span translation="example"></span>:
                     <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
                   </li>
                 </ul>
                 <div style="margin-top: 1rem;">
                   <label>
-                    <input type="checkbox" ng-model="options.no_release">&nbsp;<span class="no_release text"></span>
+                    <input type="checkbox" ng-model="options.no_release">&nbsp;<span translation="no_release"></span>
                   </label>
                 </div>
               </div>
             </fieldset>
 
             <fieldset>
-              <legend class="setTimerTitle text"></legend>
-              <input type="number" ng-model="options.timer" style="width: 75px;" min="1">&nbsp;<span class="minute text"></span>
+              <legend translation="setTimerTitle"></legend>
+              <input type="number" ng-model="options.timer" style="width: 75px;" min="1">&nbsp;<span translation="minute"></span>
             </fieldset>
 
             <fieldset>
               <legend>
-                <span class="exclude_url text"></span>&nbsp;<button ng-click="showRegexTool()"><span class="regex_tool text"></span></button>
+                <span translation="exclude_url"></span>&nbsp;<button ng-click="showRegexTool()"><span translation="regex_tool"></span></button>
               </legend>
               <textarea ng-model="options.exclude_url" rows="8" cols="60"></textarea>
               <div>
-                <div class="option text"></div>
-                <input type="checkbox" ng-model="options.regex_insensitive"><span class="regex_confuse text"></span>
+                <div translation="option"></div>
+                <input type="checkbox" ng-model="options.regex_insensitive"><span translation="regex_confuse"></span>
               </div>
             </fieldset>
 
             <fieldset>
-              <legend class="otherTitle text"></legend>
+              <legend translation="otherTitle"></legend>
               <div>
-                <label><input type="checkbox" ng-model="options.forcibly_close_restore"><span class="forcibly_close_restore text"></span></label>
+                <label><input type="checkbox" ng-model="options.forcibly_close_restore"><span translation="forcibly_close_restore"></span></label>
               </div>
               <div>
-                <label><input type="checkbox" ng-model="options.enable_auto_purge"><span class="remaiming_memory text"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.remaiming_memory" style="width: 50px;" min="1">&nbsp;M
+                <label><input type="checkbox" ng-model="options.enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.remaiming_memory" style="width: 50px;" min="1">&nbsp;M
               </div>
               <div>
-                <label><span class="max_history text"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
+                <label><span translation="max_history"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
               </div>
             </fieldset>
           </section>
@@ -112,10 +112,10 @@
           <!-- options of the keybind. -->
           <section class="keybind" ng-controller="keybindController">
             <fieldset>
-              <legend class="keybind text"></legend>
+              <legend translation="keybind"></legend>
               <table>
                 <tr ng-repeat="item in keys" class="{{ item.name }}">
-                  <td><span class="{{ item.name }} text"></span></td>
+                  <td><span translation="{{ item.name }}"></span></td>
                   <td><button ng-click="setBind($event)">SET</button></td>
                   <td><input type="text" class="pressKey" disabled></input></td>
                   <td><input type="text" class="keydata" style="display: none;" disabled></td>
@@ -147,53 +147,53 @@
           </section>
 
           <section class="information">
-            <h3><span class="specification text"></span></h3>
+            <h3><span translation="specification"></span></h3>
             <ul style="list-style-type: disc">
-              <li><span class="spec1 text"></span></li>
-              <li><span class="spec2 text"></span></li>
-              <li><span class="spec3 text"></span></li>
+              <li><span translation="spec1"></span></li>
+              <li><span translation="spec2"></span></li>
+              <li><span translation="spec3"></span></li>
               <li>
-                <div class="spec4 text"></div>
+                <div translation="spec4"></div>
                 <ul>
-                  <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span class="spec_icon_use text"></span></li>
-                  <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span class="spec_icon_extension text"></span></li>
-                  <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span class="spec_icon_temp text"></span></li>
+                  <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li>
+                  <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li>
+                  <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li>
                   <li><img src="icon/icon_019.png">&nbsp;<span class="spec_icon text"></span></li>
                 </ul>
               </li>
-              <li><span class="spec5 text"></span></li>
+              <li><span translation="spec5"></span></li>
             </ul>
 
-            <h3><span class="feedback text"></span></h3>
-            <div><span class="feedback_explanation text"></span></div>
-            <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span class="feedback_send text"></span></a></div>
+            <h3><span translation="feedback"></span></h3>
+            <div><span translation="feedback_explanation"></span></div>
+            <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span translation="feedback_send"></span></a></div>
 
-            <h3><span class="infomation_other text"></span></h3>
-            <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span class="source_code text"></span></a></div>
+            <h3><span translation="infomation_other"></span></h3>
+            <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div>
           </section>
         </article>
 
         <footer ng-controller="storageController">
           <fieldset>
-            <legend class="operateTitle text"></legend>
-            <button ng-click="save()"><span class="save text"></span></button>
-            <button ng-click="load()"><span class="load text"></span></button>
-            <button ng-click="init()"><span class="init text"></span></button>
+            <legend translation="operateTitle"></legend>
+            <button ng-click="save()"><span translation="save"></span></button>
+            <button ng-click="load()"><span translation="load"></span></button>
+            <button ng-click="init()"><span translation="init"></span></button>
             <span id="status" style="color: green;"></span>
           </fieldset>
 
           <fieldset>
-            <legend class="operateSyncTitle text"></legend>
-            <button ng-click="syncSave()"><span class="save text"></span></button>
-            <button ng-click="syncLoad()"><span class="load text"></span></button>
+            <legend translation="operateSyncTitle"></legend>
+            <button ng-click="syncSave()"><span translation="save"></span></button>
+            <button ng-click="syncLoad()"><span translation="load"></span></button>
             <span id="status_sync" style="color: green;"></span>
           </fieldset>
 
           <fieldset>
-            <legend class="getSettings text"></legend>
+            <legend translation="getSettings"></legend>
             <div>
-              <button ng-click="export()"><span class="export text"></span></button>
-              <button ng-click="import()"><span class="import text"></span></button>
+              <button ng-click="export()"><span translation="export"></span></button>
+              <button ng-click="import()"><span translation="import"></span></button>
               <span id="config_view_status" style="color: green;"></span>
             </div>
             <textarea id="config_view" cols="50" rows="5"></textarea>
@@ -206,26 +206,26 @@
     <div ng-controller="RegexToolController">
       <div>
         <button ng-click="showRegexTool()">x</button>
-        <div class="regex text"></div>
-        <input type="text" ng-model="regex.word" style="width: 400px;"><input type="checkbox" ng-model="regex.option"><span class="regex_confuse text"></span>
+        <div translation="regex"></div>
+        <input type="text" ng-model="regex.word" style="width: 400px;"><input type="checkbox" ng-model="regex.option"><span translation="regex_confuse"></span>
       </div>
       <div style="float: left;">
-        <div class="regex_compare_string text"></div>
+        <div translation="regex_compare_string"></div>
         <textarea ng-model="regex.target" style="width: 400px; height: 100px; resize: none;"></textarea>
       </div>
       <div>
-        <div class="regex_result text"></div>
+        <div translation="regex_result"></div>
         <span ng-bind-html="regex.result" style="background-color: lightgray; position: absolute; width: 400px; height: 100px;"></span>
       </div>
       <div style="clear: float;"></div>
 
       <div style="float: left;">
         <fieldset ng-repeat="reg in regex">
-          <legend class="{{ reg.translationName }} text"></legend>
+          <legend translation="{{ reg.translationName }}"></legend>
           <table style="border-spacing: 0px;">
             <tr ng-repeat="items in reg.reference">
               <td ng-repeat-start="item in items" style="padding: 0 1rem;">{{ item.word }}</td>
-              <td ng-repeat-end class="{{ item.translationName }} text"></td>
+              <td ng-repeat-end translation="{{ item.translationName }}"></td>
             </tr>
           </table>
         </fieldset>
