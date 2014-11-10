@@ -1,88 +1,56 @@
 (function() {
   "use strict";
 
-  function changeNotReleaseText()
-  {
+  var popupModule = angular.module('popup', ['myCommons']);
+  popupModule.controller('popupController', function($scope, $document) {
+    $scope.commands = [
+      { name: "release", state: true },
+      { name: "not_release", state: true },
+      { name: "remove_not_release", state: true },
+      { name: "all_purge", state: true },
+      { name: "all_purge_without_exclude_list", state: true },
+      { name: "all_unpurge", state: true },
+      { name: "restore", state: false },
+    ];
+
+    $scope.clicked = function(name) {
+      window.close();
+      switch (name) {
+        case 'not_release':
+        case 'remove_not_release':
+          chrome.runtime.sendMessage({ event: 'switch_not_release' });
+          break;
+        default:
+          chrome.runtime.sendMessage({ event: name });
+          break;
+      }
+    };
+
     chrome.runtime.sendMessage({ event: 'current_icon' }, function(iconValue) {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
         return;
       }
 
-      var message = '';
-      switch (iconValue) {
-        case TEMP_EXCLUDE: // temp release
-          // not_release
-          message = chrome.i18n.getMessage('remove_not_release');
-          break;
-        default:
-          // remove_not_release
-          message = chrome.i18n.getMessage('not_release');
-          break;
-      }
-
-      var el = document.getElementsByClassName('not_releaseText')[0];
-      el.innerHTML = message;
+      $scope.$apply(function() {
+        if (iconValue === TEMP_EXCLUDE) {
+          $scope.commands[1].state = false; // not_release
+          $scope.commands[2].state = true; // remove_not_release
+        } else {
+          $scope.commands[1].state = true; // not_release
+          $scope.commands[2].state = false; // remove_not_release
+        }
+      });
     });
-  }
 
-  function sendEMes(event_mes, callback)
-  {
-    chrome.runtime.sendMessage({ event: event_mes }, callback);
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
+    // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、
+    // 専用メニューを表示。
     var storageName = 'release_page';
     chrome.storage.local.get(storageName, function(storages) {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
-        return;
-      }
-
-      initTranslations(document, translationPath, 'Text');
-      changeNotReleaseText();
-
-      // 「解放に使うページを指定」設定で、「拡張機能内」を選択しているときに、
-      // 専用メニューを表示。
-      if (storages[storageName] === 'normal') {
-        var el = document.getElementsByClassName('release_extension_menu')[0];
-        el.style.display = 'block';
-      }
-
-      // イベント追加
-      document.getElementById('release').addEventListener(
-        'click', function() {
-          sendEMes('release');
-        }
-      );
-      document.getElementById('not_release').addEventListener(
-        'click', function() {
-          window.close();
-          sendEMes('switch_not_release', function() {
-            changeNotReleaseText();
-          });
-        }
-      );
-      document.getElementById('all_purge').addEventListener(
-        'click', function() {
-          sendEMes('all_purge');
-        }
-      );
-      document.getElementById(
-        'all_purge_without_exclude_list').addEventListener('click', function() {
-          sendEMes('all_purge_without_exclude_list');
-        }
-      );
-      document.getElementById('all_unpurge').addEventListener(
-        'click', function() {
-          sendEMes('all_unpurge');
-        }
-      );
-      document.getElementById('restore').addEventListener(
-        'click', function() {
-          sendEMes('restore');
-        }
-      );
+      $scope.$apply(function() {
+        $scope.commands[6].state = // restore
+          (storages[storageName] === 'normal') ? true : false;
+      });
     });
   });
 })(document);

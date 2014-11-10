@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" ng-app="popup" ng-csp>
 <head>
     <meta charset="UTF-8">
     <title>popup</title>
+    <link rel="stylesheet" href="css/angular-csp.css" type="text/css">
     <link rel="stylesheet" href="css/popup.css" type="text/css">
 </head>
 
-<body>
+<body ng-controller="popupController">
+  <div ng-repeat="command in commands" translation="{{ command.name }}" ng-click="clicked(command.name)" ng-if="command.state"></div>
 
-<div id="release" class="releaseText"></div>
-<div id="not_release" class="not_releaseText"></div>
-<div id="all_purge" class="all_purgeText"></div>
-<div id="all_purge_without_exclude_list" class="all_purge_without_exclude_listText"></div>
-<div id="all_unpurge" class="all_unpurgeText"></div>
-
-<span class="release_extension_menu" style="display: none;">
-  <div id="restore" class="restoreText"></div>
-</span>
-
-<script type="text/javascript" src="src/common.js"></script>
-<script type="text/javascript" src="src/common_func.js"></script>
-<script type="text/javascript" src="src/popup.js"></script>
+  <script type="text/javascript" src="src/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="src/angular.min.js"></script>
+  <script type="text/javascript" src="src/common.js"></script>
+  <script type="text/javascript" src="src/common_func.js"></script>
+  <script type="text/javascript" src="src/popup.js"></script>
 </body>
 </html>
