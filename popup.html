@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>popup</title>
-    <link rel="stylesheet" href="css/angular-csp.css" type="text/css">
+    <link rel="stylesheet" href="css/lib/angular-csp.css" type="text/css">
     <link rel="stylesheet" href="css/popup.css" type="text/css">
 </head>
 
 <body ng-controller="popupController">
   <div ng-repeat="command in commands" translation="{{ command.name }}" ng-click="clicked(command.name)" ng-if="command.state"></div>
 
-  <script type="text/javascript" src="src/jquery-2.1.1.min.js"></script>
-  <script type="text/javascript" src="src/angular.min.js"></script>
+  <script type="text/javascript" src="src/lib/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="src/lib/angular.min.js"></script>
   <script type="text/javascript" src="src/common.js"></script>
   <script type="text/javascript" src="src/common_func.js"></script>
   <script type="text/javascript" src="src/popup.js"></script>
