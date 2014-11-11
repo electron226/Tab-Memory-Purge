@@ -15,28 +15,27 @@
     },
     "options_page": "options.html",
     "background" : {
-      "scripts": [
-        "src/debug.js",
-        "src/common.js",
-        "src/common_func.js",
-        "src/storages.js",
-        "src/purge.js"
-      ]
+      "page" : "background.html"
     },
     "content_scripts": [
       {
         "matches": ["http://*/*", "https://*/*"],
         "js": [
+            "src/lib/angular.min.js",
             "src/common.js",
             "src/common_func.js",
             "src/content_scripts/keyBind.js"
-        ]
+        ],
+        "run_at": "document_start"
       }
     ],
     "permissions": [
       "tabs", "storage", "system.memory", "contextMenus", "http://*/*", "https://*/*"
     ],
     "web_accessible_resources": [
-      "blank.html"
+      "blank.html",
+      "src/lib/angular.min.js.map",
+      "src/lib/angular-sanitize.min.js.map",
+      "src/lib/jquery-2.1.1.min.map"
     ]
 }

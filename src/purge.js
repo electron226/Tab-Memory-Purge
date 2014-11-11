@@ -60,35 +60,18 @@
   function checkMatchUrlString(url, excludeOptions, callback)
   {
     console.debug('checkMatchUrlString');
-    if (toType(url) !== 'string') {
-      console.error("Invalid argument. the url isn't string.");
-    }
-    if (toType(excludeOptions) !== 'object') {
-      console.error("Invalid argument. the excludeOptions isn't object.");
-    }
-    if (toType(excludeOptions.list) !== 'string') {
-      console.error(
-          "Invalid argument. the list in the excludeOptions isn't string.");
-    }
-    if (toType(excludeOptions.options) !== 'string') {
-      console.error(
-          "Invalid argument. the option in the excludeOptions isn't string.");
-    }
-    if (toType(callback) !== 'function') {
-      console.error("Invalid argument. callback argument don't function type.");
-    }
 
     var excludeArray = excludeOptions.list.split('\n');
     for (var i = 0; i < excludeArray.length; i++) {
       if (excludeArray[i] !== '') {
         var re = new RegExp(excludeArray[i], excludeOptions.options);
         if (re.test(url)) {
-          callback(true);
+          (callback || angular.noop)(true);
           return;
         }
       }
     }
-    callback(false);
+    (callback || angular.noop)(false);
   }
 
   /**
@@ -103,19 +86,13 @@
   function checkExcludeList(url, callback)
   {
     console.debug('checkExcludeList');
-    if (toType(url) !== 'string') {
-      console.error("Invalid argument. url isn't string.");
-    }
-    if (toType(callback) !== 'function') {
-      console.error("Invalid argument. callback argument don't function type.");
-    }
 
     // Check exclusion list in the extension.
     checkMatchUrlString(url,
       { list: extensionExcludeUrl, options: 'i' },
       function(extensionMatch) {
         if (extensionMatch) {
-          callback(EXTENSION_EXCLUDE);
+          (callback || angular.noop)(EXTENSION_EXCLUDE);
           return;
         }
 
@@ -124,17 +101,17 @@
             options: myOptions.regex_insensitive ? 'i' : '' },
           function(normalMatch) {
             if (normalMatch) {
-              callback(USE_EXCLUDE);
+              (callback || angular.noop)(USE_EXCLUDE);
               return;
             }
 
             // Compared to the temporary exclusion list.
             if (tempRelease.indexOf(url) !== -1) {
-              callback(TEMP_EXCLUDE);
+              (callback || angular.noop)(TEMP_EXCLUDE);
               return;
             }
 
-            callback(NORMAL_EXCLUDE);
+            (callback || angular.noop)(NORMAL_EXCLUDE);
           }
         );
       }
@@ -148,9 +125,6 @@
   function reloadBrowserIcon(tab)
   {
     console.debug('reloadBrowserIcon');
-    if (toType(tab) !== 'object') {
-      console.error("Invalid argument. tab isn't object.");
-    }
 
     checkExcludeList(tab.url, function(changeIcon) {
       chrome.browserAction.setIcon(
@@ -194,8 +168,7 @@
   function reloadBadge()
   {
     console.debug('reloadBadge');
-    var length = dictSize(unloaded);
-    chrome.browserAction.setBadgeText({ text: length.toString() });
+    chrome.browserAction.setBadgeText({ text: dictSize(unloaded).toString() });
   }
 
   /**
@@ -207,12 +180,15 @@
   function purge(tabId, callback)
   {
     console.debug('purge');
-    if (toType(tabId) !== 'number') {
-      console.error("Invalid argument. tabId isn't number.");
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
+      (callback || angular.noop)(null);
       return;
     }
+
     if (runPurge.hasOwnProperty(tabId)) {
       console.error('Already purging. "' + tabId + '"');
+      (callback || angular.noop)(null);
       return;
     }
 
@@ -221,14 +197,13 @@
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
+        (callback || angular.noop)(null);
         return;
       }
 
       checkExcludeList(tab.url, function(state) {
         if (state === EXTENSION_EXCLUDE) {
-          if (toType(callback) === 'function') {
-            callback(null);
-          }
+          (callback || angular.noop)(null);
           return;
         }
 
@@ -237,6 +212,7 @@
           tabId, { file: getScrollPosScript }, function(objScroll) {
             if (chrome.runtime.lastError) {
               console.error(chrome.runtime.lastError.messsage);
+              (callback || angular.noop)(null);
               return;
             }
 
@@ -279,6 +255,7 @@
             var afterPurge = function(updated, callback) {
               if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError.messsage);
+                (callback || angular.noop)(null);
                 return;
               }
 
@@ -293,6 +270,7 @@
 
               // the histories are writing.
               history.write(tab, function() {
+                (callback || angular.noop)(updated);
               });
             };
 
@@ -318,6 +296,11 @@
   function afterUnPurge(tabId)
   {
     console.debug('afterUnPurge');
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
+      return;
+    }
+
     if (unloaded.hasOwnProperty(tabId)) {
       // スクロール位置を一時的に保存
       // chrome.tabs.updated.addlistenerで使用。
@@ -337,17 +320,12 @@
   function unPurge(tabId)
   {
     console.debug('unPurge');
-    if (toType(tabId) !== 'number') {
-      console.error("Invalid argument. tabId isn't number.");
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
       return;
     }
 
     var url = unloaded[tabId].url;
-    if (toType(url) !== 'string') {
-      console.error("Can't get url of tabId in unloaded.");
-      return;
-    }
-
     chrome.tabs.executeScript(tabId, {
       code: 'window.location.replace("' + url + '");', }, function() {
       if (chrome.runtime.lastError) {
@@ -366,8 +344,9 @@
   function purgeToggle(tabId)
   {
     console.debug('purgeToggle');
-    if (toType(tabId) !== 'number') {
-      console.error("Invalid argument. tabId isn't number.");
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
+      return;
     }
 
     if (unloaded.hasOwnProperty(tabId)) {
@@ -385,32 +364,33 @@
   function tick(tabId, callback)
   {
     console.debug('tick');
-    if (toType(tabId) !== 'number') {
-      console.error("Invalid argument. tabId isn't number.");
+
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
+      (callback || angular.noop)(null);
+      return;
     }
 
-    if (!unloaded.hasOwnProperty(tabId)) {
-      chrome.tabs.get(tabId, function(tab) {
-        if (chrome.runtime.lastError) {
-          console.log('tick function is skipped.', tabId);
-
-          if (toType(callback) === 'function') {
-            callback();
-          }
-          return 0;
-        }
-
-        // アクティブタブへの処理の場合、行わない
-        if (tab.active) {
-          // アクティブにしたタブのアンロード時間更新
-          setTick(tabId, callback);
-        } else {
-          purge(tabId, callback);
-        }
-      });
-    } else {
-      callback();
+    if (unloaded.hasOwnProperty(tabId)) {
+      (callback || angular.noop)(null);
+      return;
     }
+
+    chrome.tabs.get(tabId, function(tab) {
+      if (chrome.runtime.lastError) {
+        console.log('tick function is skipped.', tabId);
+        (callback || angular.noop)(null);
+        return;
+      }
+
+      // アクティブタブへの処理の場合、行わない
+      if (tab.active) {
+        // アクティブにしたタブのアンロード時間更新
+        setTick(tabId, callback);
+      } else {
+        purge(tabId, callback);
+      }
+    });
   }
 
   /**
@@ -422,16 +402,16 @@
   function setTick(tabId, callback)
   {
     console.debug('setTick');
-    if (toType(tabId) !== 'number') {
-      console.error("Invalid argument. tabId isn't number.");
+    if (!angular.isNumber(tabId)) {
+      console.error("tabId is not number.");
+      (callback || angular.noop)(null);
+      return;
     }
 
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         console.log('setTick function is skipped.');
-        if (toType(callback) === 'function') {
-          callback();
-        }
+        (callback || angular.noop)(null);
         return;
       }
 
@@ -449,9 +429,7 @@
           deleteTick(tabId);
         }
 
-        if (toType(callback) === 'function') {
-          callback();
-        }
+        (callback || angular.noop)(null);
       });
     });
   }
@@ -484,25 +462,11 @@
  function restore(object, callback, keys, index, end)
  {
    console.debug('restore');
-   if (toType(object) !== 'object') {
-     console.error("Invalid argument. object isn't object.");
-   }
-   if (keys !== void 0 && toType(keys) !== 'array') {
-     console.error("Invalid argument. keys isn't array or undefined.");
-   }
-   if (index !== void 0 && toType(index) !== 'number') {
-     console.error("Invalid argument. index isn't number or undefined.");
-   }
-   if (end !== void 0 && toType(end) !== 'number') {
-     console.error("Invalid argument. end isn't number or undefined.");
-   }
 
    // 最後まで処理を行ったらunloadedに上書き
    if (index >= end) {
      unloaded = object;
-     if (toType(callback) === 'function') {
-       callback();
-     }
+     (callback || angular.noop)(null);
      return;
    }
 
@@ -518,8 +482,8 @@
 
    var tabId = parseInt(keys[index], 10);
    chrome.tabs.get(tabId, function(tab) {
-    if (chrome.runtime.lastError) {
-       if (tab !== void 0) {
+   if (chrome.runtime.lastError) { // If occur a error, it is ignore.
+      if (!angular.isUndefined(tab)) {
          for (var i in blankUrls) {
            if (tab.url.indexOf(blankUrls[i]) === 0) {
              return;
@@ -552,9 +516,6 @@
   function tempReleaseToggle(tab)
   {
     console.debug('tempReleaseToggle');
-    if (toType(tab) !== 'object') {
-      console.error("Invalid argument. tab isn't object.");
-    }
 
     var index = tempRelease.indexOf(tab.url);
     if (index === -1) {
@@ -578,15 +539,12 @@
  function searchUnloadedTabNearPosition(tab, callback)
   {
     console.debug('searchUnloadedTabNearPosition');
-    if (toType(tab) !== 'object') {
-      console.error("Invalid argument. tab isn't object.");
-      return;
-    }
 
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
+        (callback || angular.noop)(null);
         return;
       }
 
@@ -617,68 +575,6 @@
     });
   }
 
-  function getArrayStringWithInElement(array, elementName)
-  {
-    console.debug('getArrayStringWithInElement');
-    var first = null, last = null;
-    var reF = new RegExp('<' + elementName + '.*>', 'i');
-    var reE = new RegExp('</' + elementName + '>', 'i');
-    for (var i = 0; i < array.length; i++) {
-      var text = array[i].trim();
-      array[i] = text;
-      if (first === null) {
-        if (reF.test(text)) {
-          first = i;
-        }
-      } else if (last === null) {
-        if (reE.test(text)) {
-          last = i;
-        }
-      } else {
-        break;
-      }
-    }
-
-    if (first === null || first === last) {
-      console.error('getArrayStringWithInElement is failed.');
-      return null;
-    }
-
-    return array.slice(first, last + 1);
-  }
-
-  function getIdNamesOfConfigPageInOption(optionPage, callback)
-  {
-    console.debug('getIdNamesOfConfigPageInOption');
-    var request = new XMLHttpRequest();
-    request.onload = function() {
-      var response = this.responseText;
-      var resArray = response.split('\n');
-      var first = null, last = null;
-
-      var inBody = getArrayStringWithInElement(resArray, 'body');
-      var inNav = getArrayStringWithInElement(inBody, 'nav');
-
-      var div = document.createElement('div');
-      div.innerHTML = inNav.join('');
-
-      var trOptions = document.evaluate('//nav//tr', div, null, 7, null);
-      if (trOptions.snapshotLength === 0) {
-        console.error('getIdNamesOfConfigPageInOption is failed. ' +
-                      'Do not get id names.');
-      }
-      var idNames = [];
-      for (var i = 0; i < trOptions.snapshotLength; i++) {
-        idNames.push(trOptions.snapshotItem(i).id);
-      }
-      if (toType(callback) === 'function') {
-        callback(idNames);
-      }
-    };
-    request.open('GET', optionPage, true);
-    request.send(null);
-  }
-
   /**
    * initializeContextMenu
    * the context menu is initializing.
@@ -686,18 +582,13 @@
   function initializeContextMenu()
   {
     console.debug('initializeContextMenu');
-    getIdNamesOfConfigPageInOption(optionPage, function(idNames) {
-      // Remove all context menu.
-      // then create context menu on the browser action.
-      chrome.contextMenus.removeAll(function() {
-        var opt;
-        for (var i in idNames) {
-          opt = chrome.i18n.getMessage(idNames[i]);
-          chrome.contextMenus.create(
-            { id: idNames[i],
-              title: opt,
-              contexts: ['browser_action'] });
-        }
+    // Remove all context menu.
+    // then create context menu on the browser action.
+    chrome.contextMenus.removeAll(function() {
+      angular.forEach(optionMenus, function(value, i) {
+        var opt = chrome.i18n.getMessage(value.name);
+        chrome.contextMenus.create(
+          { id: i.toString(), title: opt, contexts: ['browser_action'] });
       });
     });
   }
@@ -844,15 +735,16 @@
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
+        (callback || angular.noop)(null);
         return;
       }
 
       var ratio = info.availableCapacity / Math.pow(1024.0, 2);
       console.debug('availableCapacity(MByte):', ratio);
       if (ratio < parseFloat(criteria_memory_size)) {
-        callback(true);
+        (callback || angular.noop)(true);
       } else {
-        callback(false);
+        (callback || angular.noop)(false);
       }
     });
   }
@@ -973,7 +865,7 @@
       // 解放解除時に動作。
       // 指定したタブの解放時のスクロール量があった場合、それを復元する
       var scrollPos = tempScrollPositions[tabId];
-      if (toType(scrollPos) === 'object') {
+      if (angular.isObject(scrollPos)) {
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {
@@ -993,8 +885,7 @@
   chrome.windows.onRemoved.addListener(function(windowId) {
     console.debug('chrome.tabs.onRemoved.');
     delete oldActiveIds[windowId];
-    var length = dictSize(oldActiveIds);
-    if (length <= 0) {
+    if (dictSize(oldActiveIds) <= 0) {
       tabBackup.remove();
     }
   });
@@ -1007,9 +898,7 @@
     'all_purge_without_exclude_list': function(tab, callback) {
       checkExcludeList(tab.url, function(state) {
         if (state !== NORMAL_EXCLUDE) {
-          if (toType(callback) === 'function') {
-            callback();
-          }
+          (callback || angular.noop)();
           return;
         }
         purge(tab.id, callback);
@@ -1026,10 +915,11 @@
       chrome.tabs.getSelected(function(tab) {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError.messsage);
+          (callback || angular.noop)(null);
           return;
         }
 
-        searchUnloadedTabNearPosition(tab);
+        searchUnloadedTabNearPosition(tab, callback);
       });
     },
   };
@@ -1115,14 +1005,7 @@
 
       if (results.length === 0) {
         displayPageOfOption = info.menuItemId;
-        chrome.tabs.create({ url: optionPage }, function(tab) {
-          if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
-            return;
-          }
-          // chrome.runtime.sendMessage(
-          //   { event: 'contextMenus', target: info.menuItemId });
-        });
+        chrome.tabs.create({ url: optionPage });
       } else {
         chrome.tabs.update(results[0].id, { active: true }, function() {
           if (chrome.runtime.lastError) {
@@ -1130,7 +1013,7 @@
           }
 
           chrome.runtime.sendMessage(
-            { event: 'contextMenus', target: info.menuItemId });
+            { event: 'contextMenus', index: info.menuItemId });
         });
       }
     });

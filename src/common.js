@@ -70,3 +70,11 @@ var extensionExcludeUrl =
 
 var optionPage = chrome.runtime.getURL('options.html');
 var changeHistory = chrome.runtime.getURL('History.txt');
+
+var optionMenus = [
+  { 'name': 'option' },
+  { 'name': 'keybind' },
+  { 'name': 'history' },
+  { 'name': 'change_history' },
+  { 'name': 'information' },
+];

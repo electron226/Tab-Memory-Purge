@@ -24,13 +24,7 @@
     $scope.menu = {
       menuElement: angular.element(document.getElementById('config_change')),
       barName: 'change_bar',
-      items: [
-        { 'name': 'option' },
-        { 'name': 'keybind' },
-        { 'name': 'history' },
-        { 'name': 'change_history' },
-        { 'name': 'information' },
-      ],
+      items: optionMenus,
       select: '',
       enable: function(name) {
         this.commonFunc(name, 'inline', 'black');
@@ -82,7 +76,21 @@
       $scope.menu.items.forEach(function(value, _) {
         $scope.menu.disable(value.name);
       });
-      $scope.menu.select = $scope.menu.items[0].name;
+
+      chrome.runtime.sendMessage(
+        { event: 'display_option_page' }, function(response) {
+        $scope.$apply(function() {
+          $scope.menu.select = $scope.menu.items[response ? response : 0].name;
+        });
+      });
+    });
+
+    chrome.runtime.onMessage.addListener(function(message) {
+      if (message.event === 'contextMenus') {
+        $scope.$apply(function() {
+          $scope.menu.select = $scope.menu.items[target].name;
+        });
+      }
     });
   });
 
