@@ -1,3 +1,8 @@
+11/13/2014 ver 2.2.3
+Applied: Issues #29(Use AngularJS)
+Applied: Issues #28(I want to change the code to fit into async process)
+Changed: Changed the URL for to purge url from Google App Engine to Git Pages.
+
 10/25/2014 ver 2.2.2
 Fixed: If the users open the option page from context menus, sometimes can't move a page after open it. (Issues #22)
 Fixed: If the users use export button is clicked, unnecessary options is deleted and output.
