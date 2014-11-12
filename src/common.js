@@ -1,80 +1,82 @@
-/*jshint globalstrict: true, maxlen: 100, unused: false*/
-"use strict";
+/*jshint maxlen: 120, unused: false*/
+(function(window) {
+  "use strict";
 
-/* Default Values. */
-var defaultValues = defaultValues || {
-  'release_page': 'author',
-  'release_url': '',
-  'no_release': false,
-  'timer': 20,
-  'exclude_url':
-      '^https://\n' +
-      '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
-      'localhost\n' +
-      'nicovideo.jp\n' +
-      'youtube.com',
-  'regex_insensitive': true,
-  'forcibly_close_restore': false,
-  'enable_auto_purge': true,
-  'remaiming_memory': 200,
-  'max_history': 7,
+  /* Default Values. */
+  window.defaultValues = window.defaultValues || {
+    'release_page': 'author',
+    'release_url': '',
+    'no_release': false,
+    'timer': 20,
+    'exclude_url':
+        '^https://\n' +
+        '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
+        'localhost\n' +
+        'nicovideo.jp\n' +
+        'youtube.com',
+    'regex_insensitive': true,
+    'forcibly_close_restore': false,
+    'enable_auto_purge': true,
+    'remaiming_memory': 500,
+    'max_history': 7,
 
-  'keybind': {
-    'release': JSON.stringify({}),
-    'switch_not_release': JSON.stringify({}),
-    'all_unpurge': JSON.stringify({}),
-    'restore': JSON.stringify({}),
-  },
-};
-var historyKey = 'history'; // the history key name on chrome.storage.local.
-defaultValues[historyKey] = {};
-var backupKey = 'backup';   // the history key name on chrome.storage.local.
-defaultValues[backupKey] = {};
-var versionKey = 'version'; // the history key name on chrome.storage.local.
-defaultValues[versionKey] = {};
+    'keybind': {
+      'release': JSON.stringify({}),
+      'switch_not_release': JSON.stringify({}),
+      'all_unpurge': JSON.stringify({}),
+      'restore': JSON.stringify({}),
+    },
+  };
+  window.historyKey = window.historyKey || 'history'; // the history key name on chrome.storage.local.
+  window.backupKey = window.backupKey || 'backup';   // the history key name on chrome.storage.local.
+  window.versionKey = window.versionKey || 'version'; // the history key name on chrome.storage.local.
+  window.defaultValues[window.historyKey] = {};
+  window.defaultValues[window.backupKey] = {};
+  window.defaultValues[window.versionKey] = {};
 
-// initTranslationsでキー名を使用するときに使う。
-// どのファイルを選択しても問題ない。
-var translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
-                       chrome.runtime.getURL('_locales/en/messages.json');
+  // initTranslationsでキー名を使用するときに使う。
+  // どのファイルを選択しても問題ない。
+  window.translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
+                           chrome.runtime.getURL('_locales/en/messages.json');
 
-// The url of the release point.
-var blankUrls = {
-  'local': chrome.runtime.getURL('blank.html'),
-  'normal': 'http://electron226.github.io/Tab-Memory-Purge',
-};
+  // The url of the release point.
+  window.blankUrls = {
+    'local': chrome.runtime.getURL('blank.html'),
+    'normal': 'http://electron226.github.io/Tab-Memory-Purge',
+  };
 
-// file of get scroll position of tab.
-var getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
+  // file of get scroll position of tab.
+  window.getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
 
-// a value which represents of the exclude list.
-var NORMAL_EXCLUDE = NORMAL_EXCLUDE || 50000;
-var USE_EXCLUDE = USE_EXCLUDE || 50001;
-var TEMP_EXCLUDE = TEMP_EXCLUDE ||50002;
-var EXTENSION_EXCLUDE = EXTENSION_EXCLUDE || 50003;
+  // a value which represents of the exclude list.
+  window.NORMAL_EXCLUDE    = window.NORMAL_EXCLUDE || 50000;
+  window.USE_EXCLUDE       = window.USE_EXCLUDE || 50001;
+  window.TEMP_EXCLUDE      = window.TEMP_EXCLUDE ||50002;
+  window.EXTENSION_EXCLUDE = window.EXTENSION_EXCLUDE || 50003;
 
-// the path of icons.
-// defined NORMAL_EXCLUDE etc... in common.js.
-var icons = {};
-icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
-icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
-icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
-icons[EXTENSION_EXCLUDE] =
-    chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
+  // the path of icons.
+  // defined NORMAL_EXCLUDE etc... in common.js.
+  window.icons = {};
+  window.icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
+  window.icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
+  window.icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
+  window.icons[EXTENSION_EXCLUDE] =
+      chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
 
-var extensionExcludeUrl =
-    '^chrome-*\\w*://\n' +
-    '^view-source:\n' +
-    '^file:///\n' +
-    '^' + blankUrls['normal'];
+  window.extensionExcludeUrl =
+      '^chrome-*\\w*://\n' +
+      '^view-source:\n' +
+      '^file:///\n' +
+      '^' + blankUrls.normal;
 
-var optionPage = chrome.runtime.getURL('options.html');
-var changeHistory = chrome.runtime.getURL('History.txt');
+  window.optionPage = chrome.runtime.getURL('options.html');
+  window.changeHistory = chrome.runtime.getURL('History.txt');
 
-var optionMenus = [
-  { 'name': 'option' },
-  { 'name': 'keybind' },
-  { 'name': 'history' },
-  { 'name': 'change_history' },
-  { 'name': 'information' },
-];
+  window.optionMenus = [
+    { 'name': 'option' },
+    { 'name': 'keybind' },
+    { 'name': 'history' },
+    { 'name': 'change_history' },
+    { 'name': 'information' },
+  ];
+})(window);
