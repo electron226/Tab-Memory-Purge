@@ -46,8 +46,8 @@
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
-    "Backup": true,
-    "History": true,
+    "TabBackup": true,
+    "TabHistory": true,
     
     "deleteTick": true,
     "setTick": true,

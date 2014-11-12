@@ -32,8 +32,8 @@
   var tempRelease = [];
 
   var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
-  var tabBackup = new Backup(backupKey); // the backup of released tabs.
-  var history = new History(historyKey); // the history of released tabs.
+  var tabBackup = new TabBackup(backupKey); // the backup of released tabs.
+  var tabHistory = new TabHistory(historyKey); // the history of released tabs.
   var currentIcon = null;
   var displayPageOfOption = null;
 
@@ -282,7 +282,7 @@
               tabBackup.set(unloaded);
 
               // the histories are writing.
-              history.write(tab, function() {
+              tabHistory.write(tab, function() {
                 (callback || angular.noop)(updated);
               });
             };
@@ -706,8 +706,8 @@
         }
 
         // initialize history.
-        history.read(myOptions.history);
-        history.setMaxHistory(parseInt(myOptions.max_history, 10));
+        tabHistory.read(myOptions.history);
+        tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
 
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {

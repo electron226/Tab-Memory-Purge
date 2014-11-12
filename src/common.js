@@ -3,7 +3,7 @@
   "use strict";
 
   /* Default Values. */
-  window.defaultValues = window.defaultValues || {
+  var defaultValues = {
     'release_page': 'author',
     'release_url': '',
     'no_release': false,
@@ -30,9 +30,10 @@
   window.historyKey = window.historyKey || 'history'; // the history key name on chrome.storage.local.
   window.backupKey = window.backupKey || 'backup';   // the history key name on chrome.storage.local.
   window.versionKey = window.versionKey || 'version'; // the history key name on chrome.storage.local.
-  window.defaultValues[window.historyKey] = {};
-  window.defaultValues[window.backupKey] = {};
-  window.defaultValues[window.versionKey] = {};
+  defaultValues[window.historyKey] = {};
+  defaultValues[window.backupKey] = {};
+  defaultValues[window.versionKey] = {};
+  window.defaultValues = window.defaultValues || defaultValues;
 
   // initTranslationsでキー名を使用するときに使う。
   // どのファイルを選択しても問題ない。
@@ -56,12 +57,13 @@
 
   // the path of icons.
   // defined NORMAL_EXCLUDE etc... in common.js.
-  window.icons = {};
-  window.icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
-  window.icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
-  window.icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
-  window.icons[EXTENSION_EXCLUDE] =
+  var icons = {};
+  icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
+  icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
+  icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
+  icons[EXTENSION_EXCLUDE] =
       chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
+  window.icons = window.icons || icons;
 
   window.extensionExcludeUrl =
       '^chrome-*\\w*://\n' +
