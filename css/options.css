@@ -115,11 +115,14 @@ div.tooltip:hover > div.tooltip
 /* 正規表現ツール */
 [ng-controller="RegexToolController"] {
     padding: 10px;
-    transition: 1.0s ease 0.0s;
+    /* transition: 1.0s ease 0.0s; */
     top: 100%;
     background-color: lightcyan;
     position: fixed;
-    height: 100%;
+}
+
+[ng-controller="RegexToolController"].show {
+    transform: translate(0, -400px);
 }
 
 [ng-controller="RegexToolController"] button {

@@ -5,19 +5,10 @@
   optionModule.controller('OptionController', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
 
-    var clicked = false;
-    function getTransform(height)
-    {
-      return (clicked) ? 'translate(0px, ' + height + ')'
-                       : 'translate(0px, -' + height+ ')';
-    }
-
-    var sizeY = '400px';
-    var regTool = angular.element($document).find(
+    var regTool = $document.find(
       '[ng-controller="RegexToolController"]');
     $scope.showRegexTool = function() {
-      regTool[0].style.transform = getTransform(sizeY);
-      clicked = !clicked;
+      regTool.toggleClass('show');
     };
 
     // select menu.
