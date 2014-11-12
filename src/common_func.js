@@ -1,24 +1,9 @@
 /*jshint globalstrict: true, maxlen: 100, unused: false*/
 "use strict";
 
-var commonModule = angular.module('myCommons', []);
-commonModule.directive('translation', function($http) {
-  return {
-    link: function(scope, element, attrs) {
-      $http.get(translationPath, { cache: true })
-      .success(function(data) {
-        if (data.hasOwnProperty(attrs.translation)) {
-          for (var i = 0; i < element.length; i++) {
-            element[i].textContent = data[attrs.translation].message;
-          }
         }
-      })
-      .error(function(data, status, headers, config){
-        console.debug(data, status, headers, config);
-      });
     }
   };
-});
 
 /**
  * initTranslations
