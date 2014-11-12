@@ -3,6 +3,24 @@
 (function() {
   "use strict";
 
+  function getKeyBinds(callback)
+  {
+    var storageName = 'keybind';
+    chrome.storage.local.get(storageName, function(items) {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.messsage);
+        return;
+      }
+
+      var keys = {};
+      angular.forEach(items[storageName], function(value, key) {
+        keys[key] = value || defaultValues.keybind[key];
+      });
+
+      (callback || angular.noop)(keys);
+    });
+  }
+
   document.addEventListener('keyup', function(e) {
     var currentFocus = document.activeElement;
     var activeElementName = currentFocus.tagName.toLowerCase();
@@ -10,26 +28,13 @@
       return;
     }
 
-    chrome.storage.local.get(null, function(items) {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
-        return;
-      }
-
-      var keys = {};
-      var command = ['release', 'switch_not_release', 'all_unpurge', 'restore'];
-      var stName;
-      for (var i = 0; i < command.length; i++) {
-        stName = command[i] + '_keybind';
-        keys[command[i]] = JSON.parse(items[stName] || defaultValues[stName]);
-      }
-
-      var pushKey = keyCheck(e);
-      for (var key in keys) {
-        if (compareObject(keys[key], pushKey)) {
+    getKeyBinds(function(keys) {
+      var pushKey = angular.toJson(keyCheck(e));
+      angular.forEach(keys, function(value, key) {
+        if (angular.equals(value, pushKey)) {
           chrome.runtime.sendMessage({ event: key });
         }
-      }
+      });
     });
   });
 
