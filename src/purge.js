@@ -172,6 +172,20 @@
   }
 
   /**
+   * getParameterByName
+   *
+   * @param url the url of getting parameters.
+   * @param name the target parameter name.
+   * @return {null or string} null or the string of a parameter.
+   */
+  function getParameterByName(url, name) {
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(decodeURIComponent(url));
+    return results === null ?
+      "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  /**
   * タブの解放を行います。
   * @param {Number} tabId タブのID.
   * @param {Function} callback コールバック関数。
@@ -701,12 +715,38 @@
             console.error(chrome.runtime.lastError.messsage);
             return;
           }
+          
+          var regexs = [];
+          for (var key in blankUrls) {
+            regexs.push(new RegExp('^' + blankUrls[key], 'i'));
+          }
 
-          for (var i = 0; i < wins.length; i++) {
-            for (var j = 0; j < wins[i].tabs.length; j++) {
-              setTick(wins[i].tabs[j].id);
+          for (var i = 0, winLen = wins.length; i < winLen; i++) {
+            for (var j = 0, tabLen = wins[i].tabs.length; j < tabLen; j++) {
+              var current = wins[i].tabs[j];
+
+              // If already purging tab, be adding the object of purging tab.
+              var alreadyFlag = false;
+              for (var z = 0, regLen = regexs.length; z < regLen; z++) {
+                if (regexs[z].test(current.url)) {
+                  runPurge[current.id] = true;
+                  unloaded[current.id] = {
+                    url: getParameterByName(current.url, 'url'),
+                    purgeurl: current.url,
+                    scrollPosition: { x: 0 , y: 0 },
+                  };
+
+                  alreadyFlag = true;
+                  break;
+                }
+              }
+
+              if (!alreadyFlag) {
+                setTick(current.id);
+              }
             }
           }
+          reloadBadge();
         });
 
         initializeContextMenu();
@@ -853,11 +893,7 @@
     if (changeInfo.status === 'loading') {
       console.debug('chrome.tabs.onUpdated. loading.');
 
-      // 自動リロード機能を無効にしている際、
-      // 手動で元ページに移動した際に解放処理の後処理を行う。
-      if (!runPurge.hasOwnProperty(tabId)) {
-        afterUnPurge(tabId);
-      }
+      afterUnPurge(tabId);
     } else {
       console.debug('chrome.tabs.onUpdated. complete.');
       reloadBrowserIcon(tab);
@@ -877,6 +913,9 @@
             delete runPurge[tabId];
           }
         );
+      } else {
+        delete tempScrollPositions[tabId];
+        delete runPurge[tabId];
       }
     }
     delete runPurge[tabId];
