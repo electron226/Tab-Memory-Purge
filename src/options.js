@@ -1,4 +1,4 @@
-﻿(function(document) {
+﻿(function() {
   'use strict';
 
   var optionModule = angular.module('options', ['ngSanitize', 'myCommons']);
@@ -43,7 +43,8 @@
     var historyList = $document.find('#historyList');
     var footer = $document.find('footer');
     $scope.$watch('selectMenu', function(newValue, oldValue) {
-      console.debug('selectMenu was changed. on OptionController.', newValue, oldValue);
+      console.debug('selectMenu was changed. on OptionController.',
+        newValue, oldValue);
       if (angular.isString(newValue) && angular.isString(oldValue)) {
         menu.disable(oldValue);
         menu.enable(newValue);
@@ -59,7 +60,7 @@
         });
 
         if (newValue === 'option' || newValue === 'keybind') {
-          footer.show()
+          footer.show();
         } else {
           footer.hide();
         }
@@ -72,11 +73,12 @@
     });
 
     $scope.menuSelect = function($event) {
-      $scope.selectMenu = angular.element($event.target).attr('translation').trim();
+      $scope.selectMenu = angular.element(
+        $event.target).attr('translation').trim();
     };
 
     $document.ready(function(){
-      $scope.menuItems.forEach(function(value, _) {
+      $scope.menuItems.forEach(function(value) {
         menu.disable(value.name);
       });
 
@@ -91,7 +93,7 @@
     chrome.runtime.onMessage.addListener(function(message) {
       if (message.event === 'contextMenus') {
         $scope.$apply(function() {
-          $scope.selectMenu = $scope.menuItems[target].name;
+          $scope.selectMenu = $scope.menuItems[message.target].name;
         });
       }
     });
@@ -162,7 +164,8 @@
   }]);
 
   optionModule.controller('historyController',
-    ['$scope', '$location', '$anchorScroll', function($scope, $location, $anchorScroll) {
+    ['$scope', '$location', '$anchorScroll',
+      function($scope, $location, $anchorScroll) {
     $scope.history = [];
     $scope.jump = function($index) {
       $location.hash('history' + $index);
@@ -181,7 +184,7 @@
 
     var firstFlag = true;
     var showFlag = false;
-    $scope.$watch('selectMenu', function(newValue, oldValue) {
+    $scope.$watch('selectMenu', function(newValue) {
       console.debug('selectMenu was changed on historyController.');
       showFlag = (newValue === 'history') ? true : false;
       if (firstFlag && showFlag) {
@@ -229,7 +232,7 @@
       }
       $scope.changed = changed;
     })
-    .error(function(data, status, headers, config){
+    .error(function(){
       console.error('changed history do not get.');
     });
   }]);
@@ -372,12 +375,14 @@
 
     function replacer(str) {
       return '<span style="background: red;">' + str + '</span>';
-    };
+    }
 
     function regexCheck() {
+      var splitedTargets;
+      var regex;
       try {
-        var splitedTargets = $scope.regex.target.split('\n');
-        var regex = new RegExp(
+        splitedTargets = $scope.regex.target.split('\n');
+        regex = new RegExp(
           $scope.regex.word, $scope.regex.option === true ? 'i' : '');
       } catch (e) {
         console.error('regexCheck is error. so this process is skipped.');
@@ -391,4 +396,4 @@
       $scope.regex.result = $sce.trustAsHtml(resultHTML);
     }
   }]);
-})(document);
+})();

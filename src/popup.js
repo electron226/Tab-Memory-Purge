@@ -3,7 +3,7 @@
 
   var popupModule = angular.module('popup', ['myCommons']);
   popupModule.controller('popupController',
-    ['$scope', '$document', function($scope, $document) {
+    ['$scope', function($scope) {
     $scope.commands = [
       { name: "release", state: true },
       { name: "not_release", state: true },

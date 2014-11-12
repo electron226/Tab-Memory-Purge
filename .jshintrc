@@ -16,10 +16,13 @@
   "debug"    : true,  // debugger を許可
   "globals": { // is not defined対策
     "_": false,
+    "$": true,
+    "jQuery": true,
     "angular": true,
     "chrome": true,
     
-    "initTranslations": true,
+    "keyCheck": true,
+    "generateKeyString": true,
     "toType": true,
     "unique": true,
     "trim": true,
@@ -37,6 +40,7 @@
     "blankUrls": true,
     "optionPage": true,
     "changeHistory": true,
+    "optionMenus": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,

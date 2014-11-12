@@ -1,5 +1,4 @@
-﻿/*jshint unused: false*/
-(function(document) {
+﻿(function() {
   "use strict";
 
   var myOptions = null; // my option settings.
@@ -62,7 +61,7 @@
     console.debug('checkMatchUrlString');
 
     var excludeArray = excludeOptions.list.split('\n');
-    for (var i = 0; i < excludeArray.length; i++) {
+    for (var i = 0, len = excludeArray.length; i < len; i++) {
       if (excludeArray[i] !== '') {
         var re = new RegExp(excludeArray[i], excludeOptions.options);
         if (re.test(url)) {
@@ -567,19 +566,20 @@
 
       // Search right than current tab.
       var j = i + 1;
-      while (j < win.tabs.length && unloaded.hasOwnProperty(win.tabs[j].id)) {
+      var len = win.tabs.length;
+      while (j < len && unloaded.hasOwnProperty(win.tabs[j].id)) {
         j++;
       }
 
       // Search the left if can't find.
-      if (j >= win.tabs.length) {
+      if (j >= len) {
         j = i - 1;
         while (0 <= j && unloaded.hasOwnProperty(win.tabs[j].id)) {
           j--;
         }
       }
 
-      if (0 <= j && j < win.tabs.length) {
+      if (0 <= j && j < len) {
         // If found tab, It's active.
         chrome.tabs.update(win.tabs[j].id, { active: true }, callback);
       } else {
@@ -623,7 +623,7 @@
   function onUpdate() {
     console.debug('Extension Updated.');
 
-    chrome.tabs.create({ url: optionPage }, function(tab) {
+    chrome.tabs.create({ url: optionPage }, function() {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
         return;
@@ -796,23 +796,23 @@
    *
    * @param ids target array of the id of the tabs.
    * @param index first index of the array.
+   * @param callback callback function.
    */
-  function autoPurgeLoop(ids, index)
+  function autoPurgeLoop(ids, index, callback)
   {
     console.debug('autoPurgeLoop');
-    if (index === void 0 || index == null) {
-      index = 0;
-    }
+    index = angular.isNumber(index) ? index : 0;
 
     if (ids.length <= index) {
       console.log('autoPurgeLoop is out of length.');
+      (callback || angular.noop)();
       return;
     }
 
     tick(ids[index], function() {
       isLackTheMemory(myOptions.remaiming_memory, function(result) {
         if (result) {
-          autoPurgeLoop(ids, index + 1);
+          autoPurgeLoop(ids, index + 1, callback);
         }
       });
     });
@@ -825,7 +825,7 @@
   function autoPurgeCheck()
   {
     console.debug('autoPurgeCheck');
-    if (myOptions.enable_auto_purge === true) {
+    if (myOptions.enable_auto_purge) {
       isLackTheMemory(myOptions.remaiming_memory, function(result) {
         if (result) {
           var ids = [];
@@ -948,7 +948,7 @@
   // and run the functions after the process.
   var all_purge_after_functions = {
     'all_purge': function(callback) {
-      chrome.tabs.create({ active: true });
+      chrome.tabs.create({ active: true }, callback);
     },
     'all_purge_without_exclude_list': function(callback) {
       chrome.tabs.getSelected(function(tab) {
@@ -999,7 +999,7 @@
           }
 
           var tabId = null;
-          for (var i = 0; i < results.length; i++) {
+          for (var i = 0, len = results.length; i < len; i++) {
             tabId = results[i].id;
             if (!unloaded.hasOwnProperty(tabId)) {
               all_purge_functions[message.event](results[i]);
@@ -1059,4 +1059,4 @@
   });
 
   initialize();
-})(document);
+})();
