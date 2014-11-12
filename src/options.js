@@ -99,7 +99,6 @@
     $scope.start = null;
 
     var section = $document.find('[ng-controller="keybindController"]');
-    console.log(section[0]);
     $scope.$watch('options.keybind', function(newValue, oldValue) {
       console.debug('keybind was changed.', newValue, oldValue);
       if (angular.isObject(newValue)) {
@@ -118,7 +117,7 @@
 
         var obj = null;
         var className = null;
-        for (var i = 0; i < pressKeys.length; i++) {
+        for (var i = 0, len = pressKeys.length ; i < len; i++) {
           className = pressKeys[i].parentNode.parentNode.className;
           obj = angular.fromJson(newValue[className]);
           if (jQuery.isEmptyObject(obj)) {
@@ -180,7 +179,7 @@
     $scope.$watch('menu.select', function(newValue, oldValue) {
       console.debug('menu.select was changed on historyController.');
       showFlag = (newValue === 'history') ? true : false;
-      if (showFlag && firstFlag) {
+      if (firstFlag && showFlag) {
         showHistory($scope.options.history);
         firstFlag = false;
       }
@@ -203,7 +202,7 @@
       var text = null;
       var dateVer = null;
       var items = [];
-      for (var i = 0; i < lists.length; i++) {
+      for (var i = 0, len = lists.length; i < len; i++) {
         text = jQuery.trim(lists[i]);
         if (text.length === 0) {
           continue;
@@ -238,8 +237,10 @@
     });
 
     $scope.save = function() {
-      chrome.storage.local.set($scope.options);
-      $scope.updateMessage(status, 'saved.');
+      chrome.storage.local.set($scope.options, function() {
+        chrome.runtime.sendMessage({ event: 'initialize' });
+        $scope.updateMessage(status, 'saved.');
+      });
     };
     $scope.load = function() {
       $scope.loadFunc(chrome.storage.local, function() {
@@ -263,7 +264,7 @@
       $scope.getStorage(storageType, function(items) {
         $scope.$apply(function () {
           angular.copy(items, $scope.options);
-          (callback || angular.noop)(options);
+          (callback || angular.noop)(items);
         });
       });
     };
@@ -373,7 +374,7 @@
       }
 
       var resultHTML = '';
-      for (var i = 0; i < splitedTargets.length; i++) {
+      for (var i = 0, len = splitedTargets.length; i < len; i++) {
         resultHTML += splitedTargets[i].replace(regex, replacer) + '<br>';
       }
       $scope.regex.result = $sce.trustAsHtml(resultHTML);
