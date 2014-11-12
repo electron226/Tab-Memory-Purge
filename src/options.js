@@ -2,7 +2,8 @@
   'use strict';
 
   var optionModule = angular.module('options', ['ngSanitize', 'myCommons']);
-  optionModule.controller('OptionController', function($scope, $http, $document) {
+  optionModule.controller('OptionController',
+    ['$scope', '$http', '$document', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
 
     var regTool = $document.find(
@@ -12,18 +13,18 @@
     };
 
     // select menu.
-    $scope.menu = {
-      menuElement: angular.element(document.getElementById('config_change')),
+    $scope.selectMenu = '';
+    $scope.menuItems = optionMenus;
+    var menu = {
+      menuElement: $document.find('#config_change'),
       barName: 'change_bar',
-      items: optionMenus,
-      select: '',
       enable: function(name) {
-        this.commonFunc(name, 'inline', 'black');
+        this.commonFunc(name, true, 'black');
       },
       disable: function(name) {
-        this.commonFunc(name, 'none', 'lightgray');
+        this.commonFunc(name, false, 'lightgray');
       },
-      commonFunc: function(name, displayType, color) {
+      commonFunc: function(name, show, color) {
         if (name.length === 0) {
           console.error('The name of arguments of commonFunc is length zero.');
           return;
@@ -31,47 +32,58 @@
 
         var t = this.menuElement.find('.' + name);
         if (t.length !== 0) {
-          t.find('.' + this.barName).css('display', displayType);
+          var bar = t.find('.' + this.barName);
+          (show) ? bar.show() : bar.hide();
           t.find('[translation="' + name + '"]').css('color', color);
         }
       },
     };
 
-    var pageElement = angular.element(document.getElementById('option_items'))
-                      .children('section');
-    var historyList = document.getElementById('historyList');
-    var footer = document.querySelector('footer');
-    $scope.$watch('menu.select', function(newValue, oldValue) {
-      console.debug('menu.select was changed. on OptionController.');
+    var pageElement = $document.find('#option_items').children('section');
+    var historyList = $document.find('#historyList');
+    var footer = $document.find('footer');
+    $scope.$watch('selectMenu', function(newValue, oldValue) {
+      console.debug('selectMenu was changed. on OptionController.', newValue, oldValue);
       if (angular.isString(newValue) && angular.isString(oldValue)) {
-        $scope.menu.disable(oldValue);
-        $scope.menu.enable(newValue);
+        menu.disable(oldValue);
+        menu.enable(newValue);
 
-        angular.forEach(pageElement, function(value, _) {
-          var className = value.className.replace(/ng-scope/, '').trim();
-          value.style.display = (newValue === className) ? 'block' : 'none';
+        pageElement.each(function(index, element) {
+          var el = angular.element(element);
+          var className = el.attr('class').replace(/ng-scope/, '').trim();
+          if (newValue === className) {
+            el.show();
+          } else {
+            el.hide();
+          }
         });
 
-        footer.style.display =
-          (newValue === 'option' || newValue === 'keybind') ? 'block' : 'none';
-        historyList.style.display = (newValue === 'history') ? 'block' : 'none';
+        if (newValue === 'option' || newValue === 'keybind') {
+          footer.show()
+        } else {
+          footer.hide();
+        }
+        if (newValue === 'history') {
+          historyList.show();
+        } else {
+          historyList.hide();
+        }
       }
     });
 
     $scope.menuSelect = function($event) {
-      $scope.menu.select = angular.element($event.target)
-                           .attr('translation').trim();
+      $scope.selectMenu = angular.element($event.target).attr('translation').trim();
     };
 
-    $(document).ready(function(){
-      $scope.menu.items.forEach(function(value, _) {
-        $scope.menu.disable(value.name);
+    $document.ready(function(){
+      $scope.menuItems.forEach(function(value, _) {
+        menu.disable(value.name);
       });
 
       chrome.runtime.sendMessage(
         { event: 'display_option_page' }, function(response) {
         $scope.$apply(function() {
-          $scope.menu.select = $scope.menu.items[response ? response : 0].name;
+          $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
         });
       });
     });
@@ -79,13 +91,14 @@
     chrome.runtime.onMessage.addListener(function(message) {
       if (message.event === 'contextMenus') {
         $scope.$apply(function() {
-          $scope.menu.select = $scope.menu.items[target].name;
+          $scope.selectMenu = $scope.menuItems[target].name;
         });
       }
     });
-  });
+  }]);
 
-  optionModule.controller('keybindController', function($scope, $document) {
+  optionModule.controller('keybindController',
+    ['$scope', '$document', function($scope, $document) {
     $scope.keys = [];
     $scope.start = null;
 
@@ -122,7 +135,7 @@
     });
 
     $scope.setBind = function($event) {
-      $scope.start = angular.element($event.target.parentNode.parentNode);
+      $scope.start = angular.element($event.target.parentNode.parentNode)[0];
     };
 
     $scope.clearBind = function($event) {
@@ -134,7 +147,7 @@
     $document.keyup(function(event) {
       if (angular.isObject($scope.start)) {
         var keyBinds = angular.copy($scope.options.keybind);
-        keyBinds[$scope.start[0].className] = angular.toJson(keyCheck(event));
+        keyBinds[$scope.start.className] = angular.toJson(keyCheck(event));
         $scope.$apply(function() {
           $scope.options.keybind = keyBinds;
         });
@@ -146,9 +159,10 @@
     angular.forEach($scope.options.keybind, function(value, key) {
       $scope.keys.push({ name: key, value: value });
     });
-  });
+  }]);
 
-  optionModule.controller('historyController', function($scope, $location, $anchorScroll) {
+  optionModule.controller('historyController',
+    ['$scope', '$location', '$anchorScroll', function($scope, $location, $anchorScroll) {
     $scope.history = [];
     $scope.jump = function($index) {
       $location.hash('history' + $index);
@@ -167,8 +181,8 @@
 
     var firstFlag = true;
     var showFlag = false;
-    $scope.$watch('menu.select', function(newValue, oldValue) {
-      console.debug('menu.select was changed on historyController.');
+    $scope.$watch('selectMenu', function(newValue, oldValue) {
+      console.debug('selectMenu was changed on historyController.');
       showFlag = (newValue === 'history') ? true : false;
       if (firstFlag && showFlag) {
         showHistory($scope.options.history);
@@ -182,9 +196,10 @@
         showHistory(newValues);
       }
     });
-  });
+  }]);
 
-  optionModule.controller('changeHistoryController', function($scope, $http) {
+  optionModule.controller('changeHistoryController',
+    ['$scope', '$http', function($scope, $http) {
     $scope.changed = [];
 
     $http.get(changeHistory)
@@ -193,6 +208,7 @@
       var text = null;
       var dateVer = null;
       var items = [];
+      var changed = [];
       for (var i = 0, len = lists.length; i < len; i++) {
         text = jQuery.trim(lists[i]);
         if (text.length === 0) {
@@ -201,7 +217,7 @@
 
         if (text.match(/^\d+\/\d+\/\d+/) !== null) {
           if (angular.isString(dateVer) && items.length > 0) {
-            $scope.changed.push({ dateVer: dateVer, items: items });
+            changed.push({ dateVer: dateVer, items: items });
             dateVer = null;
             items = [];
           }
@@ -211,17 +227,19 @@
           items.push(text);
         }
       }
+      $scope.changed = changed;
     })
     .error(function(data, status, headers, config){
       console.error('changed history do not get.');
     });
-  });
+  }]);
 
-  optionModule.controller('storageController', function($scope) {
-    var status = document.getElementById('status');
-    var statusSync = document.getElementById('status_sync');
-    var configStatus = document.getElementById('config_view_status');
-    var configView = document.getElementById('config_view');
+  optionModule.controller('storageController',
+    ['$scope', '$document', function($scope, $document) {
+    var status = $document.find('#status');
+    var statusSync = $document.find('#status_sync');
+    var configStatus = $document.find('#config_view_status');
+    var configView = $document.find('#config_view');
 
     $scope.$watchCollection('options', function(newValues, oldValues) {
       console.debug('options was changed.', newValues, oldValues);
@@ -230,33 +248,25 @@
     $scope.save = function() {
       chrome.storage.local.set($scope.options, function() {
         chrome.runtime.sendMessage({ event: 'initialize' });
-        $scope.updateMessage(status, 'saved.');
+        updateMessage(status, 'saved.');
       });
     };
     $scope.load = function() {
-      $scope.loadFunc(chrome.storage.local, function() {
-        $scope.updateMessage(status, 'loaded.');
+      loadFunc(chrome.storage.local, function() {
+        updateMessage(status, 'loaded.');
       });
     };
     $scope.init = function() {
       angular.copy(defaultValues, $scope.options);
-      $scope.updateMessage(status, 'initialized.');
+      updateMessage(status, 'initialized.');
     };
     $scope.syncSave = function() {
       chrome.storage.sync.set($scope.options);
-      $scope.updateMessage(statusSync, 'saved.');
+      updateMessage(statusSync, 'saved.');
     };
     $scope.syncLoad = function() {
-      $scope.loadFunc(chrome.storage.sync, function() {
-        $scope.updateMessage(statusSync, 'loaded.');
-      });
-    };
-    $scope.loadFunc = function(storageType, callback) {
-      $scope.getStorage(storageType, function(items) {
-        $scope.$apply(function () {
-          angular.copy(items, $scope.options);
-          (callback || angular.noop)(items);
-        });
+      loadFunc(chrome.storage.sync, function() {
+        updateMessage(statusSync, 'loaded.');
       });
     };
     $scope.getStorage = function(storageType, callback) {
@@ -275,23 +285,33 @@
       delete exportOptions.backup;
       delete exportOptions.history;
       configView.value = angular.toJson(exportOptions, true);
-      $scope.updateMessage(configStatus, 'exported.');
+      updateMessage(configStatus, 'exported.');
     };
     $scope.import = function() {
       angular.copy(angular.fromJson(configView.value), $scope.options);
-      $scope.updateMessage(configStatus, 'imported.');
+      updateMessage(configStatus, 'imported.');
     };
-    $scope.updateMessage = function(element, message) {
-      element.innerText = message;
+    function loadFunc(storageType, callback) {
+      $scope.getStorage(storageType, function(items) {
+        $scope.$apply(function () {
+          angular.copy(items, $scope.options);
+          (callback || angular.noop)(items);
+        });
+      });
+    }
+    function updateMessage(element, message) {
+      element.text(message);
       setTimeout(function() {
-        element.textContent = '';
+        element.text('');
       }, 1000);
-    };
+    }
 
     // initialize.
     $scope.load();
-  });
-  optionModule.controller('RegexToolController', function($scope, $sce) {
+  }]);
+
+  optionModule.controller('RegexToolController',
+    ['$scope', '$sce', function($scope, $sce) {
     $scope.regex = [
       {
         translationName: 'regex_reference',
@@ -339,22 +359,22 @@
     ];
     $scope.$watch('regex.word', function(newValue, oldValue) {
       console.debug('regex.word is changed.', newValue, oldValue);
-      $scope.regexCheck();
+      regexCheck();
     });
     $scope.$watch('regex.option', function(newValue, oldValue) {
       console.debug('regex.option is changed.', newValue, oldValue);
-      $scope.regexCheck();
+      regexCheck();
     });
     $scope.$watch('regex.target', function(newValue, oldValue) {
       console.debug('regex.target is changed.', newValue, oldValue);
-      $scope.regexCheck();
+      regexCheck();
     });
 
     function replacer(str) {
       return '<span style="background: red;">' + str + '</span>';
     };
 
-    $scope.regexCheck = function() {
+    function regexCheck() {
       try {
         var splitedTargets = $scope.regex.target.split('\n');
         var regex = new RegExp(
@@ -369,6 +389,6 @@
         resultHTML += splitedTargets[i].replace(regex, replacer) + '<br>';
       }
       $scope.regex.result = $sce.trustAsHtml(resultHTML);
-    };
-  });
+    }
+  }]);
 })(document);

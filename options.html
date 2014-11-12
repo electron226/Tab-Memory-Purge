@@ -9,7 +9,7 @@
   <body ng-controller="OptionController">
     <nav id="config_change">
       <table>
-        <tr ng-repeat="item in menu.items" ng-click="menuSelect($event)" class="{{ item.name }}">
+        <tr ng-repeat="item in menuItems" ng-click="menuSelect($event)" class="{{ item.name }}">
           <td><span class="change_bar">&nbsp;</span></td>
           <td><span translation="{{ item.name }}"></span></td>
         </tr>

@@ -2,7 +2,8 @@
   "use strict";
 
   var popupModule = angular.module('popup', ['myCommons']);
-  popupModule.controller('popupController', function($scope, $document) {
+  popupModule.controller('popupController',
+    ['$scope', '$document', function($scope, $document) {
     $scope.commands = [
       { name: "release", state: true },
       { name: "not_release", state: true },
@@ -52,5 +53,5 @@
           (storages[storageName] === 'normal') ? true : false;
       });
     });
-  });
+  }]);
 })(document);
