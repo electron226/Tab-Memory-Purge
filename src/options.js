@@ -287,11 +287,11 @@
       var exportOptions = angular.copy($scope.options);
       delete exportOptions.backup;
       delete exportOptions.history;
-      configView.value = angular.toJson(exportOptions, true);
+      configView.val(angular.toJson(exportOptions, true));
       updateMessage(configStatus, 'exported.');
     };
     $scope.import = function() {
-      angular.copy(angular.fromJson(configView.value), $scope.options);
+      angular.copy(angular.fromJson(configView.val()), $scope.options);
       updateMessage(configStatus, 'imported.');
     };
     function loadFunc(storageType, callback) {
