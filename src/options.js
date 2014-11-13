@@ -87,7 +87,7 @@
     chrome.runtime.onMessage.addListener(function(message) {
       if (message.event === 'contextMenus') {
         $scope.$apply(function() {
-          $scope.selectMenu = $scope.menuItems[message.target].name;
+          $scope.selectMenu = $scope.menuItems[message.index].name;
         });
       }
     });
