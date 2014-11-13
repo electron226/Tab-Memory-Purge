@@ -688,6 +688,9 @@
           keybinds[strs[1]] = items[key];
         }
       }
+      var write = {};
+      write.keybind = keybinds;
+      chrome.storage.local.set(write);
 
       // All remove invalid options. but exclude version.
       var removeKeys = [];
