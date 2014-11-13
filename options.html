@@ -14,11 +14,6 @@
           <td><span translation="{{ item.name }}"></span></td>
         </tr>
       </table>
-      <div id="historyList" ng-controller="historyController" style="display: none;">
-        <div ng-repeat="data in history | orderBy:'date':true">
-          <button ng-click="jump($index)">{{ data.date | date:'yyyy/MM/dd' }}</button>
-        </div>
-      </div>
     </nav>
 
     <form>
@@ -128,9 +123,16 @@
 
           <!-- my histories on this option page. -->
           <section class="history" ng-controller="historyController">
-            <fieldset ng-repeat="data in history | orderBy:'date':true">
+            <div>
+              <input type="date" list="historyDates" ng-model="selectHistory">
+              <datalist id="historyDates">
+                <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
+              </datalist>
+              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the URL.">
+            </div>
+            <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
               <legend><a id="history{{ $index }}"></a>{{ data.date | date:'yyyy/MM/dd' }}</legend>
-              <div ng-repeat="item in data.history | orderBy:'time':true">
+              <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
                 <span style="margin-right: 2rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
                 <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
               </div>
@@ -158,7 +160,7 @@
                   <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li>
                   <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li>
                   <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li>
-                  <li><img src="icon/icon_019.png">&nbsp;<span class="spec_icon text"></span></li>
+                  <li><img src="icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li>
                 </ul>
               </li>
               <li><span translation="spec5"></span></li>
@@ -235,7 +237,6 @@
 
     <script type="text/javascript" src="src/lib/jquery-2.1.1.min.js"></script>
     <script type="text/javascript" src="src/lib/angular.min.js"></script>
-    <script type="text/javascript" src="src/lib/angular-sanitize.min.js"></script>
     <script type="text/javascript" src="src/common.js"></script>
     <script type="text/javascript" src="src/common_func.js"></script>
     <script type="text/javascript" src="src/myCommon_angular.js"></script>

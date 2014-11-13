@@ -33,6 +33,7 @@
   defaultValues[window.historyKey] = {};
   defaultValues[window.backupKey] = {};
   defaultValues[window.versionKey] = {};
+
   window.defaultValues = window.defaultValues || defaultValues;
 
   // initTranslationsでキー名を使用するときに使う。

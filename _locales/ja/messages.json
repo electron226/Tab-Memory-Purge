@@ -108,7 +108,7 @@
     "description": "作者サイトに関する問題点の説明"
   },
   "assignment": {
-    "message": "指定ローカルファイル",
+    "message": "指定ファイル",
     "description": "オプションの項目名"
   },
   "forcibly_close_restore": {
@@ -132,8 +132,8 @@
     "description": "オプションの項目"
   },
   "getSettings": {
-    "message": "設定取得",
-    "description": "a option title on the option page."
+    "message": "設定値取得",
+    "description": "オプションの項目"
   },
   "save": {
     "message": "保存",
@@ -237,10 +237,6 @@
     "description": "オプションページの情報ページのその他の項目"
   },
 
-  "regex_refURL": {
-    "message": "<a href='https://developer.mozilla.org/ja/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>より詳細なリファレンス</a>",
-    "description": "参考リンク"
-  },
   "regex_tool": {
     "message": "正規表現確認ツール",
     "description": "正規表現確認ツール"
@@ -257,16 +253,8 @@
     "message": "正規表現クイックリファレンス",
     "description": "正規表現確認ツール項目名"
   },
-  "regex_option_reference": {
-    "message": "正規表現オプション",
-    "description": "正規表現確認ツール項目名"
-  },
   "regex_result": {
     "message": "結果",
-    "description": "正規表現確認ツール項目名"
-  },
-  "regex_information": {
-    "message": "その他情報",
     "description": "正規表現確認ツール項目名"
   },
   "regex_single": {

@@ -108,7 +108,7 @@
     "description": "Description of problem related to the specified author site"
   },
   "assignment": {
-    "message": "Use a local file",
+    "message": "Use the file",
     "description": "an option menu name"
   },
   "forcibly_close_restore": {
@@ -132,7 +132,7 @@
     "description": "an option title on the option page"
   },
   "getSettings": {
-    "message": "Get settings",
+    "message": "Get setting values",
     "description": "an option title on the option page"
   },
   "save": {
@@ -237,10 +237,6 @@
     "description": "A item in other of information of option page."
   },
 
-  "regex_refURL": {
-    "message": "<a href='https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Regular_Expressions' target='_blank'>Detail reference</a>",
-    "description": "Reference Link"
-  },
   "regex_tool": {
     "message": "Simple regular expression validation tool",
     "description": "Regular expression validation tool"
@@ -257,16 +253,8 @@
     "message": "Quick Reference of Regex",
     "description": "Item of Regular expression validation tool"
   },
-  "regex_option_reference": {
-    "message": "Regex options",
-    "description": "Item of Regular expression validation tool"
-  },
   "regex_result": {
     "message": "Result",
-    "description": "Item of Regular expression validation tool"
-  },
-  "regex_information": {
-    "message": "Other information",
     "description": "Item of Regular expression validation tool"
   },
   "regex_single": {

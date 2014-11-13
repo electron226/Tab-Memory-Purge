@@ -35,7 +35,6 @@
     "web_accessible_resources": [
       "blank.html",
       "src/lib/angular.min.js.map",
-      "src/lib/angular-sanitize.min.js.map",
       "src/lib/jquery-2.1.1.min.map"
     ]
 }

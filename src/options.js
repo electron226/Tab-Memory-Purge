@@ -1,7 +1,7 @@
 ﻿(function() {
   'use strict';
 
-  var optionModule = angular.module('options', ['ngSanitize', 'myCommons']);
+  var optionModule = angular.module('options', ['myCommons']);
   optionModule.controller('OptionController',
     ['$scope', '$http', '$document', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
@@ -40,7 +40,6 @@
     };
 
     var pageElement = $document.find('#option_items').children('section');
-    var historyList = $document.find('#historyList');
     var footer = $document.find('footer');
     $scope.$watch('selectMenu', function(newValue, oldValue) {
       console.debug('selectMenu was changed. on OptionController.',
@@ -63,11 +62,6 @@
           footer.show();
         } else {
           footer.hide();
-        }
-        if (newValue === 'history') {
-          historyList.show();
-        } else {
-          historyList.hide();
         }
       }
     });
@@ -163,14 +157,38 @@
     });
   }]);
 
-  optionModule.controller('historyController',
-    ['$scope', '$location', '$anchorScroll',
-      function($scope, $location, $anchorScroll) {
+  optionModule.controller('historyController', ['$scope', function($scope) {
     $scope.history = [];
-    $scope.jump = function($index) {
-      $location.hash('history' + $index);
-      $anchorScroll();
+    $scope.selectHistory = '';
+    $scope.searchDate = null;
+
+    $scope.showDate = function(date) {
+      var searchDate = $scope.searchDate;
+      if (angular.isDate(searchDate)) {
+        return (date.getTime() === searchDate.getTime()) ? true : false;
+      } else {
+        return true;
+      }
     };
+
+    $scope.$watch('selectHistory', function(newValue) {
+      console.debug(
+        'selectHistory was changed on historyController.', newValue);
+      if (angular.isUndefined(newValue) || newValue === null) {
+        $scope.searchDate = null;
+        return;
+      }
+
+      var histories = $scope.history;
+      for (var i = 0, len = histories.length; i < len; i++) {
+        if (histories[i].date.getTime() === newValue.getTime()) {
+          $scope.searchDate = histories[i].date;
+          break;
+        } else {
+          $scope.searchDate = null;
+        }
+      }
+    });
 
     var showHistory = function(optionHistories) {
       console.debug('showHistory');
