@@ -113,19 +113,24 @@ div.tooltip:hover > div.tooltip
 }
 
 /* 正規表現ツール */
-[ng-controller="RegexToolController"] {
-    padding: 10px;
+[ng-controller='RegexToolController']
+{
+    position: fixed;
     /* transition: 1.0s ease 0.0s; */
     top: 100%;
+
+    padding: 10px;
+
     background-color: lightcyan;
-    position: fixed;
 }
 
-[ng-controller="RegexToolController"].show {
+[ng-controller='RegexToolController'].show
+{
     transform: translate(0, -400px);
 }
 
-[ng-controller="RegexToolController"] button {
+[ng-controller='RegexToolController'] button
+{
     position: absolute;
     right: 1%;
 }
