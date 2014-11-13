@@ -1,3 +1,6 @@
+11/13/2014 ver 2.2.5
+Fixed: the problem that not work that If the extension was updated, open the option page and display the changed history page.
+
 11/13/2014 ver 2.2.4
 Fixed: the export and the import command in options page.
 Added: added the search box in history of option page.
