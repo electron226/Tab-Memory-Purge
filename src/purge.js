@@ -623,15 +623,8 @@
   function onUpdate() {
     console.debug('Extension Updated.');
 
-    chrome.tabs.create({ url: optionPage }, function() {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
-        return;
-      }
-
-      chrome.runtime.sendMessage(
-        { event: 'contextMenus', target: 'change_history' });
-    });
+    displayPageOfOption = 3; // the changed history of the option menu.
+    chrome.tabs.create({ url: optionPage });
   }
 
   /**
