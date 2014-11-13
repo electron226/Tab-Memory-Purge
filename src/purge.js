@@ -825,7 +825,7 @@
   function autoPurgeCheck()
   {
     console.debug('autoPurgeCheck');
-    if (myOptions.enable_auto_purge) {
+    if (myOptions.enable_auto_purge === true) {
       isLackTheMemory(myOptions.remaiming_memory, function(result) {
         if (result) {
           var ids = [];
