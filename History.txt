@@ -1,3 +1,9 @@
+11/13/2014 ver 2.2.4
+Fixed: the export and the import command in options page.
+Added: added the search box in history of option page.
+Changed: to change calendar for select the history date. old type had deleted.
+Fixed: the problem that not work the context menu.
+
 11/13/2014 ver 2.2.3
 Applied: Issues #29(Use AngularJS)
 Applied: Issues #28(I want to change the code to fit into async process)
