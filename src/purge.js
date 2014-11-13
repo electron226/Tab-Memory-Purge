@@ -683,12 +683,25 @@
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
       }
+      var key;
+
+      // be updating the items of keybind from 2.2.1 to 2.2.3.
+      // get old keybinds.
+      var keybinds = {};
+      var re = /(.*)_keybind$/i;
+      for (key in items) {
+        var strs = re.exec(key);
+        if (strs) {
+          keybinds[strs[1]] = items[key];
+        }
+      }
 
       // All remove invalid options. but exclude version.
       var removeKeys = [];
-      for (var key in items) {
+      for (key in items) {
         if (!defaultValues.hasOwnProperty(key) && key !== versionKey) {
           removeKeys.push(key);
+          delete items[key];
         }
       }
 
@@ -699,10 +712,16 @@
 
         // My options are initialized.
         myOptions = items;
-        for(var key in defaultValues) {
+        for(key in defaultValues) {
           if (!myOptions.hasOwnProperty(key)) {
             myOptions[key] = defaultValues[key];
           }
+        }
+
+        // be updating the items of keybind from 2.2.1 to 2.2.3.
+        // set convert old keybinds to new keybinds.
+        for (key in keybinds) {
+          myOptions.keybind[key] = keybinds[key];
         }
 
         // initialize history.
