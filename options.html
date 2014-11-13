@@ -128,7 +128,7 @@
               <datalist id="historyDates">
                 <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
               </datalist>
-              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the URL.">
+              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url.">
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
               <legend><a id="history{{ $index }}"></a>{{ data.date | date:'yyyy/MM/dd' }}</legend>
