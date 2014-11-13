@@ -1,12 +1,13 @@
-/*jshint globalstrict: true, unused: false*/
-"use strict";
+/*jshint unused: false*/
+(function(window){
+  "use strict";
 
-// console log settings.
-// console.log = function() {};
-// console.warn = function() {};
-// console.debug = function() {};
-// console.assert = function() {};
-// console.time = function() {};
-// console.timeend = function() {};
-// console.timestamp = function() {};
-
+  // console log settings.
+  window.console.debug = function() {};
+  window.console.log = function() {};
+  window.console.warn = function() {};
+  window.console.assert = function() {};
+  window.console.time = function() {};
+  window.console.timeend = function() {};
+  window.console.timestamp = function() {};
+})(window);
