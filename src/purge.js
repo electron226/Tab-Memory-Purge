@@ -888,7 +888,9 @@
     if (changeInfo.status === 'loading') {
       console.debug('chrome.tabs.onUpdated. loading.');
 
-      afterUnPurge(tabId);
+      if (!runPurge.hasOwnProperty(tabId)) {
+        afterUnPurge(tabId);
+      }
     } else {
       console.debug('chrome.tabs.onUpdated. complete.');
       reloadBrowserIcon(tab);

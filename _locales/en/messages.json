@@ -88,7 +88,7 @@
     "description": "Description of the used Release Page"
   },
   "explanation_problem1": {
-    "message": "If this extension become invalid, the purged tabs will close.",
+    "message": "If this extension become invalid(When this extension is updated etc), the purged tabs will close.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {

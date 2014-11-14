@@ -88,7 +88,7 @@
     "description": "「解放に使うページを指定」項目に関する注意点"
   },
   "explanation_problem1": {
-    "message": "拡張機能が無効になった時、解放されたタブが閉じてしまいます。",
+    "message": "拡張機能が無効になった時(アップデート時など)、解放されたタブが閉じてしまいます。",
     "description": "拡張機能内に関する問題点の説明"
   },
   "explanation_solution": {
