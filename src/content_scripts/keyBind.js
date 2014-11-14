@@ -1,5 +1,4 @@
-/*jshint forin: true*/
-/*global keyCheck: true, compareObject: true */
+/*global keyCheck: true */
 (function() {
   "use strict";
 

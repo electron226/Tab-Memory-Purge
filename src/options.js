@@ -103,15 +103,9 @@
       console.debug('keybind was changed.', newValue, oldValue);
       if (angular.isObject(newValue)) {
         var pressKeys = section.find('input[type="text"].pressKey');
-        var keyDatas = section.find('input[type="text"].keydata');
-        if (pressKeys.length === 0 && keyDatas.length === 0) {
+        if (pressKeys.length === 0) {
           console.error('option.keybind is watching error.' +
-                        ' pressKeys or keyDatas are zero.');
-          return;
-        }
-        if (pressKeys.length !== keyDatas.length) {
-          console.error('option.keybind is watching error.' +
-                        ' pressKeys and keyDatas are not equal.');
+                        ' pressKeys is zero.');
           return;
         }
 
@@ -125,7 +119,6 @@
           } else {
             pressKeys[i].value = generateKeyString(obj);
           }
-          keyDatas[i].value = newValue[className];
         }
       }
     });
