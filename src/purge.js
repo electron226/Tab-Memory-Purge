@@ -678,20 +678,6 @@
       }
       var key;
 
-      // be updating the items of keybind from 2.2.1 to 2.2.3.
-      // get old keybinds.
-      var keybinds = {};
-      var re = /(.*)_keybind$/i;
-      for (key in items) {
-        var strs = re.exec(key);
-        if (strs) {
-          keybinds[strs[1]] = items[key];
-        }
-      }
-      var write = {};
-      write.keybind = keybinds;
-      chrome.storage.local.set(write);
-
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (key in items) {
@@ -712,12 +698,6 @@
           if (!myOptions.hasOwnProperty(key)) {
             myOptions[key] = defaultValues[key];
           }
-        }
-
-        // be updating the items of keybind from 2.2.1 to 2.2.3.
-        // set convert old keybinds to new keybinds.
-        for (key in keybinds) {
-          myOptions.keybind[key] = keybinds[key];
         }
 
         // initialize history.
