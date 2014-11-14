@@ -212,6 +212,20 @@
     });
   }]);
 
+  optionModule.controller('sessionHistoryController',
+    ['$scope', function($scope) {
+      $scope.sessionHistory = [];
+
+      $scope.$watch('options.sessions', function(newValue) {
+        console.debug('options.sessions was changed ' +
+                      'on sessionHistoryController');
+        if (!angular.isString(newValue)) {
+          return;
+        }
+        $scope.sessionHistory = angular.fromJson(newValue);
+      });
+  }]);
+
   optionModule.controller('changeHistoryController',
     ['$scope', '$http', function($scope, $http) {
     $scope.changed = [];
@@ -308,8 +322,8 @@
       getStorage(storageType, function(items) {
         $scope.$apply(function () {
           angular.copy(items, $scope.options);
-          (callback || angular.noop)(items);
         });
+        (callback || angular.noop)(items);
       });
     }
     function updateMessage(element, message) {

@@ -4,6 +4,43 @@
  */
 (function(window) {
   "use strict";
+
+  window.getDataType = window.getDataType || function(buf) {
+    if (buf[0] === 0xFF && buf[1] === 0xD8 &&
+        buf[buf.byteLength - 2] === 0xFF && buf[buf.byteLength - 1] === 0xD9) {
+      return 'image/jpeg';
+    } else if (buf[0] === 0x89 && buf[1] === 0x50 &&
+               buf[2] === 0x4E && buf[3] === 0x47) {
+      return 'image/png';
+    } else if (buf[0] === 0x47 && buf[1] === 0x49 &&
+               buf[2] === 0x46 && buf[3] === 0x38) {
+      return 'image/gif';
+    } else if (buf[0] === 0x42 && buf[1] === 0x4D) {
+      return 'image/bmp';
+    } else if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0x01) {
+      return 'image/x-icon';
+    } else {
+      return 'image/unknown';
+    }
+  };
+
+  window.getDataURI = window.getDataURI || function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function() {
+      var bytes = new Uint8Array(this.response);
+      var dataType = window.getDataType(bytes);
+      var binaryData = '';
+      for (var i = 0, len = bytes.byteLength; i < len; i++) {
+        binaryData += String.fromCharCode(bytes[i]);
+      }
+
+      callback('data:' + dataType + ';base64,' + window.btoa(binaryData));
+    };
+    xhr.send();
+  };
+
   /**
    * keyCheck
    * return key information object.

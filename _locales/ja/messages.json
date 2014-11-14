@@ -19,6 +19,10 @@
     "message": "履歴",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "session_history": {
+    "message": "セッション履歴",
+    "description": "オプションページ内のページ切り替えボタンなど"
+  },
   "change_history": {
     "message": "変更履歴",
     "description": "オプションページ内のページ切り替えボタンなど"
@@ -105,6 +109,10 @@
   },
   "explanation_problem4": {
     "message": "外部に自身の見ているページの情報が漏れる(タイトルやURL程度)。",
+    "description": "作者サイトに関する問題点の説明"
+  },
+  "explanation_problem5": {
+    "message": "メモリ解放の効果が薄い。",
     "description": "作者サイトに関する問題点の説明"
   },
   "assignment": {

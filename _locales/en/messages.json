@@ -19,6 +19,10 @@
     "message": "HISTORY",
     "description": "the string of buttons in the options page"
   },
+  "session_history": {
+    "message": "SESSION HISTORY",
+    "description": "the string of buttons in the options page"
+  },
   "change_history": {
     "message": "CHANGE HISTORY",
     "description": "the string of buttons in the options page"
@@ -105,6 +109,10 @@
   },
   "explanation_problem4": {
     "message": "Information of the page you are viewing is leaked to the outside (URL and Title).",
+    "description": "Description of problem related to the specified author site"
+  },
+  "explanation_problem5": {
+    "message": "To free of the memory not have much effect.",
     "description": "Description of problem related to the specified author site"
   },
   "assignment": {

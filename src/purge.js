@@ -1,4 +1,5 @@
-﻿(function() {
+﻿/*jshint unused: false*/
+(function() {
   "use strict";
 
   var myOptions = null; // my option settings.
@@ -15,6 +16,8 @@
    *
    * key = tabId
    * value = 下記のプロパティがあるオブジェクト
+   *         title: タイトル
+   *         iconURI: アイコンのdateURI
    *         url: 解放前のURL
    *         purgeurl: 休止ページのURL
    *         scrollPosition: スクロール量(x, y)を表すオブジェクト
@@ -32,7 +35,7 @@
   var tempRelease = [];
 
   var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
-  var tabBackup = new TabBackup(backupKey); // the backup of released tabs.
+  var tabSession = new TabSession(sessionKey); // the session of released tabs.
   var tabHistory = new TabHistory(historyKey); // the history of released tabs.
   var currentIcon = null;
   var displayPageOfOption = null;
@@ -233,68 +236,72 @@
               '&title=' + encodeURIComponent(tab.title) : '';
             var favicon = tab.favIconUrl ?
               '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
+            getDataURI(tab.favIconUrl, function(iconURI) {
+              var args = title + favicon;
 
-            var args = title + favicon;
-
-            // 解放に使うページを設定
-            var page = null;
-            var storageName = 'release_page';
-            switch (myOptions[storageName]) {
-            case 'author': // 作者サイト
-              page = blankUrls.normal;
-              break;
-            case 'normal': // 拡張機能内
-              page = blankUrls.local;
-              break;
-            case 'assignment': // 指定URL
-              page = myOptions.release_url;
-              break;
-            default: // 該当なしの時は初期値を設定
-              console.log(
-                "'release page' setting error. so to set default value.");
-              chrome.storage.local.remove(storageName);
-              purge(tabId); // この関数を実行し直す
-              break;
-            }
-
-            // Do you reload tab when you focus tab?.
-            args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
-
-            if (tab.url) {
-              args += '&url=' + encodeURIComponent(tab.url);
-            }
-            var url = encodeURI(page) + '?' + encodeURIComponent(args);
-
-            var afterPurge = function(updated, callback) {
-              if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError.messsage);
-                (callback || angular.noop)(null);
-                return;
+              // 解放に使うページを設定
+              var page = null;
+              var storageName = 'release_page';
+              switch (myOptions[storageName]) {
+              case 'author': // 作者サイト
+                page = blankUrls.normal;
+                break;
+              case 'normal': // 拡張機能内
+                page = blankUrls.local;
+                break;
+              case 'assignment': // 指定URL
+                page = myOptions.release_url;
+                break;
+              default: // 該当なしの時は初期値を設定
+                console.log(
+                  "'release page' setting error. so to set default value.");
+                chrome.storage.local.remove(storageName);
+                purge(tabId); // この関数を実行し直す
+                break;
               }
 
-              unloaded[updated.id] = {
-                url: tab.url,
-                purgeurl: url,
-                scrollPosition: objScroll[0] || { x: 0 , y: 0 }
+              // Do you reload tab when you focus tab?.
+              args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
+
+              if (tab.url) {
+                args += '&url=' + encodeURIComponent(tab.url);
+              }
+              var url = encodeURI(page) + '?' + encodeURIComponent(args);
+
+              var afterPurge = function(updated, callback) {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError.messsage);
+                  (callback || angular.noop)(null);
+                  return;
+                }
+
+                unloaded[updated.id] = {
+                  title: tab.title,
+                  iconDataURI: iconURI,
+                  url: tab.url,
+                  purgeurl: url,
+                  scrollPosition: objScroll[0] || { x: 0 , y: 0 }
+                };
+                reloadBadge();
+                deleteTick(tabId);
+                tabSession.update(unloaded);
+
+                // the histories are writing.
+                tabHistory.write(tab, function() {
+                  (callback || angular.noop)(updated);
+                });
               };
-              reloadBadge();
-              deleteTick(tabId);
-              tabBackup.set(unloaded);
 
-              // the histories are writing.
-              tabHistory.write(tab, function() {
-                (callback || angular.noop)(updated);
-              });
-            };
-
-            if (myOptions[storageName] === 'assignment') {
-              chrome.tabs.update(tabId, { url: url }, afterPurge);
-            } else {
-              chrome.tabs.executeScript(tabId, {
-                code: 'window.location.replace("' + url + '");' }, function() {
-                chrome.tabs.get(tabId, afterPurge);
-              });
-            }
+              if (myOptions[storageName] === 'assignment') {
+                chrome.tabs.update(tabId, { url: url }, afterPurge);
+              } else {
+                chrome.tabs.executeScript(tabId, {
+                  code: 'window.location.replace("' + url + '");' },
+                  function() {
+                  chrome.tabs.get(tabId, afterPurge);
+                });
+              }
+            });
           });
         });
       });
@@ -321,7 +328,7 @@
 
       delete unloaded[tabId];
       reloadBadge();
-      tabBackup.set(unloaded);
+      tabSession.update(unloaded);
       setTick(tabId);
     }
   }
@@ -623,7 +630,7 @@
   function onUpdate() {
     console.debug('Extension Updated.');
 
-    displayPageOfOption = 3; // the changed history of the option menu.
+    displayPageOfOption = 4; // the changed history of the option menu.
     chrome.tabs.create({ url: optionPage });
   }
 
@@ -703,6 +710,10 @@
         // initialize history.
         tabHistory.read(myOptions.history);
         tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
+
+        // initialize session.
+        tabSession.read(myOptions.sessions);
+        tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
 
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
@@ -867,7 +878,7 @@
     console.debug('chrome.tabs.onRemoved.');
     delete unloaded[tabId];
     deleteTick(tabId);
-    tabBackup.set(unloaded);
+    tabSession.update(unloaded);
     reloadBadge();
   });
 
@@ -880,7 +891,7 @@
     console.debug('chrome.tabs.onDetached.');
     delete unloaded[tabId];
     deleteTick(tabId);
-    tabBackup.set(unloaded);
+    tabSession.update(unloaded);
     reloadBadge();
   });
 
@@ -921,9 +932,6 @@
   chrome.windows.onRemoved.addListener(function(windowId) {
     console.debug('chrome.tabs.onRemoved.');
     delete oldActiveIds[windowId];
-    if (dictSize(oldActiveIds) <= 0) {
-      tabBackup.remove();
-    }
   });
 
   // switch the functions of all_purge process.
@@ -1012,14 +1020,15 @@
         }
         break;
       case 'restore':
-        tabBackup.get(function(obj) {
-          if (obj === null) {
-            return;
-          }
-          restore(obj, function() {
-            reloadBadge();
-          });
-        });
+        console.debug('restore');
+        // tabSession.get(function(obj) {
+        //   if (obj === null) {
+        //     return;
+        //   }
+        //   restore(obj, function() {
+        //     reloadBadge();
+        //   });
+        // });
         break;
       case 'current_icon':
         sendResponse(currentIcon);

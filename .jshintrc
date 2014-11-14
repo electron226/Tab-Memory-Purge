@@ -21,6 +21,8 @@
     "angular": true,
     "chrome": true,
     
+    "getDataType": true,
+    "getDataURI": true,
     "keyCheck": true,
     "generateKeyString": true,
     "toType": true,
@@ -30,7 +32,7 @@
     "dictSize": true,
 
     "historyKey": true,
-    "backupKey": true,
+    "sessionKey": true,
     "versionKey": true,
     "defaultValues": true,
     "translationPath": true,
@@ -46,7 +48,7 @@
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
-    "TabBackup": true,
+    "TabSession": true,
     "TabHistory": true,
     
     "deleteTick": true,

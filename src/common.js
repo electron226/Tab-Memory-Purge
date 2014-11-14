@@ -19,6 +19,7 @@
     'enable_auto_purge': true,
     'remaiming_memory': 500,
     'max_history': 7,
+    'max_sessions': 10,
 
     'keybind': {
       'release': JSON.stringify({}),
@@ -28,10 +29,10 @@
     },
   };
   window.historyKey = window.historyKey || 'history'; // the history key name on chrome.storage.local.
-  window.backupKey = window.backupKey || 'backup';   // the history key name on chrome.storage.local.
+  window.sessionKey = window.sessionKey || 'sessions';   // the history key name on chrome.storage.local.
   window.versionKey = window.versionKey || 'version'; // the history key name on chrome.storage.local.
   defaultValues[window.historyKey] = {};
-  defaultValues[window.backupKey] = {};
+  defaultValues[window.sessionKey] = [];
   defaultValues[window.versionKey] = {};
 
   window.defaultValues = window.defaultValues || defaultValues;
@@ -79,6 +80,7 @@
     { 'name': 'option' },
     { 'name': 'keybind' },
     { 'name': 'history' },
+    { 'name': 'session_history' },
     { 'name': 'change_history' },
     { 'name': 'information' },
   ];

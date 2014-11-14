@@ -1,48 +1,112 @@
+// This file don't use angular.js and jQuery.
 (function(window) {
   "use strict";
 
-  function TabBackup(key) {
-    console.debug('the constructor of TabBackup class.');
-    this.key = key;
+  function TabSession(key, max_sessions) {
+    console.debug('the constructor of TabSession class.');
+    this.time = null;
+    this.key = key || 'sessions';
+    this.sessions = [];
+    this.max_sessions = max_sessions || 10;
   }
-  TabBackup.prototype.set = function(data, callback) {
-    console.debug('update function of TabBackup class.');
-    if (data === void 0 || data === null) {
+  TabSession.prototype.read = function(sessions) {
+    if (toType(sessions) !== 'array' && toType(sessions) !== 'string') {
+      console.error('a invalid type of arugments.');
+      return;
+    }
+    this.sessions = (toType(sessions) === 'string') ?
+                    JSON.parse(sessions) : sessions;
+  };
+  TabSession.prototype.update = function(session, callback) {
+    console.debug('update function of TabSession class.');
+    if (session === void 0 || session === null) {
       console.error('a invalid type of arguments.');
       return;
     }
+
+    if (this.time !== null) {
+      this.sessions.pop();
+    } else {
+      this.time = new Date();
+    }
+
+    if (dictSize(session) > 0) {
+      this.sessions.push({ date: this.time.getTime(), session: session });
+    } else {
+      this.time = null;
+    }
+
+    this.sessions = this.getDeletedOldSession(this.max_sessions);
+
     var write = {};
-    write[this.key] = JSON.stringify(data);
+    write[this.key] = JSON.stringify(this.sessions);
     chrome.storage.local.set(write, callback);
   };
-  TabBackup.prototype.get = function(callback) {
-    console.debug('get function of TabBackup class.');
+  TabSession.prototype.get = function(callback) {
+    console.debug('get function of TabSession class.');
     if (toType(callback) !== 'function') {
       console.error('A invalid type of arugments.');
       return;
     }
     // this.keyのまま使うとthis.keyの値が消滅する
     var key = this.key;
-    chrome.storage.local.get(key, function(storages) {
+    chrome.storage.local.get(key, function(items) {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.messsage);
         return;
       }
 
-      var backup = storages[key];
-      if (toType(backup) === 'string' && backup !== '{}') {
-        callback(JSON.parse(backup));
+      var sessions = items[key];
+      if (toType(sessions) === 'string' && sessions !== '{}') {
+        callback(JSON.parse(sessions));
       } else {
         callback(null);
       }
     });
   };
-  TabBackup.prototype.remove = function(callback) {
-    console.debug('remove function of TabBackup class.');
+  TabSession.prototype.remove = function(date, callback) {
+    console.debug('remove function of TabSession class.');
+
+    if (toType(date) === 'date') {
+      console.error('A invalid type of arguments.');
+      return;
+    }
+
+    var i, len;
+    var removedIndex = [];
+    var dateTime = date.getTime();
+    for (i = 0, len = this.sessions.length; i < len; i++) {
+      if (this.sessions[i].date === dateTime) {
+        removedIndex.push(i);
+      }
+    }
+
+    var regulation = 0;
+    for (i = 0, len = removedIndex.length; i < len; i++) {
+      this.sessions.slice(removedIndex[i] - regulation);
+      regulation++;
+    }
+
+    var write = {};
+    write[this.key] = JSON.stringify(this.sessions);
+    chrome.storage.local.set(write, callback);
+  };
+  TabSession.prototype.removeAll = function(callback) {
+    console.debug('removeAll function of TabSession class.');
 
     chrome.storage.local.remove(this.key, callback);
   };
-  window.TabBackup = window.TabBackup || TabBackup;
+  TabSession.prototype.getDeletedOldSession = function(max_sessions) {
+    var length = (max_sessions || this.max_sessions) - this.sessions.length;
+    if (length <= 0) {
+      return this.sessions;
+    }
+    return this.sessions.slice(0, length);
+  };
+  TabSession.prototype.setMaxSession = function(max_sessions) {
+    this.max_sessions = max_sessions;
+  };
+  window.TabSession = window.TabSession || TabSession;
 
   function TabHistory(key, max_history) {
     console.debug('the constructor of TabHistory class.');

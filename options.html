@@ -50,14 +50,21 @@
                     <li><span translation="explanation_problem2"></span></li>
                     <li><span translation="explanation_problem3"></span></li>
                     <li><span translation="explanation_problem4"></span></li>
+                    <li><span translation="explanation_problem5"></span></li>
                   </ol>
                 </div>
               </div>
 
-              <div>
+              <div class="tooltip">
                 <label>
                   <input type="radio" ng-model="options.release_page" value="assignment"><span translation="assignment"></span>
                 </label>
+                <div class="tooltip">
+                  <div translation="explanation"></div>
+                  <ol>
+                    <li><span translation="explanation_problem5"></span></li>
+                  </ol>
+                </div>
                 <span>(<a href="blank_sample.zip"><span translation="sample"></span></a>)</span>
                 <ul>
                   <li><input type="text" ng-model="options.release_url" ng-disabled="options.release_page !== 'assignment'" style="width: 700px;"></li>
@@ -120,6 +127,15 @@
             </fieldset>
           </section>
 
+          <section class="session_history" ng-controller="sessionHistoryController">
+            <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
+              <legend>{{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}</legend>
+              <div ng-repeat="data in sessions.session">
+                <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}">{{ data.title }}</a>
+              </div>
+            </fieldset>
+          </section>
+
           <!-- my histories on this option page. -->
           <section class="history" ng-controller="historyController">
             <div>
@@ -130,7 +146,7 @@
               <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url.">
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
-              <legend><a id="history{{ $index }}"></a>{{ data.date | date:'yyyy/MM/dd' }}</legend>
+              <legend>{{ data.date | date:'yyyy/MM/dd' }}</legend>
               <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
                 <span style="margin-right: 2rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
                 <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
