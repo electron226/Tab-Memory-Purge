@@ -1,3 +1,6 @@
+11/14/2014 ver 2.2.6
+Fixed: the translation process bug.
+
 11/13/2014 ver 2.2.5
 Fixed: the problem that not work that If the extension was updated, open the option page and display the changed history page.
 
