@@ -283,17 +283,6 @@
         updateMessage(statusSync, 'loaded.');
       });
     };
-    $scope.getStorage = function(storageType, callback) {
-      storageType.get(null, function(items) {
-        var options = {};
-        for (var key in items) {
-          if (defaultValues.hasOwnProperty(key)) {
-            options[key] = items[key];
-          }
-        }
-        (callback || angular.noop)(options);
-      });
-    };
     $scope.export = function() {
       var exportOptions = angular.copy($scope.options);
       delete exportOptions.backup;
@@ -305,8 +294,18 @@
       angular.copy(angular.fromJson(configView.val()), $scope.options);
       updateMessage(configStatus, 'imported.');
     };
+    function getStorage(storageType, callback) {
+      storageType.get(null, function(items) {
+        var options = {};
+        for (var key in defaultValues) {
+          options[key] = items.hasOwnProperty(key) ?
+                            items[key] : defaultValues[key];
+        }
+        (callback || angular.noop)(options);
+      });
+    }
     function loadFunc(storageType, callback) {
-      $scope.getStorage(storageType, function(items) {
+      getStorage(storageType, function(items) {
         $scope.$apply(function () {
           angular.copy(items, $scope.options);
           (callback || angular.noop)(items);
