@@ -11,7 +11,8 @@
           .success(function(data) {
             if (data.hasOwnProperty(attrs.translation)) {
               for (var i = 0, len = element.length; i < len; i++) {
-                element[i].textContent = data[attrs.translation].message;
+                element[i].textContent =
+                  chrome.i18n.getMessage(attrs.translation);
               }
             }
           })
