@@ -67,7 +67,7 @@
   TabSession.prototype.remove = function(date, callback) {
     console.debug('remove function of TabSession class.');
 
-    if (toType(date) === 'date') {
+    if (toType(date) !== 'date') {
       console.error('A invalid type of arguments.');
       return;
     }
@@ -83,7 +83,7 @@
 
     var regulation = 0;
     for (i = 0, len = removedIndex.length; i < len; i++) {
-      this.sessions.slice(removedIndex[i] - regulation);
+      this.sessions.splice(removedIndex[i] - regulation, 1);
       regulation++;
     }
 

@@ -130,7 +130,7 @@
     $scope.clearBind = function($event) {
       var keyBinds = angular.copy($scope.options.keybind);
       keyBinds[$event.target.parentNode.parentNode.className] = '{}';
-      $scope.options.keybind = keyBinds;
+      $scope.$parent.options.keybind = keyBinds;
     };
 
     $document.keyup(function(event) {
@@ -138,7 +138,7 @@
         var keyBinds = angular.copy($scope.options.keybind);
         keyBinds[$scope.start.className] = angular.toJson(keyCheck(event));
         $scope.$apply(function() {
-          $scope.options.keybind = keyBinds;
+          $scope.$parent.options.keybind = keyBinds;
         });
 
         $scope.start = null;
@@ -156,9 +156,8 @@
     $scope.searchDate = null;
 
     $scope.showDate = function(date) {
-      var searchDate = $scope.searchDate;
-      if (angular.isDate(searchDate)) {
-        return (date.getTime() === searchDate.getTime()) ? true : false;
+      if (angular.isDate($scope.searchDate)) {
+        return (date.getTime() === $scope.searchDate.getTime()) ? true : false;
       } else {
         return true;
       }
@@ -224,6 +223,35 @@
         }
         $scope.sessionHistory = angular.fromJson(newValue);
       });
+
+      // $scope.saved = function(session) {
+      //   console.debug(
+      //     'saved was called. on SessionHistoryController.', session);
+      // };
+      $scope.deleted = function(session) {
+        console.debug(
+          'deleted was called. on SessionHistoryController.', session);
+        var sessions = $scope.sessionHistory;
+        for (var i = 0, len = sessions.length; i < len; i++) {
+          if (sessions[i].date === session.date) {
+            sessions = sessions.splice(i, 1);
+            break;
+          }
+        }
+
+        // purge.jsのtabSession側と二重書き込みになるが念のためやっておく。
+        var write = {};
+        write[sessionKey] = sessions;
+        chrome.storage.local.set(write, function() {
+          chrome.runtime.sendMessage(
+            { event: 'deleteSession', session: session });
+        });
+      };
+      $scope.restored = function(session) {
+        console.debug(
+          'restored was called. on SessionHistoryController.', session);
+        chrome.runtime.sendMessage({ event: 'restore', session: session });
+      };
   }]);
 
   optionModule.controller('changeHistoryController',
@@ -285,7 +313,7 @@
       });
     };
     $scope.init = function() {
-      angular.copy(defaultValues, $scope.options);
+      angular.copy(defaultValues, $scope.$parent.options);
       updateMessage(status, 'initialized.');
     };
     $scope.syncSave = function() {
@@ -305,7 +333,7 @@
       updateMessage(configStatus, 'exported.');
     };
     $scope.import = function() {
-      angular.copy(angular.fromJson(configView.val()), $scope.options);
+      angular.copy(angular.fromJson(configView.val()), $scope.$parent.options);
       updateMessage(configStatus, 'imported.');
     };
     function getStorage(storageType, callback) {
@@ -320,9 +348,7 @@
     }
     function loadFunc(storageType, callback) {
       getStorage(storageType, function(items) {
-        $scope.$apply(function () {
-          angular.copy(items, $scope.options);
-        });
+        $scope.$parent.options = items;
         (callback || angular.noop)(items);
       });
     }

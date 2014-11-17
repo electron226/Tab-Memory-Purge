@@ -67,10 +67,6 @@
     "message": "Restore purged",
     "description": "a menu in popup"
   },
-  "restore": {
-    "message": "Tabs before the crash are restored",
-    "description": "a menu in popup"
-  },
   "switch_not_release": {
     "message": "Switch to temporarily exclude purge or restore",
     "description": "the menu in the options page"
@@ -131,6 +127,10 @@
     "message": "Days to keep history of purged URLs",
     "description": "another option in the options menu"
   },
+  "max_sessions": {
+    "message": "The number of sessions to hold",
+    "description": "another option in the options menu"
+  },
   "operateTitle": {
     "message": "Operate storage",
     "description": "an option title on the option page"
@@ -154,6 +154,14 @@
   "init": {
     "message": "Initialize",
     "description": "Initialize Button"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete"
+  },
+  "restore": {
+    "message": "Restore",
+    "description": "Restore"
   },
   "default": {
     "message": "Default",

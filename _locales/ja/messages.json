@@ -67,10 +67,6 @@
     "message": "全ての解放されているタブを解除",
     "description": "ポップアップの項目"
   },
-  "restore": {
-    "message": "強制終了前のタブの復元",
-    "description": "ポップアップの項目"
-  },
   "switch_not_release": {
     "message": "このタブのURLの解放を一時的に禁止/解除",
     "description": "オプションページの項目"
@@ -131,6 +127,10 @@
     "message": "履歴の保存日数",
     "description": "オプションのその他の項目の設定"
   },
+  "max_sessions": {
+    "message": "保持するセッション数",
+    "description": "オプションのその他の項目の設定"
+  },
   "operateTitle": {
     "message": "ストレージ操作",
     "description": "オプションの項目"
@@ -158,6 +158,14 @@
   "default": {
     "message": "デフォルト",
     "description": "デフォルト"
+  },
+  "delete": {
+    "message": "削除",
+    "description": "削除"
+  },
+  "restore": {
+    "message": "復元",
+    "description": "復元"
   },
   "minute": {
     "message": "分",

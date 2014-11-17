@@ -485,7 +485,7 @@
 
    // 最後まで処理を行ったらunloadedに上書き
    if (index >= end) {
-     unloaded = object;
+     // unloaded = object;
      (callback || angular.noop)(null);
      return;
    }
@@ -1019,16 +1019,13 @@
           unPurge(parseInt(key, 10));
         }
         break;
+      case 'deleteSession':
+        tabSession.remove(new Date(message.session.date));
+        break;
       case 'restore':
-        console.debug('restore');
-        // tabSession.get(function(obj) {
-        //   if (obj === null) {
-        //     return;
-        //   }
-        //   restore(obj, function() {
-        //     reloadBadge();
-        //   });
-        // });
+        restore(message.session.session, function() {
+          reloadBadge();
+        });
         break;
       case 'current_icon':
         sendResponse(currentIcon);
