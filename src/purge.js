@@ -758,11 +758,6 @@
         initializeContextMenu();
         chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
         reloadBadge();
-
-        /* オプション(強制終了された場合、起動時に以前の解放されたタブを復元) */
-        if (items.forcibly_close_restore) {
-          chrome.runtime.sendMessage({ event: 'restore' });
-        }
       });
     });
   }

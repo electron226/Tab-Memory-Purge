@@ -15,7 +15,6 @@
         'nicovideo.jp\n' +
         'youtube.com',
     'regex_insensitive': true,
-    'forcibly_close_restore': false,
     'enable_auto_purge': true,
     'remaiming_memory': 500,
     'max_history': 7,

@@ -123,10 +123,6 @@
     "message": "Use the file",
     "description": "an option menu name"
   },
-  "forcibly_close_restore": {
-    "message": "If Google Chrome has crashed, restore the purged tabs next startup",
-    "description": "another option in the options menu"
-  },
   "remaiming_memory": {
     "message": "If remaining RAM is less than this, tabs purges automatically",
     "description": "another option in the options menu"
