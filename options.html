@@ -35,6 +35,7 @@
                   <div translation="explanation"></div>
                   <ol>
                     <li><span translation="explanation_problem1"></span></li>
+                    <li><span translation="explanation_problem6"></span></li>
                   </ol>
                   <div translation="explanation_solution"></div>
                 </div>
@@ -59,13 +60,16 @@
                 <label>
                   <input type="radio" ng-model="options.release_page" value="assignment"><span translation="assignment"></span>
                 </label>
+                <span>(<a href="blank_sample.zip"><span translation="sample"></span></a>)</span>
                 <div class="tooltip">
                   <div translation="explanation"></div>
                   <ol>
                     <li><span translation="explanation_problem5"></span></li>
+                    <li><span translation="explanation_problem6"></span></li>
                   </ol>
                 </div>
-                <span>(<a href="blank_sample.zip"><span translation="sample"></span></a>)</span>
+              </div>
+              <div>
                 <ul>
                   <li><input type="text" ng-model="options.release_url" ng-disabled="options.release_page !== 'assignment'" style="width: 700px;"></li>
                   <li>

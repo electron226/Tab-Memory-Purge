@@ -92,7 +92,7 @@
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
   "explanation_solution": {
-    "message": "Use the popup menu 'Tabs before the crash are restored' to restore the closed tabs.",
+    "message": "Use the session history in order to restore the closed tabs.",
     "description": "Solution to when occured about the problem in this extension"
   },
   "explanation_problem2": {
@@ -109,7 +109,11 @@
   },
   "explanation_problem5": {
     "message": "To free of the memory not have much effect.",
-    "description": "Description of problem related to the specified author site"
+    "description": "Description of problem related to the specified author site and use file"
+  },
+  "explanation_problem6": {
+    "message": "You can't sync a purged tab use Google Sync with your other devices.",
+    "description": "Description of problem nrelated to the specified 'in the extension' and use file"
   },
   "assignment": {
     "message": "Use the file",

@@ -92,7 +92,7 @@
     "description": "拡張機能内に関する問題点の説明"
   },
   "explanation_solution": {
-    "message": "もし、閉じられてしまった場合はすぐにポップアップメニューの「強制終了前のタブの復元」を実行することで復元することができます。",
+    "message": "もし、閉じられてしまった場合は左の「セッション履歴」から復元することができます。",
     "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "explanation_problem2": {
@@ -109,7 +109,11 @@
   },
   "explanation_problem5": {
     "message": "メモリ解放の効果が薄い。",
-    "description": "作者サイトに関する問題点の説明"
+    "description": "作者サイトと指定ファイルに関する問題点の説明"
+  },
+  "explanation_problem6": {
+    "message": "他のデバイスとGoogle Syncを利用して解放タブの同期はできません。",
+    "description": "拡張機能内と指定ファイルに関する問題点の説明"
   },
   "assignment": {
     "message": "指定ファイル",
