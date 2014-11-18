@@ -485,7 +485,7 @@
 
    // 最後まで処理を行ったらunloadedに上書き
    if (index >= end) {
-     // unloaded = object;
+     unloaded = object;
      (callback || angular.noop)(null);
      return;
    }
@@ -1018,7 +1018,7 @@
         tabSession.remove(new Date(message.session.date));
         break;
       case 'restore':
-        restore(message.session.session, function() {
+        restore(message.session, function() {
           reloadBadge();
         });
         break;

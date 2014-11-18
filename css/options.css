@@ -91,6 +91,31 @@ div#history_date_list
     margin-top: 12px;
 }
 
+.savedBtn {
+    background: #EEE;
+    border-top: 1px solid #DDD;
+    border-left: 1px solid #DDD;
+    border-right: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+    color: black;
+    width: 100px;
+    padding: 10px 0;
+
+    box-shadow: 1px 1px 1px 1px gray;
+}
+
+.savedBtn:hover {
+    color: red;
+}
+
+.savedBtn:active {
+    color: red;
+    position: relative;
+    top: 1px;
+    left: 1px;
+    box-shadow: 0px 0px 0px 0px gray;
+}
+
 /* ツールチップ*/
 div.tooltip > div.tooltip
 {

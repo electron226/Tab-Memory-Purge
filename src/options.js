@@ -2,6 +2,12 @@
   'use strict';
 
   var optionModule = angular.module('options', ['myCommons']);
+  optionModule.config(['$compileProvider', function($compileProvider){
+    var urlRegex =
+    /^\s*(data|https?|ftp|mailto|file|chrome-extension|blob:chrome-extension):/;
+    $compileProvider.aHrefSanitizationWhitelist(urlRegex);
+    $compileProvider.imgSrcSanitizationWhitelist(urlRegex);
+  }]);
   optionModule.controller('OptionController',
     ['$scope', '$http', '$document', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
@@ -214,6 +220,7 @@
   optionModule.controller('sessionHistoryController',
     ['$scope', function($scope) {
       $scope.sessionHistory = [];
+      $scope.showSavedSession = null;
 
       $scope.$watch('options.sessions', function(newValue) {
         console.debug('options.sessions was changed ' +
@@ -224,10 +231,48 @@
         $scope.sessionHistory = angular.fromJson(newValue);
       });
 
-      // $scope.saved = function(session) {
-      //   console.debug(
-      //     'saved was called. on SessionHistoryController.', session);
-      // };
+      $scope.$watch('options.savedSessions', function(newValue, oldValue) {
+        console.debug('options.savedSessions was changed ' +
+          'on sessionHistoryController', newValue, oldValue);
+      });
+
+      $scope.savedSessionClicked = function(session) {
+        $scope.showSavedSession = session;
+      };
+      $scope.deleteSavedSession = function(session) {
+        var sessions = angular.copy($scope.options.savedSessions);
+        for (var i = 0, len = sessions.length; i < len; i++) {
+          if (sessions[i].date === session.date) {
+            sessions.splice(i, 1);
+            break;
+          }
+        }
+        $scope.options.savedSessions = sessions;
+        $scope.showSavedSession = null;
+
+        var write = {};
+        write.savedSessions = sessions;
+        chrome.storage.local.set(write);
+      };
+
+      $scope.saved = function(session) {
+        console.debug(
+          'saved was called. on SessionHistoryController.', session);
+
+        var writeSessions = angular.copy($scope.options.savedSessions);
+        for (var i = 0, len = writeSessions.length; i < len; i++) {
+          if (writeSessions[i].date === session.date) {
+            console.debug('already same data have added.');
+            return;
+          }
+        }
+
+        $scope.$parent.options.savedSessions.push(session);
+        writeSessions.push(session);
+        var write = {};
+        write.savedSessions = writeSessions;
+        chrome.storage.local.set(write);
+      };
       $scope.deleted = function(session) {
         console.debug(
           'deleted was called. on SessionHistoryController.', session);
@@ -247,10 +292,12 @@
             { event: 'deleteSession', session: session });
         });
       };
+
       $scope.restored = function(session) {
         console.debug(
           'restored was called. on SessionHistoryController.', session);
-        chrome.runtime.sendMessage({ event: 'restore', session: session });
+        chrome.runtime.sendMessage(
+          { event: 'restore', session: session.session });
       };
   }]);
 

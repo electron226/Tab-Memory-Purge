@@ -133,12 +133,28 @@
           </section>
 
           <section class="session_history" ng-controller="sessionHistoryController">
+            <fieldset style="padding: 16px" ng-hide="options.savedSessions.length === 0">
+              <legend>Saved Sessions</legend>
+              <span ng-repeat="session in options.savedSessions track by $index | orderBy:'date':true" class="savedSession">
+                <button class="savedBtn" ng-click="savedSessionClicked(session)">
+                  {{ session.date | date:'yyyy/MM/dd' }}<br>
+                  {{ session.date | date:'hh:mm:ss' }}
+                </button>
+              </span>
+              <div style="padding: 10px 0 10px 0">
+                <button translation="restore" ng-click="restored(showSavedSession)"></button>
+                <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
+              </div>
+              <div ng-repeat="data in showSavedSession.session">
+                <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+              </div>
+            </fieldset>
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
               <legend>
                 {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
-                <!-- <button translation="save" ng&#45;click="saved(sessions)"></button> -->
-                <button translation="restore" ng-click="restored(sessions)"></button>
+                <button translation="save" ng-click="saved(sessions)"></button>
                 <button translation="delete" ng-click="deleted(sessions)"></button>
+                <button translation="restore" ng-click="restored(sessions)"></button>
               </legend>
               <div ng-repeat="data in sessions.session">
                 <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>

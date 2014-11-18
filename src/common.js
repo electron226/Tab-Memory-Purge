@@ -26,10 +26,12 @@
       'all_unpurge': JSON.stringify({}),
       'restore': JSON.stringify({}),
     },
+
+    'savedSessions': [],
   };
-  window.historyKey = window.historyKey || 'history'; // the history key name on chrome.storage.local.
-  window.sessionKey = window.sessionKey || 'sessions';   // the history key name on chrome.storage.local.
-  window.versionKey = window.versionKey || 'version'; // the history key name on chrome.storage.local.
+  window.historyKey = window.historyKey || 'history';
+  window.sessionKey = window.sessionKey || 'sessions';
+  window.versionKey = window.versionKey || 'version';
   defaultValues[window.historyKey] = {};
   defaultValues[window.sessionKey] = [];
   defaultValues[window.versionKey] = {};
