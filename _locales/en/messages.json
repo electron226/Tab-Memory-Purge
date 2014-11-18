@@ -113,7 +113,11 @@
   },
   "explanation_problem6": {
     "message": "You can't sync a purged tab use Google Sync with your other devices.",
-    "description": "Description of problem nrelated to the specified 'in the extension' and use file"
+    "description": "Description of problem related to the specified 'in the extension' and use file"
+  },
+  "explanation_merit1": {
+    "message": "You are able to free the large memory.",
+    "description": "Description of merit related to the specified 'in the extension'"
   },
   "assignment": {
     "message": "Use the file",

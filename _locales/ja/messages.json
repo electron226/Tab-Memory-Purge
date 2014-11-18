@@ -115,6 +115,10 @@
     "message": "他のデバイスとGoogle Syncを利用して解放タブの同期はできません。",
     "description": "拡張機能内と指定ファイルに関する問題点の説明"
   },
+  "explanation_merit1": {
+    "message": "メモリ解放効果は大きい。",
+    "description": "拡張機能内に関する利点の説明"
+  },
   "assignment": {
     "message": "指定ファイル",
     "description": "オプションの項目名"
