@@ -261,6 +261,29 @@
         chrome.storage.local.set(write);
       };
 
+      $scope.deleteSpecificSession = function (sessions, deleteItemKey) {
+        var sessionHistory = angular.copy($scope.sessionHistory);
+        for (var i = 0, len = sessionHistory.length; i < len; i++) {
+          if (sessionHistory[i].date === sessions.date) {
+            delete sessionHistory[i].session[deleteItemKey];
+            if (jQuery.isEmptyObject(sessionHistory[i].session)) {
+              sessionHistory.splice(i, 1);
+            }
+            break;
+          }
+        }
+        $scope.sessionHistory = sessionHistory;
+
+        var write = {};
+        write[sessionKey] = angular.toJson(sessionHistory);
+        chrome.storage.local.set(write, function() {
+          chrome.runtime.sendMessage(
+            { event: 'deleteSessionItem',
+              session: sessions,
+              key: deleteItemKey});
+        });
+      };
+
       $scope.saved = function(session) {
         console.debug(
           'saved was called. on SessionHistoryController.', session);

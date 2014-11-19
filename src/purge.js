@@ -1036,6 +1036,11 @@
       case 'deleteSession':
         tabSession.remove(new Date(message.session.date));
         break;
+      case 'deleteSessionItem':
+        tabSession.removeItem(new Date(message.session.date), message.key, function() {
+          reloadBadge();
+        });
+        break;
       case 'restore':
         restore(message.session, function() {
           reloadBadge();

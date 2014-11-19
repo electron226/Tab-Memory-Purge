@@ -1,3 +1,4 @@
+/*jshint unused: false*/
 // This file don't use angular.js and jQuery.
 (function(window) {
   "use strict";
@@ -32,7 +33,8 @@
     }
 
     if (dictSize(session) > 0) {
-      this.sessions.push({ date: this.time.getTime(), session: session });
+      this.sessions.push(
+        { date: this.time.getTime(), session: cloneObject(session) });
     } else {
       this.time = null;
     }
@@ -80,6 +82,41 @@
     for (i = 0, len = this.sessions.length; i < len; i++) {
       if (this.sessions[i].date === dateTime) {
         removedIndex.push(i);
+      }
+    }
+
+    var regulation = 0;
+    for (i = 0, len = removedIndex.length; i < len; i++) {
+      this.sessions.splice(removedIndex[i] - regulation, 1);
+      regulation++;
+    }
+
+    var write = {};
+    write[this.key] = JSON.stringify(this.sessions);
+    chrome.storage.local.set(write, callback);
+  };
+  TabSession.prototype.removeItem = function(date, key, callback) {
+    console.debug('removeItem function of TabSession class.');
+
+    if (toType(date) !== 'date' && toType(key) !== 'string') {
+      console.error('A invalid type of arguments.');
+      return;
+    }
+
+    var i, len;
+    var removedIndex = [];
+    var dateTime = date.getTime();
+    for (i = 0, len = this.sessions.length; i < len; i++) {
+      if (this.sessions[i].date === dateTime) {
+        delete this.sessions[i].session[key];
+        var count = 0;
+        for (var t in this.sessions[i].session) {
+          count++;
+          break;
+        }
+        if (count === 0) {
+          removedIndex.push(i);
+        }
       }
     }
 

@@ -173,12 +173,14 @@
                 <button translation="delete" ng-click="deleted(sessions)"></button>
                 <button translation="restore" ng-click="restored(sessions)"></button>
               </legend>
-              <div ng-repeat="data in sessions.session">
+              <div ng-repeat="(key, data) in sessions.session">
                 <div ng-show="data.iconDataURI">
                   <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)" style="position: relative; left: 0.5rem;">x</a>
                 </div>
                 <div ng-show="data.iconDataURI === undefined">
                   <a href="{{ data.url }}" target="_blank">{{ data.url }}</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)" style="position: relative; left: 0.5rem;">x</a>
                 </div>
               </div>
             </fieldset>
