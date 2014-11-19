@@ -146,7 +146,12 @@
                 <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
               </div>
               <div ng-repeat="data in showSavedSession.session">
-                <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                <div ng-show="data.iconDataURI">
+                  <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                </div>
+                <div ng-show="data.iconDataURI == undefined">
+                  <a href="{{ data.url }}" target="_blank">{{ data.url }}</a>
+                </div>
               </div>
             </fieldset>
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
@@ -157,7 +162,12 @@
                 <button translation="restore" ng-click="restored(sessions)"></button>
               </legend>
               <div ng-repeat="data in sessions.session">
-                <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                <div ng-show="data.iconDataURI">
+                  <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                </div>
+                <div ng-show="data.iconDataURI === undefined">
+                  <a href="{{ data.url }}" target="_blank">{{ data.url }}</a>
+                </div>
               </div>
             </fieldset>
           </section>

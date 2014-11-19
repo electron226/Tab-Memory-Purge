@@ -685,6 +685,20 @@
       }
       var key;
 
+      // from 2.2.7 to 2.2.8 later.
+      var prevVersion = items[versionKey];
+      var session = [];
+      if (prevVersion === '2.2.7') {
+        session.push(
+          { date: new Date().getTime(), session: JSON.parse(items.backup) });
+
+        var write = {};
+        write[sessionKey] = JSON.stringify(session);
+        chrome.storage.local.set(write, function() {
+          console.debug('move backup to sessions');
+        });
+      }
+
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (key in items) {
@@ -712,7 +726,11 @@
         tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
 
         // initialize session.
-        tabSession.read(myOptions.sessions);
+        if (prevVersion === '2.2.7') {
+          tabSession.read(session);
+        } else {
+          tabSession.read(myOptions.sessions);
+        }
         tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
 
         // Apply timer to exist tabs.

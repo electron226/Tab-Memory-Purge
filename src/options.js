@@ -224,10 +224,11 @@
 
       $scope.$watch('options.sessions', function(newValue) {
         console.debug('options.sessions was changed ' +
-                      'on sessionHistoryController');
+                      'on sessionHistoryController', newValue);
         if (!angular.isString(newValue)) {
           return;
         }
+        console.debug(angular.fromJson(newValue));
         $scope.sessionHistory = angular.fromJson(newValue);
       });
 
