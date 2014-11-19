@@ -21,6 +21,7 @@
     "angular": true,
     "chrome": true,
     
+    "cloneObject": true,
     "getDataType": true,
     "getDataURI": true,
     "keyCheck": true,

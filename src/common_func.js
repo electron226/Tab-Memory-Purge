@@ -5,6 +5,19 @@
 (function(window) {
   "use strict";
 
+  window.cloneObject = window.cloneObject || function(obj) {
+    if (toType(obj) !== 'object') {
+      return obj;
+    }
+    var copy = obj.constructor();
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) {
+        copy[attr] = obj[attr];
+      }
+    }
+    return copy;
+  };
+
   window.getDataType = window.getDataType || function(buf) {
     if (buf[0] === 0xFF && buf[1] === 0xD8 &&
         buf[buf.byteLength - 2] === 0xFF && buf[buf.byteLength - 1] === 0xD9) {
