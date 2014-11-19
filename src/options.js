@@ -20,7 +20,7 @@
 
     // select menu.
     $scope.selectMenu = '';
-    $scope.menuItems = optionMenus;
+    $scope.menuItems = angular.copy(optionMenus);
     var menu = {
       menuElement: $document.find('#config_change'),
       barName: 'change_bar',
@@ -201,7 +201,7 @@
         histories.push({
           date: new Date(parseInt(key, 10)), history: optionHistories[key] });
       }
-      $scope.history = histories;
+      $scope.history = angular.copy(histories);
     };
 
     var firstFlag = true;
@@ -234,7 +234,6 @@
         if (!angular.isString(newValue)) {
           return;
         }
-        console.debug(angular.fromJson(newValue));
         $scope.sessionHistory = angular.fromJson(newValue);
       });
 
@@ -244,7 +243,7 @@
       });
 
       $scope.savedSessionClicked = function(session) {
-        $scope.showSavedSession = session;
+        $scope.showSavedSession = angular.copy(session);
       };
       $scope.deleteSavedSession = function(session) {
         var sessions = angular.copy($scope.options.savedSessions);
@@ -286,7 +285,7 @@
         var sessions = $scope.sessionHistory;
         for (var i = 0, len = sessions.length; i < len; i++) {
           if (sessions[i].date === session.date) {
-            sessions = sessions.splice(i, 1);
+            sessions.splice(i, 1); // delete in $scope.sessionHistory.
             break;
           }
         }

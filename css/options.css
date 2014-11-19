@@ -57,17 +57,11 @@ ul
     background-color: gray;
 }
 
-.word_of_warning
-{
-    font-weight: bold;
 .arrow_animation {
     -webkit-animation: spin 1.5s linear infinite;
     animation: spin 1.5s linear infinite;
 }
 
-    margin-left: 25px;
-
-    color: red;
 .arrow {
     width: 0.5rem;
     height: 0.5rem;

@@ -691,7 +691,7 @@
       var session = [];
       if (prevVersion === '2.2.7') {
         session.push(
-          { date: new Date().getTime(), session: JSON.parse(items.backup) });
+          { date: new Date(0).getTime(), session: JSON.parse(items.backup) });
 
         var write = {};
         write[sessionKey] = JSON.stringify(session);
@@ -845,7 +845,7 @@
   function autoPurgeCheck()
   {
     console.debug('autoPurgeCheck');
-    if (myOptions.enable_auto_purge === true) {
+    if (myOptions.enable_auto_purge) {
       isLackTheMemory(myOptions.remaiming_memory, function(result) {
         if (result) {
           var ids = [];

@@ -99,14 +99,15 @@
     chrome.storage.local.remove(this.key, callback);
   };
   TabSession.prototype.getDeletedOldSession = function(max_sessions) {
-    var length = (max_sessions || this.max_sessions) - this.sessions.length;
-    if (length <= 0) {
-      return this.sessions;
-    }
-    return this.sessions.slice(0, length);
+    var length = this.sessions.length - (max_sessions || this.max_sessions);
+    return length <= 0 ? this.sessions : this.sessions.slice(0, length);
   };
   TabSession.prototype.setMaxSession = function(max_sessions) {
-    this.max_sessions = max_sessions;
+    if (max_sessions > 0) {
+      this.max_sessions = max_sessions;
+    } else {
+      console.error('invalid arguments.', max_sessions);
+    }
   };
   window.TabSession = window.TabSession || TabSession;
 

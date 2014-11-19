@@ -143,7 +143,7 @@
           <section class="session_history" ng-controller="sessionHistoryController">
             <fieldset style="padding: 16px" ng-hide="options.savedSessions.length === 0">
               <legend>Saved Sessions</legend>
-              <span ng-repeat="session in options.savedSessions track by $index | orderBy:'date':true" class="savedSession">
+              <span ng-repeat="session in options.savedSessions | orderBy:'date':true" class="savedSession">
                 <button class="savedBtn" ng-click="savedSessionClicked(session)">
                   {{ session.date | date:'yyyy/MM/dd' }}<br>
                   {{ session.date | date:'hh:mm:ss' }}
