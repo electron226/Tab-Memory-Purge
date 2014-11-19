@@ -153,12 +153,14 @@
                 <button translation="restore" ng-click="restored(showSavedSession)"></button>
                 <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
               </div>
-              <div ng-repeat="data in showSavedSession.session">
+              <div ng-repeat="(key, data) in showSavedSession.session">
                 <div ng-show="data.iconDataURI">
-                  <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
+                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">x</a>
+                  <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
                 </div>
                 <div ng-show="data.iconDataURI == undefined">
-                  <a href="{{ data.url }}" target="_blank">{{ data.url }}</a>
+                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">x</a>
+                  <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">{{ data.url }}</a>
                 </div>
               </div>
             </fieldset>
@@ -175,12 +177,12 @@
               </legend>
               <div ng-repeat="(key, data) in sessions.session">
                 <div ng-show="data.iconDataURI">
-                  <a href="{{ data.url }}" target="_blank"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
-                  <a href="#" ng-click="deleteSpecificSession(sessions, key)" style="position: relative; left: 0.5rem;">x</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">x</a>
+                  <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
                 </div>
                 <div ng-show="data.iconDataURI === undefined">
-                  <a href="{{ data.url }}" target="_blank">{{ data.url }}</a>
-                  <a href="#" ng-click="deleteSpecificSession(sessions, key)" style="position: relative; left: 0.5rem;">x</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">x</a>
+                  <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">{{ data.url }}</a>
                 </div>
               </div>
             </fieldset>
