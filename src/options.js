@@ -416,8 +416,10 @@
       storageType.get(null, function(items) {
         var options = {};
         for (var key in defaultValues) {
-          options[key] = items.hasOwnProperty(key) ?
-                            items[key] : defaultValues[key];
+          if (defaultValues.hasOwnProperty(key)) {
+            options[key] = items.hasOwnProperty(key) ?
+                              items[key] : defaultValues[key];
+          }
         }
         (callback || angular.noop)(options);
       });

@@ -495,7 +495,9 @@
    if (toType(keys) !== 'array') {
      keys = [];
      for (var key in object) {
-       keys.push(key);
+       if (object.hasOwnProperty(key)) {
+         keys.push(key);
+       }
      }
      index = 0;
      end = keys.length;
@@ -506,7 +508,8 @@
    if (chrome.runtime.lastError) { // If occur a error, it is ignore.
       if (!angular.isUndefined(tab)) {
          for (var i in blankUrls) {
-           if (tab.url.indexOf(blankUrls[i]) === 0) {
+           if (blankUrls.hasOwnProperty(i) &&
+               tab.url.indexOf(blankUrls[i]) === 0) {
              return;
            }
          }
@@ -689,7 +692,7 @@
       // from 2.2.7 to 2.2.8 later.
       var prevVersion = items[versionKey];
       var session = [];
-      if (prevVersion === '2.2.7') {
+      if (prevVersion === '2.2.7' && items.backup) {
         session.push(
           { date: new Date(0).getTime(), session: JSON.parse(items.backup) });
 
@@ -703,9 +706,11 @@
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (key in items) {
-        if (!defaultValues.hasOwnProperty(key) && key !== versionKey) {
-          removeKeys.push(key);
-          delete items[key];
+        if (items.hasOwnProperty(key)) {
+          if (!defaultValues.hasOwnProperty(key) && key !== versionKey) {
+            removeKeys.push(key);
+            delete items[key];
+          }
         }
       }
 
@@ -716,9 +721,11 @@
 
         // My options are initialized.
         myOptions = items;
-        for(key in defaultValues) {
-          if (!myOptions.hasOwnProperty(key)) {
-            myOptions[key] = defaultValues[key];
+        for (key in defaultValues) {
+          if (defaultValues.hasOwnProperty(key)) {
+            if (!myOptions.hasOwnProperty(key)) {
+              myOptions[key] = defaultValues[key];
+            }
           }
         }
 
@@ -743,7 +750,9 @@
           
           var regexs = [];
           for (var key in blankUrls) {
-            regexs.push(new RegExp('^' + blankUrls[key], 'i'));
+            if (blankUrls.hasOwnProperty(key)) {
+              regexs.push(new RegExp('^' + blankUrls[key], 'i'));
+            }
           }
 
           for (var i = 0, winLen = wins.length; i < winLen; i++) {
@@ -850,7 +859,9 @@
         if (result) {
           var ids = [];
           for (var i in ticked) {
-            ids.push(parseInt(i, 10));
+            if (ticked.hasOwnProperty(i)) {
+              ids.push(parseInt(i, 10));
+            }
           }
           autoPurgeLoop(ids);
         }
@@ -1030,16 +1041,16 @@
       case 'all_unpurge':
         // 解放されている全てのタブを解放解除
         for (var key in unloaded) {
-          unPurge(parseInt(key, 10));
+          if (unloaded.hasOwnProperty(key)) {
+            unPurge(parseInt(key, 10));
+          }
         }
         break;
       case 'deleteSession':
         tabSession.remove(new Date(message.session.date));
         break;
       case 'deleteSessionItem':
-        tabSession.removeItem(new Date(message.session.date), message.key, function() {
-          reloadBadge();
-        });
+        tabSession.removeItem(new Date(message.session.date), message.key);
         break;
       case 'restore':
         restore(message.session, function() {
