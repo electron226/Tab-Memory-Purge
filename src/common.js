@@ -4,7 +4,7 @@
 
   /* Default Values. */
   var defaultValues = {
-    'release_page': 'author',
+    'release_page': 'normal',
     'release_url': '',
     'no_release': false,
     'timer': 20,
