@@ -195,10 +195,15 @@
     "message": "Exclude URLs (Regular expression)",
     "description": "Exclude URL"
   },
+  "if_restore_session_message": {
+    "message": "Click here if you want to restore the closed tabs at the time of the update.",
+    "description": "The message of recommendation of the restore session."
+  },
   "current_session": {
     "message": "Current Session",
     "description": "Current Session"
   },
+
 
   "specification": {
     "message": "Brief description of specification.",
@@ -260,6 +265,7 @@
     "message": "Source Code",
     "description": "A item in other of information of option page."
   },
+
 
   "regex_tool": {
     "message": "Simple regular expression validation tool",

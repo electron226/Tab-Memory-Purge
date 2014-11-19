@@ -12,6 +12,14 @@
         <tr ng-repeat="item in menuItems" ng-click="menuSelect($event)" class="{{ item.name }}">
           <td><span class="change_bar">&nbsp;</span></td>
           <td><span translation="{{ item.name }}"></span></td>
+          <td ng-show="item.name === 'session_history'" style="position: absolute; left: 12px;">
+            <div ng-show="showRestoreMessage" style="position: relative; color: red; top: 0.2rem; left: 5.75rem;">
+              <div class="arrow_animation">
+                <div class="arrow"></div>
+              </div>
+              <div style="position: absolute; top: -0.25rem; left: 0.75rem;"><span translation="if_restore_session_message" style="position: fixed; background-color: white; padding: 6px; font-weight: bold;"></span></div>
+            </div>
+          </td>
         </tr>
       </table>
     </nav>

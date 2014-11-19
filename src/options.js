@@ -75,6 +75,8 @@
     $scope.menuSelect = function($event) {
       $scope.selectMenu = angular.element(
         $event.target).attr('translation').trim();
+
+      $scope.showRestoreMessage = false;
     };
 
     $document.ready(function(){
@@ -86,6 +88,10 @@
         { event: 'display_option_page' }, function(response) {
         $scope.$apply(function() {
           $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
+          // 4 == changed history.
+          if (response === 4 && $scope.options.release_page === 'normal') {
+            $scope.showRestoreMessage = true;
+          }
         });
       });
     });
