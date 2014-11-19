@@ -195,6 +195,10 @@
     "message": "Exclude URLs (Regular expression)",
     "description": "Exclude URL"
   },
+  "current_session": {
+    "message": "Current Session",
+    "description": "Current Session"
+  },
 
   "specification": {
     "message": "Brief description of specification.",

@@ -33,6 +33,7 @@
 
     "historyKey": true,
     "sessionKey": true,
+    "currentSessionKey": true,
     "versionKey": true,
     "defaultValues": true,
     "translationPath": true,

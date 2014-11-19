@@ -35,7 +35,8 @@
   var tempRelease = [];
 
   var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
-  var tabSession = new TabSession(sessionKey); // the session of released tabs.
+  // the session of released tabs.
+  var tabSession = new TabSession(sessionKey, currentSessionKey);
   var tabHistory = new TabHistory(historyKey); // the history of released tabs.
   var currentIcon = null;
   var displayPageOfOption = null;

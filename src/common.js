@@ -31,9 +31,11 @@
   };
   window.historyKey = window.historyKey || 'history';
   window.sessionKey = window.sessionKey || 'sessions';
+  window.currentSessionKey = window.currentSessionKey || 'currentSession';
   window.versionKey = window.versionKey || 'version';
   defaultValues[window.historyKey] = {};
   defaultValues[window.sessionKey] = [];
+  defaultValues[window.currentSessionKey] = null;
   defaultValues[window.versionKey] = {};
 
   window.defaultValues = window.defaultValues || defaultValues;

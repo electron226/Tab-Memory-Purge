@@ -154,9 +154,13 @@
                 </div>
               </div>
             </fieldset>
+
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
               <legend>
-                {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
+                <span ng-show="options.currentSession === sessions.date" translation="current_session"></span>
+                <span ng-hide="options.currentSession === sessions.date">
+                  {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
+                </span>
                 <button translation="save" ng-click="saved(sessions)"></button>
                 <button translation="delete" ng-click="deleted(sessions)"></button>
                 <button translation="restore" ng-click="restored(sessions)"></button>

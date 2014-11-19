@@ -2,10 +2,11 @@
 (function(window) {
   "use strict";
 
-  function TabSession(key, max_sessions) {
+  function TabSession(key, currentKey, max_sessions) {
     console.debug('the constructor of TabSession class.');
     this.time = null;
-    this.key = key || 'sessions';
+    this.key = key || sessionKey || 'sessions';
+    this.currentKey = currentKey || currentSessionKey || 'currentSession';
     this.sessions = [];
     this.max_sessions = max_sessions || 10;
   }
@@ -40,6 +41,7 @@
 
     var write = {};
     write[this.key] = JSON.stringify(this.sessions);
+    write[this.currentKey] = this.time ? this.time.getTime() : this.time;
     chrome.storage.local.set(write, callback);
   };
   TabSession.prototype.get = function(callback) {
