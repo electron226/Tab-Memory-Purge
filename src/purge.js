@@ -793,8 +793,7 @@
         });
 
         initializeContextMenu();
-        chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF', });
-        reloadBadge();
+        chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
       });
     });
   }
@@ -1056,7 +1055,6 @@
         }
         break;
       case 'deleteHistoryItem':
-        // tabSession.remove(new Date(message.session.date));
         tabHistory.removeItem(new Date(message.date), message.item);
         break;
       case 'deleteSession':
