@@ -26,13 +26,15 @@
       return;
     }
 
-    if (this.time !== null) {
-      this.sessions.pop();
-    } else {
-      this.time = new Date();
+    if (angular.isDate(this.time)) {
+      var t = this.sessions.filter(function(v) {
+        return v.date !== this.time.getTime();
+      }, this);
+      this.sessions = t;
     }
 
     if (dictSize(session) > 0) {
+      this.time = new Date();
       this.sessions.push(
         { date: this.time.getTime(), session: cloneObject(session) });
     } else {
