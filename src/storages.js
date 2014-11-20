@@ -202,6 +202,26 @@
     write[historyKey] = this.history;
     chrome.storage.local.set(write, callback);
   };
+  TabHistory.prototype.removeItem = function(date, item, callback) {
+    console.debug('removeItem function of TabHistory class.');
+
+    var filterFunc = function(x) {
+      return x.time !== item.time;
+    };
+    var i, len;
+    for (var key in this.history) {
+      if (this.history.hasOwnProperty(key)) {
+        if (parseInt(key, 10) === date.getTime()) {
+          var t = this.history[key].filter(filterFunc);
+          this.history[key] = t;
+        }
+      }
+    }
+
+    var write = {};
+    write[historyKey] = this.history;
+    chrome.storage.local.set(write, callback);
+  };
   // Delete the history of pre-history
   TabHistory.prototype.oldDelete = function() {
     console.debug('oldDelete function of TabHistory class.');

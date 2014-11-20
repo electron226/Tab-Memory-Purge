@@ -1054,6 +1054,10 @@
           }
         }
         break;
+      case 'deleteHistoryItem':
+        // tabSession.remove(new Date(message.session.date));
+        tabHistory.removeItem(new Date(message.date), message.item);
+        break;
       case 'deleteSession':
         tabSession.remove(new Date(message.session.date));
         break;

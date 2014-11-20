@@ -219,7 +219,10 @@
 
       var write = {};
       write[historyKey] = writeHistory;
-      chrome.storage.local.set(write);
+      chrome.storage.local.set(write, function() {
+        chrome.runtime.sendMessage(
+          { event: 'deleteHistoryItem', date: data.date, item: deleteItem });
+      });
     };
 
     $scope.showDate = function(date) {
