@@ -133,7 +133,7 @@
       chrome.browserAction.setIcon(
         { path: icons[changeIcon], tabId: tab.id }, function() {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
             return;
           }
           currentIcon = changeIcon;
@@ -213,7 +213,7 @@
 
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         (callback || angular.noop)(null);
         return;
       }
@@ -228,7 +228,7 @@
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
             if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.messsage);
+              console.error(chrome.runtime.lastError.message);
               (callback || angular.noop)(null);
               return;
             }
@@ -271,7 +271,7 @@
 
               var afterPurge = function(updated, callback) {
                 if (chrome.runtime.lastError) {
-                  console.error(chrome.runtime.lastError.messsage);
+                  console.error(chrome.runtime.lastError.message);
                   (callback || angular.noop)(null);
                   return;
                 }
@@ -527,7 +527,7 @@
        var purgeurl = object[tabId].purgeurl;
        chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
          if (chrome.runtime.lastError) {
-           console.error(chrome.runtime.lastError.messsage);
+           console.error(chrome.runtime.lastError.message);
          } else {
            var temp = object[tabId];
            delete object[tabId];
@@ -575,7 +575,7 @@
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         (callback || angular.noop)(null);
         return;
       }
@@ -663,7 +663,7 @@
     var currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
       }
 
       // ver chrome.storage.
@@ -693,7 +693,7 @@
 
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
       }
       var key;
 
@@ -724,7 +724,7 @@
 
       chrome.storage.local.remove(removeKeys, function() {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.messsage);
+          console.error(chrome.runtime.lastError.message);
         }
 
         // My options are initialized.
@@ -752,7 +752,7 @@
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
             return;
           }
           
@@ -811,7 +811,7 @@
     console.debug('isLackTheMemory');
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         (callback || angular.noop)(null);
         return;
       }
@@ -881,7 +881,7 @@
     console.debug('chrome.tabs.onActivated.');
     chrome.tabs.get(activeInfo.tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         return;
       }
 
@@ -947,7 +947,7 @@
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {
             if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.messsage);
+              console.error(chrome.runtime.lastError.message);
             }
 
             delete tempScrollPositions[tabId];
@@ -991,7 +991,7 @@
     'all_purge_without_exclude_list': function(callback) {
       chrome.tabs.getSelected(function(tab) {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.messsage);
+          console.error(chrome.runtime.lastError.message);
           (callback || angular.noop)(null);
           return;
         }
@@ -1010,7 +1010,7 @@
       case 'release':
         chrome.tabs.getSelected(function(tab) {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
             return;
           }
 
@@ -1021,7 +1021,7 @@
       case 'switch_not_release':
         chrome.tabs.getSelected(function(tab) {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
             return;
           }
 
@@ -1032,7 +1032,7 @@
       case 'all_purge_without_exclude_list':
         chrome.tabs.query({}, function(results) {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
             return;
           }
 
@@ -1083,7 +1083,7 @@
     console.debug('chrome.contextMenus.onClicked.addListener');
     chrome.tabs.query({ url: optionPage }, function(results) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         return;
       }
 
@@ -1093,7 +1093,7 @@
       } else {
         chrome.tabs.update(results[0].id, { active: true }, function() {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.messsage);
+            console.error(chrome.runtime.lastError.message);
           }
 
           chrome.runtime.sendMessage(
