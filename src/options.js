@@ -76,7 +76,10 @@
       $scope.selectMenu = angular.element(
         $event.target).attr('translation').trim();
 
-      $scope.showRestoreMessage = false;
+      if ($scope.showRestoreMessage) {
+        $scope.showRestoreMessage = false;
+        $scope.showOldRestoreTitle = true;
+      }
     };
 
     $document.ready(function(){

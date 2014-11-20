@@ -1067,6 +1067,7 @@
         break;
       case 'restore':
         restore(message.session, function() {
+          tabSession.update(unloaded);
           reloadBadge();
         });
         break;

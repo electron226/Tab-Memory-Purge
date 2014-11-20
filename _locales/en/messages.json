@@ -203,6 +203,10 @@
     "message": "Current Session",
     "description": "Current Session"
   },
+  "previous_session": {
+    "message": "Previous Session",
+    "description": "Previous Session"
+  },
 
 
   "specification": {

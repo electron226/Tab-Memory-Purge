@@ -200,8 +200,11 @@
 
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
               <legend>
-                <span ng-show="options.currentSession === sessions.date" translation="current_session"></span>
-                <span ng-hide="options.currentSession === sessions.date">
+                <span ng-show="options.currentSession === sessions.date">
+                  <span ng-show="showOldRestoreTitle === true" translation="previous_session"></span>
+                  <span ng-show="showOldRestoreTitle !== true" translation="current_session"></span>
+                </span>
+                <span ng-show="options.currentSession !== sessions.date">
                   {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
                 </span>
                 <button translation="save" ng-click="saved(sessions)"></button>
