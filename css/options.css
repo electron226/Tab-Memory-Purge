@@ -87,6 +87,25 @@ ul
     }
 }
 
+.delete_icon {
+    position: absolute;
+    left: 0.175rem;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-top: solid 2px;
+    border-left: solid 2px;
+    transform: rotate(-45deg);
+}
+.delete_icon2 {
+    position: absolute;
+    left: -0.175rem;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-top: solid 2px;
+    border-left: solid 2px;
+    transform: rotate(135deg);
+}
+
 #sample_url
 {
     width: 472px;

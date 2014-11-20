@@ -146,12 +146,17 @@
               <datalist id="historyDates">
                 <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
               </datalist>
-              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url.">
+              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url." style="width: 300px;">
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
               <legend>{{ data.date | date:'yyyy/MM/dd' }}</legend>
               <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
-                <a href="#" ng-click="deleteHistoryItem(data, item)" style="margin-right: 1rem;">x</a>
+                <a href="#" ng-click="deleteHistoryItem(data, item)" style="margin-right: 1rem;">
+                  <span style="position: relative; top: 0.3rem;">
+                    <span class="delete_icon"></span>
+                    <span class="delete_icon2"></span>
+                  </span>
+                </a>
                 <span style="margin-right: 1rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
                 <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
               </div>
@@ -173,11 +178,21 @@
               </div>
               <div ng-repeat="(key, data) in showSavedSession.session">
                 <div ng-show="data.iconDataURI">
-                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">x</a>
+                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">
+                    <span style="position: relative; top: 0.5rem; left: -0.3rem;">
+                      <span class="delete_icon"></span>
+                      <span class="delete_icon2"></span>
+                    </span>
+                  </a>
                   <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
                 </div>
                 <div ng-show="data.iconDataURI == undefined">
-                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">x</a>
+                  <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">
+                    <span style="position: relative; top: 0.5rem; left: -0.3rem;">
+                      <span class="delete_icon"></span>
+                      <span class="delete_icon2"></span>
+                    </span>
+                  </a>
                   <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">{{ data.url }}</a>
                 </div>
               </div>
@@ -195,11 +210,21 @@
               </legend>
               <div ng-repeat="(key, data) in sessions.session">
                 <div ng-show="data.iconDataURI">
-                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">x</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">
+                    <span style="position: relative; top: 0.5rem; left: -0.3rem;">
+                      <span class="delete_icon"></span>
+                      <span class="delete_icon2"></span>
+                    </span>
+                  </a>
                   <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"><img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}</a>
                 </div>
                 <div ng-show="data.iconDataURI === undefined">
-                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">x</a>
+                  <a href="#" ng-click="deleteSpecificSession(sessions, key)">
+                    <span style="position: relative; top: 0.5rem; left: -0.3rem;">
+                      <span class="delete_icon"></span>
+                      <span class="delete_icon2"></span>
+                    </span>
+                  </a>
                   <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">{{ data.url }}</a>
                 </div>
               </div>
