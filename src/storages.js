@@ -78,20 +78,12 @@
       return;
     }
 
-    var i, len;
-    var removedIndex = [];
     var dateTime = date.getTime();
-    for (i = 0, len = this.sessions.length; i < len; i++) {
-      if (this.sessions[i].date === dateTime) {
-        removedIndex.push(i);
-      }
-    }
-
-    var regulation = 0;
-    for (i = 0, len = removedIndex.length; i < len; i++) {
-      this.sessions.splice(removedIndex[i] - regulation, 1);
-      regulation++;
-    }
+    var filterFunc = function(x) {
+      return x.date !== dateTime;
+    };
+    var t = this.sessions.filter(filterFunc);
+    this.sessions = t;
 
     var write = {};
     write[this.key] = JSON.stringify(this.sessions);
@@ -105,28 +97,22 @@
       return;
     }
 
-    var i, len;
-    var removedIndex = [];
     var dateTime = date.getTime();
-    for (i = 0, len = this.sessions.length; i < len; i++) {
-      if (this.sessions[i].date === dateTime) {
-        delete this.sessions[i].session[key];
-        var count = 0;
-        for (var t in this.sessions[i].session) {
-          count++;
-          break;
-        }
-        if (count === 0) {
-          removedIndex.push(i);
+    var filterFunc = function(x) {
+      if (x.date !== dateTime) {
+        return true;
+      }
+
+      delete x.session[key];
+      for (var k in x.session) {
+        if (x.session.hasOwnProperty(k)) {
+          return true;
         }
       }
-    }
-
-    var regulation = 0;
-    for (i = 0, len = removedIndex.length; i < len; i++) {
-      this.sessions.splice(removedIndex[i] - regulation, 1);
-      regulation++;
-    }
+      return false;
+    };
+    var t = this.sessions.filter(filterFunc);
+    this.sessions = t;
 
     var write = {};
     write[this.key] = JSON.stringify(this.sessions);
@@ -216,6 +202,7 @@
         if (parseInt(key, 10) === date.getTime()) {
           var t = this.history[key].filter(filterFunc);
           this.history[key] = t;
+          break;
         }
       }
     }
@@ -233,11 +220,13 @@
     var removeTime = now.getTime() - criterion;
     var removeDates = [];
     for (var dateTime in this.history) {
-      if (parseInt(dateTime, 10) < removeTime) {
-        removeDates.push(dateTime);
+      if (this.history.hasOwnProperty(dateTime)) {
+        if (parseInt(dateTime, 10) < removeTime) {
+          removeDates.push(dateTime);
+        }
       }
     }
-    for (var i in removeDates) {
+    for (var i = 0, len = removeDates.length; i < len; i++) {
       delete this.history[removeDates[i]];
     }
   };

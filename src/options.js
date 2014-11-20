@@ -123,14 +123,11 @@
 
         var obj = null;
         var className = null;
-        for (var i = 0, len = pressKeys.length ; i < len; i++) {
+        for (var i = 0, len = pressKeys.length; i < len; i++) {
           className = pressKeys[i].parentNode.parentNode.className;
           obj = angular.fromJson(newValue[className]);
-          if (jQuery.isEmptyObject(obj)) {
-            pressKeys[i].value = '';
-          } else {
-            pressKeys[i].value = generateKeyString(obj);
-          }
+          pressKeys[i].value = jQuery.isEmptyObject(obj) ?
+                               '' : generateKeyString(obj);
         }
       }
     });
@@ -188,34 +185,36 @@
 
     $scope.deleteHistoryItem = function(data, deleteItem) {
       console.debug(data, deleteItem);
-      var i, len;
-      var removeIndex = [];
       var histories = angular.copy($scope.history);
-      for (i = 0, len = histories.length; i < len; i++) {
-        if (histories[i].date === data.date) {
-          for (var j = 0, lenJ = histories[i].history.length; j < lenJ; j++) {
-            if (histories[i].history[j].time === deleteItem.time) {
-              histories[i].history.splice(j, 1);
-              if (histories[i].history.length === 0) {
-                removeIndex.push(i);
-              }
-            }
-          }
+      var t = histories.filter(function(x) {
+        if (x.date !== data.date) {
+          return true;
         }
-      }
 
-      var regulation = 0;
-      for (i = 0, len = removeIndex.length; i < len; i++) {
-        histories.splice(removeIndex[i] - regulation, 1);
-        regulation++;
-      }
+        var bResult = true;
+        var hi = angular.copy(x.history);
+        var hit = hi.filter(function(x2, i2, a2) {
+          if (x2.time !== deleteItem.time) {
+            return true;
+          }
+          a2.splice(i2, 1);
+          if (a2.length === 0) {
+            bResult = false;
+          }
+          return false;
+        });
+        x.history = hit;
+
+        return bResult;
+      });
+      histories = t;
 
       $scope.history = histories;
-      
+
       var writeHistory = {};
-      for (i = 0, len = histories.length; i < len; i++) {
-        writeHistory[histories[i].date] = histories[i].history;
-      }
+      histories.forEach(function(v) {
+        writeHistory[v.date] = v.history;
+      });
 
       var write = {};
       write[historyKey] = writeHistory;
@@ -237,8 +236,11 @@
       console.debug('showHistory');
       var histories = [];
       for (var key in optionHistories) {
-        histories.push({
-          date: parseInt(key, 10), history: optionHistories[key] });
+        if (optionHistories.hasOwnProperty(key)) {
+          histories.push({
+            date: parseInt(key, 10),
+            history: angular.copy(optionHistories[key]) });
+        }
       }
       $scope.history = angular.copy(histories);
     };
@@ -285,13 +287,16 @@
         $scope.showSavedSession = angular.copy(session);
       };
       $scope.deleteSavedSession = function(session) {
-        var sessions = angular.copy($scope.options.savedSessions);
-        for (var i = 0, len = sessions.length; i < len; i++) {
-          if (sessions[i].date === session.date) {
-            sessions.splice(i, 1);
-            break;
-          }
+        if (!angular.isObject(session)) {
+          return;
         }
+
+        var sessions = angular.copy($scope.options.savedSessions);
+        var t = sessions.filter(function(v) {
+          return v.date !== session.date;
+        });
+        sessions = t;
+
         $scope.options.savedSessions = sessions;
         $scope.showSavedSession = null;
 
@@ -301,17 +306,22 @@
       };
 
       $scope.deleteSavedSpecificSession = function(session, deleteItemKey) {
+        console.debug('deleteSavedSpecificSession');
         var savedSessions = angular.copy($scope.options.savedSessions);
-        for (var i = 0, len = savedSessions.length; i < len; i++) {
-          if (savedSessions[i].date === session.date) {
-            delete savedSessions[i].session[deleteItemKey];
-            delete session.session[deleteItemKey]; // session = data in $scope.
-            if (jQuery.isEmptyObject(savedSessions[i].session)) {
-              savedSessions.splice(i, 1);
-            }
-            break;
+        var t = savedSessions.filter(function(v) {
+          if (v.date !== session.date) {
+            return true;
           }
-        }
+
+          delete v.session[deleteItemKey];
+          delete session.session[deleteItemKey]; // session = data in $scope.
+          if (jQuery.isEmptyObject(v.session)) {
+            return false;
+          }
+          return true;
+        });
+        savedSessions = t;
+
         $scope.options.savedSessions = savedSessions;
 
         var write = {};
@@ -321,15 +331,16 @@
 
       $scope.deleteSpecificSession = function(sessions, deleteItemKey) {
         var sessionHistory = angular.copy($scope.sessionHistory);
-        for (var i = 0, len = sessionHistory.length; i < len; i++) {
-          if (sessionHistory[i].date === sessions.date) {
-            delete sessionHistory[i].session[deleteItemKey];
-            if (jQuery.isEmptyObject(sessionHistory[i].session)) {
-              sessionHistory.splice(i, 1);
-            }
-            break;
+        var t = sessionHistory.filter(function(v) {
+          if (v.date !== sessions.date) {
+            return true;
           }
-        }
+
+          delete v.session[deleteItemKey];
+          return jQuery.isEmptyObject(v.session) ? false : true;
+        });
+        sessionHistory = t;
+
         $scope.sessionHistory = sessionHistory;
 
         var write = {};
@@ -338,24 +349,26 @@
           chrome.runtime.sendMessage(
             { event: 'deleteSessionItem',
               session: sessions,
-              key: deleteItemKey});
+              key: deleteItemKey });
         });
       };
 
       $scope.saved = function(session) {
         console.debug(
           'saved was called. on SessionHistoryController.', session);
+        session = angular.copy(session);
 
         var writeSessions = angular.copy($scope.options.savedSessions);
         for (var i = 0, len = writeSessions.length; i < len; i++) {
           if (writeSessions[i].date === session.date) {
-            console.debug('already same data have added.');
+            console.error('already same data have added.');
             return;
           }
         }
 
         $scope.options.savedSessions.push(session);
         writeSessions.push(session);
+
         var write = {};
         write.savedSessions = writeSessions;
         chrome.storage.local.set(write);
@@ -363,13 +376,13 @@
       $scope.deleted = function(session) {
         console.debug(
           'deleted was called. on SessionHistoryController.', session);
-        var sessions = $scope.sessionHistory;
-        for (var i = 0, len = sessions.length; i < len; i++) {
-          if (sessions[i].date === session.date) {
-            sessions.splice(i, 1); // delete in $scope.sessionHistory.
-            break;
-          }
-        }
+        var sessions = angular.copy($scope.sessionHistory);
+        var t = sessions.filter(function(v) {
+          return (v.date !== session.date) ? true : false;
+        });
+        sessions = t;
+
+        $scope.sessionHistory = sessions;
 
         // purge.jsのtabSession側と二重書き込みになるが念のためやっておく。
         var write = {};
@@ -576,9 +589,9 @@
       }
 
       var resultHTML = '';
-      for (var i = 0, len = splitedTargets.length; i < len; i++) {
-        resultHTML += splitedTargets[i].replace(regex, replacer) + '<br>';
-      }
+      splitedTargets.forEach(function(v) {
+        resultHTML += v.replace(regex, replacer) + '<br>';
+      });
       $scope.regex.result = $sce.trustAsHtml(resultHTML);
     }
   }]);
