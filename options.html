@@ -140,6 +140,24 @@
             </fieldset>
           </section>
 
+          <section class="history" ng-controller="historyController">
+            <div>
+              <input type="date" list="historyDates" ng-model="selectHistory">
+              <datalist id="historyDates">
+                <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
+              </datalist>
+              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url.">
+            </div>
+            <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
+              <legend>{{ data.date | date:'yyyy/MM/dd' }}</legend>
+              <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
+                <a href="#" ng-click="deleteHistoryItem(data, item)" style="margin-right: 1rem;">x</a>
+                <span style="margin-right: 1rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
+                <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+              </div>
+            </fieldset>
+          </section>
+
           <section class="session_history" ng-controller="sessionHistoryController">
             <fieldset style="padding: 16px" ng-hide="options.savedSessions.length === 0">
               <legend>Saved Sessions</legend>
@@ -184,24 +202,6 @@
                   <a href="#" ng-click="deleteSpecificSession(sessions, key)">x</a>
                   <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">{{ data.url }}</a>
                 </div>
-              </div>
-            </fieldset>
-          </section>
-
-          <!-- my histories on this option page. -->
-          <section class="history" ng-controller="historyController">
-            <div>
-              <input type="date" list="historyDates" ng-model="selectHistory">
-              <datalist id="historyDates">
-                <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
-              </datalist>
-              <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url.">
-            </div>
-            <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
-              <legend>{{ data.date | date:'yyyy/MM/dd' }}</legend>
-              <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
-                <span style="margin-right: 2rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
-                <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
               </div>
             </fieldset>
           </section>

@@ -165,41 +165,77 @@
   optionModule.controller('historyController', ['$scope', function($scope) {
     $scope.history = [];
     $scope.selectHistory = '';
-    $scope.searchDate = null;
-
-    $scope.showDate = function(date) {
-      if (angular.isDate($scope.searchDate)) {
-        return (date.getTime() === $scope.searchDate.getTime()) ? true : false;
-      } else {
-        return true;
-      }
-    };
+    var searchDate = null;
 
     $scope.$watch('selectHistory', function(newValue) {
       console.debug(
         'selectHistory was changed on historyController.', newValue);
       if (angular.isUndefined(newValue) || newValue === null) {
-        $scope.searchDate = null;
+        searchDate = null;
         return;
       }
 
-      var histories = $scope.history;
+      var histories = angular.copy($scope.history);
       for (var i = 0, len = histories.length; i < len; i++) {
-        if (histories[i].date.getTime() === newValue.getTime()) {
-          $scope.searchDate = histories[i].date;
+        if (histories[i].date === newValue.getTime()) {
+          searchDate = histories[i].date;
           break;
         } else {
-          $scope.searchDate = null;
+          searchDate = null;
         }
       }
     });
+
+    $scope.deleteHistoryItem = function(data, deleteItem) {
+      console.debug(data, deleteItem);
+      var i, len;
+      var removeIndex = [];
+      var histories = angular.copy($scope.history);
+      for (i = 0, len = histories.length; i < len; i++) {
+        if (histories[i].date === data.date) {
+          for (var j = 0, lenJ = histories[i].history.length; j < lenJ; j++) {
+            if (histories[i].history[j].time === deleteItem.time) {
+              histories[i].history.splice(j, 1);
+              if (histories[i].history.length === 0) {
+                removeIndex.push(i);
+              }
+            }
+          }
+        }
+      }
+
+      var regulation = 0;
+      for (i = 0, len = removeIndex.length; i < len; i++) {
+        histories.splice(removeIndex[i] - regulation, 1);
+        regulation++;
+      }
+
+      $scope.history = histories;
+      
+      var writeHistory = {};
+      for (i = 0, len = histories.length; i < len; i++) {
+        writeHistory[histories[i].date] = histories[i].history;
+      }
+
+      var write = {};
+      write[historyKey] = writeHistory;
+      chrome.storage.local.set(write);
+    };
+
+    $scope.showDate = function(date) {
+      if (angular.isNumber(searchDate)) {
+        return (date === searchDate) ? true : false;
+      } else {
+        return true;
+      }
+    };
 
     var showHistory = function(optionHistories) {
       console.debug('showHistory');
       var histories = [];
       for (var key in optionHistories) {
         histories.push({
-          date: new Date(parseInt(key, 10)), history: optionHistories[key] });
+          date: parseInt(key, 10), history: optionHistories[key] });
       }
       $scope.history = angular.copy(histories);
     };
@@ -315,7 +351,7 @@
           }
         }
 
-        $scope.$parent.options.savedSessions.push(session);
+        $scope.options.savedSessions.push(session);
         writeSessions.push(session);
         var write = {};
         write.savedSessions = writeSessions;
