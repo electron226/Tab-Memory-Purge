@@ -346,16 +346,24 @@
       return;
     }
 
-    var url = unloaded[tabId].url;
-    chrome.tabs.executeScript(tabId, {
-      code: 'window.location.replace("' + url + '");', }, function() {
+    function callbackAfterReplacedUrl() {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        console.error(chrome.runtime.lastError.message);
         return;
       }
 
       afterUnPurge(tabId);
-    });
+    }
+
+    var url = unloaded[tabId].url;
+    if (myOptions.release_page === 'normal') {
+      chrome.runtime.sendMessage(
+        { event: 'location_replace', url: url }, callbackAfterReplacedUrl);
+    } else {
+      chrome.tabs.executeScript(tabId,
+        { code: 'window.location.replace("' + url + '");' },
+        callbackAfterReplacedUrl );
+    }
   }
 
   /**

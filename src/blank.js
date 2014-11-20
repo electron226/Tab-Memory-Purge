@@ -2,6 +2,14 @@
 (function(window, document) {
   "use strict";
 
+  chrome.runtime.onMessage.addListener(function(message) {
+    switch (message.event) {
+      case 'location_replace':
+        window.location.replace(message.url);
+        break;
+    }
+  });
+
   /**
    * 受け取った引数を分解し、連想配列(ハッシュ)として返す。
    * @return {Object} 引数を表す連想配列。キーは受け取った引数名。
