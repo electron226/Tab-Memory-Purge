@@ -1,4 +1,3 @@
-/*jshint unused: false*/
 // This file don't use angular.js and jQuery.
 (function(window) {
   "use strict";
@@ -196,12 +195,15 @@
     var filterFunc = function(x) {
       return x.time !== item.time;
     };
-    var i, len;
     for (var key in this.history) {
       if (this.history.hasOwnProperty(key)) {
         if (parseInt(key, 10) === date.getTime()) {
           var t = this.history[key].filter(filterFunc);
-          this.history[key] = t;
+          if (t.length === 0) {
+            delete this.history[key];
+          } else {
+            this.history[key] = t;
+          }
           break;
         }
       }
