@@ -184,7 +184,6 @@
     });
 
     $scope.deleteHistoryItem = function(data, deleteItem) {
-      console.debug(data, deleteItem);
       var histories = angular.copy($scope.history);
       var t = histories.filter(function(x) {
         if (x.date !== data.date) {
@@ -233,7 +232,6 @@
     };
 
     var showHistory = function(optionHistories) {
-      console.debug('showHistory');
       var histories = [];
       for (var key in optionHistories) {
         if (optionHistories.hasOwnProperty(key)) {
@@ -306,7 +304,6 @@
       };
 
       $scope.deleteSavedSpecificSession = function(session, deleteItemKey) {
-        console.debug('deleteSavedSpecificSession');
         var savedSessions = angular.copy($scope.options.savedSessions);
         var t = savedSessions.filter(function(v) {
           if (v.date !== session.date) {
@@ -354,8 +351,6 @@
       };
 
       $scope.saved = function(session) {
-        console.debug(
-          'saved was called. on SessionHistoryController.', session);
         session = angular.copy(session);
 
         var writeSessions = angular.copy($scope.options.savedSessions);
@@ -374,8 +369,6 @@
         chrome.storage.local.set(write);
       };
       $scope.deleted = function(session) {
-        console.debug(
-          'deleted was called. on SessionHistoryController.', session);
         var sessions = angular.copy($scope.sessionHistory);
         var t = sessions.filter(function(v) {
           return (v.date !== session.date) ? true : false;
@@ -394,8 +387,6 @@
       };
 
       $scope.restored = function(session) {
-        console.debug(
-          'restored was called. on SessionHistoryController.', session);
         chrome.runtime.sendMessage(
           { event: 'restore', session: session.session });
       };
