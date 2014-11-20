@@ -299,7 +299,7 @@
                 chrome.tabs.executeScript(tabId, {
                   code: 'window.location.replace("' + url + '");' },
                   function() {
-                  chrome.tabs.get(tabId, afterPurge);
+                    chrome.tabs.get(tabId, afterPurge);
                 });
               }
             });
@@ -357,6 +357,7 @@
 
     var url = unloaded[tabId].url;
     if (myOptions.release_page === 'normal') {
+      // when release page is in the extension.
       chrome.runtime.sendMessage(
         { event: 'location_replace', url: url }, callbackAfterReplacedUrl);
     } else {
