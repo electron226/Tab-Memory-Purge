@@ -177,7 +177,7 @@
                 <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
               </div>
               <div ng-repeat="(key, data) in showSavedSession.session">
-                <div ng-show="data.iconDataURI">
+                <div ng-show="data.iconDataURI !== undefined">
                   <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">
                     <span style="position: relative; top: 0.5rem; left: -0.3rem;">
                       <span class="delete_icon"></span>
@@ -212,7 +212,7 @@
                 <button translation="restore" ng-click="restored(sessions)"></button>
               </legend>
               <div ng-repeat="(key, data) in sessions.session">
-                <div ng-show="data.iconDataURI">
+                <div ng-show="data.iconDataURI !== undefined">
                   <a href="#" ng-click="deleteSpecificSession(sessions, key)">
                     <span style="position: relative; top: 0.5rem; left: -0.3rem;">
                       <span class="delete_icon"></span>

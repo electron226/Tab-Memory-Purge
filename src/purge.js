@@ -318,7 +318,7 @@
 
                 unloaded[updated.id] = {
                   title: tab.title,
-                  iconDataURI: iconURI || '',
+                  iconDataURI: iconURI || icons[NORMAL_EXCLUDE],
                   url: tab.url,
                   purgeurl: url,
                   scrollPosition: objScroll[0] || { x: 0 , y: 0 }
@@ -788,7 +788,7 @@
                   runPurge[current.id] = true;
                   unloaded[current.id] = {
                     title: current.title,
-                    iconURI: iconURI || '',
+                    iconURI: iconURI || icons[NORMAL_EXCLUDE],
                     url: getParameterByName(current.url, 'url'),
                     purgeurl: current.url,
                     scrollPosition: { x: 0 , y: 0 },
