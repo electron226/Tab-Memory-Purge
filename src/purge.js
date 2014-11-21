@@ -349,7 +349,7 @@
   * 解放したタブを復元します。
   * @param {Number} tabId 復元するタブのID.
   */
-  function unPurge(tabId)
+  function unPurge(tabId, callback)
   {
     debug('unPurge');
     if (!angular.isNumber(tabId)) {
@@ -361,10 +361,18 @@
     if (myOptions.release_page === 'normal') {
       // when release page is in the extension.
       chrome.runtime.sendMessage(
-        { event: 'location_replace', url: url });
+        { event: 'location_replace' }, function(useChrome) {
+          // If the url is empty in purge page.
+          if (useChrome) {
+            chrome.tabs.update(tabId, { url: url }, callback);
+          } else {
+            callback();
+          }
+        }
+      );
     } else {
       chrome.tabs.executeScript(tabId,
-        { code: 'window.location.replace("' + url + '");' } );
+        { code: 'window.location.replace("' + url + '");' }, callback);
     }
   }
 
@@ -372,7 +380,7 @@
   * 解放状態・解放解除を交互に行う
   * @param {Number} tabId 対象のタブのID.
   */
-  function purgeToggle(tabId)
+   function purgeToggle(tabId, callback)
   {
     debug('purgeToggle');
     if (!angular.isNumber(tabId)) {
@@ -381,9 +389,9 @@
     }
 
     if (unloaded.hasOwnProperty(tabId)) {
-      unPurge(tabId);
+      unPurge(tabId, callback);
     } else {
-      purge(tabId);
+      purge(tabId, callback);
     }
   }
 
@@ -752,7 +760,7 @@
           tabSession.read(myOptions.sessions);
         }
         tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
-
+//
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
           if (chrome.runtime.lastError) {

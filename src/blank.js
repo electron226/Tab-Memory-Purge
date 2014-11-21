@@ -2,10 +2,15 @@
 (function(window, document) {
   "use strict";
 
-  chrome.runtime.onMessage.addListener(function(message) {
+  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     switch (message.event) {
       case 'location_replace':
-        window.location.replace(message.url);
+        var url = document.getElementById('url');
+        if (url.textContent.length === 0) {
+          sendResponse(true);
+        } else {
+          window.location.replace(url.textContent);
+        }
         break;
     }
   });
