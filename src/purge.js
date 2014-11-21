@@ -12,6 +12,13 @@
   var ticked = {};
 
   /**
+   * タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列
+   * key = tabId
+   * value = スクロール量(x, y)を表す連想配列
+   */
+  var tempScrollPositions = {};
+
+  /**
    * メモリ解放を行ったタブの情報が入ってる辞書型
    *
    * key = tabId
@@ -23,13 +30,34 @@
    *         scrollPosition: スクロール量(x, y)を表すオブジェクト
    */
   var unloaded = {};
+  var unloadedCount = 0;
+  Object.observe(unloaded, function(changes) {
+    console.debug('unloaded was changed.', changes);
 
-  /**
-   * タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列
-   * key = tabId
-   * value = スクロール量(x, y)を表す連想配列
-   */
-  var tempScrollPositions = {};
+    var tabId;
+    for (var i = 0, len = changes.length; i < len; i++) {
+      tabId = parseInt(changes[i].name, 10);
+      switch (changes[i].type) {
+        case 'add':
+          unloadedCount++;
+          break;
+        case 'delete':
+          unloadedCount--;
+          tempScrollPositions[tabId] = changes[i].oldValue.scrollPosition;
+          break;
+        default:
+          break;
+      }
+
+      // If the tab of tabId isn't existed, these process are skipped.
+      deleteTick(tabId);
+      setTick(tabId);
+    }
+    chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
+
+    tabSession.update(unloaded, function() {
+    });
+  });
 
   // the string that represents the temporary exclusion list
   var tempRelease = [];
@@ -165,16 +193,6 @@
   }
 
   /**
-   * 解放されているタブの数をブラウザアクションのアイコンの上に数値で表示する。
-   * @return なし
-   */
-  function reloadBadge()
-  {
-    console.debug('reloadBadge');
-    chrome.browserAction.setBadgeText({ text: dictSize(unloaded).toString() });
-  }
-
-  /**
    * getParameterByName
    *
    * @param url the url of getting parameters.
@@ -203,7 +221,7 @@
       return;
     }
 
-    if (runPurge.hasOwnProperty(tabId)) {
+    if (unloaded.hasOwnProperty(tabId)) {
       console.error('Already purging. "' + tabId + '"');
       (callback || angular.noop)(null);
       return;
@@ -283,9 +301,6 @@
                   purgeurl: url,
                   scrollPosition: objScroll[0] || { x: 0 , y: 0 }
                 };
-                reloadBadge();
-                deleteTick(tabId);
-                tabSession.update(unloaded);
 
                 // the histories are writing.
                 tabHistory.write(tab, function() {
@@ -309,32 +324,6 @@
   }
 
   /**
-   * 解放処理後の処理。
-   *
-   * @param {Number} tabId 解放したタブのID.
-   * @return なし
-   */
-  function afterUnPurge(tabId)
-  {
-    console.debug('afterUnPurge');
-    if (!angular.isNumber(tabId)) {
-      console.error("tabId is not number.");
-      return;
-    }
-
-    if (unloaded.hasOwnProperty(tabId)) {
-      // スクロール位置を一時的に保存
-      // chrome.tabs.updated.addlistenerで使用。
-      tempScrollPositions[tabId] = unloaded[tabId].scrollPosition;
-
-      delete unloaded[tabId];
-      reloadBadge();
-      tabSession.update(unloaded);
-      setTick(tabId);
-    }
-  }
-
-  /**
   * 解放したタブを復元します。
   * @param {Number} tabId 復元するタブのID.
   */
@@ -346,24 +335,14 @@
       return;
     }
 
-    function callbackAfterReplacedUrl() {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.message);
-        return;
-      }
-
-      afterUnPurge(tabId);
-    }
-
     var url = unloaded[tabId].url;
     if (myOptions.release_page === 'normal') {
       // when release page is in the extension.
       chrome.runtime.sendMessage(
-        { event: 'location_replace', url: url }, callbackAfterReplacedUrl);
+        { event: 'location_replace', url: url });
     } else {
       chrome.tabs.executeScript(tabId,
-        { code: 'window.location.replace("' + url + '");' },
-        callbackAfterReplacedUrl );
+        { code: 'window.location.replace("' + url + '");' } );
     }
   }
 
@@ -738,6 +717,9 @@
           }
         }
 
+        // initialize badge.
+        chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
+
         // initialize history.
         tabHistory.read(myOptions.history);
         tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
@@ -764,16 +746,16 @@
             }
           }
 
-          for (var i = 0, winLen = wins.length; i < winLen; i++) {
-            for (var j = 0, tabLen = wins[i].tabs.length; j < tabLen; j++) {
-              var current = wins[i].tabs[j];
-
-              // If already purging tab, be adding the object of purging tab.
+          // If already purging tab, be adding the object of purging tab.
+          var addingPurgedTabs = function(current) {
+            getDataURI(current.favIconUrl, function(iconURI) {
               var alreadyFlag = false;
               for (var z = 0, regLen = regexs.length; z < regLen; z++) {
                 if (regexs[z].test(current.url)) {
                   runPurge[current.id] = true;
                   unloaded[current.id] = {
+                    title: current.title,
+                    iconURI: iconURI,
                     url: getParameterByName(current.url, 'url'),
                     purgeurl: current.url,
                     scrollPosition: { x: 0 , y: 0 },
@@ -787,9 +769,20 @@
               if (!alreadyFlag) {
                 setTick(current.id);
               }
+            });
+          };
+          var checkBeforeAdding = function(current) {
+            checkExcludeList(current.url, function(result) {
+              if (result === NORMAL_EXCLUDE) {
+                addingPurgedTabs(current);
+              }
+            });
+          };
+          for (var i = 0, winLen = wins.length; i < winLen; i++) {
+            for (var j = 0, tabLen = wins[i].tabs.length; j < tabLen; j++) {
+              checkBeforeAdding(wins[i].tabs[j]);
             }
           }
-          reloadBadge();
         });
 
         initializeContextMenu();
@@ -910,9 +903,6 @@
   chrome.tabs.onRemoved.addListener(function(tabId) {
     console.debug('chrome.tabs.onRemoved.');
     delete unloaded[tabId];
-    deleteTick(tabId);
-    tabSession.update(unloaded);
-    reloadBadge();
   });
 
   chrome.tabs.onAttached.addListener(function(tabId) {
@@ -923,9 +913,6 @@
   chrome.tabs.onDetached.addListener(function(tabId) {
     console.debug('chrome.tabs.onDetached.');
     delete unloaded[tabId];
-    deleteTick(tabId);
-    tabSession.update(unloaded);
-    reloadBadge();
   });
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -933,7 +920,7 @@
       console.debug('chrome.tabs.onUpdated. loading.');
 
       if (!runPurge.hasOwnProperty(tabId)) {
-        afterUnPurge(tabId);
+        delete unloaded[tabId];
       }
     } else {
       console.debug('chrome.tabs.onUpdated. complete.');
@@ -954,10 +941,8 @@
             delete runPurge[tabId];
           }
         );
-      } else {
-        delete tempScrollPositions[tabId];
-        delete runPurge[tabId];
       }
+      delete tempScrollPositions[tabId];
     }
     delete runPurge[tabId];
   });
@@ -1064,10 +1049,7 @@
         tabSession.removeItem(new Date(message.session.date), message.key);
         break;
       case 'restore':
-        restore(message.session, function() {
-          tabSession.update(unloaded);
-          reloadBadge();
-        });
+        restore(message.session);
         break;
       case 'current_icon':
         sendResponse(currentIcon);
