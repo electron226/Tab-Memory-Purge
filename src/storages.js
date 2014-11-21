@@ -3,7 +3,7 @@
   "use strict";
 
   function TabSession(key, currentKey, max_sessions) {
-    console.debug('the constructor of TabSession class.');
+    debug('the constructor of TabSession class.');
     this.time = null;
     this.key = key || sessionKey || 'sessions';
     this.currentKey = currentKey || currentSessionKey || 'currentSession';
@@ -12,16 +12,16 @@
   }
   TabSession.prototype.read = function(sessions) {
     if (toType(sessions) !== 'array' && toType(sessions) !== 'string') {
-      console.error('a invalid type of arugments.');
+      error('a invalid type of arugments.');
       return;
     }
     this.sessions = (toType(sessions) === 'string') ?
                     JSON.parse(sessions) : sessions;
   };
   TabSession.prototype.update = function(session, callback) {
-    console.debug('update function of TabSession class.');
+    debug('update function of TabSession class.');
     if (session === void 0 || session === null) {
-      console.error('a invalid type of arguments.');
+      error('a invalid type of arguments.');
       return;
     }
 
@@ -48,16 +48,16 @@
     chrome.storage.local.set(write, callback);
   };
   TabSession.prototype.get = function(callback) {
-    console.debug('get function of TabSession class.');
+    debug('get function of TabSession class.');
     if (toType(callback) !== 'function') {
-      console.error('A invalid type of arugments.');
+      error('A invalid type of arugments.');
       return;
     }
     // this.keyのまま使うとthis.keyの値が消滅する
     var key = this.key;
     chrome.storage.local.get(key, function(items) {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
+        error(chrome.runtime.lastError.messsage);
         return;
       }
 
@@ -70,10 +70,10 @@
     });
   };
   TabSession.prototype.remove = function(date, callback) {
-    console.debug('remove function of TabSession class.');
+    debug('remove function of TabSession class.');
 
     if (toType(date) !== 'date') {
-      console.error('A invalid type of arguments.');
+      error('A invalid type of arguments.');
       return;
     }
 
@@ -89,10 +89,10 @@
     chrome.storage.local.set(write, callback);
   };
   TabSession.prototype.removeItem = function(date, key, callback) {
-    console.debug('removeItem function of TabSession class.');
+    debug('removeItem function of TabSession class.');
 
     if (toType(date) !== 'date' && toType(key) !== 'string') {
-      console.error('A invalid type of arguments.');
+      error('A invalid type of arguments.');
       return;
     }
 
@@ -118,8 +118,9 @@
     chrome.storage.local.set(write, callback);
   };
   TabSession.prototype.removeAll = function(callback) {
-    console.debug('removeAll function of TabSession class.');
+    debug('removeAll function of TabSession class.');
 
+    this.sessions = [];
     chrome.storage.local.remove(this.key, callback);
   };
   TabSession.prototype.getDeletedOldSession = function(max_sessions) {
@@ -130,23 +131,23 @@
     if (max_sessions > 0) {
       this.max_sessions = max_sessions;
     } else {
-      console.error('invalid arguments.', max_sessions);
+      error('invalid arguments.', max_sessions);
     }
   };
   window.TabSession = window.TabSession || TabSession;
 
   function TabHistory(key, max_history) {
-    console.debug('the constructor of TabHistory class.');
+    debug('the constructor of TabHistory class.');
     this.key = key;
     this.max_history = max_history || 7;
     this.history = {};
   }
   TabHistory.prototype.read = function(dataObj, callback) {
-    console.debug('read function of TabHistory class.');
+    debug('read function of TabHistory class.');
     if (dataObj === void 0 || dataObj === null) {
       chrome.storage.local.get(this.key, function(items) {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.messsage);
+          error(chrome.runtime.lastError.messsage);
           return;
         }
 
@@ -163,7 +164,7 @@
     }
   };
   TabHistory.prototype.write = function(tab, callback) {
-    console.debug('write function of TabHistory class.');
+    debug('write function of TabHistory class.');
     var now = new Date();
     var date = new Date(
       now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
@@ -190,7 +191,7 @@
     chrome.storage.local.set(write, callback);
   };
   TabHistory.prototype.removeItem = function(date, item, callback) {
-    console.debug('removeItem function of TabHistory class.');
+    debug('removeItem function of TabHistory class.');
 
     var filterFunc = function(x) {
       return x.time !== item.time;
@@ -215,7 +216,7 @@
   };
   // Delete the history of pre-history
   TabHistory.prototype.oldDelete = function() {
-    console.debug('oldDelete function of TabHistory class.');
+    debug('oldDelete function of TabHistory class.');
     // milliseconds * seconds * minutes * hours * days
     var criterion = 1000 * 60 * 60 * 24 * this.max_history;
     var now = new Date();
@@ -233,7 +234,7 @@
     }
   };
   TabHistory.prototype.setKey = function(keyName) {
-    console.debug('setKey function of TabHistory class.');
+    debug('setKey function of TabHistory class.');
     if (toType(keyName) === 'string') {
       this.key = keyName;
     } else {
@@ -242,7 +243,7 @@
     }
   };
   TabHistory.prototype.setMaxHistory = function(max) {
-    console.debug('setMaxHistory function of TabHistory class.');
+    debug('setMaxHistory function of TabHistory class.');
     if (toType(max) === 'number') {
       this.max_history = max;
     } else {

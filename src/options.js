@@ -32,7 +32,7 @@
       },
       commonFunc: function(name, show, color) {
         if (name.length === 0) {
-          console.error('The name of arguments of commonFunc is length zero.');
+          error('The name of arguments of commonFunc is length zero.');
           return;
         }
 
@@ -48,7 +48,7 @@
     var pageElement = $document.find('#option_items').children('section');
     var footer = $document.find('footer');
     $scope.$watch('selectMenu', function(newValue, oldValue) {
-      console.debug('selectMenu was changed. on OptionController.',
+      debug('selectMenu was changed. on OptionController.',
         newValue, oldValue);
       if (angular.isString(newValue) && angular.isString(oldValue)) {
         menu.disable(oldValue);
@@ -115,11 +115,11 @@
 
     var section = $document.find('[ng-controller="keybindController"]');
     $scope.$watch('options.keybind', function(newValue, oldValue) {
-      console.debug('keybind was changed.', newValue, oldValue);
+      debug('keybind was changed.', newValue, oldValue);
       if (angular.isObject(newValue)) {
         var pressKeys = section.find('input[type="text"].pressKey');
         if (pressKeys.length === 0) {
-          console.error('option.keybind is watching error.' +
+          error('option.keybind is watching error.' +
                         ' pressKeys is zero.');
           return;
         }
@@ -168,7 +168,7 @@
     var searchDate = null;
 
     $scope.$watch('selectHistory', function(newValue) {
-      console.debug(
+      debug(
         'selectHistory was changed on historyController.', newValue);
       if (angular.isUndefined(newValue) || newValue === null) {
         searchDate = null;
@@ -249,7 +249,7 @@
     var firstFlag = true;
     var showFlag = false;
     $scope.$watch('selectMenu', function(newValue) {
-      console.debug('selectMenu was changed on historyController.');
+      debug('selectMenu was changed on historyController.');
       showFlag = (newValue === 'history') ? true : false;
       if (firstFlag && showFlag) {
         showHistory($scope.options.history);
@@ -258,7 +258,7 @@
     });
 
     $scope.$watchCollection('options.history', function(newValues, oldValues) {
-      console.debug('option.history was changed.', newValues, oldValues);
+      debug('option.history was changed.', newValues, oldValues);
       if (showFlag) {
         showHistory(newValues);
       }
@@ -271,7 +271,7 @@
       $scope.showSavedSession = null;
 
       $scope.$watch('options.sessions', function(newValue) {
-        console.debug('options.sessions was changed ' +
+        debug('options.sessions was changed ' +
                       'on sessionHistoryController', newValue);
         if (!angular.isString(newValue)) {
           return;
@@ -280,7 +280,7 @@
       });
 
       $scope.$watch('options.savedSessions', function(newValue, oldValue) {
-        console.debug('options.savedSessions was changed ' +
+        debug('options.savedSessions was changed ' +
           'on sessionHistoryController', newValue, oldValue);
       });
 
@@ -359,7 +359,7 @@
         var writeSessions = angular.copy($scope.options.savedSessions);
         for (var i = 0, len = writeSessions.length; i < len; i++) {
           if (writeSessions[i].date === session.date) {
-            console.error('already same data have added.');
+            error('already same data have added.');
             return;
           }
         }
@@ -427,7 +427,7 @@
       $scope.changed = changed;
     })
     .error(function(){
-      console.error('changed history do not get.');
+      error('changed history do not get.');
     });
   }]);
 
@@ -439,7 +439,7 @@
     var configView = $document.find('#config_view');
 
     $scope.$watchCollection('options', function(newValues, oldValues) {
-      console.debug('options was changed.', newValues, oldValues);
+      debug('options was changed.', newValues, oldValues);
     });
 
     $scope.save = function() {
@@ -554,15 +554,15 @@
       },
     ];
     $scope.$watch('regex.word', function(newValue, oldValue) {
-      console.debug('regex.word is changed.', newValue, oldValue);
+      debug('regex.word is changed.', newValue, oldValue);
       regexCheck();
     });
     $scope.$watch('regex.option', function(newValue, oldValue) {
-      console.debug('regex.option is changed.', newValue, oldValue);
+      debug('regex.option is changed.', newValue, oldValue);
       regexCheck();
     });
     $scope.$watch('regex.target', function(newValue, oldValue) {
-      console.debug('regex.target is changed.', newValue, oldValue);
+      debug('regex.target is changed.', newValue, oldValue);
       regexCheck();
     });
 
@@ -578,7 +578,7 @@
         regex = new RegExp(
           $scope.regex.word, $scope.regex.option === true ? 'i' : '');
       } catch (e) {
-        console.error('regexCheck is error. so this process is skipped.');
+        error('regexCheck is error. so this process is skipped.');
         return;
       }
 
