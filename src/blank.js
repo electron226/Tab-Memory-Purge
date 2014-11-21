@@ -51,8 +51,7 @@
     var head = document.querySelector('head');
     var link = document.createElement('link');
     link.rel = 'icon';
-    link.href = favicon;
-    link.type = 'image/' + favicon.substr(favicon.lastIndexOf('.') + 1);
+    link.href = decodeURIComponent(favicon);
     head.appendChild(link);
   }
 

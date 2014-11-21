@@ -55,8 +55,7 @@
     });
     chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
 
-    tabSession.update(unloaded, function() {
-    });
+    tabSession.update(unloaded);
   });
 
   // the string that represents the temporary exclusion list
@@ -207,6 +206,63 @@
       "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
+  function getPurgeURL(tab, callback) {
+    function getURL(tab, iconDateURI, callback)
+    {
+      var args = '' ;
+
+      args += tab.title ?
+      '&title=' + encodeURIComponent(tab.title) : '';
+      if (iconDateURI) {
+        args += '&favicon=' + encodeURIComponent(iconDateURI);
+      } else {
+        args += tab.favIconUrl ?
+          '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
+      }
+
+      // 解放に使うページを設定
+      var page = null;
+      switch (myOptions.release_page) {
+        default:
+          error("'release page' setting error. so to set default value.");
+          /* falls through */
+        case 'author': // 作者サイト
+          page = blankUrls.normal;
+          break;
+        case 'normal': // 拡張機能内
+          page = blankUrls.local;
+          break;
+        case 'assignment': // 指定URL
+          page = myOptions.release_url;
+          break;
+      }
+
+      // Do you reload tab when you focus tab?.
+      args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
+
+      if (tab.url) {
+        args += '&url=' + encodeURIComponent(tab.url);
+      }
+
+      callback(encodeURI(page) + '?' + encodeURIComponent(args));
+    }
+
+    if (!(angular.isObject(tab) || angular.isFunction(callback))) {
+      error('getPurgeURL is invalid arguments.');
+      return;
+    }
+
+    if (tab.favIconUrl) {
+      getDataURI(tab.favIconUrl, function(iconURI) {
+        getURL(tab, iconURI, function(url) {
+          callback(url, iconURI);
+        });
+      });
+    } else {
+      getURL(tab, null, callback);
+    }
+  }
+
   /**
   * タブの解放を行います。
   * @param {Number} tabId タブのID.
@@ -252,43 +308,8 @@
               return;
             }
 
-            var title = tab.title ?
-              '&title=' + encodeURIComponent(tab.title) : '';
-            var favicon = tab.favIconUrl ?
-              '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
-            getDataURI(tab.favIconUrl, function(iconURI) {
-              var args = title + favicon;
-
-              // 解放に使うページを設定
-              var page = null;
-              var storageName = 'release_page';
-              switch (myOptions[storageName]) {
-              case 'author': // 作者サイト
-                page = blankUrls.normal;
-                break;
-              case 'normal': // 拡張機能内
-                page = blankUrls.local;
-                break;
-              case 'assignment': // 指定URL
-                page = myOptions.release_url;
-                break;
-              default: // 該当なしの時は初期値を設定
-                log(
-                  "'release page' setting error. so to set default value.");
-                chrome.storage.local.remove(storageName);
-                purge(tabId); // この関数を実行し直す
-                break;
-              }
-
-              // Do you reload tab when you focus tab?.
-              args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
-
-              if (tab.url) {
-                args += '&url=' + encodeURIComponent(tab.url);
-              }
-              var url = encodeURI(page) + '?' + encodeURIComponent(args);
-
-              var afterPurge = function(updated, callback) {
+            getPurgeURL(tab, function(url, iconURI) {
+              function afterPurge(updated, callback) {
                 if (chrome.runtime.lastError) {
                   error(chrome.runtime.lastError.message);
                   (callback || angular.noop)(null);
@@ -297,7 +318,7 @@
 
                 unloaded[updated.id] = {
                   title: tab.title,
-                  iconDataURI: iconURI,
+                  iconDataURI: iconURI || '',
                   url: tab.url,
                   purgeurl: url,
                   scrollPosition: objScroll[0] || { x: 0 , y: 0 }
@@ -307,9 +328,9 @@
                 tabHistory.write(tab, function() {
                   (callback || angular.noop)(updated);
                 });
-              };
+              }
 
-              if (myOptions[storageName] === 'assignment') {
+              if (myOptions.release_page === 'assignment') {
                 chrome.tabs.update(tabId, { url: url }, afterPurge);
               } else {
                 chrome.tabs.executeScript(tabId, {
@@ -745,21 +766,21 @@
               regexs.push(new RegExp('^' + blankUrls[key], 'i'));
             }
           }
-         if (myOptions.relase_page === 'assignment' &&
-             myOptions.release_url.length !== 0) {
-           regexs.push(new RegExp('^' + myOptions.release_url, 'i'));
-         }
+           if (myOptions.relase_page === 'assignment' &&
+               myOptions.release_url.length !== 0) {
+             regexs.push(new RegExp('^' + myOptions.release_url, 'i'));
+           }
 
           // If already purging tab, be adding the object of purging tab.
-          var addingPurgedTabs = function(current) {
-            getDataURI(current.favIconUrl, function(iconURI) {
+          function addingPurgedTabs(current) {
+            function toAdd(iconURI) {
               var alreadyFlag = false;
               for (var z = 0, regLen = regexs.length; z < regLen; z++) {
                 if (regexs[z].test(current.url)) {
                   runPurge[current.id] = true;
                   unloaded[current.id] = {
                     title: current.title,
-                    iconURI: iconURI,
+                    iconURI: iconURI || '',
                     url: getParameterByName(current.url, 'url'),
                     purgeurl: current.url,
                     scrollPosition: { x: 0 , y: 0 },
@@ -773,15 +794,23 @@
               if (!alreadyFlag) {
                 setTick(current.id);
               }
-            });
-          };
-          var checkBeforeAdding = function(current) {
+            }
+
+            if (current.favIconUrl) {
+              getDataURI(current.favIconUrl, toAdd);
+            } else {
+              toAdd();
+            }
+          }
+
+          function checkBeforeAdding(current) {
             checkExcludeList(current.url, function(result) {
               if (result === NORMAL_EXCLUDE) {
                 addingPurgedTabs(current);
               }
             });
-          };
+          }
+
           for (var i = 0, winLen = wins.length; i < winLen; i++) {
             for (var j = 0, tabLen = wins[i].tabs.length; j < tabLen; j++) {
               checkBeforeAdding(wins[i].tabs[j]);
