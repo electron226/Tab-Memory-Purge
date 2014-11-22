@@ -530,7 +530,11 @@
 
    // 最後まで処理を行ったらunloadedに上書き
    if (index >= end) {
-     unloaded = object;
+     for (var k in object) {
+       if (object.hasOwnProperty(k) && !unloaded.hasOwnProperty(k)) {
+         unloaded[k] = object[k];
+       }
+     }
      (callback || angular.noop)(null);
      return;
    }
@@ -549,7 +553,8 @@
 
    var tabId = parseInt(keys[index], 10);
    chrome.tabs.get(tabId, function(tab) {
-   if (chrome.runtime.lastError) { // If occur a error, it is ignore.
+     // If occur a error and tab is undefined, it is ignore.
+     if (chrome.runtime.lastError || tab === void 0) {
       if (!angular.isUndefined(tab)) {
          for (var i in blankUrls) {
            if (blankUrls.hasOwnProperty(i) &&
@@ -577,6 +582,8 @@
 
          restore(object, callback, keys, ++index, end);
        });
+     } else {
+       restore(object, callback, keys, ++index, end);
      }
    });
   }
