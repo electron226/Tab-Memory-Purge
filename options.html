@@ -174,7 +174,8 @@
                   </span>
                 </a>
                 <span style="margin-right: 1rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
-                <a href="{{ item.url }}" target="_blank">{{ item.title }}</a>
+                <a href="{{ item.url }}" target="_blank">
+                  <img src="{{ item.iconDataURI }}" ng-show="item.iconDataURI !== underfined" style="width: 16px; height: 16px">{{ item.title }}</a>
               </div>
             </fieldset>
           </section>

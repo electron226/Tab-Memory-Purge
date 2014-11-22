@@ -165,30 +165,42 @@
   };
   TabHistory.prototype.write = function(tab, callback) {
     debug('write function of TabHistory class.');
-    var now = new Date();
-    var date = new Date(
-      now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-    var write_date = date.getTime();
-    if (this.history[write_date] === void 0 ||
-        this.history[write_date] === null) {
-      this.history[write_date] = [];
-    } else {
-      // Check to if previously purge url.
-      this.history[write_date] = this.history[write_date].filter(function(v) {
-        return v.url !== tab.url;
+    var beWriting = function(tab, iconURI, callback) {
+      var now = new Date();
+      var date = new Date(
+        now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      var write_date = date.getTime();
+      if (this.history[write_date] === void 0 ||
+          this.history[write_date] === null) {
+        this.history[write_date] = [];
+      } else {
+        // Check to if previously purge url.
+        this.history[write_date] = this.history[write_date].filter(function(v) {
+          return v.url !== tab.url;
+        });
+      }
+      this.history[write_date].push({
+        title: tab.title ? tab.title : 'Unknown',
+        iconDataURI: iconURI || icons[NORMAL_EXCLUDE],
+        url: tab.url,
+        time: now.getTime(),
       });
+
+      this.oldDelete();
+
+      var write = {};
+      write[historyKey] = this.history;
+      chrome.storage.local.set(write, callback);
+    };
+
+    var t = this;
+    if (tab.favIconUrl) {
+      getDataURI(tab.favIconUrl, function(iconURI) {
+        beWriting.call(t, tab, iconURI, callback);
+      });
+    } else {
+      beWriting.call(t, tab, null, callback);
     }
-    this.history[write_date].push({
-      'title': tab.title ? tab.title : 'Unknown',
-      'url': tab.url,
-      'time': now.getTime(),
-    });
-
-    this.oldDelete();
-
-    var write = {};
-    write[historyKey] = this.history;
-    chrome.storage.local.set(write, callback);
   };
   TabHistory.prototype.remove = function(date, callback) {
     debug('removeItem function of TabHistory class.');
