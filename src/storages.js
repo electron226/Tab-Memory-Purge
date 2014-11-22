@@ -124,8 +124,9 @@
     chrome.storage.local.remove(this.key, callback);
   };
   TabSession.prototype.getDeletedOldSession = function(max_sessions) {
-    var length = this.sessions.length - (max_sessions || this.max_sessions);
-    return length <= 0 ? this.sessions : this.sessions.slice(0, length);
+    var end = max_sessions || this.max_sessions;
+    var first = this.sessions.length - (end);
+    return first <= 0 ? this.sessions : this.sessions.slice(first, end);
   };
   TabSession.prototype.setMaxSession = function(max_sessions) {
     if (max_sessions > 0) {
