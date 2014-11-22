@@ -1,5 +1,4 @@
-﻿/*jshint unused: false*/
-(function() {
+﻿(function() {
   "use strict";
 
   var myOptions = null; // my option settings.
@@ -17,6 +16,25 @@
    * value = スクロール量(x, y)を表す連想配列
    */
   var tempScrollPositions = {};
+
+  // the string that represents the temporary exclusion list
+  var tempRelease = [];
+
+  var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
+  // the session of released tabs.
+  var tabSession = new TabSession(sessionKey, currentSessionKey);
+  var tabHistory = new TabHistory(historyKey); // the history of released tabs.
+  var currentIcon = null;
+  var displayPageOfOption = null;
+
+  /* purge関数が実行された際に追加される。
+   * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、
+   * 全ての処理が終わった際に削除される。
+   *
+   * key: タブのID
+   * value: 常にtrue
+   */
+  var runPurge = {};
 
   /**
    * メモリ解放を行ったタブの情報が入ってる辞書型
@@ -57,25 +75,6 @@
 
     tabSession.update(unloaded);
   });
-
-  // the string that represents the temporary exclusion list
-  var tempRelease = [];
-
-  var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
-  // the session of released tabs.
-  var tabSession = new TabSession(sessionKey, currentSessionKey);
-  var tabHistory = new TabHistory(historyKey); // the history of released tabs.
-  var currentIcon = null;
-  var displayPageOfOption = null;
-
-  /* purge関数が実行された際に追加される。
-   * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、
-   * 全ての処理が終わった際に削除される。
-   *
-   * key: タブのID
-   * value: 常にtrue
-   */
-  var runPurge = {};
 
   /**
   * 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
@@ -460,6 +459,19 @@
   }
 
   /**
+  * 定期的な処理を停止
+  * @param {Number} tabId 停止するタブのID.
+  */
+  function deleteTick(tabId)
+  {
+    debug('deleteTick');
+    if (ticked.hasOwnProperty(tabId)) {
+      clearInterval(ticked[tabId]);
+      delete ticked[tabId];
+    }
+  }
+
+  /**
   * 定期的に解放処理の判断が行われるよう設定します。
   * 既に設定済みなら時間を延長します。
   * @param {Number} tabId 設定するタブのID.
@@ -498,19 +510,6 @@
         (callback || angular.noop)(null);
       });
     });
-  }
-
-  /**
-  * 定期的な処理を停止
-  * @param {Number} tabId 停止するタブのID.
-  */
-  function deleteTick(tabId)
-  {
-    debug('deleteTick');
-    if (ticked.hasOwnProperty(tabId)) {
-      clearInterval(ticked[tabId]);
-      delete ticked[tabId];
-    }
   }
 
   /**
@@ -928,7 +927,12 @@
   function autoPurgeCheck()
   {
     debug('autoPurgeCheck');
-    if (myOptions.enable_auto_purge) {
+    if (myOptions.enable_auto_purge === null ||
+        myOptions.enable_auto_purge === void 0) {
+        return;
+    }
+
+    if (myOptions.enable_auto_purge === true) {
       isLackTheMemory(myOptions.remaiming_memory, function(result) {
         if (result) {
           var ids = [];

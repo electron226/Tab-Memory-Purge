@@ -19,7 +19,7 @@
                     JSON.parse(sessions) : sessions;
   };
   TabSession.prototype.update = function(session, callback) {
-    debug('update function of TabSession class.');
+    debug('update function of TabSession class.', session);
     if (session === void 0 || session === null) {
       error('a invalid type of arguments.');
       return;
