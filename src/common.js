@@ -26,6 +26,10 @@
       'all_unpurge': JSON.stringify({}),
       'restore': JSON.stringify({}),
     },
+    'keybind_exclude_url':
+        'nicovideo.jp\n' +
+        'youtube.com',
+    'keybind_regex_insensitive': true,
 
     'savedSessions': [],
   };
@@ -40,17 +44,22 @@
 
   window.defaultValues = window.defaultValues || defaultValues;
 
-  // initTranslationsでキー名を使用するときに使う。
-  // どのファイルを選択しても問題ない。
-  window.translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
-                           chrome.runtime.getURL('_locales/en/messages.json');
-
   // The url of the release point.
   window.blankUrls = {
     'local': chrome.runtime.getURL('blank.html'),
     'normal': 'http://electron226.github.io/Tab-Memory-Purge',
   };
 
+  window.extensionExcludeUrl =
+      '^chrome-*\\w*://\n' +
+      '^view-source:\n' +
+      '^file:///\n' +
+      '^' + blankUrls.normal;
+
+  // initTranslationsでキー名を使用するときに使う。
+  // どのファイルを選択しても問題ない。
+  window.translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
+                           chrome.runtime.getURL('_locales/en/messages.json');
   // file of get scroll position of tab.
   window.getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
 
@@ -59,6 +68,7 @@
   window.USE_EXCLUDE       = window.USE_EXCLUDE || 50001;
   window.TEMP_EXCLUDE      = window.TEMP_EXCLUDE ||50002;
   window.EXTENSION_EXCLUDE = window.EXTENSION_EXCLUDE || 50003;
+  window.KEYBIND_EXCLUDE   = window.KEYBIND_EXCLUDE || 50004;
 
   // the path of icons.
   // defined NORMAL_EXCLUDE etc... in common.js.
@@ -69,12 +79,6 @@
   icons[EXTENSION_EXCLUDE] =
       chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
   window.icons = window.icons || icons;
-
-  window.extensionExcludeUrl =
-      '^chrome-*\\w*://\n' +
-      '^view-source:\n' +
-      '^file:///\n' +
-      '^' + blankUrls.normal;
 
   window.optionPage = chrome.runtime.getURL('options.html');
   window.changeHistory = chrome.runtime.getURL('History.txt');

@@ -111,16 +111,6 @@ ul
     width: 472px;
 }
 
-textarea[ng-model='options.exclude_url']
-{
-    float: left;
-}
-
-div.otherTitle
-{
-    clear: both;
-}
-
 div#history_date_list
 {
     position: absolute;

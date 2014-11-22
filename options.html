@@ -103,11 +103,12 @@
               <legend>
                 <span translation="exclude_url"></span>&nbsp;<button ng-click="showRegexTool()"><span translation="regex_tool"></span></button>
               </legend>
-              <textarea ng-model="options.exclude_url" rows="8" cols="60"></textarea>
+              <textarea ng-model="options.exclude_url" rows="8" cols="60" style="float: left;"></textarea>
               <div>
                 <div translation="option"></div>
                 <input type="checkbox" ng-model="options.regex_insensitive"><span translation="regex_confuse"></span>
               </div>
+              <div style="clear: left;"></div>
             </fieldset>
 
             <fieldset>
@@ -137,6 +138,18 @@
                   <td class="status" style="width: 100px; color: red"></td>
                 </tr>
               </table>
+            </fieldset>
+
+            <fieldset>
+              <legend>
+                <span translation="keybind_exclude_url"></span>&nbsp;<button ng-click="showRegexTool()"><span translation="regex_tool"></span></button>
+              </legend>
+              <textarea ng-model="options.keybind_exclude_url" rows="8" cols="60" style="float: left;"></textarea>
+              <div>
+                <div translation="option"></div>
+                <input type="checkbox" ng-model="options.keybind_regex_insensitive"><span translation="regex_confuse"></span>
+              </div>
+              <div style="clear: left;"></div>
             </fieldset>
           </section>
 

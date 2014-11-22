@@ -192,8 +192,12 @@
     "description": "Import"
   },
   "exclude_url": {
-    "message": "Exclude URLs (Regular expression)",
+    "message": "Exclude URLs (Regular expression and Partial Match)",
     "description": "Exclude URL"
+  },
+  "keybind_exclude_url": {
+    "message": "Exclude URLs on Keybinds (Regular expression and Partial Match)",
+    "description": "Exclude URL on Keybinds"
   },
   "if_restore_session_message": {
     "message": "Click here if you want to restore the closed tabs at the time of the update.",

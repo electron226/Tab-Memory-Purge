@@ -192,8 +192,12 @@
     "description": "インポート"
   },
   "exclude_url": {
-    "message": "除外するアドレス(正規表現)",
+    "message": "除外するアドレス(正規表現、部分一致)",
     "description": "除外するアドレス"
+  },
+  "keybind_exclude_url": {
+    "message": "キーバインドを除外するアドレス(正規表現、部分一致)",
+    "description": "キーバインドを除外するアドレス"
   },
   "if_restore_session_message": {
     "message": "アップデート時に閉じられたタブを復元する場合はこちら。",

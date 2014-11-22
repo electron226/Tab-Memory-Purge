@@ -83,9 +83,9 @@
   * @param {Object} excludeOptions 除外リストの設定を表すオブジェクト.
   *                        list    除外リストの値。複数のものは\nで区切る.
   *                        options 正規表現のオプション.
-  * @param {Function} callback callback function.
-  *                   コールバック関数の引数にはBoolean型の値が入る.
-  *                   マッチしたらtrue, しなかったらfalse.
+  *                        returnValue 一致したときに返す返り値
+  * @param {Function} [callback=excludeOptions.returnValue] callback function.
+  *                            引数にはnullかreturnValueの値が入る
   */
   function checkMatchUrlString(url, excludeOptions, callback)
   {
@@ -96,55 +96,87 @@
       if (excludeArray[i] !== '') {
         var re = new RegExp(excludeArray[i], excludeOptions.options);
         if (re.test(url)) {
-          (callback || angular.noop)(true);
+          (callback || angular.noop)(excludeOptions.returnValue);
           return;
         }
       }
     }
-    (callback || angular.noop)(false);
+    (callback || angular.noop)(null);
+  }
+
+  function getTargetExcludeList(target)
+  {
+    switch (target) {
+      case 'extension':
+        return {
+          list: extensionExcludeUrl,
+          options: 'i',
+          returnValue: EXTENSION_EXCLUDE,
+        };
+      case 'keybind':
+        return {
+          list: myOptions.keybind_exclude_url,
+          options: myOptions.keybind_regex_insensitive ? 'i' : '',
+          returnValue: KEYBIND_EXCLUDE,
+        };
+      default:
+        return {
+          list: myOptions.exclude_url,
+          options: myOptions.regex_insensitive ? 'i' : '',
+          returnValue: USE_EXCLUDE,
+        };
+    }
+    error('getTargetExcludeList was error.', target);
+    return null;
   }
 
   /**
   * 与えられたURLが全ての除外リストに一致するか検索する。
   * @param {String} url 対象のURL.
+  * @param {String} [excludeTarget=normal] 使用するユーザ指定の除外リストの種類
+          *                                normalかkeybindを指定
   * @param {Function} callback callback function.
   *                   コールバック関数の引数にはどのリストと一致したの数値が入る。
   *                   EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
-  *                   USE_EXCLUDE    = 通常のユーザが変更できる除外アドレス
-  *                   TEMP_EXCLUDE   = 一時的な非解放リスト
-  *                   NORMAL_EXCLUDE = 一致しなかった。.
+  *                   USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
+  *                   TEMP_EXCLUDE   = 一時的な非解放リストと一致
+  *                   NORMAL_EXCLUDE = 一致しなかった。
   */
-  function checkExcludeList(url, callback)
+ function checkExcludeList(url, excludeTarget, callback)
   {
     debug('checkExcludeList');
 
+    var targetList;
+    if (angular.isString(excludeTarget)) {
+      targetList = getTargetExcludeList(excludeTarget);
+    } else if (angular.isFunction(excludeTarget)) {
+      targetList = getTargetExcludeList();
+      callback = excludeTarget;
+    }
+
     // Check exclusion list in the extension.
     checkMatchUrlString(url,
-      { list: extensionExcludeUrl, options: 'i' },
+      getTargetExcludeList('extension'),
       function(extensionMatch) {
         if (extensionMatch) {
-          (callback || angular.noop)(EXTENSION_EXCLUDE);
+          (callback || angular.noop)(extensionMatch);
           return;
         }
 
-        checkMatchUrlString(url,
-          { list: myOptions.exclude_url,
-            options: myOptions.regex_insensitive ? 'i' : '' },
-          function(normalMatch) {
-            if (normalMatch) {
-              (callback || angular.noop)(USE_EXCLUDE);
-              return;
-            }
-
-            // Compared to the temporary exclusion list.
-            if (tempRelease.indexOf(url) !== -1) {
-              (callback || angular.noop)(TEMP_EXCLUDE);
-              return;
-            }
-
-            (callback || angular.noop)(NORMAL_EXCLUDE);
+        checkMatchUrlString(url, targetList, function(normalMatch) {
+          if (normalMatch) {
+            (callback || angular.noop)(normalMatch);
+            return;
           }
-        );
+
+          // Compared to the temporary exclusion list.
+          if (tempRelease.indexOf(url) !== -1) {
+            (callback || angular.noop)(TEMP_EXCLUDE);
+            return;
+          }
+
+          (callback || angular.noop)(NORMAL_EXCLUDE);
+        });
       }
     );
   }
@@ -1098,6 +1130,12 @@
       case 'display_option_page':
         sendResponse(displayPageOfOption);
         displayPageOfOption = null;
+        break;
+      case 'keybind_check_exclude_list':
+        checkExcludeList(message.location.href, 'keybind', function(state) {
+          sendResponse(
+            state !== EXTENSION_EXCLUDE && state !== KEYBIND_EXCLUDE);
+        });
         break;
     }
   });

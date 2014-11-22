@@ -63,10 +63,12 @@
     "optionPage": true,
     "changeHistory": true,
     "optionMenus": true,
+
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
+    "KEYBIND_EXCLUDE": true,
 
     "TabSession": true,
     "TabHistory": true,
