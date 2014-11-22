@@ -207,28 +207,20 @@
       });
     };
 
-    $scope.deleteHistoryItem = function(data, deleteItem) {
+    $scope.deleteHistoryItem = function(date, deleteItem) {
       var histories = angular.copy($scope.history);
       var t = histories.filter(function(x) {
-        if (x.date !== data.date) {
+        if (x.date !== date) {
           return true;
         }
 
-        var bResult = true;
         var hi = angular.copy(x.history);
-        var hit = hi.filter(function(x2, i2, a2) {
-          if (x2.time !== deleteItem.time) {
-            return true;
-          }
-          a2.splice(i2, 1);
-          if (a2.length === 0) {
-            bResult = false;
-          }
-          return false;
+        var hit = hi.filter(function(x2) {
+          return x2.time !== deleteItem.time;
         });
         x.history = hit;
 
-        return bResult;
+        return hit.length > 0 ? true : false;
       });
       histories = t;
 
@@ -243,7 +235,7 @@
       write[historyKey] = writeHistory;
       chrome.storage.local.set(write, function() {
         chrome.runtime.sendMessage(
-          { event: 'deleteHistoryItem', date: data.date, item: deleteItem });
+          { event: 'deleteHistoryItem', date: date, item: deleteItem });
       });
     };
 

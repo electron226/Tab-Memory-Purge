@@ -167,7 +167,7 @@
                 <button ng-click="deleteHistory(data.date)" translation="delete"></button>
               </legend>
               <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
-                <a href="#" ng-click="deleteHistoryItem(data, item)" style="margin-right: 1rem;">
+                <a href="#" ng-click="deleteHistoryItem(data.date, item)" style="margin-right: 1rem;">
                   <span style="position: relative; top: 0.3rem;">
                     <span class="delete_icon"></span>
                     <span class="delete_icon2"></span>
