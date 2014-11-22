@@ -1112,6 +1112,9 @@
           }
         }
         break;
+      case 'deleteHistory':
+        tabHistory.remove(new Date(message.date));
+        break;
       case 'deleteHistoryItem':
         tabHistory.removeItem(new Date(message.date), message.item);
         break;

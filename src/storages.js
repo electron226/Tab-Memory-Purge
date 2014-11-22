@@ -190,6 +190,15 @@
     write[historyKey] = this.history;
     chrome.storage.local.set(write, callback);
   };
+  TabHistory.prototype.remove = function(date, callback) {
+    debug('removeItem function of TabHistory class.');
+
+    delete this.history[date.getTime()];
+
+    var write = {};
+    write[historyKey] = this.history;
+    chrome.storage.local.set(write, callback);
+  };
   TabHistory.prototype.removeItem = function(date, item, callback) {
     debug('removeItem function of TabHistory class.');
 

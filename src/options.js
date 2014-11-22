@@ -186,6 +186,27 @@
       }
     });
 
+    $scope.deleteHistory = function(date) {
+      var histories = angular.copy($scope.history);
+      var t = histories.filter(function(x) {
+        return x.date !== date;
+      });
+      histories = t;
+
+      $scope.history = histories;
+
+      var writeHistory = {};
+      histories.forEach(function(v) {
+        writeHistory[v.date] = v.history;
+      });
+
+      var write = {};
+      write[historyKey] = writeHistory;
+      chrome.storage.local.set(write, function() {
+        chrome.runtime.sendMessage({ event: 'deleteHistory', date: date });
+      });
+    };
+
     $scope.deleteHistoryItem = function(data, deleteItem) {
       var histories = angular.copy($scope.history);
       var t = histories.filter(function(x) {

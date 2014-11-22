@@ -162,7 +162,10 @@
               <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url." style="width: 300px;">
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
-              <legend>{{ data.date | date:'yyyy/MM/dd' }}</legend>
+              <legend>
+                {{ data.date | date:'yyyy/MM/dd' }}
+                <button ng-click="deleteHistory(data.date)" translation="delete"></button>
+              </legend>
               <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
                 <a href="#" ng-click="deleteHistoryItem(data, item)" style="margin-right: 1rem;">
                   <span style="position: relative; top: 0.3rem;">
