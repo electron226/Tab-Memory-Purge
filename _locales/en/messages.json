@@ -211,6 +211,10 @@
     "message": "Previous Session",
     "description": "Previous Session"
   },
+  "wantToOperateMessage": {
+    "message": "If you want to operate date, please, you are selecting the date.",
+    "description": "The message when a user doesn't select saved session."
+  },
 
 
   "specification": {

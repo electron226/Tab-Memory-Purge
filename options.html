@@ -193,6 +193,7 @@
                 <button translation="restore" ng-click="restored(showSavedSession)"></button>
                 <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
               </div>
+              <div ng-hide="showSavedSession" style="color: red;" translation="wantToOperateMessage"></div>
               <div ng-repeat="(key, data) in showSavedSession.session">
                 <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">
                   <span style="position: relative; top: 0.5rem; left: -0.3rem;">

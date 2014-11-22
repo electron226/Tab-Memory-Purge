@@ -211,6 +211,10 @@
     "message": "以前のセッション",
     "description": "以前のセッション"
   },
+  "wantToOperateMessage": {
+    "message": "保存したセッションを操作したい場合、対象のデータを選択してください。",
+    "description": "保存されたセッションが選択されていないときのメッセージ"
+  },
 
 
   "specification": {
