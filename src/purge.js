@@ -63,8 +63,6 @@
           unloadedCount--;
           tempScrollPositions[tabId] = v.oldValue.scrollPosition;
           break;
-        default:
-          break;
       }
 
       // If the tab of tabId isn't existed, these process are skipped.
@@ -105,6 +103,7 @@
 
   function getTargetExcludeList(target)
   {
+    debug('getTargetExcludeList', target);
     switch (target) {
       case 'extension':
         return {
@@ -330,6 +329,7 @@
           return;
         }
 
+
         // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
@@ -356,18 +356,20 @@
                 };
 
                 // the histories are writing.
-                tabHistory.write(tab, function() {
-                  (callback || angular.noop)(updated);
-                });
+                tabHistory.write(tab, callback);
               }
 
               if (myOptions.release_page === 'assignment') {
-                chrome.tabs.update(tabId, { url: url }, afterPurge);
+                chrome.tabs.update(tabId, { url: url }, function(updated) {
+                  afterPurge(updated, callback);
+                });
               } else {
                 chrome.tabs.executeScript(tabId, {
                   code: 'window.location.replace("' + url + '");' },
                   function() {
-                    chrome.tabs.get(tabId, afterPurge);
+                    chrome.tabs.get(tabId, function(updated) {
+                      afterPurge(updated, callback);
+                    });
                 });
               }
             });
@@ -794,7 +796,7 @@
           tabSession.read(myOptions.sessions);
         }
         tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
-//
+        
         // Apply timer to exist tabs.
         chrome.windows.getAll({ populate: true }, function(wins) {
           if (chrome.runtime.lastError) {
