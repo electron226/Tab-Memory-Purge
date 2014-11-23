@@ -627,27 +627,23 @@
         return;
       }
 
-      // current tab index.
-      var i = tab.index;
-
-      // Search right than current tab.
-      var j = i + 1;
-      var len = win.tabs.length;
-      while (j < len && unloaded.hasOwnProperty(win.tabs[j].id)) {
-        j++;
+      var tabs = win.tabs.filter(function(v) {
+        return !unloaded.hasOwnProperty(v.id);
+      });
+      var t = tabs.filter(function(v) {
+        return v.index <= tab.index;
+      });
+      var tLength = t.length - 1;
+      if (t.length === 0) {
+        t = tabs.filter(function(v) {
+          return v.index > tab.index;
+        });
+        tLength = 0;
       }
 
-      // Search the left if can't find.
-      if (j >= len) {
-        j = i - 1;
-        while (0 <= j && unloaded.hasOwnProperty(win.tabs[j].id)) {
-          j--;
-        }
-      }
-
-      if (0 <= j && j < len) {
+      if (t.length > 0) {
         // If found tab, It's active.
-        chrome.tabs.update(win.tabs[j].id, { active: true }, callback);
+        chrome.tabs.update(t[tLength].id, { active: true }, callback);
       } else {
         // If can not find the tab to activate to create a new tab.
         chrome.tabs.create({ active: true }, callback);
@@ -1083,8 +1079,9 @@
             return;
           }
 
-          purgeToggle(tab.id);
-          searchUnloadedTabNearPosition(tab);
+          purgeToggle(tab.id, function() {
+            searchUnloadedTabNearPosition(tab);
+          });
         });
         break;
       case 'switch_not_release':
@@ -1105,14 +1102,29 @@
             return;
           }
 
-          var tabId = null;
-          for (var i = 0, len = results.length; i < len; i++) {
-            tabId = results[i].id;
-            if (!unloaded.hasOwnProperty(tabId)) {
-              all_purge_functions[message.event](results[i]);
-            }
-          }
-          all_purge_after_functions[message.event]();
+          (function() {
+            var count = 0;
+            var countEnd = results.length;
+            var timer = setInterval(function() {
+              if (count >= countEnd) {
+                all_purge_after_functions[message.event](function() {
+                  clearInterval(timer);
+                });
+              }
+            }, 100);
+
+            var tabId = null;
+            results.forEach(function(v) {
+              tabId = v.id;
+              if (!unloaded.hasOwnProperty(tabId)) {
+                all_purge_functions[message.event](v, function() {
+                  count++;
+                });
+              } else {
+                count++;
+              }
+            });
+          })();
         });
         break;
       case 'all_unpurge':
