@@ -37,21 +37,28 @@
     }
   };
 
-  window.getDataURI = window.getDataURI || function(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function() {
-      var bytes = new Uint8Array(this.response);
-      var dataType = window.getDataType(bytes);
-      var binaryData = '';
-      for (var i = 0, len = bytes.byteLength; i < len; i++) {
-        binaryData += String.fromCharCode(bytes[i]);
-      }
+  window.getDataURI = window.getDataURI || function(url) {
+    return new Promise(function(resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var bytes = new Uint8Array(this.response);
+          var dataType = window.getDataType(bytes);
+          var binaryData = '';
+          for (var i = 0, len = bytes.byteLength; i < len; i++) {
+            binaryData += String.fromCharCode(bytes[i]);
+          }
 
-      callback('data:' + dataType + ';base64,' + window.btoa(binaryData));
-    };
-    xhr.send();
+          resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
+        } else {
+          reject(new Error(xhr.statusText));
+        }
+      };
+      xhr.onerror = reject;
+      xhr.send();
+    });
   };
 
   /**

@@ -27,15 +27,6 @@
   var currentIcon = null;
   var displayPageOfOption = null;
 
-  /* purge関数が実行された際に追加される。
-   * その後、chrome.tabs.unloaded.addlistenerに定義された関数が呼び出され、
-   * 全ての処理が終わった際に削除される。
-   *
-   * key: タブのID
-   * value: 常にtrue
-   */
-  var runPurge = {};
-
   /**
    * メモリ解放を行ったタブの情報が入ってる辞書型
    *
@@ -74,6 +65,25 @@
     tabSession.update(unloaded);
   });
 
+  function PromiseCatchFunction(mes)
+  {
+    error(mes);
+  }
+
+  function isReleasePage(url)
+  {
+    for (var i in blankUrls) {
+      if (blankUrls.hasOwnProperty(i) && url.indexOf(blankUrls[i]) === 0) {
+        return true;
+      }
+    }
+    if (myOptions.relase_page === 'assignment' &&
+        url.indexOf(myOptions.release_url) === 0) {
+      return true;
+    }
+    return false;
+  }
+
   /**
   * 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
   * @param {String} url マッチするか調べるアドレス.
@@ -84,7 +94,7 @@
   * @param {Function} [callback=excludeOptions.returnValue] callback function.
   *                            引数にはnullかreturnValueの値が入る
   */
-  function checkMatchUrlString(url, excludeOptions, callback)
+  function checkMatchUrlString(url, excludeOptions)
   {
     debug('checkMatchUrlString');
 
@@ -93,12 +103,11 @@
       if (excludeArray[i] !== '') {
         var re = new RegExp(excludeArray[i], excludeOptions.options);
         if (re.test(url)) {
-          (callback || angular.noop)(excludeOptions.returnValue);
-          return;
+          return excludeOptions.returnValue;
         }
       }
     }
-    (callback || angular.noop)(null);
+    return null;
   }
 
   function getTargetExcludeList(target)
@@ -140,43 +149,35 @@
   *                   TEMP_EXCLUDE   = 一時的な非解放リストと一致
   *                   NORMAL_EXCLUDE = 一致しなかった。
   */
- function checkExcludeList(url, excludeTarget, callback)
+ function checkExcludeList(url, excludeTarget)
   {
     debug('checkExcludeList');
 
     var targetList;
     if (angular.isString(excludeTarget)) {
       targetList = getTargetExcludeList(excludeTarget);
-    } else if (angular.isFunction(excludeTarget)) {
+    } else {
       targetList = getTargetExcludeList();
-      callback = excludeTarget;
     }
 
     // Check exclusion list in the extension.
-    checkMatchUrlString(url,
-      getTargetExcludeList('extension'),
-      function(extensionMatch) {
-        if (extensionMatch) {
-          (callback || angular.noop)(extensionMatch);
-          return;
-        }
+    var result = checkMatchUrlString(
+      url, getTargetExcludeList('extension'));
+    if (result) {
+      return result;
+    }
 
-        checkMatchUrlString(url, targetList, function(normalMatch) {
-          if (normalMatch) {
-            (callback || angular.noop)(normalMatch);
-            return;
-          }
+    result = checkMatchUrlString(url, targetList);
+    if (result) {
+      return result;
+    }
 
-          // Compared to the temporary exclusion list.
-          if (tempRelease.indexOf(url) !== -1) {
-            (callback || angular.noop)(TEMP_EXCLUDE);
-            return;
-          }
+    // Compared to the temporary exclusion list.
+    if (tempRelease.indexOf(url) !== -1) {
+      return TEMP_EXCLUDE;
+    }
 
-          (callback || angular.noop)(NORMAL_EXCLUDE);
-        });
-      }
-    );
+    return NORMAL_EXCLUDE;
   }
 
   /**
@@ -187,39 +188,44 @@
   {
     debug('reloadBrowserIcon');
 
-    checkExcludeList(tab.url, function(changeIcon) {
-      chrome.browserAction.setIcon(
-        { path: icons[changeIcon], tabId: tab.id }, function() {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-            return;
-          }
-          currentIcon = changeIcon;
+    var deferred = Promise.defer();
 
-          var title = 'Tab Memory Purge\n';
-          switch (changeIcon) {
-            case NORMAL_EXCLUDE:
-              title += "The url of this tab isn't include exclude list.";
-              break;
-            case USE_EXCLUDE:
-              title += "The url of this tab is included your exclude list.";
-              break;
-            case TEMP_EXCLUDE:
-              title += "The url of this tab is included" +
-                      " your temporary exclude list.";
-              break;
-            case EXTENSION_EXCLUDE:
-              title += "The url of this tab is included" +
-                      " exclude list of in this extension.";
-              break;
-            default:
-              error('Invalid state.');
-              break;
-          }
-          chrome.browserAction.setTitle({ tabId: tab.id, title: title });
+    var changeIcon = checkExcludeList(tab.url);
+    chrome.browserAction.setIcon(
+      { path: icons[changeIcon], tabId: tab.id }, function() {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          deferred.reject(chrome.runtime.lastError.message);
+          return;
         }
-      );
-    });
+        currentIcon = changeIcon;
+
+        var title = 'Tab Memory Purge\n';
+        switch (changeIcon) {
+          case NORMAL_EXCLUDE:
+            title += "The url of this tab isn't include exclude list.";
+            break;
+          case USE_EXCLUDE:
+            title += "The url of this tab is included your exclude list.";
+            break;
+          case TEMP_EXCLUDE:
+            title += "The url of this tab is included" +
+                    " your temporary exclude list.";
+            break;
+          case EXTENSION_EXCLUDE:
+            title += "The url of this tab is included" +
+                    " exclude list of in this extension.";
+            break;
+          default:
+            error('Invalid state.');
+            break;
+        }
+        chrome.browserAction.setTitle({ tabId: tab.id, title: title });
+        deferred.resolve(true);
+      }
+    );
+
+    return deferred.promise;
   }
 
   /**
@@ -236,114 +242,130 @@
       "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
-  function getPurgeURL(tab, callback) {
-    function getURL(tab, iconDateURI, callback)
+  function getPurgeURL(tab) {
+    function getURL(tab, iconDateURI)
     {
-      var args = '' ;
+      var deferred = Promise.defer();
 
-      args += tab.title ?
-      '&title=' + encodeURIComponent(tab.title) : '';
-      if (iconDateURI) {
-        args += '&favicon=' + encodeURIComponent(iconDateURI);
-      } else {
-        args += tab.favIconUrl ?
-          '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
-      }
+      setTimeout(function() {
+        var args = '' ;
 
-      // 解放に使うページを設定
-      var page = null;
-      switch (myOptions.release_page) {
-        default:
-          error("'release page' setting error. so to set default value.");
-          /* falls through */
-        case 'author': // 作者サイト
-          page = blankUrls.normal;
-          break;
-        case 'normal': // 拡張機能内
-          page = blankUrls.local;
-          break;
-        case 'assignment': // 指定URL
-          page = myOptions.release_url;
-          break;
-      }
+        args += tab.title ?
+        '&title=' + encodeURIComponent(tab.title) : '';
+        if (iconDateURI) {
+          args += '&favicon=' + encodeURIComponent(iconDateURI);
+        } else {
+          args += tab.favIconUrl ?
+            '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
+        }
 
-      // Do you reload tab when you focus tab?.
-      args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
+        // 解放に使うページを設定
+        var page = null;
+        switch (myOptions.release_page) {
+          default:
+            error("'release page' setting error. so to set default value.");
+            deferred.reject(
+              "'release page' setting error. so to set default value.");
+            /* falls through */
+          case 'author': // 作者サイト
+            page = blankUrls.normal;
+            break;
+          case 'normal': // 拡張機能内
+            page = blankUrls.local;
+            break;
+          case 'assignment': // 指定URL
+            page = myOptions.release_url;
+            break;
+        }
 
-      if (tab.url) {
-        args += '&url=' + encodeURIComponent(tab.url);
-      }
+        // Do you reload tab when you focus tab?.
+        args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
 
-      callback(encodeURI(page) + '?' + encodeURIComponent(args));
+        if (tab.url) {
+          args += '&url=' + encodeURIComponent(tab.url);
+        }
+
+        deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
+      }, 0);
+
+      return deferred.promise;
     }
+    var deferred = Promise.defer();
 
-    if (!(angular.isObject(tab) || angular.isFunction(callback))) {
-      error('getPurgeURL is invalid arguments.');
-      return;
-    }
+    setTimeout(function() {
+      if (!(angular.isObject(tab))) {
+        error('getPurgeURL is invalid arguments.');
+        deferred.reject('getPurgeURL is invalid arguments.');
+        return;
+      }
 
-    if (tab.favIconUrl) {
-      getDataURI(tab.favIconUrl, function(iconURI) {
-        getURL(tab, iconURI, function(url) {
-          callback(url, iconURI);
+      if (tab.favIconUrl) {
+        getDataURI(tab.favIconUrl).then(function(iconDataURI) {
+          getURL(tab, iconDataURI).then(function(url) {
+            deferred.resolve(url, iconDataURI);
+          });
         });
-      });
-    } else {
-      getURL(tab, null, callback);
-    }
+      } else {
+        getURL(tab, null).then(function(url) {
+          deferred.resolve(url);
+        });
+      }
+    }, 0);
+
+    return deferred.promise;
   }
 
   /**
   * タブの解放を行います。
   * @param {Number} tabId タブのID.
-  * @param {Function} callback コールバック関数。
-  *                            引数は解放したタブのオブジェクトかnull.
   */
-  function purge(tabId, callback)
+  function purge(tabId)
   {
     debug('purge');
-    if (!angular.isNumber(tabId)) {
-      error("tabId is not number.");
-      (callback || angular.noop)(null);
-      return;
-    }
 
-    if (unloaded.hasOwnProperty(tabId)) {
-      error('Already purging. "' + tabId + '"');
-      (callback || angular.noop)(null);
-      return;
-    }
-
-    runPurge[tabId] = true;
-
-    chrome.tabs.get(tabId, function(tab) {
-      if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
-        (callback || angular.noop)(null);
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (!angular.isNumber(tabId)) {
+        error("tabId is not number.");
         return;
       }
 
-      checkExcludeList(tab.url, function(state) {
-        if (state === EXTENSION_EXCLUDE) {
-          (callback || angular.noop)(null);
+      if (unloaded.hasOwnProperty(tabId)) {
+        error('Already purging. "' + tabId + '"');
+        return;
+      }
+
+      chrome.tabs.get(tabId, function(tab) {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          deferred.reject(chrome.runtime.lastError.message);
           return;
         }
 
+        var state = checkExcludeList(tab.url);
+        if (state === EXTENSION_EXCLUDE) {
+          error('The tabId have been included exclude list of extension. ' +
+                tabId);
+          deferred.reject(
+            'The tabId have been included exclude list of extension. ' + tabId
+          );
+          return;
+        }
 
         // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
             if (chrome.runtime.lastError) {
               error(chrome.runtime.lastError.message);
-              (callback || angular.noop)(null);
+              deferred.reject(chrome.runtime.lastError.message);
               return;
             }
 
-            getPurgeURL(tab, function(url, iconURI) {
-              function afterPurge(updated, callback) {
+            getPurgeURL(tab).then(function(url, iconURI) {
+              function afterPurge(updated) {
                 if (chrome.runtime.lastError) {
                   error(chrome.runtime.lastError.message);
-                  (callback || angular.noop)(null);
+                  deferred.reject(chrome.runtime.lastError.message);
                   return;
                 }
 
@@ -356,76 +378,89 @@
                 };
 
                 // the histories are writing.
-                tabHistory.write(tab, callback);
+                tabHistory.write(tab).then(deferred.resolve);
               }
 
               if (myOptions.release_page === 'assignment') {
                 chrome.tabs.update(tabId, { url: url }, function(updated) {
-                  afterPurge(updated, callback);
+                  afterPurge(updated);
                 });
               } else {
                 chrome.tabs.executeScript(tabId, {
                   code: 'window.location.replace("' + url + '");' },
-                  function() {
-                    chrome.tabs.get(tabId, function(updated) {
-                      afterPurge(updated, callback);
-                    });
+                function() {
+                  chrome.tabs.get(tabId, function(updated) {
+                    afterPurge(updated);
+                  });
                 });
               }
             });
           });
         });
-      });
+    }, 0);
+    return deferred.promise;
   }
 
   /**
   * 解放したタブを復元します。
   * @param {Number} tabId 復元するタブのID.
   */
-  function unPurge(tabId, callback)
+  function unPurge(tabId)
   {
     debug('unPurge');
-    if (!angular.isNumber(tabId)) {
-      error("tabId is not number.");
-      return;
-    }
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (!angular.isNumber(tabId)) {
+        error("tabId is not number.");
+        deferred.reject("tabId is not number.");
+        return;
+      }
 
-    var url = unloaded[tabId].url;
-    if (myOptions.release_page === 'normal') {
-      // when release page is in the extension.
-      chrome.runtime.sendMessage(
-        { event: 'location_replace' }, function(useChrome) {
-          // If the url is empty in purge page.
-          if (useChrome) {
-            chrome.tabs.update(tabId, { url: url }, callback);
-          } else {
-            callback();
+      var url = unloaded[tabId].url;
+      if (myOptions.release_page === 'normal') {
+        // when release page is in the extension.
+        chrome.runtime.sendMessage(
+          { event: 'location_replace' }, function(useChrome) {
+            // If the url is empty in purge page.
+            if (useChrome) {
+              chrome.tabs.update(tabId, { url: url }, deferred.resolve);
+            } else {
+              deferred.resolve(true);
+            }
           }
-        }
-      );
-    } else {
-      chrome.tabs.executeScript(tabId,
-        { code: 'window.location.replace("' + url + '");' }, callback);
-    }
+        );
+      } else {
+        chrome.tabs.executeScript(
+          tabId,
+          { code: 'window.location.replace("' + url + '");' },
+          deferred.resolve);
+      }
+    }, 0);
+    return deferred.promise;
   }
 
   /**
   * 解放状態・解放解除を交互に行う
   * @param {Number} tabId 対象のタブのID.
   */
-   function purgeToggle(tabId, callback)
+   function purgeToggle(tabId)
   {
     debug('purgeToggle');
-    if (!angular.isNumber(tabId)) {
-      error("tabId is not number.");
-      return;
-    }
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (!angular.isNumber(tabId)) {
+        error("tabId is not number.");
+        deferred.reject("tabId is not number.");
+        return;
+      }
 
-    if (unloaded.hasOwnProperty(tabId)) {
-      unPurge(tabId, callback);
-    } else {
-      purge(tabId, callback);
-    }
+      if (unloaded.hasOwnProperty(tabId)) {
+        unPurge(tabId).then(deferred.resolve, deferred.reject);
+      } else {
+        purge(tabId).then(deferred.resolve, deferred.reject);
+      }
+    }, 0);
+    return deferred.promise;
   }
 
   /**
@@ -433,31 +468,35 @@
   * @param {Number} tabId 処理を行うタブのID.
   * @param {Function} callback コールバック関数。引数はなし.
   */
-  function tick(tabId, callback)
+  function tick(tabId)
   {
     debug('tick');
-
-    if (!angular.isNumber(tabId) || unloaded.hasOwnProperty(tabId)) {
-      error("tabId isn't number or added to unloaded already.", tabId);
-      (callback || angular.noop)(null);
-      return;
-    }
-
-    chrome.tabs.get(tabId, function(tab) {
-      if (chrome.runtime.lastError) {
-        log('tick function is skipped.', tabId);
-        (callback || angular.noop)(null);
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (!angular.isNumber(tabId) || unloaded.hasOwnProperty(tabId)) {
+        error("tabId isn't number or added to unloaded already.", tabId);
+        deferred.reject(
+          "tabId isn't number or added to unloaded already. " + tabId);
         return;
       }
 
-      // アクティブタブへの処理の場合、行わない
-      if (tab.active) {
-        // アクティブにしたタブのアンロード時間更新
-        setTick(tabId, callback);
-      } else {
-        purge(tabId, callback);
-      }
-    });
+      chrome.tabs.get(tabId, function(tab) {
+        if (chrome.runtime.lastError) {
+          log('tick function is skipped.', tabId);
+          deferred.reject('tick function is skipped. ' + tabId);
+          return;
+        }
+
+        // アクティブタブへの処理の場合、行わない
+        if (tab.active) {
+          // アクティブにしたタブのアンロード時間更新
+          setTick(tabId).then(deferred.resolve);
+        } else {
+          purge(tabId).then(deferred.resolve);
+        }
+      });
+    }, 0);
+    return deferred.promise;
   }
 
   /**
@@ -479,26 +518,29 @@
   * @param {Number} tabId 設定するタブのID.
   * @param {Function} callback コールバック関数。引数はなし.
   */
-  function setTick(tabId, callback)
+  function setTick(tabId)
   {
     debug('setTick');
-    if (!angular.isNumber(tabId)) {
-      error("tabId is not number.");
-      (callback || angular.noop)(null);
-      return;
-    }
+    var deferred = Promise.defer();
 
-    chrome.tabs.get(tabId, function(tab) {
-      if (chrome.runtime.lastError) {
-        log('setTick function is skipped.');
-        (callback || angular.noop)(null);
+    setTimeout(function() {
+      if (!angular.isNumber(tabId)) {
+        error("tabId is not number.");
+        deferred.reject("tabId is not number.");
         return;
       }
 
-      // 全ての除外アドレス一覧と比較
-      checkExcludeList(tab.url, function(state) {
-          // 除外アドレスに含まれていない場合
-        if (state === NORMAL_EXCLUDE) {
+      chrome.tabs.get(tabId, function(tab) {
+        if (chrome.runtime.lastError) {
+          log('setTick function is skipped.');
+          deferred.reject('setTick function is skipped.');
+          return;
+        }
+
+        // 全ての除外アドレス一覧と比較
+        var state = checkExcludeList(tab.url);
+
+        if (state === NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
           var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
@@ -509,9 +551,11 @@
           deleteTick(tabId);
         }
 
-        (callback || angular.noop)(null);
+        deferred.resolve(true);
       });
-    });
+    }, 0);
+    
+    return deferred.promise;
   }
 
   /**
@@ -520,74 +564,70 @@
   *
   * @param {Object} object オブジェクト型。これのみを指定する.
   *                        基本的にオブジェクト型unloaded変数のバックアップを渡す.
-  * @param {Function} callback コールバック関数。省略可能.
   * @param {Array} keys オブジェクト型のキー名の配列.省略可能.
   * @param {Number} index keysの再帰処理開始位置.デフォルトは0、省略可能.
   * @param {Number} end keysの最後の要素から一つ後の位置.
   *                     デフォルトはkeys.length、省略可能.
   */
- function restore(object, callback, keys, index, end)
+ function restore(object, keys, index, end)
  {
    debug('restore');
 
-   // 最後まで処理を行ったらunloadedに上書き
-   if (index >= end) {
-     for (var k in object) {
-       if (object.hasOwnProperty(k) && !unloaded.hasOwnProperty(k)) {
-         unloaded[k] = object[k];
+   var deferred = Promise.defer();
+   setTimeout(function restore_inner(object, keys, index, end) {
+     // 最後まで処理を行ったらunloadedに上書き
+     if (index >= end) {
+       for (var k in object) {
+         if (object.hasOwnProperty(k) && !unloaded.hasOwnProperty(k)) {
+           unloaded[k] = object[k];
+         }
        }
+       deferred.resolve(true);
+       return;
      }
-     (callback || angular.noop)(null);
-     return;
-   }
 
-   // 初期値
-   if (toType(keys) !== 'array') {
-     keys = [];
-     for (var key in object) {
-       if (object.hasOwnProperty(key)) {
-         keys.push(key);
+     // 初期値
+     if (toType(keys) !== 'array') {
+       keys = [];
+       for (var key in object) {
+         if (object.hasOwnProperty(key)) {
+           keys.push(key);
+         }
        }
+       index = 0;
+       end = keys.length;
      }
-     index = 0;
-     end = keys.length;
-   }
 
-   var tabId = parseInt(keys[index], 10);
-   chrome.tabs.get(tabId, function(tab) {
-     // If occur a error and tab is undefined, it is ignore.
-     if (chrome.runtime.lastError || tab === void 0) {
-      if (!angular.isUndefined(tab)) {
-         for (var i in blankUrls) {
-           if (blankUrls.hasOwnProperty(i) &&
-               tab.url.indexOf(blankUrls[i]) === 0) {
+     var tabId = parseInt(keys[index], 10);
+     chrome.tabs.get(tabId, function(tab) {
+       // If occur a error and tab is undefined, it is ignore.
+       if (chrome.runtime.lastError || tab === void 0) {
+         if (!angular.isUndefined(tab)) {
+           if (isReleasePage(tab.url)) {
+             restore_inner(object, keys, ++index, end);
              return;
            }
          }
-         if (myOptions.relase_page === 'assignment' &&
-             tab.url.indexOf(myOptions.release_url) === 0) {
-           return;
-         }
+
+         // タブが存在しない場合、新規作成
+         var purgeurl = object[tabId].purgeurl;
+         chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
+           if (chrome.runtime.lastError) {
+             error(chrome.runtime.lastError.message);
+           } else {
+             var temp = object[tabId];
+             delete object[tabId];
+             object[tab.id] = temp;
+           }
+
+           restore_inner(object, keys, ++index, end);
+         });
+       } else {
+         restore_inner(object, keys, ++index, end);
        }
-
-       // タブが存在しない場合、新規作成
-       var purgeurl = object[tabId].purgeurl;
-       chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
-         if (chrome.runtime.lastError) {
-           error(chrome.runtime.lastError.message);
-         } else {
-           var temp = object[tabId];
-           delete object[tabId];
-           object[tab.id] = temp;
-           runPurge[tab.id] = true;
-         }
-
-         restore(object, callback, keys, ++index, end);
-       });
-     } else {
-       restore(object, callback, keys, ++index, end);
-     }
-   });
+     });
+   }(object, keys, index, end), 0);
+   return deferred.promise;
   }
 
   /**
@@ -615,17 +655,18 @@
   * 右側から探索され、見つからなかったら左側を探索する。
   * 何も見つからなければ新規タブを作成してそのタブをアクティブにする。
   * @param {Tab} tab 基準点となるタブ.
-  * @param {Function} callback コールバック関数.
   */
- function searchUnloadedTabNearPosition(tab, callback)
+ function searchUnloadedTabNearPosition(tab)
   {
     debug('searchUnloadedTabNearPosition');
+
+    var deferred = Promise.defer();
 
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
-        (callback || angular.noop)(null);
+        deferred.reject(chrome.runtime.lastError.message);
         return;
       }
 
@@ -645,12 +686,14 @@
 
       if (t.length > 0) {
         // If found tab, It's active.
-        chrome.tabs.update(t[tLength].id, { active: true }, callback);
+        chrome.tabs.update(t[tLength].id, { active: true }, deferred.resolve);
       } else {
         // If can not find the tab to activate to create a new tab.
-        chrome.tabs.create({ active: true }, callback);
+        chrome.tabs.create({ active: true }, deferred.resolve);
       }
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -660,6 +703,9 @@
   function initializeContextMenu()
   {
     debug('initializeContextMenu');
+
+    var deferred = Promise.defer();
+
     // Remove all context menu.
     // then create context menu on the browser action.
     chrome.contextMenus.removeAll(function() {
@@ -668,7 +714,11 @@
         chrome.contextMenus.create(
           { id: i.toString(), title: opt, contexts: ['browser_action'] });
       });
+
+      deferred.resolve(true);
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -704,7 +754,7 @@
   function versionCheckAndUpdate()
   {
     debug('versionCheckUpdate');
-    // この拡張機能のバージョンチェック
+
     var currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
       if (chrome.runtime.lastError) {
@@ -786,8 +836,9 @@
         chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
 
         // initialize history.
-        tabHistory.read(myOptions.history);
-        tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
+        tabHistory.read(myOptions.history).then(function() {
+          tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
+        }, PromiseCatchFunction);
 
         // initialize session.
         if (prevVersion === '2.2.7') {
@@ -803,63 +854,37 @@
             error(chrome.runtime.lastError.message);
             return;
           }
-          
-          var regexs = [];
-          for (var key in blankUrls) {
-            if (blankUrls.hasOwnProperty(key)) {
-              regexs.push(new RegExp('^' + blankUrls[key], 'i'));
+
+          function toAdd(current, iconURI)
+          {
+            if (isReleasePage(current.url)) {
+              unloaded[current.id] = {
+                title          : current.title,
+                iconURI        : iconURI || icons[NORMAL_EXCLUDE],
+                url            : getParameterByName(current.url, 'url'),
+                purgeurl       : current.url,
+                scrollPosition : { x: 0 , y: 0 },
+              };
+
+              setTick(current.id);
             }
           }
-           if (myOptions.relase_page === 'assignment' &&
-               myOptions.release_url.length !== 0) {
-             regexs.push(new RegExp('^' + myOptions.release_url, 'i'));
-           }
 
           // If already purging tab, be adding the object of purging tab.
-          function addingPurgedTabs(current) {
-            function toAdd(iconURI) {
-              var alreadyFlag = false;
-              for (var z = 0, regLen = regexs.length; z < regLen; z++) {
-                if (regexs[z].test(current.url)) {
-                  runPurge[current.id] = true;
-                  unloaded[current.id] = {
-                    title: current.title,
-                    iconURI: iconURI || icons[NORMAL_EXCLUDE],
-                    url: getParameterByName(current.url, 'url'),
-                    purgeurl: current.url,
-                    scrollPosition: { x: 0 , y: 0 },
-                  };
-
-                  alreadyFlag = true;
-                  break;
+          wins.forEach(function(v) {
+            v.tabs.forEach(function(v2) {
+              var result = checkExcludeList(v2.url);
+              if (result === NORMAL_EXCLUDE || result === EXTENSION_EXCLUDE) {
+                if (v2.favIconUrl) {
+                  getDataURI(v2.favIconUrl).then(function(response) {
+                    toAdd(v2, response);
+                  });
+                } else {
+                  toAdd(v2);
                 }
               }
-
-              if (!alreadyFlag) {
-                setTick(current.id);
-              }
-            }
-
-            if (current.favIconUrl) {
-              getDataURI(current.favIconUrl, toAdd);
-            } else {
-              toAdd();
-            }
-          }
-
-          function checkBeforeAdding(current) {
-            checkExcludeList(current.url, function(result) {
-              if (result === NORMAL_EXCLUDE) {
-                addingPurgedTabs(current);
-              }
             });
-          }
-
-          for (var i = 0, winLen = wins.length; i < winLen; i++) {
-            for (var j = 0, tabLen = wins[i].tabs.length; j < tabLen; j++) {
-              checkBeforeAdding(wins[i].tabs[j]);
-            }
-          }
+          });
         });
 
         initializeContextMenu();
@@ -874,26 +899,28 @@
    * If the memory is shortage, return true.
    *
    * @param criteria_memory_size criteria memory size(MByte).
-   * @param callback callback function. return values is boolean.
    */
-  function isLackTheMemory(criteria_memory_size, callback)
+  function isLackTheMemory(criteria_memory_size)
   {
     debug('isLackTheMemory');
+
+    var deferred = Promise.defer();
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
-        (callback || angular.noop)(null);
+        deferred.reject(chrome.runtime.lastError.message);
         return;
       }
 
       var ratio = info.availableCapacity / Math.pow(1024.0, 2);
       debug('availableCapacity(MByte):', ratio);
       if (ratio < parseFloat(criteria_memory_size)) {
-        (callback || angular.noop)(true);
+        deferred.resolve(true);
       } else {
-        (callback || angular.noop)(false);
+        deferred.resolve(false);
       }
     });
+    return deferred.promise;
   }
 
   /**
@@ -903,26 +930,33 @@
    *
    * @param ids target array of the id of the tabs.
    * @param index first index of the array.
-   * @param callback callback function.
    */
-  function autoPurgeLoop(ids, index, callback)
+  function autoPurgeLoop(ids, index)
   {
     debug('autoPurgeLoop');
-    index = angular.isNumber(index) ? index : 0;
 
-    if (ids.length <= index) {
-      log('autoPurgeLoop is out of length.');
-      (callback || angular.noop)();
-      return;
-    }
+    var deferred = Promise.defer();
 
-    tick(ids[index], function() {
-      isLackTheMemory(myOptions.remaiming_memory, function(result) {
-        if (result) {
-          autoPurgeLoop(ids, index + 1, callback);
-        }
+    setTimeout(function autoPurgeLoop_inner(ids, index) {
+      index = angular.isNumber(index) ? index : 0;
+      if (ids.length <= index) {
+        log('autoPurgeLoop is out of length.');
+        deferred.resolve('autoPurgeLoop is out of length.');
+        return;
+      }
+
+      tick(ids[index]).then(function() {
+        isLackTheMemory(myOptions.remaiming_memory).then(function(result) {
+          if (result) {
+            autoPurgeLoop_inner(ids, index + 1);
+          } else {
+            deferred.resolve();
+          }
+        });
       });
-    });
+    }(ids, index), 0);
+
+    return deferred.promise;
   }
 
   /**
@@ -932,54 +966,77 @@
   function autoPurgeCheck()
   {
     debug('autoPurgeCheck');
-    if (myOptions.enable_auto_purge === null ||
-        myOptions.enable_auto_purge === void 0) {
-        return;
-    }
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (myOptions.enable_auto_purge === null ||
+          myOptions.enable_auto_purge === void 0) {
+          error("myOptions.enable_auto_purge is invalid type.");
+          deferred.reject("myOptions.enable_auto_purge is invalid type.");
+          return;
+      }
 
-    if (myOptions.enable_auto_purge === true) {
-      isLackTheMemory(myOptions.remaiming_memory, function(result) {
-        if (result) {
-          var ids = [];
-          for (var i in ticked) {
-            if (ticked.hasOwnProperty(i)) {
-              ids.push(parseInt(i, 10));
+      if (myOptions.enable_auto_purge === true) {
+        isLackTheMemory(myOptions.remaiming_memory).then(function(result) {
+          if (result) {
+            var ids = [];
+            for (var i in ticked) {
+              if (ticked.hasOwnProperty(i)) {
+                ids.push(parseInt(i, 10));
+              }
             }
+            autoPurgeLoop(ids).then(deferred.resolve);
+          } else {
+            deferred.resolve();
           }
-          autoPurgeLoop(ids);
-        }
-      });
-    }
+        });
+      }
+    }, 0);
+    return deferred.promise;
   }
 
-  chrome.tabs.onActivated.addListener(function(activeInfo) {
-    debug('chrome.tabs.onActivated.');
-    chrome.tabs.get(activeInfo.tabId, function(tab) {
+  function onActivatedFunc(tabId)
+  {
+    debug('onActivatedFunc', tabId);
+    var deferred = Promise.defer();
+    chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
+        deferred.reject(chrome.runtime.lastError.message);
         return;
       }
 
       // アイコンの状態を変更
-      reloadBrowserIcon(tab);
+      reloadBrowserIcon(tab).catch(PromiseCatchFunction);
 
       // 前にアクティブにされていたタブのアンロード時間を更新
       if (oldActiveIds[tab.windowId]) {
         setTick(oldActiveIds[tab.windowId]);
       }
-      oldActiveIds[tab.windowId] = activeInfo.tabId;
+      oldActiveIds[tab.windowId] = tabId;
 
       // 自動開放処理が有効かつメモリ不足の場合は
       // アクティブタブと除外対象以外を自動開放。
-      autoPurgeCheck();
+      autoPurgeCheck().then(deferred.resolve).catch(PromiseCatchFunction);
     });
+    return deferred.promise;
+  }
+
+  chrome.tabs.onActivated.addListener(function(activeInfo) {
+    debug('chrome.tabs.onActivated.');
+    if (unloaded.hasOwnProperty(activeInfo.tabId) && !myOptions.no_release) {
+      unPurge(activeInfo.tabId).then(function() {
+        onActivatedFunc(activeInfo.tabId);
+      }).catch(PromiseCatchFunction);
+    } else {
+      onActivatedFunc(activeInfo.tabId);
+    }
   });
 
   chrome.tabs.onCreated.addListener(function(tab) {
     debug('chrome.tabs.onCreated.');
     setTick(tab.id);
 
-    autoPurgeCheck();
+    autoPurgeCheck().catch(PromiseCatchFunction);
   });
 
   chrome.tabs.onRemoved.addListener(function(tabId) {
@@ -989,7 +1046,7 @@
 
   chrome.tabs.onAttached.addListener(function(tabId) {
     debug('chrome.tabs.onAttached.');
-    setTick(tabId);
+    setTick(tabId).catch(PromiseCatchFunction);
   });
 
   chrome.tabs.onDetached.addListener(function(tabId) {
@@ -1001,12 +1058,12 @@
     if (changeInfo.status === 'loading') {
       debug('chrome.tabs.onUpdated. loading.');
 
-      if (!runPurge.hasOwnProperty(tabId)) {
+      if (!isReleasePage(tab.url) && unloaded.hasOwnProperty(tabId)) {
         delete unloaded[tabId];
       }
     } else {
       debug('chrome.tabs.onUpdated. complete.');
-      reloadBrowserIcon(tab);
+      reloadBrowserIcon(tab).catch(PromiseCatchFunction);
 
       // 解放解除時に動作。
       // 指定したタブの解放時のスクロール量があった場合、それを復元する
@@ -1020,53 +1077,18 @@
             }
 
             delete tempScrollPositions[tabId];
-            delete runPurge[tabId];
           }
         );
+      } else {
+        delete tempScrollPositions[tabId];
       }
-      delete tempScrollPositions[tabId];
     }
-    delete runPurge[tabId];
   });
 
   chrome.windows.onRemoved.addListener(function(windowId) {
     debug('chrome.tabs.onRemoved.');
     delete oldActiveIds[windowId];
   });
-
-  // switch the functions of all_purge process.
-  var all_purge_functions = {
-    'all_purge': function(tab, callback) {
-      purge(tab.id, callback);
-    },
-    'all_purge_without_exclude_list': function(tab, callback) {
-      checkExcludeList(tab.url, function(state) {
-        if (state !== NORMAL_EXCLUDE) {
-          (callback || angular.noop)();
-          return;
-        }
-        purge(tab.id, callback);
-      });
-    },
-  };
-
-  // and run the functions after the process.
-  var all_purge_after_functions = {
-    'all_purge': function(callback) {
-      chrome.tabs.create({ active: true }, callback);
-    },
-    'all_purge_without_exclude_list': function(callback) {
-      chrome.tabs.getSelected(function(tab) {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-          (callback || angular.noop)(null);
-          return;
-        }
-
-        searchUnloadedTabNearPosition(tab, callback);
-      });
-    },
-  };
 
   chrome.runtime.onMessage.addListener(function(message, _, sendResponse) {
     debug('chrome.tabs.onMessage.');
@@ -1081,9 +1103,9 @@
             return;
           }
 
-          purgeToggle(tab.id, function() {
+          purgeToggle(tab.id).then(function() {
             searchUnloadedTabNearPosition(tab);
-          });
+          }).catch(PromiseCatchFunction);
         });
         break;
       case 'switch_not_release':
@@ -1104,29 +1126,45 @@
             return;
           }
 
-          (function() {
-            var count = 0;
-            var countEnd = results.length;
-            var timer = setInterval(function() {
-              if (count >= countEnd) {
-                all_purge_after_functions[message.event](function() {
-                  clearInterval(timer);
-                });
-              }
-            }, 100);
+          var t = results.filter(function(v) {
+            return !unloaded.hasOwnProperty(v.id);
+          });
+          if (t.length === 0) {
+            return;
+          }
+          results = t;
 
-            var tabId = null;
-            results.forEach(function(v) {
-              tabId = v.id;
-              if (!unloaded.hasOwnProperty(tabId)) {
-                all_purge_functions[message.event](v, function() {
-                  count++;
-                });
-              } else {
-                count++;
-              }
+          if (message.event === 'all_purge') {
+            t = results.filter(function(v) {
+              return EXTENSION_EXCLUDE !== checkExcludeList(v.url);
             });
-          })();
+          } else {
+            t = results.filter(function(v) {
+              return NORMAL_EXCLUDE === checkExcludeList(v.url);
+            });
+          }
+          if (t.length === 0) {
+            return;
+          }
+          results = t;
+
+          var p = [];
+          results.forEach(function(v) {
+            p.push(purge(v.id));
+          });
+          Promise.all(p).then(function() {
+            return new Promise(function(resolve, reject) {
+              chrome.tabs.getSelected(function(tab) {
+                if (chrome.runtime.lastError) {
+                  error(chrome.runtime.lastError.message);
+                  reject(chrome.runtime.lastError.message);
+                  return;
+                }
+
+                searchUnloadedTabNearPosition(tab).then(resolve);
+              });
+            });
+          }).catch(PromiseCatchFunction);
         });
         break;
       case 'all_unpurge':
@@ -1150,7 +1188,9 @@
         tabSession.removeItem(new Date(message.session.date), message.key);
         break;
       case 'restore':
-        restore(message.session);
+        restore(message.session).then(function() {
+          log('restore is completed.');
+        });
         break;
       case 'current_icon':
         sendResponse(currentIcon);
@@ -1160,10 +1200,8 @@
         displayPageOfOption = null;
         break;
       case 'keybind_check_exclude_list':
-        checkExcludeList(message.location.href, 'keybind', function(state) {
-          sendResponse(
-            state !== EXTENSION_EXCLUDE && state !== KEYBIND_EXCLUDE);
-        });
+        var state = checkExcludeList(message.location.href, 'keybind');
+        sendResponse(state !== EXTENSION_EXCLUDE && state !== KEYBIND_EXCLUDE);
         break;
     }
   });
