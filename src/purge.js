@@ -274,9 +274,6 @@
             break;
         }
 
-        // Do you reload tab when you focus tab?.
-        args += '&focus=' + (myOptions.no_release ? 'false' : 'true');
-
         if (tab.url) {
           args += '&url=' + encodeURIComponent(tab.url);
         }
