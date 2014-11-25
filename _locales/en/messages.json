@@ -215,6 +215,10 @@
     "message": "If you want to operate date, please, you are selecting the date.",
     "description": "The message when a user doesn't select saved session."
   },
+  "purging_all_tabs_except_active": {
+    "message": "The tabs are purged except active tab more than the number of assignments",
+    "description": "Purging all tabs except for the active tab."
+  },
 
 
   "specification": {

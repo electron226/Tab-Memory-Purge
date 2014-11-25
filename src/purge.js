@@ -1009,6 +1009,10 @@
         return;
       }
 
+      if (myOptions.purging_all_tabs_except_active) {
+        purgingAllTabsExceptForTheActiveTab();
+      }
+
       // アイコンの状態を変更
       reloadBrowserIcon(tab).catch(deferred.reject);
 
@@ -1040,6 +1044,10 @@
     debug('chrome.tabs.onCreated.');
     setTick(tab.id);
 
+    if (myOptions.purging_all_tabs_except_active) {
+      purgingAllTabsExceptForTheActiveTab();
+    }
+
     autoPurgeCheck().catch(PromiseCatchFunction);
   });
 
@@ -1051,6 +1059,9 @@
   chrome.tabs.onAttached.addListener(function(tabId) {
     debug('chrome.tabs.onAttached.');
     setTick(tabId).catch(PromiseCatchFunction);
+    if (myOptions.purging_all_tabs_except_active) {
+      purgingAllTabsExceptForTheActiveTab();
+    }
   });
 
   chrome.tabs.onDetached.addListener(function(tabId) {
@@ -1058,12 +1069,52 @@
     delete unloaded[tabId];
   });
 
+  function purgingAllTabsExceptForTheActiveTab()
+  {
+    /*jshint loopfunc: true*/
+    debug('purgingAllTabsExceptForTheActiveTab');
+
+    var deferred = Promise.defer();
+    chrome.windows.getAll({ populate: true }, function(wins) {
+      var maxPurgingTabs = myOptions.max_opening_tabs;
+      for (var i = 0, len = wins.length; i < len; i++) {
+        var tabs = wins[i].tabs.filter(function(v) {
+          return !v.active;
+        });
+        var t = tabs.filter(function(v) {
+          return !isReleasePage(v.url);
+        });
+
+        var alreadyPurgedLength = tabs.length - t.length;
+        if (maxPurgingTabs <= alreadyPurgedLength) {
+          break;
+        }
+
+        t = t.filter(function(v) {
+          return checkExcludeList(v.id) === NORMAL_EXCLUDE;
+        });
+
+        var maxLength =
+            wins[i].tabs.length - alreadyPurgedLength - maxPurgingTabs;
+        for (var j = 0, lenJ = t.length; j < lenJ && j < maxLength; j++) {
+          purge(t[j].id).catch(PromiseCatchFunction);
+        }
+      }
+      deferred.resolve();
+    });
+    return deferred.promise;
+  }
+
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (changeInfo.status === 'loading') {
       debug('chrome.tabs.onUpdated. loading.');
 
       if (!isReleasePage(tab.url) && unloaded.hasOwnProperty(tabId)) {
         delete unloaded[tabId];
+      }
+
+      if (myOptions.purging_all_tabs_except_active) {
+        purgingAllTabsExceptForTheActiveTab();
       }
     } else {
       debug('chrome.tabs.onUpdated. complete.');

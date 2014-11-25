@@ -19,6 +19,8 @@
     'remaiming_memory': 500,
     'max_history': 7,
     'max_sessions': 10,
+    'purging_all_tabs_except_active': false,
+    'max_opening_tabs': 5,
 
     'keybind': {
       'release': JSON.stringify({}),
