@@ -709,13 +709,24 @@
     // Remove all context menu.
     // then create context menu on the browser action.
     chrome.contextMenus.removeAll(function() {
-      angular.forEach(optionMenus, function(value, i) {
-        var opt = chrome.i18n.getMessage(value.name);
-        chrome.contextMenus.create(
-          { id: i.toString(), title: opt, contexts: ['browser_action'] });
-      });
+      var parentMenuId = 'parentMenu';
+      chrome.contextMenus.create(
+        { id: parentMenuId,
+          title: chrome.i18n.getMessage('extName'),
+          contexts: ['browser_action'] },
+        function() {
+          angular.forEach(optionMenus, function(value, i) {
+            var opt = chrome.i18n.getMessage(value.name);
+            chrome.contextMenus.create(
+              { id: i.toString(),
+                title: opt,
+                parentId: parentMenuId,
+                contexts: ['browser_action'] });
+          });
 
-      deferred.resolve(true);
+          deferred.resolve(true);
+        }
+      );
     });
 
     return deferred.promise;
