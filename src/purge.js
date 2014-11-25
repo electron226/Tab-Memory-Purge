@@ -61,7 +61,6 @@
       setTick(tabId);
     });
     chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
-
     tabSession.update(unloaded);
   });
 
@@ -194,7 +193,6 @@
     chrome.browserAction.setIcon(
       { path: icons[changeIcon], tabId: tab.id }, function() {
         if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
           deferred.reject(chrome.runtime.lastError.message);
           return;
         }
@@ -217,7 +215,7 @@
                     " exclude list of in this extension.";
             break;
           default:
-            error('Invalid state.');
+            deferred.reject('Invalid state.');
             break;
         }
         chrome.browserAction.setTitle({ tabId: tab.id, title: title });
@@ -263,7 +261,6 @@
         var page = null;
         switch (myOptions.release_page) {
           default:
-            error("'release page' setting error. so to set default value.");
             deferred.reject(
               "'release page' setting error. so to set default value.");
             /* falls through */
@@ -294,7 +291,6 @@
 
     setTimeout(function() {
       if (!(angular.isObject(tab))) {
-        error('getPurgeURL is invalid arguments.');
         deferred.reject('getPurgeURL is invalid arguments.');
         return;
       }
@@ -326,26 +322,23 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        error("tabId is not number.");
+        deferred.reject("tabId is not number.");
         return;
       }
 
       if (unloaded.hasOwnProperty(tabId)) {
-        error('Already purging. "' + tabId + '"');
+        deferred.reject('Already purging. "' + tabId + '"');
         return;
       }
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
           deferred.reject(chrome.runtime.lastError.message);
           return;
         }
 
         var state = checkExcludeList(tab.url);
         if (state === EXTENSION_EXCLUDE) {
-          error('The tabId have been included exclude list of extension. ' +
-                tabId);
           deferred.reject(
             'The tabId have been included exclude list of extension. ' + tabId
           );
@@ -356,7 +349,6 @@
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
             if (chrome.runtime.lastError) {
-              error(chrome.runtime.lastError.message);
               deferred.reject(chrome.runtime.lastError.message);
               return;
             }
@@ -364,7 +356,6 @@
             getPurgeURL(tab).then(function(url, iconURI) {
               function afterPurge(updated) {
                 if (chrome.runtime.lastError) {
-                  error(chrome.runtime.lastError.message);
                   deferred.reject(chrome.runtime.lastError.message);
                   return;
                 }
@@ -407,11 +398,10 @@
   */
   function unPurge(tabId)
   {
-    debug('unPurge');
+    debug('unPurge', tabId);
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        error("tabId is not number.");
         deferred.reject("tabId is not number.");
         return;
       }
@@ -425,7 +415,7 @@
             if (useChrome) {
               chrome.tabs.update(tabId, { url: url }, deferred.resolve);
             } else {
-              deferred.resolve(true);
+              deferred.resolve();
             }
           }
         );
@@ -449,7 +439,6 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        error("tabId is not number.");
         deferred.reject("tabId is not number.");
         return;
       }
@@ -474,7 +463,6 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId) || unloaded.hasOwnProperty(tabId)) {
-        error("tabId isn't number or added to unloaded already.", tabId);
         deferred.reject(
           "tabId isn't number or added to unloaded already. " + tabId);
         return;
@@ -525,14 +513,12 @@
 
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        error("tabId is not number.");
         deferred.reject("tabId is not number.");
         return;
       }
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
-          log('setTick function is skipped.');
           deferred.reject('setTick function is skipped.');
           return;
         }
@@ -646,7 +632,7 @@
       // remove url in tempRelease.
       tempRelease.splice(index, 1);
     }
-    reloadBrowserIcon(tab);
+    reloadBrowserIcon(tab).catch(PromiseCatchFunction);
     setTick(tab.id);
   }
 
@@ -665,7 +651,6 @@
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
       if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
         deferred.reject(chrome.runtime.lastError.message);
         return;
       }
@@ -918,7 +903,6 @@
     var deferred = Promise.defer();
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
         deferred.reject(chrome.runtime.lastError.message);
         return;
       }
@@ -981,7 +965,6 @@
     setTimeout(function() {
       if (myOptions.enable_auto_purge === null ||
           myOptions.enable_auto_purge === void 0) {
-          error("myOptions.enable_auto_purge is invalid type.");
           deferred.reject("myOptions.enable_auto_purge is invalid type.");
           return;
       }
@@ -1011,13 +994,12 @@
     var deferred = Promise.defer();
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
         deferred.reject(chrome.runtime.lastError.message);
         return;
       }
 
       // アイコンの状態を変更
-      reloadBrowserIcon(tab).catch(PromiseCatchFunction);
+      reloadBrowserIcon(tab).catch(deferred.reject);
 
       // 前にアクティブにされていたタブのアンロード時間を更新
       if (oldActiveIds[tab.windowId]) {
@@ -1027,19 +1009,19 @@
 
       // 自動開放処理が有効かつメモリ不足の場合は
       // アクティブタブと除外対象以外を自動開放。
-      autoPurgeCheck().then(deferred.resolve).catch(PromiseCatchFunction);
+      autoPurgeCheck().then(deferred.resolve).catch(deferred.reject);
     });
     return deferred.promise;
   }
 
   chrome.tabs.onActivated.addListener(function(activeInfo) {
-    debug('chrome.tabs.onActivated.');
+    debug('chrome.tabs.onActivated.', activeInfo);
     if (unloaded.hasOwnProperty(activeInfo.tabId) && !myOptions.no_release) {
       unPurge(activeInfo.tabId).then(function() {
         onActivatedFunc(activeInfo.tabId);
       }).catch(PromiseCatchFunction);
     } else {
-      onActivatedFunc(activeInfo.tabId);
+      onActivatedFunc(activeInfo.tabId).catch(PromiseCatchFunction);
     }
   });
 
@@ -1138,22 +1120,11 @@
           }
 
           var t = results.filter(function(v) {
-            return !unloaded.hasOwnProperty(v.id);
+            var state = checkExcludeList(v.url);
+            return !unloaded.hasOwnProperty(v.id) &&
+                   (message.event === 'all_purge') ?
+                    EXTENSION_EXCLUDE !== state : NORMAL_EXCLUDE === state;
           });
-          if (t.length === 0) {
-            return;
-          }
-          results = t;
-
-          if (message.event === 'all_purge') {
-            t = results.filter(function(v) {
-              return EXTENSION_EXCLUDE !== checkExcludeList(v.url);
-            });
-          } else {
-            t = results.filter(function(v) {
-              return NORMAL_EXCLUDE === checkExcludeList(v.url);
-            });
-          }
           if (t.length === 0) {
             return;
           }
@@ -1167,7 +1138,6 @@
             return new Promise(function(resolve, reject) {
               chrome.tabs.getSelected(function(tab) {
                 if (chrome.runtime.lastError) {
-                  error(chrome.runtime.lastError.message);
                   reject(chrome.runtime.lastError.message);
                   return;
                 }
@@ -1234,7 +1204,7 @@
             error(chrome.runtime.lastError.message);
           }
 
-          chrome.runtime.sendMessage(
+          chrome.tabs.sendMessage(results[0].id,
             { event: 'contextMenus', index: info.menuItemId });
         });
       }
