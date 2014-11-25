@@ -90,8 +90,7 @@
   *                        list    除外リストの値。複数のものは\nで区切る.
   *                        options 正規表現のオプション.
   *                        returnValue 一致したときに返す返り値
-  * @param {Function} [callback=excludeOptions.returnValue] callback function.
-  *                            引数にはnullかreturnValueの値が入る
+  * @return {Number} 引数にはnullかreturnValueの値が入る
   */
   function checkMatchUrlString(url, excludeOptions)
   {
@@ -141,8 +140,7 @@
   * @param {String} url 対象のURL.
   * @param {String} [excludeTarget=normal] 使用するユーザ指定の除外リストの種類
           *                                normalかkeybindを指定
-  * @param {Function} callback callback function.
-  *                   コールバック関数の引数にはどのリストと一致したの数値が入る。
+  * @param {Number} どのリストと一致したの数値が入る。
   *                   EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
   *                   USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
   *                   TEMP_EXCLUDE   = 一時的な非解放リストと一致
@@ -182,6 +180,7 @@
   /**
    * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
    * @param {Tab} tab 対象のタブ.
+   * @param {Promise} promiseが返る。
    */
   function reloadBrowserIcon(tab)
   {
@@ -314,6 +313,7 @@
   /**
   * タブの解放を行います。
   * @param {Number} tabId タブのID.
+  * @param {Promise} promiseが返る。
   */
   function purge(tabId)
   {
@@ -395,6 +395,7 @@
   /**
   * 解放したタブを復元します。
   * @param {Number} tabId 復元するタブのID.
+  * @return {Promise} promiseが返る。
   */
   function unPurge(tabId)
   {
@@ -432,6 +433,7 @@
   /**
   * 解放状態・解放解除を交互に行う
   * @param {Number} tabId 対象のタブのID.
+  * @return {Promise} promiseが返る。
   */
    function purgeToggle(tabId)
   {
@@ -455,7 +457,7 @@
   /**
   * 定期的に実行される関数。アンロードするかどうかを判断。
   * @param {Number} tabId 処理を行うタブのID.
-  * @param {Function} callback コールバック関数。引数はなし.
+  * @return {Promise} Promiseが返る。
   */
   function tick(tabId)
   {
@@ -504,7 +506,7 @@
   * 定期的に解放処理の判断が行われるよう設定します。
   * 既に設定済みなら時間を延長します。
   * @param {Number} tabId 設定するタブのID.
-  * @param {Function} callback コールバック関数。引数はなし.
+  * @return {Promise} Promiseが返る。
   */
   function setTick(tabId)
   {
@@ -554,6 +556,7 @@
   * @param {Number} index keysの再帰処理開始位置.デフォルトは0、省略可能.
   * @param {Number} end keysの最後の要素から一つ後の位置.
   *                     デフォルトはkeys.length、省略可能.
+  * @return {Promise} promiseが返る。
   */
  function restore(object, keys, index, end)
  {
@@ -641,6 +644,7 @@
   * 右側から探索され、見つからなかったら左側を探索する。
   * 何も見つからなければ新規タブを作成してそのタブをアクティブにする。
   * @param {Tab} tab 基準点となるタブ.
+  * @return {Promise} promiseが返る。
   */
  function searchUnloadedTabNearPosition(tab)
   {
@@ -684,6 +688,7 @@
   /**
    * initializeContextMenu
    * the context menu is initializing.
+   * @return {Promise} promiseが返る。
    */
   function initializeContextMenu()
   {
@@ -895,6 +900,7 @@
    * If the memory is shortage, return true.
    *
    * @param criteria_memory_size criteria memory size(MByte).
+   * @return {Promise} promiseが返る。
    */
   function isLackTheMemory(criteria_memory_size)
   {
@@ -925,6 +931,7 @@
    *
    * @param ids target array of the id of the tabs.
    * @param index first index of the array.
+   * @return {Promise} promiseが返る。
    */
   function autoPurgeLoop(ids, index)
   {
@@ -957,6 +964,7 @@
   /**
    * autoPurgeCheck
    * check run auto purge or not.
+   * @return {Promise} promiseが返る。
    */
   function autoPurgeCheck()
   {
@@ -988,6 +996,12 @@
     return deferred.promise;
   }
 
+  /**
+   * onActivatedFunc
+   *
+   * @param tabId the id of the tab.
+   * @return {Promise} promiseが返る。
+   */
   function onActivatedFunc(tabId)
   {
     debug('onActivatedFunc', tabId);
