@@ -419,7 +419,7 @@
       var url = unloaded[tabId].url;
       if (myOptions.release_page === 'normal') {
         // when release page is in the extension.
-        chrome.runtime.sendMessage(
+        chrome.tabs.sendMessage(tabId,
           { event: 'location_replace' }, function(useChrome) {
             // If the url is empty in purge page.
             if (useChrome) {
