@@ -49,6 +49,7 @@
     "trim": true,
     "arrayEqual": true,
     "dictSize": true,
+    "equals": true,
 
     "historyKey": true,
     "sessionKey": true,

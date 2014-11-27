@@ -207,7 +207,7 @@
   /*
    * http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
    */
-  function deepCompare() {
+  window.deepCompare = window.deepCompare || function() {
     var i, l, leftChain, rightChain;
 
     function compare2Objects (x, y) {
@@ -319,7 +319,7 @@
     }
 
     return true;
-  }
+  };
 
   window.unique = window.unique || function(array) {
     if (toType(array) !== 'array') {
