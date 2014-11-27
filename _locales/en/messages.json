@@ -291,6 +291,12 @@
     "message": "The purging timer to enable or disable.",
     "description": "The menu item on the right click popup menu."
   },
+  "add_current_tab_exclude_list": {
+    "message": "Add the url of the current tab to the exclude lists.",
+    "description": "The menu item on the right click popup menu."
+  },
+
+
   "exclude_dialog_mes1": {
     "message": "Tab Memory Purge won't run on any page matching:",
     "description": "the message in the exclude dialog of content scripts."

@@ -73,6 +73,8 @@
 
   function isReleasePage(url)
   {
+    debug('isReleasePage', url);
+
     for (var i in blankUrls) {
       if (blankUrls.hasOwnProperty(i) && url.indexOf(blankUrls[i]) === 0) {
         return true;
@@ -237,6 +239,8 @@
    * @return {null or string} null or the string of a parameter.
    */
   function getParameterByName(url, name) {
+    debug('getParameterByName', url, name);
+
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(decodeURIComponent(url));
     return results === null ?
@@ -244,8 +248,11 @@
   }
 
   function getPurgeURL(tab) {
-    function getURL(tab, iconDateURI)
+    debug('getPurgeURL', tab);
+    function getURL(tab, iconDataURI)
     {
+      debug('getURL', tab, iconDataURI);
+
       var deferred = Promise.defer();
 
       setTimeout(function() {
@@ -253,8 +260,8 @@
 
         args += tab.title ?
         '&title=' + encodeURIComponent(tab.title) : '';
-        if (iconDateURI) {
-          args += '&favicon=' + encodeURIComponent(iconDateURI);
+        if (iconDataURI) {
+          args += '&favicon=' + encodeURIComponent(iconDataURI);
         } else {
           args += tab.favIconUrl ?
             '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
@@ -287,6 +294,7 @@
 
       return deferred.promise;
     }
+
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!(angular.isObject(tab))) {
@@ -546,7 +554,7 @@
           deleteTick(tabId);
         }
 
-        deferred.resolve(true);
+        deferred.resolve();
       });
     }, 0);
     
@@ -626,6 +634,8 @@
 
   function switchTempRelease(url)
   {
+    debug('switchTempRelease', url);
+
     var index = tempRelease.indexOf(url);
     if (index === -1) {
       // push url in tempRelease.
@@ -731,8 +741,9 @@
         { id: switchDisableTimerMenuItemId,
           title: chrome.i18n.getMessage('switchTimer'),
           contexts: ['browser_action'] });
+      chrome.contextMenus.create(
         { id: excludeDialogMenuItemId,
-          title: '現在のタブを除外リストに登録する',
+          title: chrome.i18n.getMessage('add_current_tab_exclude_list'),
           contexts: ['browser_action'] });
     });
 
@@ -808,6 +819,8 @@
    */
   function getInitAndLoadOptions()
   {
+    debug('getInitAndLoadOptions');
+
     var deferred = Promise.defer();
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
@@ -917,7 +930,7 @@
           wins.forEach(function(v) {
             v.tabs.forEach(function(v2) {
               var result = checkExcludeList(v2.url);
-              if (result & (NORMAL_EXCLUDE | EXTENSION_EXCLUDE)) {
+              if (result & NORMAL_EXCLUDE) {
                 if (v2.favIconUrl) {
                   getDataURI(v2.favIconUrl).then(function(response) {
                     toAdd(v2, response);
@@ -1080,7 +1093,7 @@
   });
 
   chrome.tabs.onCreated.addListener(function(tab) {
-    debug('chrome.tabs.onCreated.');
+    debug('chrome.tabs.onCreated.', tab);
     setTick(tab.id);
 
     if (myOptions.purging_all_tabs_except_active) {
@@ -1091,12 +1104,12 @@
   });
 
   chrome.tabs.onRemoved.addListener(function(tabId) {
-    debug('chrome.tabs.onRemoved.');
+    debug('chrome.tabs.onRemoved.', tabId);
     delete unloaded[tabId];
   });
 
   chrome.tabs.onAttached.addListener(function(tabId) {
-    debug('chrome.tabs.onAttached.');
+    debug('chrome.tabs.onAttached.', tabId);
     setTick(tabId).catch(PromiseCatchFunction);
     if (myOptions.purging_all_tabs_except_active) {
       purgingAllTabsExceptForTheActiveTab();
@@ -1104,7 +1117,7 @@
   });
 
   chrome.tabs.onDetached.addListener(function(tabId) {
-    debug('chrome.tabs.onDetached.');
+    debug('chrome.tabs.onDetached.', tabId);
     delete unloaded[tabId];
   });
 
@@ -1146,7 +1159,7 @@
 
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (changeInfo.status === 'loading') {
-      debug('chrome.tabs.onUpdated. loading.');
+      debug('chrome.tabs.onUpdated. loading.', tabId, changeInfo, tab);
 
       if (!isReleasePage(tab.url) && unloaded.hasOwnProperty(tabId)) {
         delete unloaded[tabId];
@@ -1156,7 +1169,7 @@
         purgingAllTabsExceptForTheActiveTab();
       }
     } else {
-      debug('chrome.tabs.onUpdated. complete.');
+      debug('chrome.tabs.onUpdated. complete.', tabId, changeInfo, tab);
       reloadBrowserIcon(tab).catch(PromiseCatchFunction);
 
       // 解放解除時に動作。
@@ -1180,12 +1193,12 @@
   });
 
   chrome.windows.onRemoved.addListener(function(windowId) {
-    debug('chrome.tabs.onRemoved.');
+    debug('chrome.tabs.onRemoved.', windowId);
     delete oldActiveIds[windowId];
   });
 
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    debug('chrome.tabs.onMessage.');
+    debug('chrome.tabs.onMessage.', message, sender, sendResponse);
     switch (message.event) {
       case 'initialize':
         initialize();

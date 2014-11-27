@@ -291,6 +291,12 @@
     "message": "タイマーの有効/無効",
     "description": "右クリックのポップアップメニューの項目"
   },
+  "add_current_tab_exclude_list": {
+    "message": "現在のタブのURLを除外リストに追加",
+    "description": "右クリックのポップアップメニューの項目"
+  },
+
+
   "exclude_dialog_mes1": {
     "message": "Tab Memory Purgeで以下のページはマッチングしない:",
     "description": "コンテンツスクリプトの除外ダイアログ内のメッセージ"

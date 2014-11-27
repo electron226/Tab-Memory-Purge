@@ -244,7 +244,6 @@
 
   // add to parent.
   parent.appendChild(excludeDialogButtons);
-  console.debug(parent);
 
   // show.
   var body = document.getElementsByTagName('body')[0];
