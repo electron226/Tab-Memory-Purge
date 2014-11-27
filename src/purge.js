@@ -284,7 +284,6 @@
       return deferred.promise;
     }
     var deferred = Promise.defer();
-
     setTimeout(function() {
       if (!(angular.isObject(tab))) {
         deferred.reject('getPurgeURL is invalid arguments.');
@@ -527,7 +526,6 @@
 
         // 全ての除外アドレス一覧と比較
         var state = checkExcludeList(tab.url);
-
         if (state === NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
           var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
@@ -590,12 +588,10 @@
      var tabId = parseInt(keys[index], 10);
      chrome.tabs.get(tabId, function(tab) {
        // If occur a error and tab is undefined, it is ignore.
-       if (chrome.runtime.lastError || tab === void 0) {
-         if (!angular.isUndefined(tab)) {
-           if (isReleasePage(tab.url)) {
-             restore_inner(object, keys, ++index, end);
-             return;
-           }
+       if (chrome.runtime.lastError || angular.isUndefined(tab)) {
+         if (!angular.isUndefined(tab) && isReleasePage(tab.url)) {
+           restore_inner(object, keys, ++index, end);
+           return;
          }
 
          // タブが存在しない場合、新規作成
@@ -1005,13 +1001,7 @@
     debug('autoPurgeCheck');
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (myOptions.enable_auto_purge === null ||
-          myOptions.enable_auto_purge === void 0) {
-          deferred.reject("myOptions.enable_auto_purge is invalid type.");
-          return;
-      }
-
-      if (myOptions.enable_auto_purge === true) {
+      if (myOptions.enable_auto_purge) {
         isLackTheMemory(myOptions.remaiming_memory).then(function(result) {
           if (result) {
             var ids = [];
@@ -1182,7 +1172,7 @@
     delete oldActiveIds[windowId];
   });
 
-  chrome.runtime.onMessage.addListener(function(message, _, sendResponse) {
+  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     debug('chrome.tabs.onMessage.');
     switch (message.event) {
       case 'initialize':
