@@ -33,21 +33,21 @@ ul
 #config_change
 {
     position: fixed;
+    z-index: 20;
     top: 50px;
 
     width: 120px;
 
     text-align: center;
-    z-index: 20;
 }
 
 #config_page
 {
     position: relative;
+    z-index: 0;
     left: 120px;
 
     max-width: 1200px;
-    z-index: 0;
 }
 
 .change_bar
@@ -57,53 +57,71 @@ ul
     background-color: gray;
 }
 
-.arrow_animation {
+.arrow_animation
+{
     -webkit-animation: spin 1.5s linear infinite;
-    animation: spin 1.5s linear infinite;
+            animation: spin 1.5s linear infinite;
 }
 
-.arrow {
+.arrow
+{
     width: 0.5rem;
     height: 0.5rem;
+
+    transform: rotate(-45deg);
+
     border-top: solid 2px;
     border-left: solid 2px;
-    transform: rotate(-45deg);
 }
 
-@-webkit-keyframes spin {
-	0% {
+@-webkit-keyframes spin
+{
+    0%
+    {
         -webkit-transform: rotate3d(1, 0, 0, 0deg);
     }
-	100% {
+    100%
+    {
         -webkit-transform: rotate3d(1, 0, 0, 360deg);
     }
 }
-@keyframes spin {
-	0% {
+@keyframes spin
+{
+    0%
+    {
         -webkit-transform: rotate3d(1, 0, 0, 0deg);
     }
-	100% {
+    100%
+    {
         -webkit-transform: rotate3d(1, 0, 0, 360deg);
     }
 }
 
-.delete_icon {
+.delete_icon
+{
     position: absolute;
     left: 0.175rem;
+
     width: 0.25rem;
     height: 0.25rem;
+
+    transform: rotate(-45deg);
+
     border-top: solid 2px;
     border-left: solid 2px;
-    transform: rotate(-45deg);
 }
-.delete_icon2 {
+.delete_icon2
+{
     position: absolute;
     left: -0.175rem;
+
     width: 0.25rem;
     height: 0.25rem;
+
+    transform: rotate(135deg);
+
     border-top: solid 2px;
     border-left: solid 2px;
-    transform: rotate(135deg);
 }
 
 #sample_url
@@ -123,29 +141,33 @@ div#history_date_list
     margin-top: 12px;
 }
 
-.savedBtn {
-    background: #EEE;
-    border-top: 1px solid #DDD;
-    border-left: 1px solid #DDD;
-    border-right: 1px solid #BBB;
-    border-bottom: 1px solid #BBB;
-    color: black;
+.savedBtn
+{
     width: 100px;
     padding: 10px 0;
 
+    color: black;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+    border-left: 1px solid #ddd;
+    background: #eee;
     box-shadow: 1px 1px 1px 1px gray;
 }
 
-.savedBtn:hover {
+.savedBtn:hover
+{
     color: red;
 }
 
-.savedBtn:active {
-    color: red;
+.savedBtn:active
+{
     position: relative;
     top: 1px;
     left: 1px;
-    box-shadow: 0px 0px 0px 0px gray;
+
+    color: red;
+    box-shadow: 0 0 0 0 gray;
 }
 
 /* ツールチップ*/
