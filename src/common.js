@@ -25,8 +25,9 @@
     'keybind': {
       'release': JSON.stringify({}),
       'switch_not_release': JSON.stringify({}),
+      'all_purge': JSON.stringify({}),
+      'all_purge_without_exclude_list': JSON.stringify({}),
       'all_unpurge': JSON.stringify({}),
-      'restore': JSON.stringify({}),
     },
     'keybind_exclude_url':
         'nicovideo.jp\n' +
