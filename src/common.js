@@ -67,8 +67,8 @@
 
   // a value which represents of the exclude list.
   var excludeValues = [
-    'KEYBIND_EXCLUDE','NORMAL_EXCLUDE', 'USE_EXCLUDE', 'TEMP_EXCLUDE',
-    'EXTENSION_EXCLUDE',
+    'DISABLE_TIMER', 'KEYBIND_EXCLUDE',
+    'NORMAL_EXCLUDE', 'USE_EXCLUDE', 'TEMP_EXCLUDE', 'EXTENSION_EXCLUDE',
   ];
   excludeValues.forEach(function(v, i) {
     window[v] = window[v] || 1 << i;
@@ -78,6 +78,7 @@
   // defined NORMAL_EXCLUDE etc... in common.js.
   var icons = {};
   var iconPartOfNamesAndNumbers = {
+    'icon_disable_timer'         : DISABLE_TIMER,
     'icon_019'                   : NORMAL_EXCLUDE,
     'icon_019_use_exclude'       : USE_EXCLUDE,
     'icon_019_temp_exclude'      : TEMP_EXCLUDE,
@@ -104,5 +105,6 @@
     { 'name': 'information' },
   ];
 
+  window.switchDisableTimerMenuItemId = 'disableTimer';
   window.excludeDialogMenuItemId = 'currentTabExcludeDialog';
 })(window);

@@ -287,6 +287,10 @@
   },
 
 
+  "switchTimer": {
+    "message": "The purging timer to enable or disable.",
+    "description": "The menu item on the right click popup menu."
+  },
   "exclude_dialog_mes1": {
     "message": "Tab Memory Purge won't run on any page matching:",
     "description": "the message in the exclude dialog of content scripts."

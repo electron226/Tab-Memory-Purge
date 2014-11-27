@@ -63,8 +63,10 @@
     "optionPage": true,
     "changeHistory": true,
     "optionMenus": true,
+    "switchDisableTimerMenuItemId": true,
     "excludeDialogMenuItemId": true,
 
+    "DISABLE_TIMER": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,

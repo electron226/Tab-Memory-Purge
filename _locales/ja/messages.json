@@ -287,6 +287,10 @@
   },
 
 
+  "switchTimer": {
+    "message": "タイマーの有効/無効",
+    "description": "右クリックのポップアップメニューの項目"
+  },
   "exclude_dialog_mes1": {
     "message": "Tab Memory Purgeで以下のページはマッチングしない:",
     "description": "コンテンツスクリプトの除外ダイアログ内のメッセージ"

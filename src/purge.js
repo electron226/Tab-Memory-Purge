@@ -24,8 +24,10 @@
   // the session of released tabs.
   var tabSession = new TabSession(sessionKey, currentSessionKey);
   var tabHistory = new TabHistory(historyKey); // the history of released tabs.
+
   var currentIcon = null;
   var displayPageOfOption = null;
+  var disableTimer = false;
 
   /**
    * メモリ解放を行ったタブの情報が入ってる辞書型
@@ -180,7 +182,7 @@
 
     var deferred = Promise.defer();
 
-    var changeIcon = checkExcludeList(tab.url);
+    var changeIcon = disableTimer ? DISABLE_TIMER : checkExcludeList(tab.url);
     chrome.browserAction.setIcon(
       { path: icons[changeIcon], tabId: tab.id }, function() {
         if (chrome.runtime.lastError) {
@@ -189,9 +191,14 @@
         }
         currentIcon = changeIcon;
 
+        var ALL_VALUES_EXCEPT_KEYBIND =
+          DISABLE_TIMER |
+          NORMAL_EXCLUDE | USE_EXCLUDE | TEMP_EXCLUDE | EXTENSION_EXCLUDE;
         var title = 'Tab Memory Purge\n';
-        switch (changeIcon &
-          (NORMAL_EXCLUDE | USE_EXCLUDE | TEMP_EXCLUDE | EXTENSION_EXCLUDE)) {
+        switch (changeIcon & ALL_VALUES_EXCEPT_KEYBIND) {
+          case DISABLE_TIMER:
+            title += "The purging timer of the all tabs has stopped.";
+            break;
           case NORMAL_EXCLUDE:
             title += "The url of this tab isn't include exclude list.";
             break;
@@ -510,6 +517,11 @@
     var deferred = Promise.defer();
 
     setTimeout(function() {
+      if (disableTimer) {
+        deferred.resolve();
+        return;
+      }
+
       if (!angular.isNumber(tabId)) {
         deferred.reject(new Error("tabId is not number."));
         return;
@@ -716,6 +728,9 @@
         }
       );
       chrome.contextMenus.create(
+        { id: switchDisableTimerMenuItemId,
+          title: chrome.i18n.getMessage('switchTimer'),
+          contexts: ['browser_action'] });
         { id: excludeDialogMenuItemId,
           title: '現在のタブを除外リストに登録する',
           contexts: ['browser_action'] });
@@ -1305,6 +1320,50 @@
     }
   });
 
+  function switchDisableTimerState()
+  {
+    debug('switchDisableTimerState');
+
+    return new Promise(function(resolve, reject) {
+      function lastProcess()
+      {
+        disableTimer = disableTimer ? false : true;
+        chrome.tabs.getSelected(function(tab) {
+          reloadBrowserIcon(tab).then(resolve, reject);
+        });
+      }
+
+      if (disableTimer) {
+        chrome.windows.getAll({ populate: true }, function(wins) {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError.message);
+            return;
+          }
+
+          wins.forEach(function(v) {
+            v.tabs.forEach(function(v2) {
+              var result = checkExcludeList(v2.url);
+              if (result & NORMAL_EXCLUDE) {
+                if (!isReleasePage(v2.url)) {
+                  setTick(v2.id);
+                }
+              }
+            });
+          });
+          lastProcess();
+        });
+      } else {
+        for (var i in ticked) {
+          if (ticked.hasOwnProperty(i)) {
+            clearInterval(ticked[i]);
+          }
+        }
+        ticked = {};
+        lastProcess();
+      }
+    });
+  }
+
   chrome.contextMenus.onClicked.addListener(function(info) {
     debug('chrome.contextMenus.onClicked.addListener', info);
     if (info.menuItemId === excludeDialogMenuItemId) {
@@ -1316,6 +1375,9 @@
 
         chrome.tabs.sendMessage(tab.id, { event: 'showExcludeDialog' });
       });
+      return;
+    } else if (info.menuItemId === switchDisableTimerMenuItemId) {
+      switchDisableTimerState();
       return;
     }
 
