@@ -3,9 +3,9 @@
 
   function getPathNames()
   {
-    var pathNameMatch =
-      window.location.pathname.replace(/(^\/|\/$)/g, '').split('/');
-    if (pathNameMatch) {
+    var replacedPathName = window.location.pathname.replace(/(^\/|\/$)/g, '');
+    var pathNameMatch = replacedPathName.split('/');
+    if (pathNameMatch && replacedPathName.length > 0) {
       return pathNameMatch;
     } else {
       return null;
@@ -138,6 +138,7 @@
     page.min = 0;
     page.max = paths.length;
     page.onchange = function(e) {
+      console.debug(paths);
       pathname = '';
       for (var i = 0, len = e.target.value; i < len; i++) {
         pathname += '/' + paths[i];
