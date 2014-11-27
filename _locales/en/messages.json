@@ -7,6 +7,10 @@
     "message": "This extension releases the memory of inactive tabs after a specified time.",
     "description": "Extension Work"
   },
+  "optionPage": {
+    "message": "OPTION PAGE",
+    "description": "Option page string"
+  },
   "option": {
     "message": "OPTIONS",
     "description": "Option string"

@@ -707,7 +707,7 @@
       var parentMenuId = 'parentMenu';
       chrome.contextMenus.create(
         { id: parentMenuId,
-          title: chrome.i18n.getMessage('extName'),
+          title: chrome.i18n.getMessage('optionPage'),
           contexts: ['browser_action'] },
         function() {
           angular.forEach(optionMenus, function(value, i) {
