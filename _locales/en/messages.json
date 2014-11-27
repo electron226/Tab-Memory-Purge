@@ -52,11 +52,11 @@
     "description": "a menu in popup"
   },
   "not_release": {
-    "message": "Temporarily exclude URL",
+    "message": "Temporarily exclusion URL",
     "description": "the menu in popup"
   },
   "remove_not_release": {
-    "message": "Cancel 'Temporarily exclude URL'",
+    "message": "Cancel 'Temporarily exclusion URL'",
     "description": "the menu in popup"
   },
   "all_purge": {
@@ -64,7 +64,7 @@
     "description": "a menu in popup"
   },
   "all_purge_without_exclude_list": {
-    "message": "Purge all tabs except excluded",
+    "message": "Purge all tabs except exclusion",
     "description": "a menu in popup"
   },
   "all_unpurge": {
@@ -72,7 +72,7 @@
     "description": "a menu in popup"
   },
   "switch_not_release": {
-    "message": "Switch to temporarily exclude purge or restore",
+    "message": "Switch to temporarily exclusion purge or restore",
     "description": "the menu in the options page"
   },
   "in_extension": {
@@ -242,7 +242,7 @@
     "description": "A explanation in specification."
   },
   "spec4": {
-    "message": "If the current tab contains a exclude list, the icon of extension is changed.",
+    "message": "If the current tab contains a exclusion list, the icon of extension is changed.",
     "description": "A explanation in specification."
   },
   "spec5": {
@@ -308,38 +308,38 @@
     "description": "The menu item on the right click popup menu."
   },
   "add_current_tab_exclude_list": {
-    "message": "Add the url of the current tab to the exclude lists.",
+    "message": "Add the url of the current tab to the exclusion lists.",
     "description": "The menu item on the right click popup menu."
   },
 
 
   "exclude_dialog_mes1": {
     "message": "Tab Memory Purge won't run on any page matching:",
-    "description": "the message in the exclude dialog of content scripts."
+    "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_mes2": {
     "message": "The actual adding string deletes asterisk and the slash of the last.",
-    "description": "the message in the exclude dialog of content scripts."
+    "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_mes3": {
     "message": "You can slide below for to change the pattern of the url.",
-    "description": "the message in the exclude dialog of content scripts."
+    "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_add_to_exclude_list": {
-    "message": "Add to the exclude list",
-    "description": "the button in the exclude dialog of content scripts."
+    "message": "Add to the exclusion list",
+    "description": "the button in the exclusion dialog of content scripts."
   },
   "exclude_dialog_add_to_keybind_exclude_list": {
-    "message": "Add to the exclude list for keybinds",
-    "description": "the button in the exclude dialog of content scripts."
+    "message": "Add to the exclusion list for keybinds",
+    "description": "the button in the exclusion dialog of content scripts."
   },
   "exclude_dialog_add_to_temp_exclude_list": {
-    "message": "Add to the temporary exclude list",
-    "description": "the button in the exclude dialog of content scripts."
+    "message": "Add to the temporary exclusion list",
+    "description": "the button in the exclusion dialog of content scripts."
   },
   "cancel": {
     "message": "Cancel",
-    "description": "the button in the exclude dialog of content scripts."
+    "description": "the button in the exclusion dialog of content scripts."
   },
 
 
