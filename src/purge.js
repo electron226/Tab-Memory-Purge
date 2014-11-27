@@ -294,7 +294,7 @@
       if (tab.favIconUrl) {
         getDataURI(tab.favIconUrl).then(function(iconDataURI) {
           getURL(tab, iconDataURI).then(function(url) {
-            deferred.resolve(url, iconDataURI);
+            deferred.resolve({ url: url, iconDataURI: iconDataURI });
           });
         });
       } else {
@@ -350,7 +350,10 @@
               return;
             }
 
-            getPurgeURL(tab).then(function(url, iconURI) {
+            getPurgeURL(tab).then(function(returnObject) {
+              var url = returnObject.url;
+              var iconURI = returnObject.iconDataURI;
+
               function afterPurge(updated) {
                 if (chrome.runtime.lastError) {
                   deferred.reject(chrome.runtime.lastError.message);
@@ -382,7 +385,7 @@
                   });
                 });
               }
-            });
+            }).catch(PromiseCatchFunction);
           });
         });
     }, 0);
