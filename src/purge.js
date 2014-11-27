@@ -683,12 +683,12 @@
         return !unloaded.hasOwnProperty(v.id);
       });
       var t = tabs.filter(function(v) {
-        return v.index > tab.index;
+        return v.index >= tab.index;
       });
       var tLength = 0;
       if (t.length === 0) {
         t = tabs.filter(function(v) {
-          return v.index <= tab.index;
+          return v.index < tab.index;
         });
         tLength = t.length - 1;
       }
