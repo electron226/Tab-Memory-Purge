@@ -310,7 +310,7 @@
         });
       } else {
         getURL(tab, null).then(function(url) {
-          deferred.resolve(url);
+          deferred.resolve({ url: url });
         });
       }
     }, 0);
