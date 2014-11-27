@@ -1,5 +1,5 @@
 /*global keyCheck: true */
-(function() {
+(function(window, document) {
   "use strict";
 
   function getKeyBinds(callback)
@@ -12,11 +12,14 @@
       }
 
       var keys = {};
-      angular.forEach(items[storageName], function(value, key) {
-        keys[key] = value || defaultValues.keybind[key];
-      });
+      var keybinds = items[storageName];
+      for (var key in keybinds) {
+        if (keybinds.hasOwnProperty(key)) {
+          keys[key] = keybinds[key] || defaultValues.keybind[key];
+        }
+      }
 
-      (callback || angular.noop)(keys);
+      (callback || function() {})(keys);
     });
   }
 
@@ -32,12 +35,12 @@
       function(result) {
         if (result) {
           getKeyBinds(function(keys) {
-            var pushKey = angular.toJson(keyCheck(e));
-            angular.forEach(keys, function(value, key) {
-              if (angular.equals(value, pushKey)) {
+            var pushKey = JSON.stringify(keyCheck(e));
+            for (var key in keys) {
+              if (keys[key] === pushKey) {
                 chrome.runtime.sendMessage({ event: key });
               }
-            });
+            }
           });
         } else {
           console.error('Tab Memory Purge: This url contain the exclude list.');
@@ -47,4 +50,4 @@
   });
 
   console.log('Loading keybinds of Tab Memory Purge.');
-})(document);
+})(window, document);

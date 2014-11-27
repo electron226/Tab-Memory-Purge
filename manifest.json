@@ -21,7 +21,6 @@
       {
         "matches": ["http://*/*", "https://*/*"],
         "js": [
-            "src/lib/angular.min.js",
             "src/common.js",
             "src/common_func.js",
             "src/content_scripts/keyBind.js",

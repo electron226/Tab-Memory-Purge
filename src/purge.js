@@ -1328,7 +1328,7 @@
         break;
       case 'keybind_check_exclude_list':
         var state = checkExcludeList(message.location.href);
-        sendResponse(state & (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE));
+        sendResponse(state ^ (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE));
         break;
     }
   });
