@@ -30,7 +30,7 @@
     chrome.runtime.sendMessage(
       { event: 'keybind_check_exclude_list', location: window.location },
       function(result) {
-        if (result === true) {
+        if (result) {
           getKeyBinds(function(keys) {
             var pushKey = angular.toJson(keyCheck(e));
             angular.forEach(keys, function(value, key) {

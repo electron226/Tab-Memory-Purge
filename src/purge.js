@@ -138,43 +138,35 @@
   /**
   * 与えられたURLが全ての除外リストに一致するか検索する。
   * @param {String} url 対象のURL.
-  * @param {String} [excludeTarget=normal] 使用するユーザ指定の除外リストの種類
-          *                                normalかkeybindを指定
   * @param {Number} どのリストと一致したの数値が入る。
   *                   EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
   *                   USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
   *                   TEMP_EXCLUDE   = 一時的な非解放リストと一致
   *                   NORMAL_EXCLUDE = 一致しなかった。
   */
- function checkExcludeList(url, excludeTarget)
+ function checkExcludeList(url)
   {
     debug('checkExcludeList');
 
-    var targetList;
-    if (angular.isString(excludeTarget)) {
-      targetList = getTargetExcludeList(excludeTarget);
-    } else {
-      targetList = getTargetExcludeList();
-    }
+    // Check the keybind exclude list.
+    var keybind = checkMatchUrlString(
+      url, getTargetExcludeList('keybind')) || 0;
 
-    // Check exclusion list in the extension.
-    var result = checkMatchUrlString(
-      url, getTargetExcludeList('extension'));
+    // Check the exclude list in the extension.
+    var result = checkMatchUrlString(url, getTargetExcludeList('extension'));
     if (result) {
-      return result;
+      return result | keybind;
     }
 
-    result = checkMatchUrlString(url, targetList);
+    // Check the normal exclude list.
+    result = checkMatchUrlString(url, getTargetExcludeList());
     if (result) {
-      return result;
+      return result | keybind;
     }
 
-    // Compared to the temporary exclusion list.
-    if (tempRelease.indexOf(url) !== -1) {
-      return TEMP_EXCLUDE;
-    }
-
-    return NORMAL_EXCLUDE;
+    // Check to the temporary exclude list or don't match the exclude lists.
+    return ((tempRelease.indexOf(url) !== -1) ?
+                  TEMP_EXCLUDE : NORMAL_EXCLUDE) | keybind;
   }
 
   /**
@@ -192,13 +184,14 @@
     chrome.browserAction.setIcon(
       { path: icons[changeIcon], tabId: tab.id }, function() {
         if (chrome.runtime.lastError) {
-          deferred.reject(chrome.runtime.lastError.message);
+          deferred.reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         currentIcon = changeIcon;
 
         var title = 'Tab Memory Purge\n';
-        switch (changeIcon) {
+        switch (changeIcon &
+          (NORMAL_EXCLUDE | USE_EXCLUDE | TEMP_EXCLUDE | EXTENSION_EXCLUDE)) {
           case NORMAL_EXCLUDE:
             title += "The url of this tab isn't include exclude list.";
             break;
@@ -214,11 +207,15 @@
                     " exclude list of in this extension.";
             break;
           default:
-            deferred.reject('Invalid state.');
+            deferred.reject(new Error('Invalid state. ' + changeIcon));
             break;
         }
+        if (changeIcon & KEYBIND_EXCLUDE) {
+          title += "\nAnd also included in the exclude list of key bindings.";
+        }
+
         chrome.browserAction.setTitle({ tabId: tab.id, title: title });
-        deferred.resolve(true);
+        deferred.resolve();
       }
     );
 
@@ -260,8 +257,8 @@
         var page = null;
         switch (myOptions.release_page) {
           default:
-            deferred.reject(
-              "'release page' setting error. so to set default value.");
+            deferred.reject(new Error(
+              "'release page' setting error. so to set default value."));
             /* falls through */
           case 'author': // 作者サイト
             page = blankUrls.normal;
@@ -286,7 +283,7 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!(angular.isObject(tab))) {
-        deferred.reject('getPurgeURL is invalid arguments.');
+        deferred.reject(new Error('getPurgeURL is invalid arguments.'));
         return;
       }
 
@@ -318,26 +315,26 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        deferred.reject("tabId is not number.");
+        deferred.reject(new Error("tabId is not number."));
         return;
       }
 
       if (unloaded.hasOwnProperty(tabId)) {
-        deferred.reject('Already purging. "' + tabId + '"');
+        deferred.reject(new Error('Already purging. "' + tabId + '"'));
         return;
       }
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
-          deferred.reject(chrome.runtime.lastError.message);
+          deferred.reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
         var state = checkExcludeList(tab.url);
-        if (state === EXTENSION_EXCLUDE) {
-          deferred.reject(
+        if (state & EXTENSION_EXCLUDE) {
+          deferred.reject(new Error(
             'The tabId have been included exclude list of extension. ' + tabId
-          );
+          ));
           return;
         }
 
@@ -345,7 +342,7 @@
         chrome.tabs.executeScript(
           tabId, { file: getScrollPosScript }, function(objScroll) {
             if (chrome.runtime.lastError) {
-              deferred.reject(chrome.runtime.lastError.message);
+              deferred.reject(new Error(chrome.runtime.lastError.message));
               return;
             }
 
@@ -355,7 +352,7 @@
 
               function afterPurge(updated) {
                 if (chrome.runtime.lastError) {
-                  deferred.reject(chrome.runtime.lastError.message);
+                  deferred.reject(new Error(chrome.runtime.lastError.message));
                   return;
                 }
 
@@ -402,7 +399,7 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        deferred.reject("tabId is not number.");
+        deferred.reject(new Error("tabId is not number."));
         return;
       }
 
@@ -440,7 +437,7 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        deferred.reject("tabId is not number.");
+        deferred.reject(new Error("tabId is not number."));
         return;
       }
 
@@ -464,15 +461,15 @@
     var deferred = Promise.defer();
     setTimeout(function() {
       if (!angular.isNumber(tabId) || unloaded.hasOwnProperty(tabId)) {
-        deferred.reject(
-          "tabId isn't number or added to unloaded already. " + tabId);
+        deferred.reject(new Error(
+          "tabId isn't number or added to unloaded already. " + tabId));
         return;
       }
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
           log('tick function is skipped.', tabId);
-          deferred.reject('tick function is skipped. ' + tabId);
+          deferred.reject(new Error('tick function is skipped. ' + tabId));
           return;
         }
 
@@ -514,19 +511,19 @@
 
     setTimeout(function() {
       if (!angular.isNumber(tabId)) {
-        deferred.reject("tabId is not number.");
+        deferred.reject(new Error("tabId is not number."));
         return;
       }
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
-          deferred.reject('setTick function is skipped.');
+          deferred.reject(new Error('setTick function is skipped.'));
           return;
         }
 
         // 全ての除外アドレス一覧と比較
         var state = checkExcludeList(tab.url);
-        if (state === NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
+        if (state & NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
           var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
@@ -656,7 +653,7 @@
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
       if (chrome.runtime.lastError) {
-        deferred.reject(chrome.runtime.lastError.message);
+        deferred.reject(new Error(chrome.runtime.lastError.message));
         return;
       }
 
@@ -799,7 +796,7 @@
     var deferred = Promise.defer();
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
-        deferred.reject(chrome.runtime.lastError.message);
+        deferred.reject(new Error(chrome.runtime.lastError.message));
         return;
       }
       var key;
@@ -815,7 +812,7 @@
 
       chrome.storage.local.remove(removeKeys, function() {
         if (chrome.runtime.lastError) {
-          deferred.reject(chrome.runtime.lastError.message);
+          deferred.reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -905,7 +902,7 @@
           wins.forEach(function(v) {
             v.tabs.forEach(function(v2) {
               var result = checkExcludeList(v2.url);
-              if (result === NORMAL_EXCLUDE || result === EXTENSION_EXCLUDE) {
+              if (result & (NORMAL_EXCLUDE | EXTENSION_EXCLUDE)) {
                 if (v2.favIconUrl) {
                   getDataURI(v2.favIconUrl).then(function(response) {
                     toAdd(v2, response);
@@ -939,7 +936,7 @@
     var deferred = Promise.defer();
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
-        deferred.reject(chrome.runtime.lastError.message);
+        deferred.reject(new Error(chrome.runtime.lastError.message));
         return;
       }
 
@@ -1032,7 +1029,7 @@
     var deferred = Promise.defer();
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
-        deferred.reject(chrome.runtime.lastError.message);
+        deferred.reject(new Error(chrome.runtime.lastError.message));
         return;
       }
 
@@ -1118,7 +1115,7 @@
         }
 
         t = t.filter(function(v) {
-          return checkExcludeList(v.id) === NORMAL_EXCLUDE;
+          return (checkExcludeList(v.id) & NORMAL_EXCLUDE) !== 0;
         });
 
         var maxLength =
@@ -1243,8 +1240,8 @@
           var t = results.filter(function(v) {
             var state = checkExcludeList(v.url);
             return !unloaded.hasOwnProperty(v.id) &&
-                   (message.event === 'all_purge') ?
-                    EXTENSION_EXCLUDE !== state : NORMAL_EXCLUDE === state;
+                   ((message.event === 'all_purge') ?
+                    EXTENSION_EXCLUDE ^ state : NORMAL_EXCLUDE & state) !== 0;
           });
           if (t.length === 0) {
             return;
@@ -1259,7 +1256,7 @@
             return new Promise(function(resolve, reject) {
               chrome.tabs.getSelected(function(tab) {
                 if (chrome.runtime.lastError) {
-                  reject(chrome.runtime.lastError.message);
+                  reject(new Error(chrome.runtime.lastError.message));
                   return;
                 }
 
@@ -1302,8 +1299,8 @@
         displayPageOfOption = null;
         break;
       case 'keybind_check_exclude_list':
-        var state = checkExcludeList(message.location.href, 'keybind');
-        sendResponse(state !== EXTENSION_EXCLUDE && state !== KEYBIND_EXCLUDE);
+        var state = checkExcludeList(message.location.href);
+        sendResponse(state & (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE));
         break;
     }
   });

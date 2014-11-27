@@ -35,21 +35,21 @@
 
     'savedSessions': [],
   };
-  window.historyKey = window.historyKey || 'history';
-  window.sessionKey = window.sessionKey || 'sessions';
+  window.historyKey        = window.historyKey        || 'history';
+  window.sessionKey        = window.sessionKey        || 'sessions';
   window.currentSessionKey = window.currentSessionKey || 'currentSession';
-  window.versionKey = window.versionKey || 'version';
-  defaultValues[window.historyKey] = {};
-  defaultValues[window.sessionKey] = [];
+  window.versionKey        = window.versionKey        || 'version';
+  defaultValues[window.historyKey]        = {};
+  defaultValues[window.sessionKey]        = [];
   defaultValues[window.currentSessionKey] = null;
-  defaultValues[window.versionKey] = chrome.app.getDetails();
+  defaultValues[window.versionKey]        = chrome.app.getDetails();
 
   window.defaultValues = window.defaultValues || defaultValues;
 
   // The url of the release point.
   window.blankUrls = {
-    'local': chrome.runtime.getURL('blank.html'),
-    'normal': 'http://electron226.github.io/Tab-Memory-Purge',
+    'local'  : chrome.runtime.getURL('blank.html'),
+    'normal' : 'http://electron226.github.io/Tab-Memory-Purge',
   };
 
   window.extensionExcludeUrl =
@@ -66,20 +66,30 @@
   window.getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
 
   // a value which represents of the exclude list.
-  window.NORMAL_EXCLUDE    = window.NORMAL_EXCLUDE || 50000;
-  window.USE_EXCLUDE       = window.USE_EXCLUDE || 50001;
-  window.TEMP_EXCLUDE      = window.TEMP_EXCLUDE ||50002;
-  window.EXTENSION_EXCLUDE = window.EXTENSION_EXCLUDE || 50003;
-  window.KEYBIND_EXCLUDE   = window.KEYBIND_EXCLUDE || 50004;
+  var excludeValues = [
+    'KEYBIND_EXCLUDE','NORMAL_EXCLUDE', 'USE_EXCLUDE', 'TEMP_EXCLUDE',
+    'EXTENSION_EXCLUDE',
+  ];
+  excludeValues.forEach(function(v, i) {
+    window[v] = window[v] || 1 << i;
+  });
 
   // the path of icons.
   // defined NORMAL_EXCLUDE etc... in common.js.
   var icons = {};
-  icons[NORMAL_EXCLUDE] = chrome.runtime.getURL('icon/icon_019.png');
-  icons[USE_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_use_exclude.png');
-  icons[TEMP_EXCLUDE] = chrome.runtime.getURL('icon/icon_019_temp_exclude.png');
-  icons[EXTENSION_EXCLUDE] =
-      chrome.runtime.getURL('icon/icon_019_extension_exclude.png');
+  var iconPartOfNamesAndNumbers = {
+    'icon_019'                   : NORMAL_EXCLUDE,
+    'icon_019_use_exclude'       : USE_EXCLUDE,
+    'icon_019_temp_exclude'      : TEMP_EXCLUDE,
+    'icon_019_extension_exclude' : EXTENSION_EXCLUDE,
+  };
+  var keybindIconSuffix = '_with_keybind';
+  for (var key in iconPartOfNamesAndNumbers) {
+    icons[iconPartOfNamesAndNumbers[key]] =
+        chrome.runtime.getURL('icon/' + key + '.png');
+    icons[iconPartOfNamesAndNumbers[key] | KEYBIND_EXCLUDE] =
+        chrome.runtime.getURL('icon/' + key + keybindIconSuffix + '.png');
+  }
   window.icons = window.icons || icons;
 
   window.optionPage = chrome.runtime.getURL('options.html');
