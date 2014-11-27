@@ -63,6 +63,7 @@
     "optionPage": true,
     "changeHistory": true,
     "optionMenus": true,
+    "excludeDialogMenuItemId": true,
 
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,

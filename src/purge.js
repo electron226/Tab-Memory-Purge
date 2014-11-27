@@ -616,6 +616,18 @@
    return deferred.promise;
   }
 
+  function switchTempRelease(url)
+  {
+    var index = tempRelease.indexOf(url);
+    if (index === -1) {
+      // push url in tempRelease.
+      tempRelease.push(url);
+    } else {
+      // remove url in tempRelease.
+      tempRelease.splice(index, 1);
+    }
+  }
+
   /**
   * 非解放・非解放解除を交互に行う
   * @param {Tab} tab 対象のタブオブジェクト.
@@ -624,16 +636,9 @@
   {
     debug('tempReleaseToggle');
 
-    var index = tempRelease.indexOf(tab.url);
-    if (index === -1) {
-      // push url in tempRelease.
-      tempRelease.push(tab.url);
-    } else {
-      // remove url in tempRelease.
-      tempRelease.splice(index, 1);
-    }
-    reloadBrowserIcon(tab).catch(PromiseCatchFunction);
+    switchTempRelease(tab.url);
     setTick(tab.id);
+    reloadBrowserIcon(tab).catch(PromiseCatchFunction);
   }
 
   /**
@@ -714,6 +719,10 @@
           deferred.resolve(true);
         }
       );
+      chrome.contextMenus.create(
+        { id: excludeDialogMenuItemId,
+          title: '現在のタブを除外リストに登録する',
+          contexts: ['browser_action'] });
     });
 
     return deferred.promise;
@@ -777,6 +786,56 @@
   }
 
   /**
+   * getInitAndLoadOptions
+   * Load my options in chrome.storage.
+   * And If an item doesn't contain to default values, it is deleted.
+   * And those are deleted too from chrome.storage.
+   *
+   * @return {Promise} return promise.
+   *                   If returned reject, return a error message.
+   *                   If returned resolve, return getting my options.
+   */
+  function getInitAndLoadOptions()
+  {
+    var deferred = Promise.defer();
+    chrome.storage.local.get(null, function(items) {
+      if (chrome.runtime.lastError) {
+        deferred.reject(chrome.runtime.lastError.message);
+        return;
+      }
+      var key;
+
+      // All remove invalid options. but exclude version.
+      var removeKeys = [];
+      for (key in items) {
+        if (items.hasOwnProperty(key) && !defaultValues.hasOwnProperty(key)) {
+          removeKeys.push(key);
+          delete items[key];
+        }
+      }
+
+      chrome.storage.local.remove(removeKeys, function() {
+        if (chrome.runtime.lastError) {
+          deferred.reject(chrome.runtime.lastError.message);
+          return;
+        }
+
+        // My options are initialized.
+        var options = items;
+        for (key in defaultValues) {
+          if (defaultValues.hasOwnProperty(key) &&
+              !options.hasOwnProperty(key)) {
+            options[key] = defaultValues[key];
+          }
+        }
+
+        deferred.resolve(options);
+      });
+    });
+    return deferred.promise;
+  }
+
+  /**
    * 初期化.
    */
   function initialize()
@@ -788,8 +847,6 @@
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
       }
-      var key;
-
       // from 2.2.7 to 2.2.8 later.
       var prevVersion = items[versionKey];
       var session = [];
@@ -804,31 +861,8 @@
         });
       }
 
-      // All remove invalid options. but exclude version.
-      var removeKeys = [];
-      for (key in items) {
-        if (items.hasOwnProperty(key)) {
-          if (!defaultValues.hasOwnProperty(key) && key !== versionKey) {
-            removeKeys.push(key);
-            delete items[key];
-          }
-        }
-      }
-
-      chrome.storage.local.remove(removeKeys, function() {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-        }
-
-        // My options are initialized.
-        myOptions = items;
-        for (key in defaultValues) {
-          if (defaultValues.hasOwnProperty(key)) {
-            if (!myOptions.hasOwnProperty(key)) {
-              myOptions[key] = defaultValues[key];
-            }
-          }
-        }
+      getInitAndLoadOptions().then(function(options) {
+        myOptions = options;
 
         // initialize badge.
         chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
@@ -887,7 +921,7 @@
 
         initializeContextMenu();
         chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
-      });
+      }).catch(PromiseCatchFunction);
     });
   }
 
@@ -1173,6 +1207,38 @@
           tempReleaseToggle(tab);
         });
         break;
+      case 'add_to_temp_exclude_list':
+        chrome.tabs.getSelected(function(tab) {
+          if (chrome.runtime.lastError) {
+            error(chrome.runtime.lastError.message);
+            return;
+          }
+
+          var index = tempRelease.indexOf(tab.url);
+          if (index === -1) {
+            tempRelease.push(tab.url);
+            setTick(tab.id).then(function() {
+              reloadBrowserIcon(tab);
+            }).catch(PromiseCatchFunction);
+          }
+        });
+        break;
+      case 'load_options_and_reload_current_tab':
+        chrome.tabs.getSelected(function(tab) {
+          if (chrome.runtime.lastError) {
+            error(chrome.runtime.lastError.message);
+            return;
+          }
+
+          getInitAndLoadOptions().then(function(options) {
+            myOptions = options;
+
+            setTick(tab.id).then(function() {
+              reloadBrowserIcon(tab);
+            });
+          }).catch(PromiseCatchFunction);
+        });
+        break;
       case 'all_purge':
       case 'all_purge_without_exclude_list':
         chrome.tabs.query({}, function(results) {
@@ -1250,7 +1316,19 @@
   });
 
   chrome.contextMenus.onClicked.addListener(function(info) {
-    debug('chrome.contextMenus.onClicked.addListener');
+    debug('chrome.contextMenus.onClicked.addListener', info);
+    if (info.menuItemId === excludeDialogMenuItemId) {
+      chrome.tabs.getSelected(function(tab) {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          return;
+        }
+
+        chrome.tabs.sendMessage(tab.id, { event: 'showExcludeDialog' });
+      });
+      return;
+    }
+
     chrome.tabs.query({ url: optionPage }, function(results) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);

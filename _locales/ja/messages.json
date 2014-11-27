@@ -283,6 +283,36 @@
   },
 
 
+  "exclude_dialog_mes1": {
+    "message": "Tab Memory Purgeで以下のページはマッチングしない:",
+    "description": "コンテンツスクリプトの除外ダイアログ内のメッセージ"
+  },
+  "exclude_dialog_mes2": {
+    "message": "実際に追加される文字列はアスタリスクと最後のスラッシュが削除されます。",
+    "description": "コンテンツスクリプトの除外ダイアログ内のメッセージ"
+  },
+  "exclude_dialog_mes3": {
+    "message": "ユーザは追加するパターンを変更するためにスライドを変更することができる。",
+    "description": "コンテンツスクリプトの除外ダイアログ内のメッセージ"
+  },
+  "exclude_dialog_add_to_exclude_list": {
+    "message": "除外リストに追加",
+    "description": "コンテンツスクリプトの除外ダイアログ内のボタン"
+  },
+  "exclude_dialog_add_to_keybind_exclude_list": {
+    "message": "キーバインドの除外リストに追加",
+    "description": "コンテンツスクリプトの除外ダイアログ内のボタン"
+  },
+  "exclude_dialog_add_to_temp_exclude_list": {
+    "message": "一時的な除外リストに追加",
+    "description": "コンテンツスクリプトの除外ダイアログ内のボタン"
+  },
+  "cancel": {
+    "message": "キャンセル",
+    "description": "コンテンツスクリプトの除外ダイアログ内のボタン"
+  },
+
+
   "regex_tool": {
     "message": "正規表現確認ツール",
     "description": "正規表現確認ツール"

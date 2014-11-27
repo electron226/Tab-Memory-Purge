@@ -42,7 +42,7 @@
   defaultValues[window.historyKey] = {};
   defaultValues[window.sessionKey] = [];
   defaultValues[window.currentSessionKey] = null;
-  defaultValues[window.versionKey] = {};
+  defaultValues[window.versionKey] = chrome.app.getDetails();
 
   window.defaultValues = window.defaultValues || defaultValues;
 
@@ -93,4 +93,6 @@
     { 'name': 'change_history' },
     { 'name': 'information' },
   ];
+
+  window.excludeDialogMenuItemId = 'currentTabExcludeDialog';
 })(window);

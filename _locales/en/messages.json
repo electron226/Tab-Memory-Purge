@@ -283,6 +283,36 @@
   },
 
 
+  "exclude_dialog_mes1": {
+    "message": "Tab Memory Purge won't run on any page matching:",
+    "description": "the message in the exclude dialog of content scripts."
+  },
+  "exclude_dialog_mes2": {
+    "message": "The actual adding string deletes asterisk and the slash of the last.",
+    "description": "the message in the exclude dialog of content scripts."
+  },
+  "exclude_dialog_mes3": {
+    "message": "You can slide below for to change the pattern of the url.",
+    "description": "the message in the exclude dialog of content scripts."
+  },
+  "exclude_dialog_add_to_exclude_list": {
+    "message": "Add to the exclude list",
+    "description": "the button in the exclude dialog of content scripts."
+  },
+  "exclude_dialog_add_to_keybind_exclude_list": {
+    "message": "Add to the exclude list for keybinds",
+    "description": "the button in the exclude dialog of content scripts."
+  },
+  "exclude_dialog_add_to_temp_exclude_list": {
+    "message": "Add to the temporary exclude list",
+    "description": "the button in the exclude dialog of content scripts."
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "the button in the exclude dialog of content scripts."
+  },
+
+
   "regex_tool": {
     "message": "Simple regular expression validation tool",
     "description": "Regular expression validation tool"
