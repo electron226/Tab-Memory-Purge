@@ -265,6 +265,22 @@
     "message": "Matched the temporary exclusion list.",
     "description": "A explanation in spec4 of specification."
   },
+  "spec_icon_with_keybind": {
+    "message": "Matched the exclusion list of key bindings.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_use_with_keybind": {
+    "message": "Matched the exclusion list of specified the users and the exclusion list of key bindings.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_extension_with_keybind": {
+    "message": "Matched the exclusion list which is fixed within the extension and the exclusion list of key bindings.",
+    "description": "A explanation in spec4 of specification."
+  },
+  "spec_icon_temp_with_keybind": {
+    "message": "Matched the temporary exclusion list and the exclusion list of key bindings.",
+    "description": "A explanation in spec4 of specification."
+  },
   "feedback": {
     "message": "Feedback",
     "description": "A item in information of option page."

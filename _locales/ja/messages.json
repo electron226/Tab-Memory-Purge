@@ -265,6 +265,22 @@
     "message": "一時的な除外リストにマッチ",
     "description": "spec4の仕様の説明"
   },
+  "spec_icon_with_keybind": {
+    "message": "キーバインドの除外リストとマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_use_with_keybind": {
+    "message": "ユーザが指定した除外リストとキーバインドの除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_extension_with_keybind": {
+    "message": "拡張機能内で固定された除外リストとキーバインドの除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
+  "spec_icon_temp_with_keybind": {
+    "message": "一時的な除外リストとキーバインドの除外リストにマッチ",
+    "description": "spec4の仕様の説明"
+  },
   "feedback": {
     "message": "フィードバック",
     "description": "オプションページの情報ページの項目"
