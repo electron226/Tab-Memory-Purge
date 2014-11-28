@@ -51,16 +51,14 @@
       switch (v.type) {
         case 'add':
           unloadedCount++;
+          deleteTick(tabId);
           break;
         case 'delete':
           unloadedCount--;
           tempScrollPositions[tabId] = v.oldValue.scrollPosition;
+          setTick(tabId);
           break;
       }
-
-      // If the tab of tabId isn't existed, these process are skipped.
-      deleteTick(tabId);
-      setTick(tabId);
     });
     chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
     tabSession.update(unloaded);
