@@ -1,7 +1,8 @@
 ﻿(function() {
   "use strict";
 
-  var myOptions = null; // my option settings.
+  // my option settings.
+  var myOptions = null;
 
   /**
    * set setInterval return value.
@@ -11,7 +12,7 @@
   var ticked = {};
 
   /**
-   * タブの解放を解除したタブのスクロール量(x, y)を一時的に保存する連想配列
+   * タブの解放を解除したタブのスクロール量{x, y}を一時的に保存する連想配列
    * key = tabId
    * value = スクロール量(x, y)を表す連想配列
    */
@@ -20,10 +21,11 @@
   // the string that represents the temporary exclusion list
   var tempRelease = [];
 
-  var oldActiveIds = {}; // アクティブなタブを選択する前に選択していたタブのID
-  // the session of released tabs.
+  // アクティブなタブを選択する前に選択していたタブのID
+  var oldActiveIds = {};
+
   var tabSession = new TabSession(sessionKey, currentSessionKey);
-  var tabHistory = new TabHistory(historyKey); // the history of released tabs.
+  var tabHistory = new TabHistory(historyKey);
 
   var currentIcon = null;
   var displayPageOfOption = null;
@@ -38,7 +40,7 @@
    *         iconURI: アイコンのdateURI
    *         url: 解放前のURL
    *         purgeurl: 休止ページのURL
-   *         scrollPosition: スクロール量(x, y)を表すオブジェクト
+   *         scrollPosition: スクロール量{x, y}を表すオブジェクト
    */
   var unloaded = {};
   var unloadedCount = 0;
@@ -64,6 +66,12 @@
     tabSession.update(unloaded);
   });
 
+  /**
+   * PromiseCatchFunction
+   * use to the catch function and the reject function of promise.
+   *
+   * @param {Error} mes the object of the error class.
+   */
   function PromiseCatchFunction(mes)
   {
     error(mes.stack);
@@ -270,7 +278,6 @@
       debug('getURL', tab, iconDataURI);
 
       var deferred = Promise.defer();
-
       setTimeout(function() {
         var args = '' ;
 
@@ -307,7 +314,6 @@
 
         deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
       }, 0);
-
       return deferred.promise;
     }
 
@@ -369,9 +375,8 @@
           return;
         }
 
-        // objScroll = タブのスクロール量(x, y)
         chrome.tabs.executeScript(
-          tabId, { file: getScrollPosScript }, function(objScroll) {
+          tabId, { file: getScrollPosScript }, function(scrollPosition) {
             if (chrome.runtime.lastError) {
               deferred.reject(new Error(chrome.runtime.lastError.message));
               return;
@@ -392,10 +397,9 @@
                   iconDataURI: iconURI || icons[NORMAL_EXCLUDE],
                   url: tab.url,
                   purgeurl: url,
-                  scrollPosition: objScroll[0] || { x: 0 , y: 0 }
+                  scrollPosition: scrollPosition[0] || { x: 0 , y: 0 }
                 };
 
-                // the histories are writing.
                 tabHistory.write(tab).then(deferred.resolve);
               }
 
@@ -880,13 +884,14 @@
   function initialize()
   {
     debug('initialize');
-    versionCheckAndUpdate();
 
+    versionCheckAndUpdate();
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
         return;
       }
+
       // from 2.2.7 to 2.2.8 later.
       var prevVersion = items[versionKey];
       var session = [];
