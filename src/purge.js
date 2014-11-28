@@ -322,12 +322,12 @@
         getDataURI(tab.favIconUrl).then(function(iconDataURI) {
           getURL(tab, iconDataURI).then(function(url) {
             deferred.resolve({ url: url, iconDataURI: iconDataURI });
-          });
-        });
+          }, deferred.reject);
+        }, deferred.reject);
       } else {
         getURL(tab, null).then(function(url) {
           deferred.resolve({ url: url });
-        });
+        }, deferred.reject);
       }
     }, 0);
 
@@ -507,9 +507,9 @@
         // アクティブタブへの処理の場合、行わない
         if (tab.active) {
           // アクティブにしたタブのアンロード時間更新
-          setTick(tabId).then(deferred.resolve);
+          setTick(tabId).then(deferred.resolve, deferred.reject);
         } else {
-          purge(tabId).then(deferred.resolve);
+          purge(tabId).then(deferred.resolve, deferred.reject);
         }
       });
     }, 0);
@@ -947,7 +947,7 @@
               if (v.favIconUrl) {
                 getDataURI(v.favIconUrl).then(function(response) {
                   toAdd(v, response);
-                });
+                }, PromiseCatchFunction);
               } else {
                 toAdd(v);
               }
@@ -1019,7 +1019,7 @@
             } else {
               deferred.resolve();
             }
-          });
+          }).catch(PromiseCatchFunction);
         }).catch(PromiseCatchFunction);
       }
       autoPurgeLoop_inner(ids);
@@ -1050,7 +1050,7 @@
           } else {
             deferred.resolve();
           }
-        });
+        }).catch(PromiseCatchFunction);
       }
     }, 0);
     return deferred.promise;
@@ -1073,17 +1073,19 @@
       }
 
       if (myOptions.purging_all_tabs_except_active) {
-        purgingAllTabsExceptForTheActiveTab();
+        purgingAllTabsExceptForTheActiveTab().catch(PromiseCatchFunction);
       }
 
       // アイコンの状態を変更
-      reloadBrowserIcon(tab).catch(deferred.reject);
+      reloadBrowserIcon(tab).catch(PromiseCatchFunction);
 
       // 前にアクティブにされていたタブのアンロード時間を更新
       if (oldActiveIds[tab.windowId]) {
-        setTick(oldActiveIds[tab.windowId]);
+        setTick(oldActiveIds[tab.windowId]).catch(PromiseCatchFunction);
       }
       oldActiveIds[tab.windowId] = tabId;
+
+      deferred.resolve();
     });
     return deferred.promise;
   }
@@ -1092,7 +1094,7 @@
     debug('chrome.tabs.onActivated.', activeInfo);
     if (unloaded.hasOwnProperty(activeInfo.tabId) && !myOptions.no_release) {
       unPurge(activeInfo.tabId).then(function() {
-        onActivatedFunc(activeInfo.tabId);
+        return onActivatedFunc(activeInfo.tabId);
       }).catch(PromiseCatchFunction);
     } else {
       onActivatedFunc(activeInfo.tabId).catch(PromiseCatchFunction);
@@ -1102,9 +1104,13 @@
   chrome.tabs.onCreated.addListener(function(tab) {
     debug('chrome.tabs.onCreated.', tab);
     setTick(tab.id).then(function() {
-      if (myOptions.purging_all_tabs_except_active) {
-        purgingAllTabsExceptForTheActiveTab();
-      }
+      return new Promise(function(resolve, reject) {
+        if (myOptions.purging_all_tabs_except_active) {
+          purgingAllTabsExceptForTheActiveTab().then(resolve, reject);
+        } else {
+          resolve();
+        }
+      });
     }).then(autoPurgeCheck)
     .catch(PromiseCatchFunction);
   });
@@ -1117,9 +1123,13 @@
   chrome.tabs.onAttached.addListener(function(tabId) {
     debug('chrome.tabs.onAttached.', tabId);
     setTick(tabId).then(function() {
-      if (myOptions.purging_all_tabs_except_active) {
-        purgingAllTabsExceptForTheActiveTab();
-      }
+      return new Promise(function(resolve, reject) {
+        if (myOptions.purging_all_tabs_except_active) {
+          purgingAllTabsExceptForTheActiveTab().then(resolve, reject);
+        } else {
+          resolve();
+        }
+      });
     }).catch(PromiseCatchFunction);
   });
 
@@ -1169,7 +1179,7 @@
       }
 
       if (myOptions.purging_all_tabs_except_active) {
-        purgingAllTabsExceptForTheActiveTab();
+        purgingAllTabsExceptForTheActiveTab().catch(PromiseCatchFunction);
       }
 
       // 自動開放処理が有効かつメモリ不足の場合は
@@ -1212,14 +1222,20 @@
         break;
       case 'release':
         getCurrentTab().then(function(tab) {
-          purgeToggle(tab.id).then(function() {
-            searchUnloadedTabNearPosition(tab);
+          return new Promise(function(resolve, reject) {
+            purgeToggle(tab.id).then(function() {
+              return searchUnloadedTabNearPosition(tab);
+            }, reject)
+            .then(resolve, reject);
           });
         }).catch(PromiseCatchFunction);
         break;
       case 'switch_not_release':
         getCurrentTab().then(function(tab) {
-          tempReleaseToggle(tab);
+          return new Promise(function(resolve) {
+            tempReleaseToggle(tab);
+            resolve();
+          });
         }).catch(PromiseCatchFunction);
         break;
       case 'all_purge':
@@ -1247,9 +1263,9 @@
           });
           Promise.all(p).then(function() {
             return new Promise(function(resolve, reject) {
-              getCurrentTab().then(function(tab) {
-                searchUnloadedTabNearPosition(tab).then(resolve, reject);
-              });
+              getCurrentTab()
+              .then(searchUnloadedTabNearPosition)
+              .then(resolve, reject);
             });
           }).catch(PromiseCatchFunction);
         });
@@ -1264,22 +1280,30 @@
         break;
       case 'add_to_temp_exclude_list':
         getCurrentTab().then(function(tab) {
-          var index = tempRelease.indexOf(tab.url);
-          if (index === -1) {
-            tempRelease.push(tab.url);
-            setTick(tab.id).then(function() {
-              reloadBrowserIcon(tab);
-            });
-          }
+          return new Promise(function(resolve, reject) {
+            var index = tempRelease.indexOf(tab.url);
+            if (index === -1) {
+              tempRelease.push(tab.url);
+              setTick(tab.id).then(function() {
+                return reloadBrowserIcon(tab);
+              }, reject)
+              .then(resolve, reject);
+            } else {
+              resolve();
+            }
+          });
         }).catch(PromiseCatchFunction);
         break;
       case 'load_options_and_reload_current_tab':
         getCurrentTab().then(function(tab) {
-          getInitAndLoadOptions().then(function(options) {
-            myOptions = options;
+          return new Promise(function(resolve, reject) {
+            getInitAndLoadOptions().then(function(options) {
+              myOptions = options;
 
-            setTick(tab.id).then(function() {
-              reloadBrowserIcon(tab);
+              setTick(tab.id).then(function() {
+                return reloadBrowserIcon(tab);
+              }, reject)
+              .then(resolve, reject);
             });
           });
         }).catch(PromiseCatchFunction);
@@ -1298,7 +1322,10 @@
         break;
       case 'restore':
         restore(message.session).then(function() {
-          log('restore is completed.');
+          return new Promise(function(resolve) {
+            log('restore is completed.');
+            resolve();
+          });
         });
         break;
       case 'current_icon':
