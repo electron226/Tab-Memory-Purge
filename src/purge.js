@@ -1112,13 +1112,12 @@
 
   chrome.tabs.onCreated.addListener(function(tab) {
     debug('chrome.tabs.onCreated.', tab);
-    setTick(tab.id);
-
-    if (myOptions.purging_all_tabs_except_active) {
-      purgingAllTabsExceptForTheActiveTab();
-    }
-
-    autoPurgeCheck().catch(PromiseCatchFunction);
+    setTick(tab.id).then(function() {
+      if (myOptions.purging_all_tabs_except_active) {
+        purgingAllTabsExceptForTheActiveTab();
+      }
+    }).then(autoPurgeCheck)
+    .catch(PromiseCatchFunction);
   });
 
   chrome.tabs.onRemoved.addListener(function(tabId) {
@@ -1128,10 +1127,11 @@
 
   chrome.tabs.onAttached.addListener(function(tabId) {
     debug('chrome.tabs.onAttached.', tabId);
-    setTick(tabId).catch(PromiseCatchFunction);
-    if (myOptions.purging_all_tabs_except_active) {
-      purgingAllTabsExceptForTheActiveTab();
-    }
+    setTick(tabId).then(function() {
+      if (myOptions.purging_all_tabs_except_active) {
+        purgingAllTabsExceptForTheActiveTab();
+      }
+    }).catch(PromiseCatchFunction);
   });
 
   chrome.tabs.onDetached.addListener(function(tabId) {
@@ -1334,9 +1334,7 @@
       function lastProcess()
       {
         disableTimer = disableTimer ? false : true;
-        getCurrentTab().then(function(tab) {
-          reloadBrowserIcon(tab).then(resolve, reject);
-        });
+        getCurrentTab().then(reloadBrowserIcon).then(resolve, reject);
       }
 
       if (disableTimer) {
