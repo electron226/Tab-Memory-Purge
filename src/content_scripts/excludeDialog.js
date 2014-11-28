@@ -174,7 +174,7 @@
     var deferred = Promise.defer();
     chrome.storage.local.get(storageName, function(items) {
       if (chrome.runtime.lastError) {
-        deferred.reject(chrome.runtime.lastError);
+        deferred.reject(new Error(chrome.runtime.lastError));
         return;
       }
       var uri = hostname + pathname;
@@ -200,26 +200,29 @@
     return deferred.promise;
   }
 
+  function addExclusionListClicked(optionName)
+  {
+    setAddUrlToExcludeList(optionName).then(function() {
+      chrome.runtime.sendMessage(
+        { event: 'load_options_and_reload_current_tab' });
+      close();
+    }, function(error) {
+      console.error(error.message);
+    });
+  }
+
   var toExcludeListBtn = excludeButtonTemplate.cloneNode();
   toExcludeListBtn.textContent =
     chrome.i18n.getMessage('exclude_dialog_add_to_exclude_list');
   toExcludeListBtn.onclick = function() {
-    setAddUrlToExcludeList('exclude_url').then(function() {
-      chrome.runtime.sendMessage(
-        { event: 'load_options_and_reload_current_tab' });
-      close();
-    });
+    addExclusionListClicked('exclude_url');
   };
 
   var toKeybindExcludeListBtn = excludeButtonTemplate.cloneNode();
   toKeybindExcludeListBtn.textContent =
     chrome.i18n.getMessage('exclude_dialog_add_to_keybind_exclude_list');
   toKeybindExcludeListBtn.onclick = function() {
-    setAddUrlToExcludeList('keybind_exclude_url').then(function() {
-      chrome.runtime.sendMessage(
-        { event: 'load_options_and_reload_current_tab' });
-      close();
-    });
+    addExclusionListClicked('keybind_exclude_url');
   };
 
   var toTempExcludeListBtn = excludeButtonTemplate.cloneNode();
