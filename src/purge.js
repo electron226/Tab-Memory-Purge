@@ -1382,36 +1382,42 @@
 
   chrome.contextMenus.onClicked.addListener(function(info) {
     debug('chrome.contextMenus.onClicked.addListener', info);
-    if (info.menuItemId === excludeDialogMenuItemId) {
+    switch (info.menuItemId) {
+    case excludeDialogMenuItemId:
       getCurrentTab().then(function(tab) {
-        chrome.tabs.sendMessage(tab.id, { event: 'showExcludeDialog' });
-      }).catch(PromiseCatchFunction);
-      return;
-    } else if (info.menuItemId === switchDisableTimerMenuItemId) {
-      switchDisableTimerState();
-      return;
-    }
-
-    chrome.tabs.query({ url: optionPage }, function(results) {
-      if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
-        return;
-      }
-
-      if (results.length === 0) {
-        displayPageOfOption = info.menuItemId;
-        chrome.tabs.create({ url: optionPage });
-      } else {
-        chrome.tabs.update(results[0].id, { active: true }, function() {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-          }
-
-          chrome.tabs.sendMessage(results[0].id,
-            { event: 'contextMenus', index: info.menuItemId });
+        return new Promise(function(resolve) {
+          chrome.tabs.sendMessage(
+            tab.id, { event: 'showExcludeDialog' }, resolve);
         });
-      }
-    });
+      }).catch(PromiseCatchFunction);
+      break;
+    case switchDisableTimerMenuItemId:
+      switchDisableTimerState().catch(PromiseCatchFunction);
+      break;
+    default:
+      chrome.tabs.query({ url: optionPage }, function(results) {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          return;
+        }
+
+        if (results.length === 0) {
+          displayPageOfOption = info.menuItemId;
+          chrome.tabs.create({ url: optionPage });
+        } else {
+          chrome.tabs.update(results[0].id, { active: true }, function() {
+            if (chrome.runtime.lastError) {
+              error(chrome.runtime.lastError.message);
+              return;
+            }
+
+            chrome.tabs.sendMessage(results[0].id,
+              { event: 'contextMenus', index: info.menuItemId });
+          });
+        }
+      });
+      break;
+    }
   });
 
   initialize();
