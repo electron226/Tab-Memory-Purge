@@ -1354,21 +1354,17 @@
       }
 
       if (disableTimer) {
-        chrome.windows.getAll({ populate: true }, function(wins) {
+        chrome.tabs.query({}, function(tabs) {
           if (chrome.runtime.lastError) {
             reject(chrome.runtime.lastError.message);
             return;
           }
 
-          wins.forEach(function(v) {
-            v.tabs.forEach(function(v2) {
-              var result = checkExcludeList(v2.url);
-              if (result & NORMAL_EXCLUDE) {
-                if (!isReleasePage(v2.url)) {
-                  setTick(v2.id);
-                }
-              }
-            });
+          tabs.forEach(function(v) {
+            var result = checkExcludeList(v.url);
+            if (result & NORMAL_EXCLUDE && !isReleasePage(v.url)) {
+              setTick(v.id);
+            }
           });
           lastProcess();
         });
