@@ -1137,25 +1137,22 @@
     chrome.tabs.query({}, function(tabs) {
       var maxOpeningTabs = myOptions.max_opening_tabs;
       var t = tabs.filter(function(v) {
-        return !v.active;
-      });
-      var t2 = t.filter(function(v) {
         return !isReleasePage(v.url);
       });
 
-      var alreadyPurgedLength = t.length - t2.length;
-      var maxLength = tabs.length - alreadyPurgedLength - (maxOpeningTabs + 1);
+      var alreadyPurgedLength = tabs.length - t.length;
+      var maxLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
       if (maxLength <= 0) {
         deferred.reject("The counts of open tabs are within set value.");
         return;
       }
 
-      t2 = t2.filter(function(v) {
-        return (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
+      t = t .filter(function(v) {
+        return !v.active && (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
       });
 
-      for (var j = 0, lenJ = t2.length; j < lenJ && j < maxLength; j++) {
-        purge(t2[j].id).catch(PromiseCatchFunction);
+      for (var j = 0, lenJ = t.length; j < lenJ && j < maxLength; j++) {
+        purge(t[j].id).catch(PromiseCatchFunction);
       }
 
       deferred.resolve();
