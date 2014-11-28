@@ -920,7 +920,7 @@
         tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
         
         // Apply timer to exist tabs.
-        chrome.windows.getAll({ populate: true }, function(wins) {
+        chrome.tabs.query({}, function(tabs) {
           if (chrome.runtime.lastError) {
             error(chrome.runtime.lastError.message);
             return;
@@ -936,25 +936,22 @@
                 purgeurl       : current.url,
                 scrollPosition : { x: 0 , y: 0 },
               };
-
-              setTick(current.id);
             }
+            setTick(current.id);
           }
 
           // If already purging tab, be adding the object of purging tab.
-          wins.forEach(function(v) {
-            v.tabs.forEach(function(v2) {
-              var result = checkExcludeList(v2.url);
-              if (result & NORMAL_EXCLUDE) {
-                if (v2.favIconUrl) {
-                  getDataURI(v2.favIconUrl).then(function(response) {
-                    toAdd(v2, response);
-                  });
-                } else {
-                  toAdd(v2);
-                }
+          tabs.forEach(function(v) {
+            var result = checkExcludeList(v.url);
+            if (result & NORMAL_EXCLUDE) {
+              if (v.favIconUrl) {
+                getDataURI(v.favIconUrl).then(function(response) {
+                  toAdd(v, response);
+                });
+              } else {
+                toAdd(v);
               }
-            });
+            }
           });
         });
 
