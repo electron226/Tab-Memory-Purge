@@ -68,7 +68,9 @@
 
   function PromiseCatchFunction(mes)
   {
-    error(mes);
+    error(mes.message);
+  }
+  
   /**
    * getCurrentTab
    *
