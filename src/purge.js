@@ -997,34 +997,33 @@
    * when the memory is shortage.
    *
    * @param ids target array of the id of the tabs.
-   * @param index first index of the array.
    * @return {Promise} promiseが返る。
    */
-  function autoPurgeLoop(ids, index)
+  function autoPurgeLoop(ids)
   {
     debug('autoPurgeLoop');
 
     var deferred = Promise.defer();
+    setTimeout(function() {
+      function autoPurgeLoop_inner(ids, index) {
+        index = (toType(index) === 'number') ? index : 0;
+        if (ids.length <= index) {
+          deferred.resolve('autoPurgeLoop is out of length.');
+          return;
+        }
 
-    setTimeout(function autoPurgeLoop_inner(ids, index) {
-      index = angular.isNumber(index) ? index : 0;
-      if (ids.length <= index) {
-        log('autoPurgeLoop is out of length.');
-        deferred.resolve('autoPurgeLoop is out of length.');
-        return;
+        tick(ids[index]).then(function() {
+          isLackTheMemory(myOptions.remaiming_memory).then(function(result) {
+            if (result) {
+              autoPurgeLoop_inner(ids, index + 1);
+            } else {
+              deferred.resolve();
+            }
+          });
+        }).catch(PromiseCatchFunction);
       }
-
-      tick(ids[index]).then(function() {
-        isLackTheMemory(myOptions.remaiming_memory).then(function(result) {
-          if (result) {
-            autoPurgeLoop_inner(ids, index + 1);
-          } else {
-            deferred.resolve();
-          }
-        });
-      });
-    }(ids, index), 0);
-
+      autoPurgeLoop_inner(ids);
+    }, 0);
     return deferred.promise;
   }
 
@@ -1047,7 +1046,7 @@
                 ids.push(parseInt(i, 10));
               }
             }
-            autoPurgeLoop(ids).then(deferred.resolve);
+            autoPurgeLoop(ids).then(deferred.resolve, deferred.reject);
           } else {
             deferred.resolve();
           }
@@ -1085,10 +1084,6 @@
         setTick(oldActiveIds[tab.windowId]);
       }
       oldActiveIds[tab.windowId] = tabId;
-
-      // 自動開放処理が有効かつメモリ不足の場合は
-      // アクティブタブと除外対象以外を自動開放。
-      autoPurgeCheck().then(deferred.resolve).catch(deferred.reject);
     });
     return deferred.promise;
   }
@@ -1179,6 +1174,10 @@
       if (myOptions.purging_all_tabs_except_active) {
         purgingAllTabsExceptForTheActiveTab();
       }
+
+      // 自動開放処理が有効かつメモリ不足の場合は
+      // アクティブタブと除外対象以外を自動開放。
+      autoPurgeCheck().catch(PromiseCatchFunction);
     } else {
       debug('chrome.tabs.onUpdated. complete.', tabId, changeInfo, tab);
       reloadBrowserIcon(tab).catch(PromiseCatchFunction);
