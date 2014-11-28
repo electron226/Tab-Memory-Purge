@@ -313,7 +313,7 @@
 
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (!(angular.isObject(tab))) {
+      if (toType(tab) !== 'object') {
         deferred.reject(new Error('getPurgeURL is invalid arguments.'));
         return;
       }
@@ -345,7 +345,7 @@
 
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (!angular.isNumber(tabId)) {
+      if (toType(tabId) !== 'number') {
         deferred.reject(new Error("tabId is not number."));
         return;
       }
@@ -429,7 +429,7 @@
     debug('unPurge', tabId);
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (!angular.isNumber(tabId)) {
+      if (toType(tabId) !== 'number') {
         deferred.reject(new Error("tabId is not number."));
         return;
       }
@@ -467,7 +467,7 @@
     debug('purgeToggle');
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (!angular.isNumber(tabId)) {
+      if (toType(tabId) !== 'number') {
         deferred.reject(new Error("tabId is not number."));
         return;
       }
@@ -491,7 +491,7 @@
     debug('tick');
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (!angular.isNumber(tabId) || unloaded.hasOwnProperty(tabId)) {
+      if (toType(tabId) !== 'number' || unloaded.hasOwnProperty(tabId)) {
         deferred.reject(new Error(
           "tabId isn't number or added to unloaded already. " + tabId));
         return;
@@ -546,7 +546,7 @@
         return;
       }
 
-      if (!angular.isNumber(tabId)) {
+      if (toType(tabId) !== 'number') {
         deferred.reject(new Error("tabId is not number."));
         return;
       }
@@ -621,8 +621,8 @@
      var tabId = parseInt(keys[index], 10);
      chrome.tabs.get(tabId, function(tab) {
        // If occur a error and tab is undefined, it is ignore.
-       if (chrome.runtime.lastError || angular.isUndefined(tab)) {
-         if (!angular.isUndefined(tab) && isReleasePage(tab.url)) {
+       if (chrome.runtime.lastError || tab === void 0) {
+         if (tab !== void 0 && isReleasePage(tab.url)) {
            restore_inner(object, keys, ++index, end);
            return;
          }
@@ -741,11 +741,10 @@
           title: chrome.i18n.getMessage('optionPage'),
           contexts: ['browser_action'] },
         function() {
-          angular.forEach(optionMenus, function(value, i) {
-            var opt = chrome.i18n.getMessage(value.name);
+          optionMenus.forEach(function(value, i) {
             chrome.contextMenus.create(
               { id: i.toString(),
-                title: opt,
+                title: chrome.i18n.getMessage(value.name),
                 parentId: parentMenuId,
                 contexts: ['browser_action'] });
           });
@@ -1190,7 +1189,7 @@
       // 解放解除時に動作。
       // 指定したタブの解放時のスクロール量があった場合、それを復元する
       var scrollPos = tempScrollPositions[tabId];
-      if (angular.isObject(scrollPos)) {
+      if (toType(scrollPos) === 'object') {
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
           function() {

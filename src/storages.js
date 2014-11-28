@@ -1,4 +1,3 @@
-// This file don't use angular.js and jQuery.
 (function(window) {
   "use strict";
 
@@ -30,7 +29,7 @@
         return;
       }
 
-      if (angular.isDate($this.time)) {
+      if (toType($this.time) === 'date') {
         var t = $this.sessions.filter(function(v) {
           return v.date !== $this.time.getTime();
         }, $this);
