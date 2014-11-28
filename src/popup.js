@@ -5,12 +5,12 @@
   popupModule.controller('popupController',
     ['$scope', function($scope) {
     $scope.commands = [
-      { name: "release", state: true },
-      { name: "not_release", state: true },
-      { name: "remove_not_release", state: true },
-      { name: "all_purge", state: true },
-      { name: "all_purge_without_exclude_list", state: true },
-      { name: "all_unpurge", state: true },
+      { name: "release"                        , state: true } ,
+      { name: "not_release"                    , state: true } ,
+      { name: "remove_not_release"             , state: true } ,
+      { name: "all_purge"                      , state: true } ,
+      { name: "all_purge_without_exclude_list" , state: true } ,
+      { name: "all_unpurge"                    , state: true } ,
     ];
 
     $scope.clicked = function(name) {

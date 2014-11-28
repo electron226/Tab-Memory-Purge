@@ -1211,12 +1211,12 @@
   });
 
   chrome.windows.onRemoved.addListener(function(windowId) {
-    debug('chrome.tabs.onRemoved.', windowId);
+    debug('chrome.windows.onRemoved.', windowId);
     delete oldActiveIds[windowId];
   });
 
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    debug('chrome.tabs.onMessage.', message, sender, sendResponse);
+    debug('chrome.runtime.onMessage.', message, sender);
     switch (message.event) {
       case 'initialize':
         initialize();
