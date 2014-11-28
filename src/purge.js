@@ -885,6 +885,7 @@
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
+        return;
       }
       // from 2.2.7 to 2.2.8 later.
       var prevVersion = items[versionKey];
