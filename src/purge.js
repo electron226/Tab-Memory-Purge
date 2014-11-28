@@ -66,7 +66,7 @@
 
   function PromiseCatchFunction(mes)
   {
-    error(mes.message);
+    error(mes.stack);
   }
   
   /**
