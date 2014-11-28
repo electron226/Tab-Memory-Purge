@@ -590,7 +590,8 @@
 
       chrome.tabs.get(tabId, function(tab) {
         if (chrome.runtime.lastError) {
-          deferred.reject(new Error('setTick function is skipped.'));
+          log('setTick function is skipped.');
+          deferred.resolve();
           return;
         }
 
