@@ -69,6 +69,22 @@
   function PromiseCatchFunction(mes)
   {
     error(mes);
+  /**
+   * getCurrentTab
+   *
+   * @return {Promise} return promise object.
+   */
+  function getCurrentTab()
+  {
+    return new Promise(function(resolve, reject) {
+      chrome.tabs.getSelected(function(tab) {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve(tab);
+      });
+    });
   }
 
   function isReleasePage(url)
@@ -1204,58 +1220,16 @@
         initialize();
         break;
       case 'release':
-        chrome.tabs.getSelected(function(tab) {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-            return;
-          }
-
+        getCurrentTab().then(function(tab) {
           purgeToggle(tab.id).then(function() {
             searchUnloadedTabNearPosition(tab);
-          }).catch(PromiseCatchFunction);
-        });
+          });
+        }).catch(PromiseCatchFunction);
         break;
       case 'switch_not_release':
-        chrome.tabs.getSelected(function(tab) {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-            return;
-          }
-
+        getCurrentTab().then(function(tab) {
           tempReleaseToggle(tab);
-        });
-        break;
-      case 'add_to_temp_exclude_list':
-        chrome.tabs.getSelected(function(tab) {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-            return;
-          }
-
-          var index = tempRelease.indexOf(tab.url);
-          if (index === -1) {
-            tempRelease.push(tab.url);
-            setTick(tab.id).then(function() {
-              reloadBrowserIcon(tab);
-            }).catch(PromiseCatchFunction);
-          }
-        });
-        break;
-      case 'load_options_and_reload_current_tab':
-        chrome.tabs.getSelected(function(tab) {
-          if (chrome.runtime.lastError) {
-            error(chrome.runtime.lastError.message);
-            return;
-          }
-
-          getInitAndLoadOptions().then(function(options) {
-            myOptions = options;
-
-            setTick(tab.id).then(function() {
-              reloadBrowserIcon(tab);
-            });
-          }).catch(PromiseCatchFunction);
-        });
+        }).catch(PromiseCatchFunction);
         break;
       case 'all_purge':
       case 'all_purge_without_exclude_list':
@@ -1282,13 +1256,8 @@
           });
           Promise.all(p).then(function() {
             return new Promise(function(resolve, reject) {
-              chrome.tabs.getSelected(function(tab) {
-                if (chrome.runtime.lastError) {
-                  reject(new Error(chrome.runtime.lastError.message));
-                  return;
-                }
-
-                searchUnloadedTabNearPosition(tab).then(resolve);
+              getCurrentTab().then(function(tab) {
+                searchUnloadedTabNearPosition(tab).then(resolve, reject);
               });
             });
           }).catch(PromiseCatchFunction);
@@ -1301,6 +1270,28 @@
             unPurge(parseInt(key, 10));
           }
         }
+        break;
+      case 'add_to_temp_exclude_list':
+        getCurrentTab().then(function(tab) {
+          var index = tempRelease.indexOf(tab.url);
+          if (index === -1) {
+            tempRelease.push(tab.url);
+            setTick(tab.id).then(function() {
+              reloadBrowserIcon(tab);
+            });
+          }
+        }).catch(PromiseCatchFunction);
+        break;
+      case 'load_options_and_reload_current_tab':
+        getCurrentTab().then(function(tab) {
+          getInitAndLoadOptions().then(function(options) {
+            myOptions = options;
+
+            setTick(tab.id).then(function() {
+              reloadBrowserIcon(tab);
+            });
+          });
+        }).catch(PromiseCatchFunction);
         break;
       case 'deleteHistory':
         tabHistory.remove(new Date(message.date));
@@ -1341,7 +1332,7 @@
       function lastProcess()
       {
         disableTimer = disableTimer ? false : true;
-        chrome.tabs.getSelected(function(tab) {
+        getCurrentTab().then(function(tab) {
           reloadBrowserIcon(tab).then(resolve, reject);
         });
       }
@@ -1380,14 +1371,9 @@
   chrome.contextMenus.onClicked.addListener(function(info) {
     debug('chrome.contextMenus.onClicked.addListener', info);
     if (info.menuItemId === excludeDialogMenuItemId) {
-      chrome.tabs.getSelected(function(tab) {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-          return;
-        }
-
+      getCurrentTab().then(function(tab) {
         chrome.tabs.sendMessage(tab.id, { event: 'showExcludeDialog' });
-      });
+      }).catch(PromiseCatchFunction);
       return;
     } else if (info.menuItemId === switchDisableTimerMenuItemId) {
       switchDisableTimerState();
