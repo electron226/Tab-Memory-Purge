@@ -5,23 +5,24 @@
   var myOptions = null;
 
   /**
-   * set setInterval return value.
-   * key = tabId
+   * set setInterval returned value.
+   * key   = tabId
    * value = return setInterval value.
    */
   var ticked = {};
 
   /**
-   * タブの解放を解除したタブのスクロール量{x, y}を一時的に保存する連想配列
-   * key = tabId
-   * value = スクロール量(x, y)を表す連想配列
+   * When purge tabs, the object that the scroll position of purging tabs
+   * is saved.
+   * key   = tabId
+   * value = the object that represent the scroll position(x, y).
    */
   var tempScrollPositions = {};
 
   // the string that represents the temporary exclusion list
   var tempRelease = [];
 
-  // アクティブなタブを選択する前に選択していたタブのID
+  // Before selecting the active tab, and the user has been selected tab.
   var oldActiveIds = {};
 
   var tabSession = new TabSession(sessionKey, currentSessionKey);
@@ -32,15 +33,17 @@
   var disableTimer = false;
 
   /**
-   * メモリ解放を行ったタブの情報が入ってる辞書型
+   * The dict object contains the information
+   * on the tab that ran the purging memory.
    *
-   * key = tabId
-   * value = 下記のプロパティがあるオブジェクト
-   *         title: タイトル
-   *         iconURI: アイコンのdateURI
-   *         url: 解放前のURL
-   *         purgeurl: 休止ページのURL
-   *         scrollPosition: スクロール量{x, y}を表すオブジェクト
+   * key = tabId.
+   * value = object.
+   *    the values in the object are following.
+   *       title          : title.
+   *       iconURI        : the dateURI of icon.
+   *       url            : the url before purging.
+   *       purgeurl       : the url of release page of this id.
+   *       scrollPosition : the object that represent the scroll position(x, y).
    */
   var unloaded = {};
   var unloadedCount = 0;
@@ -67,7 +70,6 @@
   });
 
   /**
-   * PromiseCatchFunction
    * use to the catch function and the reject function of promise.
    *
    * @param {Error} mes the object of the error class.
@@ -78,9 +80,12 @@
   }
   
   /**
-   * getCurrentTab
+   * return the current tab object.
    *
    * @return {Promise} return promise object.
+   *                   If run the reject function, return Error object.
+   *                   If run the resolve function,
+   *                   return the object of the current tab.
    */
   function getCurrentTab()
   {
@@ -95,6 +100,13 @@
     });
   }
 
+  /**
+   * check If the url has contained the release pages.
+   *
+   * @param {String} url - the target url.
+   * @return {Boolean} If the url is contained, return true.
+   *                   if the different, return false.
+   */
   function isReleasePage(url)
   {
     debug('isReleasePage', url);
@@ -112,30 +124,37 @@
   }
 
   /**
-  * 指定した除外リストの正規表現に指定したアドレスがマッチするか調べる
-  * @param {String} url マッチするか調べるアドレス.
-  * @param {Object} excludeOptions 除外リストの設定を表すオブジェクト.
-  *                        list    除外リストの値。複数のものは\nで区切る.
-  *                        options 正規表現のオプション.
-  *                        returnValue 一致したときに返す返り値
+  * Check whether the user matches that set the exclusion list.
+  * @param {String} url - the url to check whether matches.
+  * @param {Object} excludeObj - the object represent exclusion list settings.
+  *                        list    - 除外リストの値。複数のものは\nで区切る.
+  *                        options - 正規表現のオプション.
+  *                        returnValue - 一致したときに返す返り値
   * @return {Number} 引数にはnullかreturnValueの値が入る
   */
-  function checkMatchUrlString(url, excludeOptions)
+  function checkMatchUrlString(url, excludeObj)
   {
     debug('checkMatchUrlString');
 
-    var excludeArray = excludeOptions.list.split('\n');
+    var excludeArray = excludeObj.list.split('\n');
     for (var i = 0, len = excludeArray.length; i < len; i++) {
       if (excludeArray[i] !== '') {
-        var re = new RegExp(excludeArray[i], excludeOptions.options);
+        var re = new RegExp(excludeArray[i], excludeObj.options);
         if (re.test(url)) {
-          return excludeOptions.returnValue;
+          return excludeObj.returnValue;
         }
       }
     }
     return null;
   }
 
+  /**
+   * return the exclusion list have been set argument,
+   *
+   * @param {String} target - the name of the target list.
+   *                   If the value is undefined, return normal exlusion list.
+   * @return {Object} the object of the list relation.
+   */
   function getTargetExcludeList(target)
   {
     debug('getTargetExcludeList', target);
@@ -165,12 +184,17 @@
 
   /**
   * 与えられたURLが全ての除外リストに一致するか検索する。
-  * @param {String} url 対象のURL.
-  * @param {Number} どのリストと一致したの数値が入る。
-  *                   EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
-  *                   USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
-  *                   TEMP_EXCLUDE   = 一時的な非解放リストと一致
-  *                   NORMAL_EXCLUDE = 一致しなかった。
+  * @param {String} url - 対象のURL.
+  * @return {Promise} return promise object.
+  *             If be ran resolve function, return value is following.
+  *               EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
+  *               USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
+  *               TEMP_EXCLUDE   = 一時的な非解放リストと一致
+  *               NORMAL_EXCLUDE = 一致しなかった。
+  *             And if match the exclusion list of key bindings,
+  *             make a bit addition of KEYBIND_EXCLUDE.
+  *
+  *             When you compare these values, you should use bit addition.
   */
  function checkExcludeList(url)
   {
@@ -256,11 +280,11 @@
   }
 
   /**
-   * getParameterByName
+   * Return the split object of the arguments of the url.
    *
-   * @param url the url of getting parameters.
-   * @param name the target parameter name.
-   * @return {null or string} null or the string of a parameter.
+   * @param {String} url -  the url of getting parameters.
+   * @param {String} name -  the target parameter name.
+   * @return {String} the string of a parameter.
    */
   function getParameterByName(url, name) {
     debug('getParameterByName', url, name);
@@ -271,6 +295,15 @@
       "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
+  /**
+   * When purged tabs, return the url for reloading tab.
+   *
+   * @param {Object} tab - the object of reloading tab.
+   * @return {Promise} return the promise object.
+   *                  If be ran resolve function,
+   *                  return the object that contains the url and iconDataURI.
+   *                  but If don't get tab.favIconUrl, don't return iconDataURI.
+   */
   function getPurgeURL(tab) {
     debug('getPurgeURL', tab);
     function getURL(tab, iconDataURI)
@@ -726,7 +759,6 @@
   }
 
   /**
-   * initializeContextMenu
    * the context menu is initializing.
    * @return {Promise} promiseが返る。
    */
@@ -735,7 +767,6 @@
     debug('initializeContextMenu');
 
     var deferred = Promise.defer();
-
     // Remove all context menu.
     // then create context menu on the browser action.
     chrome.contextMenus.removeAll(function() {
@@ -765,7 +796,6 @@
           title: chrome.i18n.getMessage('add_current_tab_exclude_list'),
           contexts: ['browser_action'] });
     });
-
     return deferred.promise;
   }
 
@@ -879,7 +909,7 @@
   }
 
   /**
-   * 初期化.
+   * be initializing.
    */
   function initialize()
   {
@@ -968,7 +998,6 @@
   }
 
   /**
-   * isLackTheMemory
    * This function will check memory capacity.
    * If the memory is shortage, return true.
    *
@@ -998,7 +1027,6 @@
   }
 
   /**
-   * autoPurgeLoop
    * This function repeats the process of releasing the tab
    * when the memory is shortage.
    *
@@ -1034,7 +1062,6 @@
   }
 
   /**
-   * autoPurgeCheck
    * check run auto purge or not.
    * @return {Promise} promiseが返る。
    */
