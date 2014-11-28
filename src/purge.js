@@ -1145,31 +1145,30 @@
     debug('purgingAllTabsExceptForTheActiveTab');
 
     var deferred = Promise.defer();
-    chrome.windows.getAll({ populate: true }, function(wins) {
-      var maxPurgingTabs = myOptions.max_opening_tabs;
-      for (var i = 0, len = wins.length; i < len; i++) {
-        var tabs = wins[i].tabs.filter(function(v) {
-          return !v.active;
-        });
-        var t = tabs.filter(function(v) {
-          return !isReleasePage(v.url);
-        });
+    chrome.tabs.query({}, function(tabs) {
+      var maxOpeningTabs = myOptions.max_opening_tabs;
+      var t = tabs.filter(function(v) {
+        return !v.active;
+      });
+      var t2 = t.filter(function(v) {
+        return !isReleasePage(v.url);
+      });
 
-        var alreadyPurgedLength = tabs.length - t.length;
-        if (maxPurgingTabs <= alreadyPurgedLength) {
-          break;
-        }
-
-        t = t.filter(function(v) {
-          return (checkExcludeList(v.id) & NORMAL_EXCLUDE) !== 0;
-        });
-
-        var maxLength =
-            wins[i].tabs.length - alreadyPurgedLength - maxPurgingTabs;
-        for (var j = 0, lenJ = t.length; j < lenJ && j < maxLength; j++) {
-          purge(t[j].id).catch(PromiseCatchFunction);
-        }
+      var alreadyPurgedLength = t.length - t2.length;
+      var maxLength = tabs.length - alreadyPurgedLength - (maxOpeningTabs + 1);
+      if (maxLength <= 0) {
+        deferred.reject("The counts of open tabs are within set value.");
+        return;
       }
+
+      t2 = t2.filter(function(v) {
+        return (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
+      });
+
+      for (var j = 0, lenJ = t2.length; j < lenJ && j < maxLength; j++) {
+        purge(t2[j].id).catch(PromiseCatchFunction);
+      }
+
       deferred.resolve();
     });
     return deferred.promise;
