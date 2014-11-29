@@ -166,7 +166,12 @@
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
               <legend>
-                {{ data.date | date:'yyyy/MM/dd' }}
+                  <span ng-show="currentLocale === 'ja'">
+                    {{ data.date | date:'yyyy/MM/dd' }}
+                  </span>
+                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
+                    {{ data.date | date:'MM/dd/yyyy' }}
+                  </span>
                 <button ng-click="deleteHistory(data.date)" translation="delete"></button>
               </legend>
               <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
@@ -188,8 +193,12 @@
               <legend>Saved Sessions</legend>
               <span ng-repeat="session in options.savedSessions | orderBy:'date':true" class="savedSession">
                 <button class="savedBtn" ng-click="savedSessionClicked(session)">
-                  {{ session.date | date:'yyyy/MM/dd' }}<br>
-                  {{ session.date | date:'hh:mm:ss' }}
+                  <span ng-show="currentLocale === 'ja'">
+                    {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }}
+                  </span>
+                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
+                    {{ session.date | date:'MM/dd/yyyy hh:mm:ss' }}
+                  </span>
                 </button>
               </span>
               <div style="padding: 10px 0 10px 0">
@@ -221,8 +230,11 @@
                   <span ng-show="showOldRestoreTitle === true" translation="previous_session"></span>
                   <span ng-show="showOldRestoreTitle !== true" translation="current_session"></span>
                 </span>
-                <span ng-show="options.currentSession !== sessions.date">
+                <span ng-show="options.currentSession !== sessions.date && currentLocale === 'ja'">
                   {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
+                </span>
+                <span ng-show="options.currentSession !== sessions.date && currentLocale === 'en-US' || currentLocale === 'en'">
+                  {{ sessions.date | date:'MM/dd/yyyy hh:mm:ss' }}
                 </span>
                 <button translation="save" ng-click="saved(sessions)"></button>
                 <button translation="delete" ng-click="deleted(sessions)"></button>

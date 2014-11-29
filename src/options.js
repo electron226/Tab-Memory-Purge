@@ -11,6 +11,7 @@
   optionModule.controller('OptionController',
     ['$scope', '$http', '$document', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
+    $scope.currentLocale = chrome.i18n.getUILanguage();
 
     var regTool = $document.find(
       '[ng-controller="RegexToolController"]');
