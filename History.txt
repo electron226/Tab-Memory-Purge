@@ -1,3 +1,25 @@
+11/21/2014 ver 2.3.0
+Added: the exclude list for keybinds in the option page.
+Added: Add the description of merit if the user selects "in this extension".
+Added: Add the button to delete an item in the history and the session history and saved history session
+Added: Add new a warning statement. (in request #34).
+Added: The process that automatically saves current sessions. And save select session. (Issues #33)
+Added the function that purging all tabs except for the active tab. (in Issues #39 and #24)
+Added: Add the functionality that the url of a tab to exclude list easy. (in Issues #39)
+Added: the new icons on browserAction.
+Added: Add the functionality that disable the purging timer temporarily. (in Issues #39)
+Deleted: The unnecessary function because session history that have implemented.
+Changed: Recommend session history when this extension was updated and purge page is "in the extension".
+Changed: Default config.
+Changed: When a tab was purged, to use an icon url that has changed to Data URI Scheme. and blank_sample have updated for it.
+Changed: Display the date format for each locale in the option page.
+Fixed: Changed the cursor on the popup menu.
+Fixed: fix the bug that the items are deleted two items If the user selects the button to delete a history item.
+Fixed: the bug of the process that automatic select the tab that has not been purged after the user ran purge tabs.
+Fixed: When be initialized, fix the bug that doesn't set the timer correctly.
+Fixed: When than the current memory of set values less, fix the bug that doesn't automatic purge.
+Cleaned: Refactoring the codes.
+
 11/15/2014 ver 2.2.7
 Fixed: Can't release tab by hotkey (Issues #32)
 Fixed: When tab is purged, the counter is not work.
