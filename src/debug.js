@@ -1,7 +1,7 @@
 (function(window){
   "use strict";
 
-  var debugMode = true;
+  var debugMode = false;
 
   var debugMethods = [
     'log',
