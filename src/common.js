@@ -48,16 +48,13 @@
   window.defaultValues = window.defaultValues || defaultValues;
 
   // The url of the release point.
-  window.blankUrls = {
-    'local'  : chrome.runtime.getURL('blank.html'),
-    'normal' : 'http://electron226.github.io/Tab-Memory-Purge',
-  };
+  window.blankUrl = chrome.runtime.getURL('blank.html');
 
   window.extensionExcludeUrl =
       '^chrome-*\\w*://\n' +
       '^view-source:\n' +
       '^file:///\n' +
-      '^' + blankUrls.normal;
+      '^' + blankUrl;
 
   // initTranslationsでキー名を使用するときに使う。
   // どのファイルを選択しても問題ない。

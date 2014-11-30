@@ -79,10 +79,6 @@
     "message": "拡張機能内",
     "description": "オプションの項目名"
   },
-  "author": {
-    "message": "作者サイト(Git Pages)",
-    "description": "オプションの項目名"
-  },
   "no_release": {
     "message": "解放したタブのアクティブ時にリロードを行わない。",
     "description": "author内のオプションの項目名"
@@ -100,22 +96,10 @@
     "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "explanation_problem2": {
-    "message": "ネット接続が可能な環境でなければ、正常に動作しない。",
-    "description": "作者サイトに関する問題点の説明"
-  },
-  "explanation_problem3": {
-    "message": "サーバが落ちている場合、正常に動作しない。",
-    "description": "作者サイトに関する問題点の説明"
-  },
-  "explanation_problem4": {
-    "message": "外部に自身の見ているページの情報が漏れる(タイトルやURL程度)。",
-    "description": "作者サイトに関する問題点の説明"
-  },
-  "explanation_problem5": {
     "message": "メモリ解放の効果が薄い。",
     "description": "作者サイトと指定ファイルに関する問題点の説明"
   },
-  "explanation_problem6": {
+  "explanation_problem3": {
     "message": "他のデバイスとGoogle Syncを利用して解放タブの同期はできません。",
     "description": "拡張機能内と指定ファイルに関する問題点の説明"
   },

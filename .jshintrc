@@ -60,7 +60,7 @@
     "extensionExcludeUrl": true,
     "icons": true,
     "getScrollPosScript": true,
-    "blankUrls": true,
+    "blankUrl": true,
     "optionPage": true,
     "changeHistory": true,
     "optionMenus": true,

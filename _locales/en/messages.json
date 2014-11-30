@@ -79,10 +79,6 @@
     "message": "In the extension",
     "description": "an option menu name"
   },
-  "author": {
-    "message": "Author Site(Git Pages)",
-    "description": "an option menu name"
-  },
   "no_release": {
     "message": "Don't reload tabs automatiaclly",
     "description": "an option menu name in author"
@@ -100,22 +96,10 @@
     "description": "Solution to when occured about the problem in this extension"
   },
   "explanation_problem2": {
-    "message": "Needs a working Internet connection",
-    "description": "Description of problem related to the specified author site"
-  },
-  "explanation_problem3": {
-    "message": "If the server is down, this might not work correctly.",
-    "description": "Description of problem related to the specified author site"
-  },
-  "explanation_problem4": {
-    "message": "Information of the page you are viewing is leaked to the outside (URL and Title).",
-    "description": "Description of problem related to the specified author site"
-  },
-  "explanation_problem5": {
     "message": "To free of the memory not have much effect.",
     "description": "Description of problem related to the specified author site and use file"
   },
-  "explanation_problem6": {
+  "explanation_problem3": {
     "message": "You can't sync a purged tab use Google Sync with your other devices.",
     "description": "Description of problem related to the specified 'in the extension' and use file"
   },

@@ -111,11 +111,10 @@
   {
     debug('isReleasePage', url);
 
-    for (var i in blankUrls) {
-      if (blankUrls.hasOwnProperty(i) && url.indexOf(blankUrls[i]) === 0) {
-        return true;
-      }
+    if (url.indexOf(blankUrl) === 0) {
+      return true;
     }
+
     if (myOptions.relase_page === 'assignment' &&
         url.indexOf(myOptions.release_url) === 0) {
       return true;
@@ -330,11 +329,8 @@
             deferred.reject(new Error(
               "'release page' setting error. so to set default value."));
             /* falls through */
-          case 'author': // 作者サイト
-            page = blankUrls.normal;
-            break;
           case 'normal': // 拡張機能内
-            page = blankUrls.local;
+            page = blankUrl;
             break;
           case 'assignment': // 指定URL
             page = myOptions.release_url;
