@@ -767,8 +767,10 @@
   function onInstall() {
     debug('Extension Installed.');
 
-    // インストール時にオプションページを表示
-    chrome.tabs.create({ url: optionPage });
+    return new Promise(function(resolve) {
+      // インストール時にオプションページを表示
+      chrome.tabs.create({ url: optionPage }, resolve);
+    });
   }
 
   /**
@@ -777,8 +779,27 @@
   function onUpdate() {
     debug('Extension Updated.');
 
-    displayPageOfOption = 4; // the changed history of the option menu.
-    chrome.tabs.create({ url: optionPage });
+    return new Promise(function(resolve, reject) {
+      getInitAndLoadOptions().then(function(options) {
+        // the changed history of the option menu.
+        displayPageOfOption = "updated";
+        chrome.tabs.create({ url: optionPage }, resolve);
+
+        if (options.when_updated_restore_session) {
+          var sessions = JSON.parse(options[sessionKey]);
+          if (sessions.length > 0) {
+            restore(sessions[sessions.length - 1].session).then(function() {
+              return new Promise(function(resolve) {
+                log('restore is completed.');
+                resolve();
+              });
+            }).then(resolve, reject);
+            return;
+          }
+        }
+        resolve();
+      }, reject);
+    });
   }
 
   /**
@@ -795,10 +816,22 @@
   {
     debug('versionCheckUpdate');
 
+    var deferred = Promise.defer();
     var currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
+      function update()
+      {
+        return new Promise(function(resolve) {
+          var write = {};
+          write[versionKey] = currVersion;
+          chrome.storage.local.set(write, resolve);
+        });
+      }
+
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
+        deferred.reject();
+        return;
       }
 
       // ver chrome.storage.
@@ -806,16 +839,15 @@
       if (currVersion !== prevVersion) {
         // この拡張機能でインストールしたかどうか
         if (prevVersion === void 0) {
-          onInstall();
+          onInstall().then(update).then(deferred.resolve, deferred.reject);
         } else {
-          onUpdate();
+          onUpdate().then(update).then(deferred.resolve, deferred.reject);
         }
-
-        var write = {};
-        write[versionKey] = currVersion;
-        chrome.storage.local.set(write);
+      } else {
+        deferred.resolve();
       }
     });
+    return deferred.promise;
   }
 
   /**
@@ -879,9 +911,13 @@
   {
     debug('initialize');
 
-    versionCheckAndUpdate();
-    getInitAndLoadOptions().then(function(options) {
+    versionCheckAndUpdate()
+    .then(getInitAndLoadOptions)
+    .then(function(options) {
       myOptions = options;
+
+      initializeContextMenu();
+      chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
 
       // initialize badge.
       chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
@@ -892,9 +928,10 @@
       });
 
       // initialize session.
-      tabSession.read(myOptions.sessions);
-      tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
-      
+      tabSession.read(myOptions[sessionKey]).then(function() {
+        tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
+      });
+
       // Apply timer to exist tabs.
       chrome.tabs.query({}, function(tabs) {
         if (chrome.runtime.lastError) {
@@ -1377,7 +1414,7 @@
         }
 
         if (results.length === 0) {
-          displayPageOfOption = info.menuItemId;
+          displayPageOfOption = parseInt(info.menuItemId, 10);
           chrome.tabs.create({ url: optionPage });
         } else {
           chrome.tabs.update(results[0].id, { active: true }, function() {

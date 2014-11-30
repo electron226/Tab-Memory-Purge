@@ -19,6 +19,7 @@
     'max_sessions': 10,
     'purging_all_tabs_except_active': false,
     'max_opening_tabs': 5,
+    'when_updated_restore_session': true,
 
     'keybind': {
       'release': JSON.stringify({}),

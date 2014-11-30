@@ -91,11 +91,13 @@
       chrome.runtime.sendMessage(
         { event: 'display_option_page' }, function(response) {
         $scope.$apply(function() {
-          $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
-          // 4 == changed history.
-          if (response === 4) {
-            $scope.showRestoreMessage = true;
+          if (response === 'updated') {
+            $scope.showRestoreMessage =
+              !angular.copy($scope.options.when_updated_restore_session);
+            // 4 == changed history.
+            response = 4;
           }
+          $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
         });
       });
     });

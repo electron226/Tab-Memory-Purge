@@ -10,12 +10,18 @@
     this.max_sessions = max_sessions || 10;
   }
   TabSession.prototype.read = function(sessions) {
-    if (toType(sessions) !== 'array' && toType(sessions) !== 'string') {
-      error('a invalid type of arugments.');
-      return;
-    }
-    this.sessions = (toType(sessions) === 'string') ?
-                    JSON.parse(sessions) : sessions;
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      if (toType(sessions) !== 'array' && toType(sessions) !== 'string') {
+        error('a invalid type of arugments.');
+        deferred.reject();
+        return;
+      }
+      this.sessions = (toType(sessions) === 'string') ?
+                      JSON.parse(sessions) : sessions;
+      deferred.resolve();
+    }, 0);
+    return deferred.promise;
   };
   TabSession.prototype.update = function(session) {
     debug('update function of TabSession class.', session);
