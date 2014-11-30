@@ -106,8 +106,8 @@
       return true;
     }
 
-    if (myOptions.relase_page === 'assignment' &&
-        url.indexOf(myOptions.release_url) === 0) {
+    if (myOptions.release_page === 'assignment' &&
+        decodeURIComponent(url).indexOf(myOptions.release_url) === 0) {
       return true;
     }
     return false;
@@ -428,20 +428,16 @@
                   scrollPosition: scrollPosition[0] || { x: 0 , y: 0 }
                 };
 
-                tabHistory.write(tab).then(deferred.resolve);
+                tabHistory.write(tab).then(deferred.resolve, deferred.reject);
               }
 
               if (myOptions.release_page === 'assignment') {
-                chrome.tabs.update(tabId, { url: url }, function(updated) {
-                  afterPurge(updated);
-                });
+                chrome.tabs.update(tabId, { url: url }, afterPurge);
               } else {
                 chrome.tabs.executeScript(tabId, {
                   code: 'window.location.replace("' + url + '");' },
                 function() {
-                  chrome.tabs.get(tabId, function(updated) {
-                    afterPurge(updated);
-                  });
+                  chrome.tabs.get(tabId, afterPurge);
                 });
               }
             });
@@ -459,6 +455,7 @@
   function unPurge(tabId)
   {
     debug('unPurge', tabId);
+
     var deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number') {
@@ -469,7 +466,6 @@
 
       var url = unloaded[tabId].url;
       if (myOptions.release_page === 'normal') {
-        // when release page is in the extension.
         chrome.tabs.sendMessage(tabId,
           { event: 'location_replace' }, function(useChrome) {
             // If the url is empty in purge page.
@@ -481,10 +477,17 @@
           }
         );
       } else {
-        chrome.tabs.executeScript(
-          tabId,
-          { code: 'window.location.replace("' + url + '");' },
-          deferred.resolve);
+        chrome.tabs.executeScript(tabId,
+          { code: 'window.location.replace("' + unloaded[tabId].url + '");' },
+          function() {
+            if (chrome.runtime.lastError) {
+              error(chrome.runtime.lastError.message);
+              deferred.reject();
+              return;
+            }
+            deferred.resolve();
+          }
+        );
       }
     }, 0);
     return deferred.promise;
@@ -733,7 +736,7 @@
       }
 
       var tabs = win.tabs.filter(function(v) {
-        return !unloaded.hasOwnProperty(v.id);
+        return !unloaded.hasOwnProperty(v.id) && !isReleasePage(v.url);
       });
       var t = tabs.filter(function(v) {
         return v.index >= tab.index;
@@ -920,6 +923,14 @@
     versionCheckAndUpdate();
     getInitAndLoadOptions().then(function(options) {
       myOptions = options;
+
+      // Update option from 2.3.1 to 2.3.2.
+      if (myOptions.release_page === 'assignment') {
+        myOptions.release_page === 'normal';
+        chrome.storage.local.set(myOptions, function() {
+          log('old value change to new value');
+        });
+      }
 
       // initialize badge.
       chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
@@ -1123,8 +1134,7 @@
           resolve();
         }
       });
-    }).then(autoPurgeCheck)
-    ;
+    }).then(autoPurgeCheck);
   });
 
   chrome.tabs.onRemoved.addListener(function(tabId) {
