@@ -4,8 +4,6 @@
 
   /* Default Values. */
   var defaultValues = {
-    'release_page': 'normal',
-    'release_url': '',
     'no_release': false,
     'timer': 20,
     'exclude_url':

@@ -35,10 +35,6 @@
     "message": "INFORMATION",
     "description": "the string of buttons in the options page"
   },
-  "setReleaseFileUrlTitle": {
-    "message": "Specifies the page to be used for memory release.",
-    "description": "URL of Release Page"
-  },
   "setTimerTitle": {
     "message": "The duration to unload inactive tabs",
     "description": "Memory Release Time"
@@ -75,10 +71,6 @@
     "message": "Switch to temporarily exclusion purge or restore",
     "description": "the menu in the options page"
   },
-  "in_extension": {
-    "message": "In the extension",
-    "description": "an option menu name"
-  },
   "no_release": {
     "message": "Don't reload tabs automatiaclly",
     "description": "an option menu name in author"
@@ -91,25 +83,13 @@
     "message": "If this extension become invalid(When this extension is updated etc), the purged tabs will close.",
     "description": "Explanation of the problem about 'the inside of expanded function'"
   },
-  "explanation_solution": {
-    "message": "Use the session history in order to restore the closed tabs.",
-    "description": "Solution to when occured about the problem in this extension"
-  },
   "explanation_problem2": {
-    "message": "To free of the memory not have much effect.",
-    "description": "Description of problem related to the specified author site and use file"
-  },
-  "explanation_problem3": {
     "message": "You can't sync a purged tab use Google Sync with your other devices.",
     "description": "Description of problem related to the specified 'in the extension' and use file"
   },
-  "explanation_merit1": {
-    "message": "You are able to free the large memory.",
-    "description": "Description of merit related to the specified 'in the extension'"
-  },
-  "assignment": {
-    "message": "Use the file",
-    "description": "an option menu name"
+  "explanation_solution": {
+    "message": "Use the session history in order to restore the closed tabs.",
+    "description": "Solution to when occured about the problem in this extension"
   },
   "remaiming_memory": {
     "message": "If remaining RAM is less than this, tabs purges automatically",
@@ -162,14 +142,6 @@
   "minute": {
     "message": "minute(s)",
     "description": "minute"
-  },
-  "sample": {
-    "message": "Sample",
-    "description": "Sample"
-  },
-  "example": {
-    "message": "Example",
-    "description": "Example"
   },
   "export": {
     "message": "Export",

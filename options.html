@@ -34,52 +34,6 @@
           <!-- options of normally. .-->
           <section class="option">
             <fieldset>
-              <legend translation="setReleaseFileUrlTitle"></legend>
-              <div class="tooltip">
-                <label>
-                  <input type="radio" ng-model="options.release_page" value="normal"><span translation="in_extension"></span>
-                </label>
-                <div class="tooltip">
-                  <div translation="explanation"></div>
-                  <ol>
-                    <li><span translation="explanation_merit1"></span></li>
-                    <li><span translation="explanation_problem1"></span></li>
-                    <li><span translation="explanation_problem3"></span></li>
-                  </ol>
-                  <div translation="explanation_solution"></div>
-                </div>
-              </div>
-
-              <div class="tooltip">
-                <label>
-                  <input type="radio" ng-model="options.release_page" value="assignment"><span translation="assignment"></span>
-                </label>
-                <span>(<a href="blank_sample.zip"><span translation="sample"></span></a>)</span>
-                <div class="tooltip">
-                  <div translation="explanation"></div>
-                  <ol>
-                    <li><span translation="explanation_problem2"></span></li>
-                    <li><span translation="explanation_problem3"></span></li>
-                  </ol>
-                </div>
-              </div>
-              <div>
-                <ul>
-                  <li><input type="text" ng-model="options.release_url" ng-disabled="options.release_page !== 'assignment'" style="width: 700px;"></li>
-                  <li>
-                    <span translation="example"></span>:
-                    <input id="sample_url" type="text" value="file:///G:/Project/Google Chrome/Tab Memory Purge/blank_sample.html" disabled>
-                  </li>
-                </ul>
-                <div style="margin-top: 1rem;">
-                  <label>
-                    <input type="checkbox" ng-model="options.no_release">&nbsp;<span translation="no_release"></span>
-                  </label>
-                </div>
-              </div>
-            </fieldset>
-
-            <fieldset>
               <legend translation="setTimerTitle"></legend>
               <input type="number" ng-model="options.timer" style="width: 75px;" min="1">&nbsp;<span translation="minute"></span>
             </fieldset>
@@ -98,6 +52,11 @@
 
             <fieldset>
               <legend translation="otherTitle"></legend>
+              <div>
+                <label>
+                  <input type="checkbox" ng-model="options.no_release"><span translation="no_release"></span>
+                </label>
+              </div>
               <div>
                 <label><input type="checkbox" ng-model="options.enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.remaiming_memory" style="width: 50px;" min="1">&nbsp;M
               </div>

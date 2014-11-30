@@ -93,7 +93,7 @@
         $scope.$apply(function() {
           $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
           // 4 == changed history.
-          if (response === 4 && $scope.options.release_page === 'normal') {
+          if (response === 4) {
             $scope.showRestoreMessage = true;
           }
         });

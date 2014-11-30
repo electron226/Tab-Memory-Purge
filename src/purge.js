@@ -101,16 +101,7 @@
   function isReleasePage(url)
   {
     debug('isReleasePage', url);
-
-    if (url.indexOf(blankUrl) === 0) {
-      return true;
-    }
-
-    if (myOptions.release_page === 'assignment' &&
-        decodeURIComponent(url).indexOf(myOptions.release_url) === 0) {
-      return true;
-    }
-    return false;
+    return url.indexOf(blankUrl) === 0;
   }
 
   /**
@@ -315,21 +306,7 @@
             '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
         }
 
-        // 解放に使うページを設定
-        var page = null;
-        switch (myOptions.release_page) {
-          default:
-            error("'release page' setting error. so to set default value.");
-            deferred.reject();
-            /* falls through */
-          case 'normal': // 拡張機能内
-            page = blankUrl;
-            break;
-          case 'assignment': // 指定URL
-            page = myOptions.release_url;
-            break;
-        }
-
+        var page = blankUrl;
         if (tab.url) {
           args += '&url=' + encodeURIComponent(tab.url);
         }
@@ -431,15 +408,11 @@
                 tabHistory.write(tab).then(deferred.resolve, deferred.reject);
               }
 
-              if (myOptions.release_page === 'assignment') {
-                chrome.tabs.update(tabId, { url: url }, afterPurge);
-              } else {
-                chrome.tabs.executeScript(tabId, {
-                  code: 'window.location.replace("' + url + '");' },
-                function() {
-                  chrome.tabs.get(tabId, afterPurge);
-                });
-              }
+              chrome.tabs.executeScript(tabId, {
+                code: 'window.location.replace("' + url + '");' },
+              function() {
+                chrome.tabs.get(tabId, afterPurge);
+              });
             });
           });
         });
@@ -465,30 +438,16 @@
       }
 
       var url = unloaded[tabId].url;
-      if (myOptions.release_page === 'normal') {
-        chrome.tabs.sendMessage(tabId,
-          { event: 'location_replace' }, function(useChrome) {
-            // If the url is empty in purge page.
-            if (useChrome) {
-              chrome.tabs.update(tabId, { url: url }, deferred.resolve);
-            } else {
-              deferred.resolve();
-            }
-          }
-        );
-      } else {
-        chrome.tabs.executeScript(tabId,
-          { code: 'window.location.replace("' + unloaded[tabId].url + '");' },
-          function() {
-            if (chrome.runtime.lastError) {
-              error(chrome.runtime.lastError.message);
-              deferred.reject();
-              return;
-            }
+      chrome.tabs.sendMessage(tabId,
+        { event: 'location_replace' }, function(useChrome) {
+          // If the url is empty in purge page.
+          if (useChrome) {
+            chrome.tabs.update(tabId, { url: url }, deferred.resolve);
+          } else {
             deferred.resolve();
           }
-        );
-      }
+        }
+      );
     }, 0);
     return deferred.promise;
   }
@@ -923,14 +882,6 @@
     versionCheckAndUpdate();
     getInitAndLoadOptions().then(function(options) {
       myOptions = options;
-
-      // Update option from 2.3.1 to 2.3.2.
-      if (myOptions.release_page === 'assignment') {
-        myOptions.release_page === 'normal';
-        chrome.storage.local.set(myOptions, function() {
-          log('old value change to new value');
-        });
-      }
 
       // initialize badge.
       chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });

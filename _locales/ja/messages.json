@@ -35,10 +35,6 @@
     "message": "情報",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
-  "setReleaseFileUrlTitle": {
-    "message": "解放に使うページを指定",
-    "description": "オプションの解放先URLの指定項目"
-  },
   "setTimerTitle": {
     "message": "非アクティブのタブをアンロードする時間",
     "description": "メモリ解放時間"
@@ -75,13 +71,9 @@
     "message": "このタブのURLの解放を一時的に禁止/解除",
     "description": "オプションページの項目"
   },
-  "in_extension": {
-    "message": "拡張機能内",
-    "description": "オプションの項目名"
-  },
   "no_release": {
     "message": "解放したタブのアクティブ時にリロードを行わない。",
-    "description": "author内のオプションの項目名"
+    "description": "オプションの項目名"
   },
   "explanation": {
     "message": "このオプションを使用する場合、下記の点に注意が必要です。",
@@ -91,25 +83,13 @@
     "message": "拡張機能が無効になった時(アップデート時など)、解放されたタブが閉じてしまいます。",
     "description": "拡張機能内に関する問題点の説明"
   },
-  "explanation_solution": {
-    "message": "もし、閉じられてしまった場合は左の「セッション履歴」から復元することができます。",
-    "description": "拡張機能内に関する問題の発生時の解決策"
-  },
   "explanation_problem2": {
-    "message": "メモリ解放の効果が薄い。",
-    "description": "作者サイトと指定ファイルに関する問題点の説明"
-  },
-  "explanation_problem3": {
     "message": "他のデバイスとGoogle Syncを利用して解放タブの同期はできません。",
     "description": "拡張機能内と指定ファイルに関する問題点の説明"
   },
-  "explanation_merit1": {
-    "message": "メモリ解放効果は大きい。",
-    "description": "拡張機能内に関する利点の説明"
-  },
-  "assignment": {
-    "message": "指定ファイル",
-    "description": "オプションの項目名"
+  "explanation_solution": {
+    "message": "もし、閉じられてしまった場合は左の「セッション履歴」から復元することができます。",
+    "description": "拡張機能内に関する問題の発生時の解決策"
   },
   "remaiming_memory": {
     "message": "これよりも残りのメモリが少ない場合、自動的にタブの解放処理を行う",
@@ -162,14 +142,6 @@
   "minute": {
     "message": "分",
     "description": "分"
-  },
-  "sample": {
-    "message": "サンプル",
-    "description": "サンプル"
-  },
-  "example": {
-    "message": "例",
-    "description": "例"
   },
   "export": {
     "message": "エクスポート",
