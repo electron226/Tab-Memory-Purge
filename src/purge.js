@@ -910,6 +910,63 @@
     return deferred.promise;
   }
 
+  function initializeUseOptions(options)
+  {
+    myOptions = options;
+
+    // initialize badge.
+    chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
+    chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
+
+    // initialize history.
+    tabHistory.read(myOptions.history).then(function() {
+      tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
+    });
+
+    // initialize session.
+    tabSession.read(myOptions[sessionKey]).then(function() {
+      tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
+    });
+  }
+
+  function initializeAlreadyPurgedTabs()
+  {
+    chrome.tabs.query({}, function(tabs) {
+      if (chrome.runtime.lastError) {
+        error(chrome.runtime.lastError.message);
+        return;
+      }
+
+      function toAdd(current, iconURI)
+      {
+        if (isReleasePage(current.url)) {
+          unloaded[current.id] = {
+            title          : current.title,
+            iconURI        : iconURI || icons[NORMAL_EXCLUDE],
+            url            : getParameterByName(current.url, 'url'),
+            purgeurl       : current.url,
+            scrollPosition : { x: 0 , y: 0 },
+          };
+        }
+        setTick(current.id);
+      }
+
+      // If already purging tab, be adding the object of purging tab.
+      tabs.forEach(function(v) {
+        var result = checkExcludeList(v.url);
+        if (result ^ NORMAL_EXCLUDE) {
+          if (v.favIconUrl) {
+            getDataURI(v.favIconUrl).then(function(response) {
+              toAdd(v, response);
+            });
+          } else {
+            toAdd(v);
+          }
+        }
+      });
+    });
+  }
+
   /**
    * be initializing.
    */
@@ -918,64 +975,12 @@
     debug('initialize');
 
     versionCheckAndUpdate()
+    .then(initializeContextMenu)
     .then(getInitAndLoadOptions)
-    .then(function(options) {
-      myOptions = options;
-
-      initializeContextMenu();
-      chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
-
-      // initialize badge.
-      chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
-
-      // initialize history.
-      tabHistory.read(myOptions.history).then(function() {
-        tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
-      });
-
-      // initialize session.
-      tabSession.read(myOptions[sessionKey]).then(function() {
-        tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
-      });
-
-      // Apply timer to exist tabs.
-      chrome.tabs.query({}, function(tabs) {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-          return;
-        }
-
-        function toAdd(current, iconURI)
-        {
-          if (isReleasePage(current.url)) {
-            unloaded[current.id] = {
-              title          : current.title,
-              iconURI        : iconURI || icons[NORMAL_EXCLUDE],
-              url            : getParameterByName(current.url, 'url'),
-              purgeurl       : current.url,
-              scrollPosition : { x: 0 , y: 0 },
-            };
-          }
-          setTick(current.id);
-        }
-
-        // If already purging tab, be adding the object of purging tab.
-        tabs.forEach(function(v) {
-          var result = checkExcludeList(v.url);
-          if (result ^ NORMAL_EXCLUDE) {
-            if (v.favIconUrl) {
-              getDataURI(v.favIconUrl).then(function(response) {
-                toAdd(v, response);
-              });
-            } else {
-              toAdd(v);
-            }
-          }
-        });
-      });
-
-      initializeContextMenu();
-      chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
+    .then(initializeUseOptions)
+    .then(initializeAlreadyPurgedTabs)
+    .catch(function() {
+      error('initialize error.');
     });
   }
 
