@@ -11,16 +11,16 @@
   }
   TabSession.prototype.read = function(sessions) {
     var deferred = Promise.defer();
-    setTimeout(function() {
+    setTimeout(function($this) {
       if (toType(sessions) !== 'array' && toType(sessions) !== 'string') {
         error('a invalid type of arugments.');
         deferred.reject();
         return;
       }
-      this.sessions = (toType(sessions) === 'string') ?
+      $this.sessions = (toType(sessions) === 'string') ?
                       JSON.parse(sessions) : sessions;
       deferred.resolve();
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.update = function(session) {
@@ -38,7 +38,7 @@
       if (toType($this.time) === 'date') {
         var t = $this.sessions.filter(function(v) {
           return v.date !== $this.time.getTime();
-        }, $this);
+        });
         $this.sessions = t;
       }
 
