@@ -1,3 +1,6 @@
+12/02/2014 ver 2.3.3
+Fixed: After this extension is updated, Fix the bug that a user can't restore that added session history at the previous version.
+
 12/01/2014 ver 2.3.2
 Delete:
 Delete "Author site" and "Assignment File" in "Specifies the page to be used for memory release.".
