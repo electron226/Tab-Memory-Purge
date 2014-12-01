@@ -53,6 +53,12 @@
             <fieldset>
               <legend translation="otherTitle"></legend>
               <div>
+                <label><span translation="max_history"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
+              </div>
+              <div>
+                <label><span translation="max_sessions"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_sessions" style="width: 50px;" min="1">&nbsp;Sessions
+              </div>
+              <div>
                 <label>
                   <input type="checkbox" ng-model="options.no_release"><span translation="no_release"></span>
                 </label>

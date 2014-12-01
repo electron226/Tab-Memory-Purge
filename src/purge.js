@@ -725,49 +725,6 @@
   }
 
   /**
-   * the context menu is initializing.
-   * @return {Promise} promiseが返る。
-   */
-  function initializeContextMenu()
-  {
-    debug('initializeContextMenu');
-
-    var deferred = Promise.defer();
-    // Remove all context menu.
-    // then create context menu on the browser action.
-    chrome.contextMenus.removeAll(function() {
-      var p = [];
-      var i;
-      contextMenus.forEach(function(v) {
-        i = (function(v) {
-          return new Promise(function(resolve) {
-            chrome.contextMenus.create(
-              { id: v.id, title: v.title, contexts: ['browser_action'] },
-              resolve);
-          });
-        })(v);
-        p.push(i);
-      });
-      optionMenus.forEach(function(value, i) {
-        i = (function(value, i) {
-          return new Promise(function(resolve) {
-            chrome.contextMenus.create(
-              { id: i.toString(),
-                title: chrome.i18n.getMessage(value.name),
-                parentId: parentMenuId,
-                contexts: ['browser_action']
-              }, resolve);
-          });
-        })(value, i);
-        p.push(i);
-      });
-      Promise.all(p).then(deferred.resolve, deferred.reject);
-    });
-
-    return deferred.promise;
-  }
-
-  /**
    * 拡張機能がインストールされたときの処理
    */
   function onInstall() {
@@ -910,61 +867,136 @@
     return deferred.promise;
   }
 
+  /**
+   * the context menu is initializing.
+   * @return {Promise} promiseが返る。
+   */
+  function initializeContextMenu()
+  {
+    debug('initializeContextMenu');
+
+    var deferred = Promise.defer();
+    // Remove all context menu.
+    // then create context menu on the browser action.
+    chrome.contextMenus.removeAll(function() {
+      var p = [];
+      var i;
+      contextMenus.forEach(function(v) {
+        i = (function(v) {
+          return new Promise(function(resolve) {
+            chrome.contextMenus.create(
+              { id: v.id, title: v.title, contexts: ['browser_action'] },
+              resolve);
+          });
+        })(v);
+        p.push(i);
+      });
+      optionMenus.forEach(function(value, i) {
+        i = (function(value, i) {
+          return new Promise(function(resolve) {
+            setTimeout(function() {
+              chrome.contextMenus.create(
+                { id: i.toString(),
+                  title: chrome.i18n.getMessage(value.name),
+                  parentId: parentMenuId,
+                  contexts: ['browser_action']
+                }, resolve);
+            }, 0);
+          });
+        })(value, i);
+        p.push(i);
+      });
+      Promise.all(p).then(deferred.resolve, deferred.reject);
+    });
+
+    return deferred.promise;
+  }
+
   function initializeUseOptions(options)
   {
-    myOptions = options;
+    debug('initializeUseOptions');
 
-    // initialize badge.
-    chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
-    chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      myOptions = options;
 
-    // initialize history.
-    tabHistory.read(myOptions.history).then(function() {
-      tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
-    });
+      // initialize badge.
+      chrome.browserAction.setBadgeText({ text: unloadedCount.toString() });
+      chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
 
-    // initialize session.
-    tabSession.read(myOptions[sessionKey]).then(function() {
-      tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
-    });
+      // initialize history.
+      tabHistory.read(myOptions.history).then(function() {
+        tabHistory.setMaxHistory(parseInt(myOptions.max_history, 10));
+      });
+
+      // initialize session.
+      tabSession.read(myOptions[sessionKey]).then(function() {
+        tabSession.setMaxSession(parseInt(myOptions.max_sessions, 10));
+      });
+
+      deferred.resolve();
+    }, 0);
+    return deferred.promise;
   }
 
   function initializeAlreadyPurgedTabs()
   {
-    chrome.tabs.query({}, function(tabs) {
-      if (chrome.runtime.lastError) {
-        error(chrome.runtime.lastError.message);
-        return;
-      }
+    debug('initializeAlreadyPurgedTabs');
 
-      function toAdd(current, iconURI)
-      {
-        if (isReleasePage(current.url)) {
-          unloaded[current.id] = {
-            title          : current.title,
-            iconURI        : iconURI || icons[NORMAL_EXCLUDE],
-            url            : getParameterByName(current.url, 'url'),
-            purgeurl       : current.url,
-            scrollPosition : { x: 0 , y: 0 },
-          };
+    var deferred = Promise.defer();
+    setTimeout(function() {
+      chrome.tabs.query({}, function(tabs) {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          deferred.reject();
+          return;
         }
-        setTick(current.id);
-      }
 
-      // If already purging tab, be adding the object of purging tab.
-      tabs.forEach(function(v) {
-        var result = checkExcludeList(v.url);
-        if (result ^ NORMAL_EXCLUDE) {
-          if (v.favIconUrl) {
-            getDataURI(v.favIconUrl).then(function(response) {
-              toAdd(v, response);
-            });
-          } else {
-            toAdd(v);
+        function toAdd(current, iconURI)
+        {
+          if (isReleasePage(current.url)) {
+            unloaded[current.id] = {
+              title          : current.title,
+              iconURI        : iconURI || icons[NORMAL_EXCLUDE],
+              url            : getParameterByName(current.url, 'url'),
+              purgeurl       : current.url,
+              scrollPosition : { x: 0 , y: 0 },
+            };
           }
+          setTick(current.id);
         }
+
+        // If already purging tab, be adding the object of purging tab.
+        var p = [];
+        tabs.forEach(function(v) {
+          var i = (function(v) {
+            var deferred = Promise.defer();
+
+            setTimeout(function() {
+              var result = checkExcludeList(v.url);
+              if (result ^ NORMAL_EXCLUDE) {
+                if (v.favIconUrl) {
+                  getDataURI(v.favIconUrl).then(function(response) {
+                    toAdd(v, response);
+                    deferred.resolve();
+                  });
+                } else {
+                  toAdd(v);
+                  deferred.resolve();
+                }
+              } else {
+                deferred.resolve();
+              }
+            }, 0);
+
+            return deferred.promise;
+          })(v);
+          p.push(i);
+        });
+        Promise.all(p).then(deferred.resolve, deferred.reject);
       });
-    });
+    }, 0);
+    return deferred.promise;
   }
 
   /**
