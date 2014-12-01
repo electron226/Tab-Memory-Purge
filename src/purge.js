@@ -956,7 +956,7 @@
         // If already purging tab, be adding the object of purging tab.
         tabs.forEach(function(v) {
           var result = checkExcludeList(v.url);
-          if (result & NORMAL_EXCLUDE) {
+          if (result ^ NORMAL_EXCLUDE) {
             if (v.favIconUrl) {
               getDataURI(v.favIconUrl).then(function(response) {
                 toAdd(v, response);
