@@ -592,57 +592,61 @@
    debug('restore');
 
    var deferred = Promise.defer();
-   setTimeout(function restore_inner(object, keys, index, end) {
-     // 最後まで処理を行ったらunloadedに上書き
-     if (index >= end) {
-       for (var k in object) {
-         if (object.hasOwnProperty(k) && !unloaded.hasOwnProperty(k)) {
-           unloaded[k] = object[k];
+   setTimeout(function() {
+     function restore_inner(object, keys, index, end) {
+       // 最後まで処理を行ったらunloadedに上書き
+       if (index >= end) {
+         for (var k in object) {
+           if (object.hasOwnProperty(k) && !unloaded.hasOwnProperty(k)) {
+             unloaded[k] = object[k];
+           }
          }
+         deferred.resolve(true);
+         return;
        }
-       deferred.resolve(true);
-       return;
-     }
 
-     // 初期値
-     if (toType(keys) !== 'array') {
-       keys = [];
-       for (var key in object) {
-         if (object.hasOwnProperty(key)) {
-           keys.push(key);
+       // 初期値
+       if (toType(keys) !== 'array') {
+         keys = [];
+         for (var key in object) {
+           if (object.hasOwnProperty(key)) {
+             keys.push(key);
+           }
          }
+         index = 0;
+         end = keys.length;
        }
-       index = 0;
-       end = keys.length;
-     }
 
-     var tabId = parseInt(keys[index], 10);
-     chrome.tabs.get(tabId, function(tab) {
-       // If occur a error and tab is undefined, it is ignore.
-       if (chrome.runtime.lastError || tab === void 0) {
-         if (tab !== void 0 && isReleasePage(tab.url)) {
-           restore_inner(object, keys, ++index, end);
-           return;
-         }
-
-         // タブが存在しない場合、新規作成
-         var purgeurl = object[tabId].purgeurl;
-         chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
-           if (chrome.runtime.lastError) {
-             error(chrome.runtime.lastError.message);
-           } else {
-             var temp = object[tabId];
-             delete object[tabId];
-             object[tab.id] = temp;
+       var tabId = parseInt(keys[index], 10);
+       chrome.tabs.get(tabId, function(tab) {
+         // If occur a error and tab is undefined, it is ignore.
+         if (chrome.runtime.lastError || tab === void 0) {
+           if (tab !== void 0 && isReleasePage(tab.url)) {
+             restore_inner(object, keys, ++index, end);
+             return;
            }
 
+           // タブが存在しない場合、新規作成
+           var purgeurl = object[tabId].purgeurl;
+           chrome.tabs.create({ url: purgeurl, active: false }, function(tab) {
+             if (chrome.runtime.lastError) {
+               error(chrome.runtime.lastError.message);
+             } else {
+               var temp = object[tabId];
+               delete object[tabId];
+               object[tab.id] = temp;
+             }
+
+             restore_inner(object, keys, ++index, end);
+           });
+         } else {
            restore_inner(object, keys, ++index, end);
-         });
-       } else {
-         restore_inner(object, keys, ++index, end);
-       }
-     });
-   }(object, keys, index, end), 0);
+         }
+       });
+     }
+
+     restore_inner(object, keys, index, end);
+   }, 0);
    return deferred.promise;
   }
 
