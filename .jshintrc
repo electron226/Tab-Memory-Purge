@@ -64,6 +64,8 @@
     "optionPage": true,
     "changeHistory": true,
     "optionMenus": true,
+    "contextMenus": true,
+    "parentMenuId": true,
     "switchDisableTimerMenuItemId": true,
     "excludeDialogMenuItemId": true,
 

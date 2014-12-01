@@ -732,32 +732,34 @@
     // Remove all context menu.
     // then create context menu on the browser action.
     chrome.contextMenus.removeAll(function() {
-      var parentMenuId = 'parentMenu';
-      chrome.contextMenus.create(
-        { id: parentMenuId,
-          title: chrome.i18n.getMessage('optionPage'),
-          contexts: ['browser_action'] },
-        function() {
-          optionMenus.forEach(function(value, i) {
+      var p = [];
+      var i;
+      contextMenus.forEach(function(v) {
+        i = (function(v) {
+          return new Promise(function(resolve) {
+            chrome.contextMenus.create(
+              { id: v.id, title: v.title, contexts: ['browser_action'] },
+              resolve);
+          });
+        })(v);
+        p.push(i);
+      });
+      optionMenus.forEach(function(value, i) {
+        i = (function(value, i) {
+          return new Promise(function(resolve) {
             chrome.contextMenus.create(
               { id: i.toString(),
                 title: chrome.i18n.getMessage(value.name),
                 parentId: parentMenuId,
-                contexts: ['browser_action'] });
+                contexts: ['browser_action']
+              }, resolve);
           });
-
-          deferred.resolve(true);
-        }
-      );
-      chrome.contextMenus.create(
-        { id: switchDisableTimerMenuItemId,
-          title: chrome.i18n.getMessage('switchTimer'),
-          contexts: ['browser_action'] });
-      chrome.contextMenus.create(
-        { id: excludeDialogMenuItemId,
-          title: chrome.i18n.getMessage('add_current_tab_exclude_list'),
-          contexts: ['browser_action'] });
+        })(value, i);
+        p.push(i);
+      });
+      Promise.all(p).then(deferred.resolve, deferred.reject);
     });
+
     return deferred.promise;
   }
 

@@ -102,6 +102,22 @@
     { 'name': 'information' },
   ];
 
+  window.parentMenuId = 'parentMenu';
   window.switchDisableTimerMenuItemId = 'disableTimer';
   window.excludeDialogMenuItemId = 'currentTabExcludeDialog';
+
+  window.contextMenus = [
+    {
+      id    : parentMenuId,
+      title : chrome.i18n.getMessage('optionPage'),
+    },
+    {
+      id    : switchDisableTimerMenuItemId,
+      title : chrome.i18n.getMessage('switchTimer'),
+    },
+    {
+      id    : excludeDialogMenuItemId,
+      title : chrome.i18n.getMessage('add_current_tab_exclude_list'),
+    },
+  ];
 })(window);
