@@ -744,23 +744,37 @@
 
     return new Promise(function(resolve, reject) {
       getInitAndLoadOptions().then(function(options) {
-        // the changed history of the option menu.
-        displayPageOfOption = "updated";
-        chrome.tabs.create({ url: optionPage }, resolve);
-
-        if (options.when_updated_restore_session) {
-          var sessions = JSON.parse(options[sessionKey]);
-          if (sessions.length > 0) {
-            restore(sessions[sessions.length - 1].session).then(function() {
-              return new Promise(function(resolve) {
-                log('restore is completed.');
-                resolve();
-              });
-            }).then(resolve, reject);
-            return;
+        // Update the purgeurls of session history.
+        var sessions = JSON.parse(options[sessionKey]);
+        var reg = /^(chrome-extension:|http:|https:|file:\/)\/\/.*\/blank.html/;
+        sessions.forEach(function(v) {
+          for (var i in v) {
+            for (var j in v[i]) {
+              v[i][j].purgeurl = v[i][j].purgeurl.replace(reg, blankUrl);
+            }
           }
-        }
-        resolve();
+        });
+        var write = {};
+        write[sessionKey] = JSON.stringify(sessions);
+        chrome.storage.local.set(write, function() {
+          // the changed history of the option menu.
+          displayPageOfOption = "updated";
+          chrome.tabs.create({ url: optionPage }, resolve);
+
+          if (options.when_updated_restore_session) {
+            var sessions = JSON.parse(options[sessionKey]);
+            if (sessions.length > 0) {
+              restore(sessions[sessions.length - 1].session).then(function() {
+                return new Promise(function(resolve) {
+                  log('restore is completed.');
+                  resolve();
+                });
+              }).then(resolve, reject);
+              return;
+            }
+          }
+          resolve();
+        });
       }, reject);
     });
   }
