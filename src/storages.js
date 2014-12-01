@@ -27,8 +27,7 @@
     debug('update function of TabSession class.', session);
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       if (session === void 0 || session === null) {
         error('a invalid type of arguments.');
         deferred.reject('a invalid type of arguments.');
@@ -50,22 +49,20 @@
         $this.time = null;
       }
 
-      $this.sessions = $this.getDeletedOldSession($this.max_sessions);
+      $this.sessions = $this.getDeletedOldSession();
 
       var write = {};
       write[$this.key] = JSON.stringify($this.sessions);
       write[$this.currentKey] = $this.time ? $this.time.getTime() : $this.time;
       chrome.storage.local.set(write, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.get = function() {
     debug('get function of TabSession class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
-      // this.keyのまま使うとthis.keyの値が消滅する
+    setTimeout(function($this) {
       var key = $this.key;
       chrome.storage.local.get(key, function(items) {
         if (chrome.runtime.lastError) {
@@ -81,15 +78,14 @@
           deferred.reject("I got the session data that is not JSON string.");
         }
       });
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.remove = function(date) {
     debug('remove function of TabSession class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       if (toType(date) !== 'date') {
         error('A invalid type of arguments.');
         deferred.reject('A invalid type of arguments.');
@@ -106,15 +102,14 @@
       var write = {};
       write[$this.key] = JSON.stringify($this.sessions);
       chrome.storage.local.set(write, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.removeItem = function(date, key) {
     debug('removeItem function of TabSession class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       if (toType(date) !== 'date' && toType(key) !== 'string') {
         error('A invalid type of arguments.');
         deferred.reject('A invalid type of arguments.');
@@ -141,22 +136,21 @@
       var write = {};
       write[$this.key] = JSON.stringify($this.sessions);
       chrome.storage.local.set(write, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.removeAll = function() {
     debug('removeAll function of TabSession class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       $this.sessions = [];
       chrome.storage.local.remove($this.key, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabSession.prototype.getDeletedOldSession = function(max_sessions) {
-    var end = max_sessions || this.max_sessions;
+    var end = (max_sessions || this.max_sessions);
     var first = this.sessions.length - (end);
     return first <= 0 ? this.sessions : this.sessions.slice(first, end);
   };
@@ -179,8 +173,7 @@
     debug('read function of TabHistory class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       if (dataObj === void 0 || dataObj === null) {
         chrome.storage.local.get($this.key, function(items) {
           if (chrome.runtime.lastError) {
@@ -199,15 +192,14 @@
         deferred.reject('read function of TabHistory class is error.' +
                         'dataObj is invalid.');
       }
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabHistory.prototype.write = function(tab) {
     debug('write function of TabHistory class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       var beWriting = function(tab, iconURI) {
         var deferred = Promise.defer();
         setTimeout(function() {
@@ -249,29 +241,27 @@
       } else {
         beWriting.call($this, tab, null).then(deferred.resolve);
       }
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabHistory.prototype.remove = function(date) {
     debug('removeItem function of TabHistory class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       delete $this.history[date.getTime()];
 
       var write = {};
       write[historyKey] = $this.history;
       chrome.storage.local.set(write, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   TabHistory.prototype.removeItem = function(date, item) {
     debug('removeItem function of TabHistory class.');
 
     var deferred = Promise.defer();
-    var $this = this;
-    setTimeout(function() {
+    setTimeout(function($this) {
       var filterFunc = function(x) {
         return x.time !== item.time;
       };
@@ -292,7 +282,7 @@
       var write = {};
       write[historyKey] = $this.history;
       chrome.storage.local.set(write, deferred.resolve);
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
   // Delete the history of pre-history
