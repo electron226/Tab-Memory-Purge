@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="css/lib/angular-csp.css" type="text/css">
     <link rel="stylesheet" href="css/options.css" type="text/css">
   </head>
-  <body ng-controller="OptionController">
+  <body ng-controller="OptionController" ng-clock>
     <nav id="config_change">
       <table>
         <tr ng-repeat="item in menuItems" ng-click="menuSelect($event)" class="{{ item.name }}">
