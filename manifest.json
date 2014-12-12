@@ -15,7 +15,13 @@
     },
     "options_page": "options.html",
     "background" : {
-      "page" : "background.html"
+        "scripts": [
+            "src/debug.js",
+            "src/common.js",
+            "src/common_func.js",
+            "src/storages.js",
+            "src/purge.js"
+        ]
     },
     "content_scripts": [
       {
