@@ -40,7 +40,7 @@
    * value = object.
    *    the values in the object are following.
    *       title          : title.
-   *       iconURI        : the dateURI of icon.
+   *       iconDataURI    : the dateURI of icon.
    *       url            : the url before purging.
    *       purgeurl       : the url of release page of this id.
    *       scrollPosition : the object that represent the scroll position(x, y).
@@ -388,7 +388,7 @@
 
             getPurgeURL(tab).then(function(returnObject) {
               var url = returnObject.url;
-              var iconURI = returnObject.iconDataURI;
+              var iconDataURI = returnObject.iconDataURI;
 
               function afterPurge(updated) {
                 if (chrome.runtime.lastError) {
@@ -399,7 +399,7 @@
 
                 unloaded[updated.id] = {
                   title: tab.title,
-                  iconDataURI: iconURI || icons[NORMAL_EXCLUDE],
+                  iconDataURI: iconDataURI || icons[NORMAL_EXCLUDE],
                   url: tab.url,
                   purgeurl: url,
                   scrollPosition: scrollPosition[0] || { x: 0 , y: 0 }
@@ -966,12 +966,12 @@
           return;
         }
 
-        function toAdd(current, iconURI)
+        function toAdd(current, iconDataURI)
         {
           if (isReleasePage(current.url)) {
             unloaded[current.id] = {
               title          : current.title,
-              iconURI        : iconURI || icons[NORMAL_EXCLUDE],
+              iconDataURI    : iconDataURI || icons[NORMAL_EXCLUDE],
               url            : getParameterByName(current.url, 'url'),
               purgeurl       : current.url,
               scrollPosition : { x: 0 , y: 0 },
