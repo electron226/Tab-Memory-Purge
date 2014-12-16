@@ -233,6 +233,14 @@
     "message": "一時的な除外リストとキーバインドの除外リストにマッチ",
     "description": "spec4の仕様の説明"
   },
+  "warning": {
+    "message": "注意",
+    "description": "オプションページの情報ページの項目"
+  },
+  "warn1": {
+    "message": "拡張機能が更新もしくは停止した際、Google Chromeが解放されたタブを閉じてしまいます。その際は、セッション履歴から以前のセッションを復元することができます。",
+    "description": "注意点の説明"
+  },
   "feedback": {
     "message": "フィードバック",
     "description": "オプションページの情報ページの項目"

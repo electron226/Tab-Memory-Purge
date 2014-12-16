@@ -233,6 +233,14 @@
     "message": "Matched the temporary exclusion list and the exclusion list of key bindings.",
     "description": "A explanation in spec4 of specification."
   },
+  "warning": {
+    "message": "Warning",
+    "description": "A item in information of option page."
+  },
+  "warn1": {
+    "message": "When the extension was updated or disabled, Google Chrome will close purged tabs. In that case, the user is able to restore previous session from the session history in the option page.",
+    "description": "A explanation in warning of the option page."
+  },
   "feedback": {
     "message": "Feedback",
     "description": "A item in information of option page."
