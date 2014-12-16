@@ -1,9 +1,85 @@
-/*jshint unused: false*/
 /**
  * ネイティブで動作する関数の集まり
  */
 (function(window) {
   "use strict";
+
+  /**
+   * Get sesion history list.
+   * @param {Database} db - the instance of Database class in indexedDB.js.
+   * @param {String} sessionDBName - the target session name in indexedDB.
+   * @return {Promise} return promise.
+   */
+  window.loadSession = window.loadSession || function(db, sessionDBName) {
+    return new Promise(function(resolve, reject) {
+      var p = [];
+      p.push( db.getAll({ name: sessionDBName }) );
+      p.push( db.getAll({ name: dbPageInfoName }) );
+      p.push( db.getAll({ name: dbDataURIName }) );
+
+      Promise.all(p)
+      .then(function(results) {
+        return new Promise(function(resolve2) {
+          var sessions = results[0];
+          var pageInfos = results[1];
+          var dataURIs = results[2];
+
+          var pageInfoDict = {};
+          pageInfos.forEach(function(v) {
+            pageInfoDict[v.url] = { title: v.title, host: v.host };
+          });
+
+          var dataURIDict = {};
+          dataURIs.forEach(function(v) {
+            dataURIDict[v.host] = v.dataURI;
+          });
+
+          var page;
+          var tempDate;
+          var showList = [];
+          var dataList = [];
+          sessions.forEach(function(v) {
+            page = pageInfoDict[v.url];
+            if (page === void 0 || page === null) {
+              warn("Don't find data in pageInfo of indexedDB.", v.url);
+              return;
+            }
+
+            if (tempDate === void 0 || tempDate === null) {
+              tempDate = v.date;
+            } else if (tempDate !== v.date) {
+              showList.push({
+                date : tempDate,
+                data : dataList,
+              });
+              tempDate = v.date;
+              dataList = [];
+            }
+
+            dataList.push({
+              id      : v.id,
+              date    : v.date,
+              url     : v.url,
+              title   : page.title,
+              host    : page.host,
+              dataURI : dataURIDict[page.host] || icons[NORMAL_EXCLUDE],
+            });
+          });
+
+          if (dataList.length > 0) {
+            showList.push({
+              date : tempDate,
+              data : dataList,
+            });
+          }
+
+          resolve2(showList);
+        });
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  };
 
   window.cloneObject = window.cloneObject || function(obj) {
     if (toType(obj) !== 'object') {
@@ -330,7 +406,7 @@
     var ret = [];
     for (var i = 0; i < array.length; i++) {
       var val = array[i];
-      if (!(val in tempdict)) {
+      if (!tempdict.hasOwnProperty(val)) {
         tempdict[val] = true;
         ret.push(val);
       }
@@ -365,6 +441,7 @@
   };
 
   window.dictSize = window.dictSize || function(dict) {
+    /*jshint unused: false*/
     var c = 0;
     for (var _ in dict) {
       c++;

@@ -13,6 +13,9 @@
     $scope.options = angular.copy(defaultValues);
     $scope.currentLocale = chrome.i18n.getUILanguage();
 
+    $scope.db = new Database(dbName, dbVersion);
+    $scope.db.open(dbCreateStores);
+
     var regTool = $document.find(
       '[ng-controller="RegexToolController"]');
     $scope.showRegexTool = function() {
@@ -79,7 +82,6 @@
 
       if ($scope.showRestoreMessage) {
         $scope.showRestoreMessage = false;
-        $scope.showOldRestoreTitle = true;
       }
     };
 
@@ -171,95 +173,152 @@
     var searchDate = null;
 
     $scope.$watch('selectHistory', function(newValue) {
-      debug(
-        'selectHistory was changed on historyController.', newValue);
+      debug('selectHistory was changed on historyController.', newValue);
       if (angular.isUndefined(newValue) || newValue === null) {
         searchDate = null;
         return;
       }
 
-      var histories = angular.copy($scope.history);
-      for (var i = 0, len = histories.length; i < len; i++) {
-        if (histories[i].date === newValue.getTime()) {
-          searchDate = histories[i].date;
-          break;
-        } else {
-          searchDate = null;
-        }
-      }
+      searchDate = newValue;
     });
 
-    $scope.deleteHistory = function(date) {
-      var histories = angular.copy($scope.history);
-      var t = histories.filter(function(x) {
-        return x.date !== date;
-      });
-      histories = t;
-
-      $scope.history = histories;
-
-      var writeHistory = {};
-      histories.forEach(function(v) {
-        writeHistory[v.date] = v.history;
-      });
-
-      var write = {};
-      write[historyKey] = writeHistory;
-      chrome.storage.local.set(write, function() {
-        chrome.runtime.sendMessage({ event: 'deleteHistory', date: date });
-      });
-    };
-
-    $scope.deleteHistoryItem = function(date, deleteItem) {
-      var histories = angular.copy($scope.history);
-      var t = histories.filter(function(x) {
-        if (x.date !== date) {
-          return true;
-        }
-
-        var hi = angular.copy(x.history);
-        var hit = hi.filter(function(x2) {
-          return x2.time !== deleteItem.time;
-        });
-        x.history = hit;
-
-        return hit.length > 0 ? true : false;
-      });
-      histories = t;
-
-      $scope.history = histories;
-
-      var writeHistory = {};
-      histories.forEach(function(v) {
-        writeHistory[v.date] = v.history;
-      });
-
-      var write = {};
-      write[historyKey] = writeHistory;
-      chrome.storage.local.set(write, function() {
-        chrome.runtime.sendMessage(
-          { event: 'deleteHistoryItem', date: date, item: deleteItem });
-      });
-    };
-
     $scope.showDate = function(date) {
-      if (angular.isNumber(searchDate)) {
-        return (date === searchDate) ? true : false;
+      if (angular.isDate(searchDate)) {
+        return (date.getTime() === searchDate.getTime()) ? true : false;
       } else {
         return true;
       }
     };
 
-    var showHistory = function(optionHistories) {
-      var histories = [];
-      for (var key in optionHistories) {
-        if (optionHistories.hasOwnProperty(key)) {
-          histories.push({
-            date: parseInt(key, 10),
-            history: angular.copy(optionHistories[key]) });
-        }
-      }
-      $scope.history = angular.copy(histories);
+    var showHistory = function() {
+      return new Promise(function(resolve, reject) {
+        var p = [];
+        p.push( $scope.db.getAll({ name: dbHistoryName }) );
+        p.push( $scope.db.getAll({ name: dbPageInfoName }) );
+        p.push( $scope.db.getAll({ name: dbDataURIName }) );
+
+        Promise.all(p)
+        .then(function(results) {
+          return new Promise(function(resolve2) {
+            var histories = results[0];
+            var pageInfos = results[1];
+            var dataURIs = results[2];
+
+            var pageInfoDict = {};
+            pageInfos.forEach(function(v) {
+              pageInfoDict[v.url] = { title: v.title, host: v.host };
+            });
+
+            var dataURIDict = {};
+            dataURIs.forEach(function(v) {
+              dataURIDict[v.host] = v.dataURI;
+            });
+
+            var page;
+            var date, tempDate;
+            var showList = [];
+            var dataList = [];
+            histories.forEach(function(v) {
+              page = pageInfoDict[v.url];
+              if (page === void 0 || page === null) {
+                warn("Don't find data in pageInfo of indexedDB.", v.url);
+                return;
+              }
+
+              date = new Date(v.date);
+              if (!tempDate) {
+                tempDate = date;
+              }
+
+              if (formatDate(tempDate, 'YYYY/MM/DD') !==
+                  formatDate(date, 'YYYY/MM/DD')) {
+                showList.push({
+                  date : new Date(tempDate.getFullYear(),
+                                  tempDate.getMonth(),
+                                  tempDate.getDate(),
+                                  0, 0, 0, 0),
+                  data : dataList,
+                });
+                tempDate = date;
+                dataList = [];
+              }
+
+              dataList.push({
+                date    : v.date,
+                url     : v.url,
+                title   : page.title,
+                host    : page.host,
+                dataURI : dataURIDict[page.host] || icons[NORMAL_EXCLUDE],
+              });
+            });
+
+            if (dataList.length > 0) {
+              showList.push({
+                date : new Date(tempDate.getFullYear(),
+                                tempDate.getMonth(),
+                                tempDate.getDate(),
+                                0, 0, 0, 0),
+                data : dataList,
+              });
+            }
+
+            resolve2(showList);
+          });
+        })
+        .then(function(showList) {
+          $scope.$apply(function() {
+            $scope.history = showList;
+            resolve();
+          });
+        })
+        .catch(function(e) {
+          error(e.stack);
+          reject(e);
+        });
+      });
+    };
+
+    $scope.deleteHistory = function(date) {
+      return new Promise(function(resolve, reject) {
+        var begin = new Date(
+          date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+        var end = new Date(
+          date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+        $scope.db.getCursor({
+          name: dbHistoryName,
+          range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
+        })
+        .then(function(histories) {
+          var delKeys = histories.map(function(v) {
+            return v.date;
+          });
+          return $scope.db.delete({
+            name: dbHistoryName,
+            keys: delKeys,
+          });
+        })
+        .then(showHistory)
+        .then(resolve)
+        .catch(function(e) {
+          error(e.stack);
+          reject(e);
+        });
+      });
+    };
+
+    $scope.deleteHistoryItem = function(date) {
+      return new Promise(function(resolve, reject) {
+        $scope.db.delete({
+          name: dbHistoryName,
+          keys: date,
+        })
+        .then(showHistory)
+        .then(resolve)
+        .catch(function(e) {
+          error(e.stack);
+          reject(e);
+        });
+      });
     };
 
     var firstFlag = true;
@@ -268,15 +327,8 @@
       debug('selectMenu was changed on historyController.');
       showFlag = (newValue === 'history') ? true : false;
       if (firstFlag && showFlag) {
-        showHistory($scope.options.history);
+        showHistory();
         firstFlag = false;
-      }
-    });
-
-    $scope.$watchCollection('options.history', function(newValues, oldValues) {
-      debug('option.history was changed.', newValues, oldValues);
-      if (showFlag) {
-        showHistory(newValues);
       }
     });
   }]);
@@ -284,130 +336,183 @@
   optionModule.controller('sessionHistoryController',
     ['$scope', function($scope) {
       $scope.sessionHistory = [];
-      $scope.showSavedSession = null;
+      $scope.savedSessionHistory = [];
+      $scope.displaySavedSession = null;
 
-      $scope.$watch('options.sessions', function(newValue) {
-        debug('options.sessions was changed ' +
-                      'on sessionHistoryController', newValue);
-        if (!angular.isString(newValue)) {
-          return;
+      var showSavedSession = function() {
+        return new Promise(function(resolve, reject) {
+          loadSession($scope.db, dbSavedSessionName)
+          .then(function(showList) {
+            $scope.$apply(function() {
+              $scope.savedSessionHistory = showList;
+              resolve();
+            });
+          })
+          .catch(function(e) {
+            error(e.stack);
+            reject(e);
+          });
+        });
+      };
+
+      var showSession = function() {
+        return new Promise(function(resolve, reject) {
+          loadSession($scope.db, dbSessionName)
+          .then(function(showList) {
+            $scope.$apply(function() {
+              $scope.sessionHistory = showList;
+              resolve();
+            });
+          })
+          .catch(function(e) {
+            error(e.stack);
+            reject(e);
+          });
+        });
+      };
+
+      var firstFlag = true;
+      var showFlag = false;
+      $scope.$watch('selectMenu', function(newValue) {
+        debug('selectMenu was changed on historyController.');
+        showFlag = (newValue === 'session_history') ? true : false;
+        if (firstFlag && showFlag) {
+          showSession();
+          showSavedSession();
+          firstFlag = false;
         }
-        $scope.sessionHistory = angular.fromJson(newValue);
-      });
-
-      $scope.$watch('options.savedSessions', function(newValue, oldValue) {
-        debug('options.savedSessions was changed ' +
-          'on sessionHistoryController', newValue, oldValue);
       });
 
       $scope.savedSessionClicked = function(session) {
-        $scope.showSavedSession = angular.copy(session);
+        $scope.displaySavedSession = session.data;
       };
+
       $scope.deleteSavedSession = function(session) {
-        if (!angular.isObject(session)) {
-          return;
-        }
+        return new Promise(function(resolve, reject) {
+          if (session === void 0 || session === null || session.length === 0) {
+            reject();
+            return;
+          }
 
-        var sessions = angular.copy($scope.options.savedSessions);
-        var t = sessions.filter(function(v) {
-          return v.date !== session.date;
+          $scope.db.getCursor({
+            name: dbSavedSessionName,
+            range: IDBKeyRange.only(session[0].date),
+            indexName: 'date',
+          })
+          .then(function(sessions) {
+            var delKeys = sessions.map(function(v) {
+              return v.id;
+            });
+
+            return $scope.db.delete({
+              name: dbSavedSessionName,
+              keys: delKeys,
+            });
+          })
+          .then(function() {
+            $scope.displaySavedSession = null;
+            return showSavedSession();
+          })
+          .then(resolve)
+          .catch(function(e) {
+            error(e.stack);
+            reject();
+          });
         });
-        sessions = t;
-
-        $scope.options.savedSessions = sessions;
-        $scope.showSavedSession = null;
-
-        var write = {};
-        write.savedSessions = sessions;
-        chrome.storage.local.set(write);
       };
 
-      $scope.deleteSavedSpecificSession = function(session, deleteItemKey) {
-        var savedSessions = angular.copy($scope.options.savedSessions);
-        var t = savedSessions.filter(function(v) {
-          if (v.date !== session.date) {
-            return true;
-          }
-
-          delete v.session[deleteItemKey];
-          delete session.session[deleteItemKey]; // session = data in $scope.
-          if (jQuery.isEmptyObject(v.session)) {
-            return false;
-          }
-          return true;
+      $scope.deleteSavedSpecificSession = function(sessions, id) {
+        return new Promise(function(resolve, reject) {
+          $scope.db.delete({
+            name: dbSavedSessionName,
+            keys: id,
+          })
+          .then(function() {
+            return new Promise(function(resolve2) {
+              var newSessions = sessions.filter(function(v) {
+                return v.id !== id;
+              });
+              $scope.displaySavedSession = newSessions;
+              resolve2();
+            });
+          })
+          .then(function() {
+            return showSavedSession();
+          })
+          .then(resolve)
+          .catch(reject);
         });
-        savedSessions = t;
-
-        $scope.options.savedSessions = savedSessions;
-
-        var write = {};
-        write.savedSessions = savedSessions;
-        chrome.storage.local.set(write);
       };
 
-      $scope.deleteSpecificSession = function(sessions, deleteItemKey) {
-        var sessionHistory = angular.copy($scope.sessionHistory);
-        var t = sessionHistory.filter(function(v) {
-          if (v.date !== sessions.date) {
-            return true;
-          }
-
-          delete v.session[deleteItemKey];
-          return jQuery.isEmptyObject(v.session) ? false : true;
-        });
-        sessionHistory = t;
-
-        $scope.sessionHistory = sessionHistory;
-
-        var write = {};
-        write[sessionKey] = angular.toJson(sessionHistory);
-        chrome.storage.local.set(write, function() {
-          chrome.runtime.sendMessage(
-            { event: 'deleteSessionItem',
-              session: sessions,
-              key: deleteItemKey });
+      $scope.deleteSpecificSession = function(sessions, id) {
+        debug(sessions, id);
+        return new Promise(function(resolve, reject) {
+          $scope.db.delete({
+            name: dbSessionName,
+            keys: id,
+          })
+          .then(function() {
+            return showSession();
+          })
+          .then(resolve)
+          .catch(reject);
         });
       };
 
       $scope.saved = function(session) {
-        session = angular.copy(session);
-
-        var writeSessions = angular.copy($scope.options.savedSessions);
-        for (var i = 0, len = writeSessions.length; i < len; i++) {
-          if (writeSessions[i].date === session.date) {
-            error('already same data have added.');
-            return;
-          }
-        }
-
-        $scope.options.savedSessions.push(session);
-        writeSessions.push(session);
-
-        var write = {};
-        write.savedSessions = writeSessions;
-        chrome.storage.local.set(write);
-      };
-      $scope.deleted = function(session) {
-        var sessions = angular.copy($scope.sessionHistory);
-        var t = sessions.filter(function(v) {
-          return (v.date !== session.date) ? true : false;
+        return new Promise(function(resolve, reject) {
+          $scope.db.getCursor({
+            name      : dbSessionName,
+            range     : IDBKeyRange.only(session.date),
+            indexName : 'date',
+          })
+          .then(function(histories) {
+            return $scope.db.put({
+              name: dbSavedSessionName,
+              data: histories,
+            });
+          })
+          .then(function() {
+            return showSavedSession();
+          })
+          .then(resolve)
+          .catch(function(e) {
+            error(e.stack);
+            reject();
+          });
         });
-        sessions = t;
+      };
 
-        $scope.sessionHistory = sessions;
-
-        // purge.jsのtabSession側と二重書き込みになるが念のためやっておく。
-        var write = {};
-        write[sessionKey] = sessions;
-        chrome.storage.local.set(write, function() {
-          chrome.runtime.sendMessage(
-            { event: 'deleteSession', session: session });
+      $scope.deleted = function(session) {
+        return new Promise(function(resolve, reject) {
+          $scope.db.getCursor({
+            name: dbSessionName,
+            range: IDBKeyRange.only(session.date),
+            indexName: 'date',
+          })
+          .then(function(targetSessions) {
+            var delKeys = targetSessions.map(function(v) {
+              return v.id;
+            });
+            return $scope.db.delete({
+              name: dbSessionName,
+              keys: delKeys,
+            });
+          })
+          .then(function() {
+            return showSession();
+          })
+          .then(resolve)
+          .catch(function(e) {
+            error(e.stack);
+            reject(e);
+          });
         });
       };
 
       $scope.restored = function(session) {
         chrome.runtime.sendMessage(
-          { event: 'restore', session: session.session });
+          { event: 'restore', session: angular.copy(session) });
       };
   }]);
 
@@ -442,8 +547,8 @@
       }
       $scope.changed = changed;
     })
-    .error(function(){
-      error('changed history do not get.');
+    .error(function(e){
+      error(e.stack);
     });
   }]);
 

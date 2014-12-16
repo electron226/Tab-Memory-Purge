@@ -32,19 +32,65 @@
         'nicovideo.jp\n' +
         'youtube.com',
     'keybind_regex_insensitive': true,
-
-    'savedSessions': [],
   };
-  window.historyKey        = window.historyKey        || 'history';
-  window.sessionKey        = window.sessionKey        || 'sessions';
-  window.currentSessionKey = window.currentSessionKey || 'currentSession';
-  window.versionKey        = window.versionKey        || 'version';
-  defaultValues[window.historyKey]        = {};
-  defaultValues[window.sessionKey]        = [];
-  defaultValues[window.currentSessionKey] = null;
-  defaultValues[window.versionKey]        = chrome.app.getDetails();
-
+  // window.historyKey = window.historyKey || 'history';
+  // window.sessionKey = window.sessionKey || 'sessions';
+  window.versionKey = window.versionKey || 'version';
+  defaultValues[window.versionKey] = chrome.app.getDetails();
   window.defaultValues = window.defaultValues || defaultValues;
+
+  window.dbName             = window.dbName             || 'TMP_DB';
+  window.dbVersion          = window.dbVersion          || 2;
+  window.dbHistoryName      = window.dbHistoryName      || 'history';
+  window.dbDataURIName      = window.dbDataURIName      || 'dataURI';
+  window.dbPageInfoName     = window.dbPageInfoName     || 'pageInfo';
+  window.dbSessionName      = window.dbSessionName      || 'session';
+  window.dbSavedSessionName = window.dbSavedSessionName || 'savedSession';
+
+  var dbCreateStores = {};
+  dbCreateStores[window.dbHistoryName] = {
+    property: {
+      keyPath: 'date',
+      autoIncrement: false,
+    },
+  };
+  dbCreateStores[window.dbDataURIName] = {
+    property: {
+      keyPath: 'host',
+      autoIncrement: false,
+    },
+  };
+  dbCreateStores[window.dbPageInfoName] = {
+    property: {
+      keyPath: 'url',
+      autoIncrement: false,
+    },
+  };
+  dbCreateStores[window.dbSessionName] = {
+    property: {
+      keyPath: 'id',
+      autoIncrement: true,
+    },
+    indexs: {
+      date: {
+        targets: ['date'],
+        property: { unique: false },
+      },
+    },
+  };
+  dbCreateStores[window.dbSavedSessionName] = {
+    property: {
+      keyPath: 'id',
+      autoIncrement: true,
+    },
+    indexs: {
+      date: {
+        targets: ['date'],
+        property: { unique: false },
+      },
+    },
+  };
+  window.dbCreateStores = window.dbCreateStores || dbCreateStores;
 
   // The url of the release point.
   window.blankUrl = chrome.runtime.getURL('blank.html');
@@ -64,8 +110,12 @@
 
   // a value which represents of the exclude list.
   var excludeValues = [
-    'DISABLE_TIMER', 'KEYBIND_EXCLUDE',
-    'NORMAL_EXCLUDE', 'USE_EXCLUDE', 'TEMP_EXCLUDE', 'EXTENSION_EXCLUDE',
+    'DISABLE_TIMER',     // 1
+    'KEYBIND_EXCLUDE',   // 2
+    'NORMAL_EXCLUDE',    // 4
+    'USE_EXCLUDE',       // 8
+    'TEMP_EXCLUDE',      // 16
+    'EXTENSION_EXCLUDE', // 32
   ];
   excludeValues.forEach(function(v, i) {
     window[v] = window[v] || 1 << i;

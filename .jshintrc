@@ -20,6 +20,18 @@
     "jQuery": true,
     "angular": true,
     "chrome": true,
+    "localStorage": true,
+
+    "indexedDB": true,
+    "IDBFactory": true,
+    "IDBOpenDBRequest": true,
+    "IDBRequest": true,
+    "IDBDatabase": true,
+    "IDBTransaction": true,
+    "IDBObjectStore": true,
+    "IDBKeyRange": true,
+    "IDBCursor": true,
+    "IDBIndex": true,
 
     "log": true,
     "debug": true,
@@ -38,6 +50,9 @@
     "profile": true,
     "profileEnd": true,
     
+    "loadSession": true,
+
+    "formatDate": true,
     "deepCompare": true,
     "cloneObject": true,
     "getDataType": true,
@@ -51,9 +66,15 @@
     "dictSize": true,
     "equals": true,
 
-    "historyKey": true,
-    "sessionKey": true,
-    "currentSessionKey": true,
+    "dbCreateStores": true,
+    "dbName": true,
+    "dbVersion": true,
+    "dbHistoryName": true,
+    "dbPageInfoName": true,
+    "dbDataURIName": true,
+    "dbSessionName": true,
+    "dbSavedSessionName": true,
+
     "versionKey": true,
     "defaultValues": true,
     "translationPath": true,
@@ -76,8 +97,7 @@
     "EXTENSION_EXCLUDE": true,
     "KEYBIND_EXCLUDE": true,
 
-    "TabSession": true,
-    "TabHistory": true,
+    "Database": true,
     
     "deleteTick": true,
     "setTick": true,

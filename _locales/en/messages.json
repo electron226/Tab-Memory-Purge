@@ -163,14 +163,6 @@
     "message": "Click here if you want to restore the closed tabs at the time of the update.",
     "description": "The message of recommendation of the restore session."
   },
-  "current_session": {
-    "message": "Current Session",
-    "description": "Current Session"
-  },
-  "previous_session": {
-    "message": "Previous Session",
-    "description": "Previous Session"
-  },
   "wantToOperateMessage": {
     "message": "If you want to operate date, please, you are selecting the date.",
     "description": "The message when a user doesn't select saved session."

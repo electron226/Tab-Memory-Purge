@@ -121,24 +121,24 @@
                   </span>
                 <button ng-click="deleteHistory(data.date)" translation="delete"></button>
               </legend>
-              <div ng-repeat="item in data.history | orderBy:'time':true | filter:historyQuery">
-                <a href="#" ng-click="deleteHistoryItem(data.date, item)" style="margin-right: 1rem;">
+              <div ng-repeat="item in data.data | orderBy:'date':true | filter:historyQuery">
+                <a href="#" ng-click="deleteHistoryItem(item.date)" style="margin-right: 1rem;">
                   <span style="position: relative; top: 0.3rem;">
                     <span class="delete_icon"></span>
                     <span class="delete_icon2"></span>
                   </span>
                 </a>
-                <span style="margin-right: 1rem;">{{ item.time | date: 'HH:mm:ss' }}</span>
+                <span style="margin-right: 1rem;">{{ item.date | date: 'HH:mm:ss' }}</span>
                 <a href="{{ item.url }}" target="_blank">
-                  <img src="{{ item.iconDataURI }}" ng-show="item.iconDataURI !== underfined" style="width: 16px; height: 16px">{{ item.title }}</a>
+                  <img src="{{ item.dataURI }}" ng-show="item.dataURI !== underfined" style="width: 16px; height: 16px">{{ item.title }}</a>
               </div>
             </fieldset>
           </section>
 
           <section class="session_history" ng-controller="sessionHistoryController">
-            <fieldset style="padding: 16px" ng-hide="options.savedSessions.length === 0">
+            <fieldset style="padding: 16px" ng-hide="savedSessionHistory.length === 0">
               <legend>Saved Sessions</legend>
-              <span ng-repeat="session in options.savedSessions | orderBy:'date':true" class="savedSession">
+              <span ng-repeat="session in savedSessionHistory | orderBy:'date':true" class="savedSession">
                 <button class="savedBtn" ng-click="savedSessionClicked(session)">
                   <span ng-show="currentLocale === 'ja'">
                     {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }}
@@ -148,23 +148,23 @@
                   </span>
                 </button>
               </span>
-              <div style="padding: 10px 0 10px 0">
-                <button translation="restore" ng-click="restored(showSavedSession)"></button>
-                <button translation="delete" ng-click="deleteSavedSession(showSavedSession)"></button>
+              <div ng-show="displaySavedSession" style="padding: 10px 0 10px 0">
+                <button translation="restore" ng-click="restored(displaySavedSession)"></button>
+                <button translation="delete" ng-click="deleteSavedSession(displaySavedSession)"></button>
               </div>
-              <div ng-hide="showSavedSession" style="color: red;" translation="wantToOperateMessage"></div>
-              <div ng-repeat="(key, data) in showSavedSession.session">
-                <a href="#" ng-click="deleteSavedSpecificSession(showSavedSession, key)">
+              <div ng-hide="displaySavedSession" style="padding-top: 16px; color: red;" translation="wantToOperateMessage"></div>
+              <div ng-repeat="data in displaySavedSession">
+                <a href="#" ng-click="deleteSavedSpecificSession(displaySavedSession, data.id)">
                   <span style="position: relative; top: 0.5rem; left: -0.3rem;">
                     <span class="delete_icon"></span>
                     <span class="delete_icon2"></span>
                   </span>
                 </a>
                 <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">
-                  <span ng-show="data.iconDataURI !== undefined">
-                    <img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}
+                  <span ng-show="data.dataURI !== undefined">
+                    <img src="{{ data.dataURI }}" style="width: 16px; height: 16px;">{{ data.title }}
                   </span>
-                  <span ng-show="data.iconDataURI === undefined">
+                  <span ng-show="data.dataURI === undefined">
                     {{ data.url }}
                   </span>
                 </a>
@@ -173,32 +173,28 @@
 
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
               <legend>
-                <span ng-show="options.currentSession === sessions.date">
-                  <span ng-show="showOldRestoreTitle === true" translation="previous_session"></span>
-                  <span ng-show="showOldRestoreTitle !== true" translation="current_session"></span>
-                </span>
-                <span ng-show="options.currentSession !== sessions.date && currentLocale === 'ja'">
+                <span ng-show="currentLocale === 'ja'">
                   {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
                 </span>
-                <span ng-show="options.currentSession !== sessions.date && currentLocale === 'en-US' || currentLocale === 'en'">
+                <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
                   {{ sessions.date | date:'MM/dd/yyyy hh:mm:ss' }}
                 </span>
                 <button translation="save" ng-click="saved(sessions)"></button>
                 <button translation="delete" ng-click="deleted(sessions)"></button>
-                <button translation="restore" ng-click="restored(sessions)"></button>
+                <button translation="restore" ng-click="restored(sessions.data)"></button>
               </legend>
-              <div ng-repeat="(key, data) in sessions.session">
-                <a href="#" ng-click="deleteSpecificSession(sessions, key)">
+              <div ng-repeat="data in sessions.data">
+                <a href="#" ng-click="deleteSpecificSession(sessions, data.id)">
                   <span style="position: relative; top: 0.5rem; left: -0.3rem;">
                     <span class="delete_icon"></span>
                     <span class="delete_icon2"></span>
                   </span>
                 </a>
                 <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;">
-                  <span ng-show="data.iconDataURI !== undefined">
-                    <img src="{{ data.iconDataURI }}" style="width: 16px; height: 16px;">{{ data.title }}
+                  <span ng-show="data.dataURI !== undefined">
+                    <img src="{{ data.dataURI }}" style="width: 16px; height: 16px;">{{ data.title }}
                   </span>
-                  <span ng-show="data.iconDataURI === undefined">
+                  <span ng-show="data.dataURI === undefined">
                     {{ data.url }}
                   </span>
                 </a>
@@ -311,6 +307,7 @@
     <script type="text/javascript" src="src/debug.js"></script>
     <script type="text/javascript" src="src/common.js"></script>
     <script type="text/javascript" src="src/common_func.js"></script>
+    <script type="text/javascript" src="src/indexedDB.js"></script>
     <script type="text/javascript" src="src/myCommon_angular.js"></script>
     <script type="text/javascript" src="src/options.js"></script>
   </body>
