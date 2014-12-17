@@ -124,8 +124,7 @@
       if (angular.isObject(newValue)) {
         var pressKeys = section.find('input[type="text"].pressKey');
         if (pressKeys.length === 0) {
-          error('option.keybind is watching error.' +
-                        ' pressKeys is zero.');
+          error('option.keybind is watching error. pressKeys is zero.');
           return;
         }
 

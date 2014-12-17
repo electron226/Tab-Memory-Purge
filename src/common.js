@@ -33,8 +33,6 @@
         'youtube.com',
     'keybind_regex_insensitive': true,
   };
-  // window.historyKey = window.historyKey || 'history';
-  // window.sessionKey = window.sessionKey || 'sessions';
   window.versionKey = window.versionKey || 'version';
   defaultValues[window.versionKey] = chrome.app.getDetails();
   window.defaultValues = window.defaultValues || defaultValues;
