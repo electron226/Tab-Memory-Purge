@@ -1,3 +1,8 @@
+12/18/2014 ver 2.3.4
+Added: Add the button to reload the session history and the history of each page of option page.
+Changed: After tab was purged, delete the purge url from the history of Google Chrome.
+Changed: The history and the session history are changed to use indexeDB from chrome.storage.
+
 12/02/2014 ver 2.3.3
 Fixed: After this extension is updated, Fix the bug that a user can't restore that added session history at the previous version.
 
