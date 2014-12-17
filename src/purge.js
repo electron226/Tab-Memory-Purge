@@ -78,6 +78,12 @@
 
     var deferred = Promise.defer();
     chrome.tabs.query({}, function(tabs) {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        deferred.reject();
+        return;
+      }
+
       var maxOpeningTabs = myOptions.max_opening_tabs;
       var t = tabs.filter(function(v) {
         return !isReleasePage(v.url);
@@ -144,6 +150,12 @@
 
     var deferred = Promise.defer();
     setTimeout(function() {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        deferred.reject();
+        return;
+      }
+
       isLackTheMemory(myOptions.remaiming_memory)
       .then(function(result) {
         return new Promise(function(resolve, reject) {
@@ -189,6 +201,10 @@
   var runAutoPurgeCheck = false;
   setInterval(function() {//{{{
     debug('run callback funciton of setInterval.');
+    if (db === void 0 || db === null) {
+      error('IndexedDB is not initialized yet.');
+      return;
+    }
 
     if (unloadedChange) {
       debug('update session history');
@@ -199,6 +215,11 @@
       // Thus, the same session is added more than once.
       // So call at here.
       writeSession(unloaded);
+    }
+
+    if (!myOptions) {
+      error('myOptions is not loaded yet.');
+      return;
     }
 
     if (!disableTimer) {
@@ -266,6 +287,12 @@
     debug('deleteOldSession');
 
     return new Promise(function(resolve, reject) {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        reject();
+        return;
+      }
+
       db.getAll({
         name: 'session',
       })
@@ -328,6 +355,12 @@
     debug('deleteOldHistory');
 
     return new Promise(function(resolve, reject) {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        reject();
+        return;
+      }
+
       var length = parseInt(myOptions.max_history, 10);
 
       var now = new Date();
@@ -737,20 +770,25 @@
           returnValue: EXTENSION_EXCLUDE,
         };
       case 'keybind':
-        return {
-          list: myOptions.keybind_exclude_url,
-          options: myOptions.keybind_regex_insensitive ? 'i' : '',
-          returnValue: KEYBIND_EXCLUDE,
-        };
+        if (myOptions) {
+          return {
+            list: myOptions.keybind_exclude_url,
+            options: myOptions.keybind_regex_insensitive ? 'i' : '',
+            returnValue: KEYBIND_EXCLUDE,
+          };
+        }
+        break;
       default:
-        return {
-          list: myOptions.exclude_url,
-          options: myOptions.regex_insensitive ? 'i' : '',
-          returnValue: USE_EXCLUDE,
-        };
+        if (myOptions) {
+          return {
+            list: myOptions.exclude_url,
+            options: myOptions.regex_insensitive ? 'i' : '',
+            returnValue: USE_EXCLUDE,
+          };
+        }
     }
     error('getTargetExcludeList was error.', target);
-    return null;
+    return { list: '', options: '', returnValue: null };
   }//}}}
 
   /**
@@ -1143,9 +1181,15 @@
   function setTick(tabId)//{{{
   {
     debug('setTick');
-    var deferred = Promise.defer();
 
+    var deferred = Promise.defer();
     setTimeout(function() {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        deferred.reject();
+        return;
+      }
+
       if (disableTimer) {
         deferred.resolve();
         return;
@@ -1815,7 +1859,9 @@
 
   chrome.tabs.onActivated.addListener(function(activeInfo) {//{{{
     debug('chrome.tabs.onActivated.', activeInfo);
-    if (unloaded.hasOwnProperty(activeInfo.tabId) && !myOptions.no_release) {
+    if (unloaded.hasOwnProperty(activeInfo.tabId) &&
+        myOptions &&
+        !myOptions.no_release) {
       unPurge(activeInfo.tabId).then(function() {
         return onActivatedFunc(activeInfo.tabId);
       });
