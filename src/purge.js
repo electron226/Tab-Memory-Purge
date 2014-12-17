@@ -1490,13 +1490,16 @@
 
     return new Promise(function(resolve, reject) {
       moveSessionAndHistoryFromStorageToIndexedDB()
+      .then(function() {
+        return new Promise(function(resolve2) {
+          // the changed history of the option menu.
+          displayPageOfOption = "updated";
+          chrome.tabs.create({ url: optionPage }, resolve2);
+        });
+      })
       .then(getInitAndLoadOptions)
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
-          // the changed history of the option menu.
-          displayPageOfOption = "updated";
-          chrome.tabs.create({ url: optionPage });
-
           if (options.when_updated_restore_session) {
             loadSession(db, dbSessionName)
             .then(function(sessions) {
@@ -1539,18 +1542,18 @@
   {
     debug('versionCheckUpdate');
 
+    function updateVersion(currVersion)
+    {
+      return new Promise(function(resolve) {
+        var write = {};
+        write[versionKey] = currVersion;
+        chrome.storage.local.set(write, resolve);
+      });
+    }
+
     var deferred = Promise.defer();
     var currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
-      function update()
-      {
-        return new Promise(function(resolve) {
-          var write = {};
-          write[versionKey] = currVersion;
-          chrome.storage.local.set(write, resolve);
-        });
-      }
-
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
         deferred.reject();
@@ -1562,9 +1565,15 @@
       if (currVersion !== prevVersion) {
         // この拡張機能でインストールしたかどうか
         if (prevVersion === void 0) {
-          onInstall().then(update).then(deferred.resolve, deferred.reject);
+          updateVersion(currVersion)
+          .then(onInstall)
+          .then(deferred.resolve)
+          .catch(deferred.reject);
         } else {
-          onUpdate().then(update).then(deferred.resolve, deferred.reject);
+          updateVersion(currVersion)
+          .then(onUpdate)
+          .then(deferred.resolve)
+          .catch(deferred.reject);
         }
       } else {
         deferred.resolve();
