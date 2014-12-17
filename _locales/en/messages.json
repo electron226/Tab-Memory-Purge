@@ -39,6 +39,10 @@
     "message": "Current Session",
     "description": "Current Session"
   },
+  "previous_session": {
+    "message": "Previous Session",
+    "description": "Previous Session"
+  },
   "setTimerTitle": {
     "message": "The duration to unload inactive tabs",
     "description": "Memory Release Time"

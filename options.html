@@ -177,7 +177,11 @@
                   <span ng-show="currentLocale === 'ja'" translation="current_session"></span>
                   <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="current_session"></span>
                 </span>
-                <span ng-show="sessions.date !== currentSessionTime">
+                <span ng-show="sessions.date === previousSessionTime">
+                  <span ng-show="currentLocale === 'ja'" translation="previous_session"></span>
+                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="previous_session"></span>
+                </span>
+                <span ng-show="sessions.date !== currentSessionTime && sessions.date !== previousSessionTime">
                   <span ng-show="currentLocale === 'ja'">
                     {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
                   </span>

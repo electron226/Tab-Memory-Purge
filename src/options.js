@@ -12,6 +12,7 @@
     ['$scope', '$http', '$document', function($scope, $http, $document) {
     $scope.options = angular.copy(defaultValues);
     $scope.currentLocale = chrome.i18n.getUILanguage();
+    $scope.previousSessionTime = null;
 
     $scope.db = new Database(dbName, dbVersion);
     $scope.db.open(dbCreateStores);
@@ -95,9 +96,9 @@
         $scope.$apply(function() {
           if (response === 'updated') {
             $scope.showRestoreMessage =
-              !angular.copy($scope.options.when_updated_restore_session);
-            // 4 == changed history.
-            response = 4;
+              $scope.options.when_updated_restore_session ? false : true;
+            response = 4; // 4 == changed history.
+            $scope.previousSessionTime = $scope.options[previousSessionTimeKey];
           }
           $scope.selectMenu = $scope.menuItems[response ? response : 0].name;
         });
