@@ -1765,16 +1765,24 @@
 
   function initializeDatabase()//{{{
   {
-    if (db !== null) {
-      db.close()
-      .then(function() {
-        db = new Database(dbName, dbVersion);
-      });
-    } else {
+    function dbOpen()
+    {
       db = new Database(dbName, dbVersion);
+      return db.open(dbCreateStores);
     }
-    // db.deleteDatabase(dbName);
-    return db.open(dbCreateStores);
+
+    return new Promise(function(resolve, reject) {
+      if (db !== null) {
+        db.close()
+        .then(dbOpen)
+        .then(resolve)
+        .catch(reject);
+      } else {
+        dbOpen()
+        .then(resolve)
+        .catch(reject);
+      }
+    });
   }//}}}
 
   /**
