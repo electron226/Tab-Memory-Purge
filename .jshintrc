@@ -75,6 +75,7 @@
     "dbSessionName": true,
     "dbSavedSessionName": true,
 
+    "previousSessionTimeKey": true,
     "versionKey": true,
     "defaultValues": true,
     "translationPath": true,

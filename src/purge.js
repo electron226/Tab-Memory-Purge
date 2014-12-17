@@ -595,9 +595,23 @@
         });
       })
       .then(function() {
-        currentSessionTime = nowTime;
-        resolve();
+        return new Promise(function(resolve2, reject2) {
+          currentSessionTime = nowTime;
+
+          var write = {};
+          write[previousSessionTimeKey] = nowTime;
+          chrome.storage.local.set(write, function() {
+            if (chrome.runtime.lastError) {
+              error(chrome.runtime.lastError.message);
+              reject2(chrome.runtime.lastError);
+              return;
+            }
+
+            resolve2();
+          });
+        });
       })
+      .then(resolve)
       .catch(function(e) {
         error(e);
         reject(e);
@@ -1508,11 +1522,26 @@
                   resolve3();
                   return;
                 }
-                var latestSession = sessions[sessions.length - 1];
 
-                restore(latestSession.data)
-                .then(resolve3)
-                .catch(reject3);
+                var previousSessionTime = options[previousSessionTimeKey];
+                if (previousSessionTime) {
+                  var restoreSession = sessions.filter(function(v) {
+                    return previousSessionTime === v.date;
+                  });
+                  if (restoreSession.length > 0) {
+                    if (restoreSession.length > 1) {
+                      warn('the length of restoreSession is greater than 1.');
+                    }
+
+                    restore(restoreSession[0].data)
+                    .then(resolve3)
+                    .catch(reject3);
+                  } else {
+                    resolve3();
+                  }
+                } else {
+                  resolve3();
+                }
               });
             })
             .then(resolve2)

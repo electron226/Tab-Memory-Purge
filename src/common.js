@@ -35,6 +35,11 @@
   };
   window.versionKey = window.versionKey || 'version';
   defaultValues[window.versionKey] = chrome.app.getDetails();
+
+  window.previousSessionTimeKey =
+    window.previousSessionTimeKey || 'previous_session_time';
+  defaultValues[window.previousSessionTimeKey] = null;
+
   window.defaultValues = window.defaultValues || defaultValues;
 
   window.dbName             = window.dbName             || 'TMP_DB';
