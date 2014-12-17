@@ -338,6 +338,7 @@
       $scope.sessionHistory = [];
       $scope.savedSessionHistory = [];
       $scope.displaySavedSession = null;
+      $scope.currentSessionTime = null;
 
       var showSavedSession = function() {
         return new Promise(function(resolve, reject) {
@@ -357,10 +358,28 @@
 
       var showSession = function() {
         return new Promise(function(resolve, reject) {
-          loadSession($scope.db, dbSessionName)
-          .then(function(showList) {
+          var p = [];
+          p.push(
+            new Promise(function(resolve2, reject2) {
+              chrome.runtime.sendMessage(
+                { event: 'current_session' }, function(currentSessionTime) {
+                  if (chrome.runtime.lastError) {
+                    reject2(chrome.runtime.lastError);
+                    return;
+                  }
+                  resolve2(currentSessionTime);
+              });
+            })
+          );
+          p.push( loadSession($scope.db, dbSessionName) );
+
+          Promise.all(p).then(function(results) {
+            var currentSessionTime = results[0];
+            var showSessionList = results[1];
+
             $scope.$apply(function() {
-              $scope.sessionHistory = showList;
+              $scope.currentSessionTime = currentSessionTime;
+              $scope.sessionHistory = showSessionList;
               resolve();
             });
           })

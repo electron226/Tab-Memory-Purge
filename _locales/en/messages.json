@@ -35,6 +35,10 @@
     "message": "INFORMATION",
     "description": "the string of buttons in the options page"
   },
+  "current_session": {
+    "message": "Current Session",
+    "description": "Current Session"
+  },
   "setTimerTitle": {
     "message": "The duration to unload inactive tabs",
     "description": "Memory Release Time"

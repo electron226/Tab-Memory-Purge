@@ -1887,6 +1887,9 @@
         case 'current_icon':
           sendResponse(currentIcon);
           break;
+        case 'current_session':
+          sendResponse(currentSessionTime);
+          break;
         case 'display_option_page':
           sendResponse(displayPageOfOption);
           displayPageOfOption = null;
