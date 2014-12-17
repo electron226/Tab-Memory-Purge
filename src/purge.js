@@ -706,6 +706,38 @@
     });
   }//}}}
 
+  function deleteAllPurgedTabUrlFromHistory()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      function deleteUrl(url)
+      {
+        return new Promise(function(resolve) {
+          chrome.history.deleteUrl({ url: url }, resolve);
+        });
+      }
+
+      var regex = new RegExp('^' + blankUrl, 'i');
+      chrome.history.search({ text: '' }, function(histories) {
+        var deleteUrls = {};
+        histories.forEach(function(v) {
+          if (regex.test(v.url) && !deleteUrls.hasOwnProperty(v.url)) {
+            deleteUrls[v.url] = true;
+          }
+        });
+
+        var p = [];
+        for (var url in deleteUrls) {
+          if (deleteUrls.hasOwnProperty(url)) {
+            p.push( deleteUrl(url) );
+          }
+        }
+        Promise.all(p)
+        .then(resolve)
+        .catch(reject);
+      });
+    });
+  }//}}}
+
   /**
    * return the current tab object.
    *
@@ -1065,6 +1097,7 @@
                 };
 
                 writeHistory(tab)
+                .then(deleteAllPurgedTabUrlFromHistory)
                 .then(deferred.resolve)
                 .catch(deferred.reject);
               }
@@ -1514,6 +1547,7 @@
       .then(getInitAndLoadOptions)
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
+          // restore process.
           if (options.when_updated_restore_session) {
             loadSession(db, dbSessionName)
             .then(function(sessions) {
