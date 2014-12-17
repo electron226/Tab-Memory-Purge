@@ -583,63 +583,119 @@
     });
 
     $scope.save = function() {
-      chrome.storage.local.set($scope.options, function() {
-        chrome.runtime.sendMessage({ event: 'initialize' });
-        updateMessage(status, 'saved.');
+      return new Promise(function(resolve, reject) {
+        chrome.storage.local.set($scope.options, function() {
+          chrome.runtime.sendMessage({ event: 'initialize' });
+
+          updateMessage(status, 'saved.')
+          .then(resolve)
+          .catch(reject);
+        });
       });
     };
     $scope.load = function() {
-      loadFunc(chrome.storage.local, function() {
-        updateMessage(status, 'loaded.');
+      return new Promise(function(resolve, reject) {
+        loadFunc(chrome.storage.local)
+        .then(function() {
+          updateMessage(status, 'loaded.')
+          .then(resolve)
+          .catch(reject);
+        });
       });
     };
     $scope.init = function() {
-      angular.copy(defaultValues, $scope.$parent.options);
-      updateMessage(status, 'initialized.');
+      return new Promise(function(resolve, reject) {
+        angular.copy(defaultValues, $scope.$parent.options);
+        updateMessage(status, 'initialized.')
+        .then(resolve)
+        .catch(reject);
+      });
     };
     $scope.syncSave = function() {
-      chrome.storage.sync.set($scope.options);
-      updateMessage(statusSync, 'saved.');
+      return new Promise(function(resolve, reject) {
+        chrome.storage.sync.set($scope.options, function() {
+          if (chrome.runtime.lastError) {
+            error(chrome.runtime.lastError.message);
+            reject(chrome.runtime.lastError);
+            return;
+          }
+
+          updateMessage(statusSync, 'saved.')
+          .then(resolve)
+          .catch(reject);
+        });
+      });
     };
     $scope.syncLoad = function() {
-      loadFunc(chrome.storage.sync, function() {
-        updateMessage(statusSync, 'loaded.');
+      return new Promise(function(resolve, reject) {
+        loadFunc(chrome.storage.sync)
+        .then(function() {
+          return updateMessage(statusSync, 'loaded.');
+        })
+        .then(resolve)
+        .catch(reject);
       });
     };
     $scope.export = function() {
-      var exportOptions = angular.copy($scope.options);
-      delete exportOptions.backup;
-      delete exportOptions.history;
-      configView.val(angular.toJson(exportOptions, true));
-      updateMessage(configStatus, 'exported.');
+      return new Promise(function(resolve, reject) {
+        var exportOptions = angular.copy($scope.options);
+        configView.val(angular.toJson(exportOptions, true));
+
+        updateMessage(configStatus, 'exported.')
+        .then(resolve)
+        .catch(reject);
+      });
     };
     $scope.import = function() {
-      angular.copy(angular.fromJson(configView.val()), $scope.$parent.options);
-      updateMessage(configStatus, 'imported.');
+      return new Promise(function(resolve, reject) {
+        angular.copy(
+          angular.fromJson(configView.val()), $scope.$parent.options);
+
+        updateMessage(configStatus, 'imported.')
+        .then(resolve)
+        .catch(reject);
+      });
     };
-    function getStorage(storageType, callback) {
-      storageType.get(null, function(items) {
-        var options = {};
-        for (var key in defaultValues) {
-          if (defaultValues.hasOwnProperty(key)) {
-            options[key] = items.hasOwnProperty(key) ?
-                              items[key] : defaultValues[key];
+    function getStorage(storageType) {
+      return new Promise(function(resolve, reject) {
+        storageType.get(null, function(items) {
+          if (chrome.runtime.lastError) {
+            error(chrome.runtime.lastError.message);
+            reject(chrome.runtime.lastError);
+            return;
           }
-        }
-        (callback || angular.noop)(options);
+
+          var options = {};
+          for (var key in defaultValues) {
+            if (defaultValues.hasOwnProperty(key)) {
+              options[key] = items.hasOwnProperty(key) ?
+                                items[key] : defaultValues[key];
+            }
+          }
+          resolve(options);
+        });
       });
     }
-    function loadFunc(storageType, callback) {
-      getStorage(storageType, function(items) {
-        $scope.$parent.options = items;
-        (callback || angular.noop)(items);
+    function loadFunc(storageType) {
+      return new Promise(function(resolve, reject) {
+        getStorage(storageType)
+        .then(function(items) {
+          $scope.$apply(function() {
+            $scope.$parent.options = items;
+            resolve();
+          });
+        })
+        .catch(reject);
       });
     }
     function updateMessage(element, message) {
-      element.text(message);
-      setTimeout(function() {
-        element.text('');
-      }, 1000);
+      return new Promise(function(resolve) {
+        element.text(message);
+        setTimeout(function() {
+          element.text('');
+          resolve();
+        }, 1000);
+      });
     }
 
     // initialize.
