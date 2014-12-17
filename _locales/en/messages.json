@@ -35,6 +35,10 @@
     "message": "INFORMATION",
     "description": "the string of buttons in the options page"
   },
+  "reload": {
+    "message": "RELOAD",
+    "description": "the reload button"
+  },
   "current_session": {
     "message": "Current Session",
     "description": "Current Session"

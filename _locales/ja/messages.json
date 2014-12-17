@@ -35,6 +35,10 @@
     "message": "情報",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "reload": {
+    "message": "更新",
+    "description": "更新ボタン"
+  },
   "current_session": {
     "message": "現在のセッション",
     "description": "現在のセッション"

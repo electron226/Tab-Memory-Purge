@@ -110,6 +110,7 @@
                 <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option>
               </datalist>
               <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url." style="width: 300px;">
+              <button translation="reload" ng-click="reloadHistory()"></button>
             </div>
             <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)">
               <legend>
@@ -171,6 +172,9 @@
               </div>
             </fieldset>
 
+            <div>
+              <button translation="reload" ng-click="reloadSession()"></button>
+            </div>
             <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
               <legend>
                 <span ng-show="sessions.date === currentSessionTime">

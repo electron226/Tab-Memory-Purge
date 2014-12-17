@@ -278,6 +278,8 @@
       });
     };
 
+    $scope.reloadHistory = showHistory;
+
     $scope.deleteHistory = function(date) {
       return new Promise(function(resolve, reject) {
         var begin = new Date(
@@ -389,6 +391,8 @@
           });
         });
       };
+
+      $scope.reloadSession = showSession;
 
       var firstFlag = true;
       var showFlag = false;
