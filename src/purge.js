@@ -1668,6 +1668,9 @@
       }
       var key;
 
+      // update current session data in storage from ver 2.3.3 to ver 2.3.4.
+      var currentSessionTime = items.currentSession;
+
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (key in items) {
@@ -1691,6 +1694,11 @@
               !options.hasOwnProperty(key)) {
             options[key] = defaultValues[key];
           }
+        }
+
+        // update current session data in storage from ver 2.3.3 to ver 2.3.4.
+        if (currentSessionTime) {
+          options[previousSessionTimeKey] = currentSessionTime;
         }
 
         deferred.resolve(options);
