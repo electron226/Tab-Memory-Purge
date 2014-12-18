@@ -1432,103 +1432,6 @@
   }//}}}
 
   /**
-   * history and sessions and savedSessions are
-   * moved from Chrome Storage to indexedDB.
-   *
-   * @return {Promise} return Promise.
-   */
-  function moveSessionAndHistoryFromStorageToIndexedDB()//{{{
-  {
-    /*jshint loopfunc: true*/
-    return new Promise(function(resolve, reject) {
-      chrome.storage.local.get(
-        [ 'sessions', 'history', 'savedSessions' ], function(item) {
-        if (!item.hasOwnProperty('sessions') &&
-            !item.hasOwnProperty('history') &&
-            !item.hasOwnProperty('savedSessions')) {
-          resolve();
-          return;
-        }
-
-        var checkPageInfo = {};
-        var checkDataURI = {};
-        var regexCheckDataURI = /^data:image\//;
-        function addPageInfoAndDataURI(v)
-        {
-          host = getHostName(v.url);
-          if (host === null) {
-            warn('host is null', v.url);
-          } else {
-            if (!checkPageInfo.hasOwnProperty(v.url)) {
-              writePageInfos.push({ url: v.url, title: v.title, host: host });
-              checkPageInfo[v.url] = true;
-            }
-
-            if (!checkDataURI.hasOwnProperty(host) &&
-                regexCheckDataURI.test(v.iconDataURI)) {
-              writeDataURIs.push({ host: host, dataURI: v.iconDataURI });
-              checkDataURI[host] = true;
-            }
-          }
-        }
-
-        var writeHistory = [];
-        var writeSessions = [];
-        var writeSavedSessions = [];
-        var writePageInfos = [];
-        var writeDataURIs = [];
-
-        var savedSessions = item.savedSessions;
-        var sessions = JSON.parse(item.sessions);
-        var history = item.history;
-
-        var key;
-        var host;
-        savedSessions.forEach(function(v) {
-          for (key in v.session) {
-            if (v.session.hasOwnProperty(key)) {
-              var v2 = v.session[key];
-              writeSavedSessions.push({ date: v.date, url: v2.url });
-              addPageInfoAndDataURI(v2);
-            }
-          }
-        });
-
-        sessions.forEach(function(v) {
-          for (key in v.session) {
-            if (v.session.hasOwnProperty(key)) {
-              var v2 = v.session[key];
-              writeSessions.push({ date: v.date, url: v2.url });
-              addPageInfoAndDataURI(v2);
-            }
-          }
-        });
-
-        for (key in history) {
-          if (history.hasOwnProperty(key)) {
-            history[key].forEach(function(v) {
-              writeHistory.push({ date: v.time, url: v.url });
-              addPageInfoAndDataURI(v);
-            });
-          }
-        }
-
-        var p = [];
-        p.push(
-          db.put({ name: dbSavedSessionName, data: writeSavedSessions }) );
-        p.push( db.put({ name: dbSessionName, data: writeSessions }) );
-        p.push( db.put({ name: dbHistoryName, data: writeHistory }) );
-        p.push( db.put({ name: dbPageInfoName, data: writePageInfos }) );
-        p.push( db.put({ name: dbDataURIName, data: writeDataURIs }) );
-
-        Promise.all(p)
-        .then(resolve)
-        .catch(reject);
-      });
-    });
-  }//}}}
-
-  /**
    * 拡張機能がアップデートされたときの処理
    */
   function onUpdate()//{{{
@@ -1536,14 +1439,13 @@
     debug('Extension Updated.');
 
     return new Promise(function(resolve, reject) {
-      moveSessionAndHistoryFromStorageToIndexedDB()
-      .then(function() {
+      (function() {
         return new Promise(function(resolve2) {
           // the changed history of the option menu.
           displayPageOfOption = "updated";
           chrome.tabs.create({ url: optionPage }, resolve2);
         });
-      })
+      })()
       .then(getInitAndLoadOptions)
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
@@ -1668,9 +1570,6 @@
       }
       var key;
 
-      // update current session data in storage from ver 2.3.3 to ver 2.3.4.
-      var currentSessionTime = items.currentSession;
-
       // All remove invalid options. but exclude version.
       var removeKeys = [];
       for (key in items) {
@@ -1694,11 +1593,6 @@
               !options.hasOwnProperty(key)) {
             options[key] = defaultValues[key];
           }
-        }
-
-        // update current session data in storage from ver 2.3.3 to ver 2.3.4.
-        if (currentSessionTime) {
-          options[previousSessionTimeKey] = currentSessionTime;
         }
 
         deferred.resolve(options);
