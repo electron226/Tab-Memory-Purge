@@ -643,6 +643,8 @@
     $scope.export = function() {
       return new Promise(function(resolve, reject) {
         var exportOptions = angular.copy($scope.options);
+        delete exportOptions[versionKey];
+        delete exportOptions[previousSessionTimeKey];
         configView.val(angular.toJson(exportOptions, true));
 
         updateMessage(configStatus, 'exported.')
