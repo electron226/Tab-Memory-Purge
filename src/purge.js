@@ -671,9 +671,7 @@
           Promise.all(p).then(resolve2, resolve2);
         });
       })
-      .then(function() {
-        resolve(now.getTime());
-      })
+      .then(resolve)
       .catch(function(e) {
         error(e);
         reject(e);
@@ -927,19 +925,18 @@
   /**
    * When purged tabs, return the url for reloading tab.
    *
-   * @param {Object} date - The date of the primary key
-   *                          in the history on indexedDB.
+   * @param {Object} url - the url of the tab.
    * @return {Promise} return the promise object.
    *                   When be resolved, return the url for to purge.
    */
-  function getPurgeURL(date)//{{{
+  function getPurgeURL(url)//{{{
   {
-    debug('getPurgeURL', date);
+    debug('getPurgeURL', url);
 
     var deferred = Promise.defer();
     setTimeout(function() {
       var page = blankUrl;
-      var args = '&date=' + encodeURIComponent(date);
+      var args = '&url=' + encodeURIComponent(url);
       deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
     }, 0);
     return deferred.promise;
@@ -1021,7 +1018,9 @@
           }
 
           writeHistory(tab)
-          .then(getPurgeURL)
+          .then(function() {
+            return getPurgeURL(tab.url);
+          })
           .then(function(url) {
             return new Promise(function(resolve2, reject2) {
               chrome.tabs.executeScript(tabId, {
@@ -1233,7 +1232,7 @@
      sessions.forEach(function(v) {
        p.push(
          new Promise(function(resolve, reject) {
-           getPurgeURL(v.date)
+           getPurgeURL(v.url)
            .then(function(purgeurl) {
              return new Promise(function(resolve2, reject2) {
                chrome.tabs.create(

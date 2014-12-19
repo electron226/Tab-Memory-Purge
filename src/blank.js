@@ -51,15 +51,9 @@
 
   document.addEventListener('click', function() {
     var args = getQueryString();
-    return db.get({
-      name: dbHistoryName,
-      key: parseInt(args.date, 10),
-    })
-    .then(function(history) {
-      if (history.url) {
-        window.location.replace(history.url);
-      }
-    });
+    if (args.url) {
+      window.location.replace(args.url);
+    }
   }, true);
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -69,15 +63,10 @@
     })()
     .then(function() {
       var args = getQueryString();
-      return db.get({
-        name : dbHistoryName,
-        key  : parseInt(args.date, 10),
-      });
-    })
-    .then(function(history) {
+
       var span = document.querySelector('#url');
-      if (history.url) {
-        var url     = history.url;
+      if (args.url) {
+        var url     = args.url;
         var a       = document.createElement('a');
         a.href      = url;
         a.innerText = url;
@@ -88,7 +77,7 @@
 
       return db.get({
         name : dbPageInfoName,
-        key  : history.url,
+        key  : args.url,
       });
     })
     .then(function(pageInfo) {
