@@ -1017,12 +1017,14 @@
             return;
           }
 
-          writeHistory(tab)
-          .then(function() {
-            return getPurgeURL(tab.url);
-          })
-          .then(function(url) {
+          var p2 = [];
+          p2.push( getPurgeURL(tab.url) );
+          p2.push( writeHistory(tab) );
+          Promise.all(p2)
+          .then(function(results2) {
             return new Promise(function(resolve2, reject2) {
+              var url = results2[0];
+
               chrome.tabs.executeScript(tabId, {
                 code: 'window.location.replace("' + url + '");' }, function() {
                   if (chrome.runtime.lastError) {
