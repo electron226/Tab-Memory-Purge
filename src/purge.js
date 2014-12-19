@@ -919,29 +919,24 @@
         currentIcon = changeIcon;
 
         var title = 'Tab Memory Purge\n';
-        switch (changeIcon & (KEYBIND_EXCLUDE ^ 0xFFFF)) {
-          case DISABLE_TIMER:
-            title += "The purging timer of the all tabs has stopped.";
-            break;
-          case NORMAL_EXCLUDE:
-            title += "The url of this tab isn't include exclude list.";
-            break;
-          case USE_EXCLUDE:
-            title += "The url of this tab is included your exclude list.";
-            break;
-          case TEMP_EXCLUDE:
-            title += "The url of this tab is included" +
-                    " your temporary exclude list.";
-            break;
-          case EXTENSION_EXCLUDE:
-            title += "The url of this tab is included" +
-                    " exclude list of in this extension.";
-            break;
-          default:
-            error('Invalid state. ' + changeIcon);
-            deferred.reject();
-            break;
+        if (changeIcon & DISABLE_TIMER) {
+          title += "The purging timer of the all tabs has stopped.";
+        } else if (changeIcon & NORMAL_EXCLUDE) {
+          title += "The url of this tab isn't include exclude list.";
+        } else if (changeIcon & USE_EXCLUDE) {
+          title += "The url of this tab is included your exclude list.";
+        } else if (changeIcon & TEMP_EXCLUDE) {
+          title += "The url of this tab is included" +
+                  " your temporary exclude list.";
+        } else if (changeIcon & EXTENSION_EXCLUDE) {
+          title += "The url of this tab is included" +
+                  " exclude list of in this extension.";
+        } else {
+          error('Invalid state. ' + changeIcon);
+          deferred.reject();
+          return;
         }
+
         if (changeIcon & KEYBIND_EXCLUDE) {
           title += "\nAnd also included in the exclude list of key bindings.";
         }
