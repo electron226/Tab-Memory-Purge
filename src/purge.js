@@ -309,7 +309,7 @@
       }
 
       db.getAll({
-        name: 'session',
+        name: dbSessionName,
       })
       .then(function(histories) {
         return new Promise(function(resolve2) {
@@ -354,7 +354,7 @@
               return v.id;
             });
 
-            return db.delete({ name: 'session', keys: delKeys });
+            return db.delete({ name: dbSessionName, keys: delKeys });
           })
           .then(resolve2)
           .catch(reject2);
@@ -380,7 +380,7 @@
 
       var now = new Date();
       db.getCursor({
-        name: 'history',
+        name: dbHistoryName,
         range: IDBKeyRange.upperBound(
           new Date(now.getFullYear(), now.getMonth(), now.getDate() - length,
             23, 59, 59, 999).getTime()
@@ -390,7 +390,7 @@
         var delKeys = histories.map(function(v) {
           return v.date;
         });
-        return db.delete({ name: 'history', keys: delKeys });
+        return db.delete({ name: dbHistoryName, keys: delKeys });
       })
       .then(resolve)
       .catch(reject);
@@ -403,10 +403,10 @@
 
     return new Promise(function(resolve, reject) {
       var p = [];
-      p.push( db.getAll({ name: 'pageInfo'     } ) );
-      p.push( db.getAll({ name: 'history'      } ) );
-      p.push( db.getAll({ name: 'session'      } ) );
-      p.push( db.getAll({ name: 'savedSession' } ) );
+      p.push( db.getAll({ name: dbPageInfoName     } ) );
+      p.push( db.getAll({ name: dbHistoryName      } ) );
+      p.push( db.getAll({ name: dbSessionName      } ) );
+      p.push( db.getAll({ name: dbSavedSessionName } ) );
 
       Promise.all(p).then(function(results) {
         return new Promise(function(resolve2, reject2) {
@@ -452,7 +452,7 @@
               return v !== null;
             });
 
-            return db.delete({ name: 'pageInfo', keys: delKeys });
+            return db.delete({ name: dbPageInfoName, keys: delKeys });
           })
           .then(resolve2)
           .catch(reject2);
@@ -472,8 +472,8 @@
 
     return new Promise(function(resolve, reject) {
       var p = [];
-      p.push( db.getAll({ name: 'dataURI' } ) );
-      p.push( db.getAll({ name: 'pageInfo' } ) );
+      p.push( db.getAll({ name: dbDataURIName } ) );
+      p.push( db.getAll({ name: dbPageInfoName } ) );
       Promise.all(p).then(function(results) {
         return new Promise(function(resolve2, reject2) {
           var dataURIs = results[0];
@@ -496,7 +496,7 @@
               return v !== null;
             });
 
-            return db.delete({ name: 'dataURI', keys: delKeys });
+            return db.delete({ name: dbDataURIName, keys: delKeys });
           })
           .then(resolve2)
           .catch(reject2);
@@ -525,7 +525,7 @@
           if (currentSessionTime) {
             // previous current session is delete.
             db.getCursor({
-              name: 'session',
+              name: dbSessionName,
               range: IDBKeyRange.only(currentSessionTime),
               indexName: 'date',
             })
@@ -534,7 +534,7 @@
                 return v.id;
               });
 
-              return db.delete({ name: 'session', keys: delKeys });
+              return db.delete({ name: dbSessionName, keys: delKeys });
             })
             .then(resolve2)
             .catch(function(e) {
@@ -562,7 +562,7 @@
             }
           }
 
-          db.add({ name: 'session', data: sessionWrites })
+          db.add({ name: dbSessionName, data: sessionWrites })
           .then(resolve2)
           .catch(reject2);
         });
@@ -604,7 +604,7 @@
         now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
       db.getCursor({
-        name: 'history',
+        name: dbHistoryName,
         range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
       })
       .then(function(histories) {
@@ -614,12 +614,12 @@
         delKeys = delKeys.map(function(v) {
           return v.date;
         });
-        return db.delete({ name: 'history', keys: delKeys });
+        return db.delete({ name: dbHistoryName, keys: delKeys });
       })
       .then(function() {
         // history
         return db.add({
-          name: 'history',
+          name: dbHistoryName,
           data: {
             date: now.getTime(),
             url: tab.url,
@@ -634,7 +634,7 @@
           // pageInfo
           p.push(
             db.add({
-              name: 'pageInfo',
+              name: dbPageInfoName,
               data: {
                 url: tab.url,
                 title: tab.title || 'Unknown',
@@ -649,7 +649,7 @@
                 getDataURI(tab.favIconUrl)
                 .then(function(iconDataURI) {
                   return db.add({
-                    name: 'dataURI',
+                    name: dbDataURIName,
                     data: {
                       host: host,
                       dataURI: iconDataURI,
