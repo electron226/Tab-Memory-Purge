@@ -197,53 +197,70 @@
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
   // Therefore, the callback function of setInterval is called.
-  var runPurgingAllTabs = false;
-  var runAutoPurgeCheck = false;
-  setInterval(function() {//{{{
-    debug('run callback funciton of setInterval.');
-    if (db === void 0 || db === null) {
-      error('IndexedDB is not initialized yet.');
-      return;
-    }
-
-    if (unloadedChange) {
-      debug('update session history');
-      unloadedChange = false;
-
-      // If this function was called the observe function of unloaded,
-      // When user close multiple tabs, continuously call more than once.
-      // Thus, the same session is added more than once.
-      // So call at here.
-      writeSession(unloaded);
-    }
-
-    if (!myOptions) {
-      error('myOptions is not loaded yet.');
-      return;
-    }
-
-    if (!disableTimer) {
-      if (myOptions.purging_all_tabs_except_active && !runPurgingAllTabs) {
-        runPurgingAllTabs = true;
-        purgingAllTabsExceptForTheActiveTab()
-        .then(function() {
-          runPurgingAllTabs = false;
-        }, function() {
-          runPurgingAllTabs = false;
-        });
+  function initializeIntervalProcess(intervalTime)//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      if (!myOptions) {
+        error('myOptions is not loaded yet.');
+        reject();
+        return;
       }
 
-      if (myOptions.enable_auto_purge && !runAutoPurgeCheck) {
-        runAutoPurgeCheck = true;
-        autoPurgeCheck()
-        .then(function() {
-          runAutoPurgeCheck = false;
-        }, function() {
-          runAutoPurgeCheck = false;
-        });
+      var time = toType(intervalTime) === 'number' ? intervalTime :
+                                                     myOptions.interval_timing;
+      if (!time) {
+        error("Don't get the interval time.");
+        reject();
+        return;
       }
-    }
-  }, 10000);//}}}
+
+      debug('set interval time(seconds):', time);
+
+      var runPurgingAllTabs = false;
+      var runAutoPurgeCheck = false;
+      setInterval(function() {//{{{
+        debug('run callback funciton of setInterval.');
+        if (db === void 0 || db === null) {
+          error('IndexedDB is not initialized yet.');
+          return;
+        }
+
+        if (unloadedChange) {
+          debug('update session history');
+          unloadedChange = false;
+
+          // If this function was called the observe function of unloaded,
+          // When user close multiple tabs, continuously call more than once.
+          // Thus, the same session is added more than once.
+          // So call at here.
+          writeSession(unloaded);
+        }
+        if (!disableTimer) {
+          if (myOptions.purging_all_tabs_except_active && !runPurgingAllTabs) {
+            runPurgingAllTabs = true;
+            purgingAllTabsExceptForTheActiveTab()
+            .then(function() {
+              runPurgingAllTabs = false;
+            }, function() {
+              runPurgingAllTabs = false;
+            });
+          }
+
+          if (myOptions.enable_auto_purge && !runAutoPurgeCheck) {
+            runAutoPurgeCheck = true;
+            autoPurgeCheck()
+            .then(function() {
+              runAutoPurgeCheck = false;
+            }, function() {
+              runAutoPurgeCheck = false;
+            });
+          }
+        }
+      }, time * 1000);//}}}
+
+      resolve();
+    });
+  }//}}}
   
   function getHostName(url)//{{{
   {
@@ -1764,6 +1781,7 @@
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
     .then(deleteOldDatabase)
+    .then(initializeIntervalProcess)
     .catch(function(e) {
       error(e.stack || e || 'initialize error.');
     });

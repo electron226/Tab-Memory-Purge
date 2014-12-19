@@ -151,8 +151,12 @@
     "message": "Default",
     "description": "Default"
   },
+  "second": {
+    "message": "seconds",
+    "description": "minute"
+  },
   "minute": {
-    "message": "minute(s)",
+    "message": "minutes",
     "description": "minute"
   },
   "export": {
@@ -185,6 +189,10 @@
   },
   "when_updated_restore_session": {
     "message": "When this extension was updated, If your purging tabs have closed, the extension restores session promptly.",
+    "description": "the item of the options."
+  },
+  "interval_timing": {
+    "message": "The current session and automatic purging process are interval to check",
     "description": "the item of the options."
   },
 

@@ -151,6 +151,10 @@
     "message": "復元",
     "description": "復元"
   },
+  "second": {
+    "message": "秒",
+    "description": "秒"
+  },
   "minute": {
     "message": "分",
     "description": "分"
@@ -186,6 +190,10 @@
   "when_updated_restore_session": {
     "message": "アップデート時に解放していたタブが閉じた場合、セッションを即座に復元する。",
     "description": "オプションの項目"
+  },
+  "interval_timing": {
+    "message": "現在のセッションや自動開放処理のチェック間隔",
+    "description": "the item of the options."
   },
 
 
