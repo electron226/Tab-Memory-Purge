@@ -1,3 +1,7 @@
+12/20/2014 ver 2.3.6
+Added: The user is able to set the check time for automatic purged processing and current session.
+Changed: When the tab to purge isn't loading complete, The user is able to purge after it's completed.
+
 12/18/2014 ver 2.3.4
 Added: Add the button to reload the session history and the history of each page of option page.
 Changed: After tab was purged, delete the purge url from the history of Google Chrome.
@@ -90,38 +94,3 @@ Added: Added the option of chrome sync was added on the option page.
 Changed: Issues #12(This extension wants change page design.)
 Fixed: Issues #12(I select reload or not when using "In the extensions").
 Changed: Issues #10(The release page is reloaded when click on whole its page).
-
-10/16/2014 ver 1.11
-Added: a new option "Release all tabs without the exclude lists" on the popup menu.
-
-10/16/2014 ver 1.10.5
-Changed: auto purge behavior.
-When the memory is shortage, other tab is released, but active tab is not released.
-When the active tab is changed, than other tab is released except its tab.
-
-10/16/2014 ver 1.10.4
-Fixed: Issues #9(The users can't save the options on a options page.)
-
-07/27/2014 ver 1.10.3
-Fixed English strings.
-
-05/23/2014 ver 1.10.2
-Modified: I Modified that purge page don't work correctly on specific web site.
-
-04/30/2014 ver 1.10.0
-Add: I added a new option. It automatically releasing tab when the remaining memory of your pc is less than specified value.
-
-04/27/2014 ver 1.9.5
-Changed: When the extension run the purge or the un-purge, it isn't save the history of the release page
-
-11/17/2013 ver 1.9.4
-Fixed: fixed the english words.
-
-10/04/2013 ver 1.9.2
-Add: Issues #1(add popup item which to release all tabs.)
-Fixed: issues #2(When the release page is setting the local page, the title of it page is become filepath.)
-Fixed: Issues #3(sometimes show invalid numbers of released pages to icon.)
-Fixed: When the url of current tab include exclude lists, show its message at the title of browserAction icon.
-
-10/02/2013 ver 1.8.5
-Fixed: fixed the english words.
