@@ -25,12 +25,12 @@
   // Before selecting the active tab, and the user has been selected tab.
   var oldActiveIds = {};
 
-  var db = null; // indexedDB.
-  var currentSessionTime = null;
+  var db                  = null; // indexedDB.
+  var currentSessionTime  = null;
 
-  var currentIcon = null;
+  var currentIcon         = null;
   var displayPageOfOption = null;
-  var disableTimer = false;
+  var disableTimer        = false;
   //}}}
 
   /**
@@ -232,6 +232,7 @@
           // So call at here.
           writeSession(unloaded);
         }
+
         if (!disableTimer) {
           if (myOptions.purging_all_tabs_except_active && !runPurgingAllTabs) {
             runPurgingAllTabs = true;
@@ -1696,7 +1697,9 @@
       function lastProcess()
       {
         disableTimer = disableTimer ? false : true;
-        getCurrentTab().then(reloadBrowserIcon).then(resolve, reject);
+        getCurrentTab()
+        .then(reloadBrowserIcon)
+        .then(resolve, reject);
       }
 
       if (disableTimer) {
@@ -1835,7 +1838,8 @@
           initialize();
           break;
         case 'release':
-          getCurrentTab().then(function(tab) {
+          getCurrentTab()
+          .then(function(tab) {
             return new Promise(function(resolve, reject) {
               purgeToggle(tab.id).then(function() {
                 return searchUnloadedTabNearPosition(tab);
@@ -1845,7 +1849,8 @@
           });
           break;
         case 'switch_not_release':
-          getCurrentTab().then(function(tab) {
+          getCurrentTab()
+          .then(function(tab) {
             return new Promise(function(resolve) {
               tempReleaseToggle(tab);
               resolve();
@@ -1894,7 +1899,8 @@
           }
           break;
         case 'add_to_temp_exclude_list':
-          getCurrentTab().then(function(tab) {
+          getCurrentTab()
+          .then(function(tab) {
             return new Promise(function(resolve, reject) {
               var index = tempRelease.indexOf(tab.url);
               if (index === -1) {
@@ -1910,12 +1916,15 @@
           });
           break;
         case 'load_options_and_reload_current_tab':
-          getCurrentTab().then(function(tab) {
+          getCurrentTab()
+          .then(function(tab) {
             return new Promise(function(resolve, reject) {
-              getInitAndLoadOptions().then(function(options) {
+              getInitAndLoadOptions()
+              .then(function(options) {
                 myOptions = options;
 
-                setTick(tab.id).then(function() {
+                setTick(tab.id)
+                .then(function() {
                   return reloadBrowserIcon(tab);
                 }, reject)
                 .then(resolve, reject);
@@ -1954,7 +1963,8 @@
     debug('chrome.contextMenus.onClicked.addListener', info);
     switch (info.menuItemId) {
     case excludeDialogMenuItemId:
-      getCurrentTab().then(function(tab) {
+      getCurrentTab()
+      .then(function(tab) {
         return new Promise(function(resolve) {
           chrome.tabs.sendMessage(
             tab.id, { event: 'showExcludeDialog' }, resolve);

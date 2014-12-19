@@ -140,7 +140,7 @@
               store.index(indexName).get(key) :
               store.get(key);
       } catch (e) {
-        warn(e);
+        warn(e.stack || e);
         req = store.get(key);
       }
 
