@@ -40,10 +40,7 @@
    * key = tabId.
    * value = object.
    *    the values in the object are following.
-   *       title          : title.
-   *       iconDataURI    : the dataURI of icon.
    *       url            : the url before purging.
-   *       purgeurl       : the url of release page of this id.
    *       scrollPosition : the object that represent the scroll position(x, y).
    */
   var unloaded = {};
@@ -571,48 +568,6 @@
       })
       .then(function() {
         return new Promise(function(resolve2, reject2) {
-          var p = [];
-
-          var pageInfoWrites = [];
-          var dataURIWrites = [];
-          for (var tabId in unloaded) {
-            if (unloaded.hasOwnProperty(tabId)) {
-              var item = unloaded[tabId];
-              if (item.url) {
-                var host = getHostName(item.url);
-
-                // pageInfo
-                pageInfoWrites.push({
-                  url: item.url,
-                  title: item.title || 'Unknown',
-                  host: host,
-                });
-
-                // dataURI
-                if (item.iconDataURI !== icons[NORMAL_EXCLUDE]) {
-                  dataURIWrites.push({
-                    host: host,
-                    dataURI: item.iconDataURI,
-                  });
-                }
-              } else {
-                error("Don't find url.", item.url);
-                reject2();
-              }
-            }
-          }
-
-          p.push(db.add({ name: 'pageInfo' , data: pageInfoWrites }));
-          p.push(db.add({ name: 'dataURI'  , data: dataURIWrites }));
-
-          // If Promise was error, it is transaction error.
-          // When its error was shown, to occur in the key already exist.
-          // Therefore, I call the resolve function.
-          Promise.all(p).then(resolve2, resolve2);
-        });
-      })
-      .then(function() {
-        return new Promise(function(resolve2, reject2) {
           currentSessionTime = nowTime;
 
           var write = {};
@@ -715,7 +670,9 @@
           Promise.all(p).then(resolve2, resolve2);
         });
       })
-      .then(resolve)
+      .then(function() {
+        resolve(now.getTime());
+      })
       .catch(function(e) {
         error(e);
         reject(e);
@@ -969,78 +926,21 @@
   /**
    * When purged tabs, return the url for reloading tab.
    *
-   * @param {Object} tab - the object of reloading tab.
-   *                 Its configration:
-   *                     title: title.
-   *                     favIconUrl: the url of icon.
-   *                     dataURI: the dataURI of icon.
-   *                     url: url.
+   * @param {Object} date - The date of the primary key
+   *                          in the history on indexedDB.
    * @return {Promise} return the promise object.
-   *                  If be ran resolve function,
-   *                  return the object that contains the url and iconDataURI.
-   *                  but If don't get tab.favIconUrl, don't return iconDataURI.
+   *                   When be resolved, return the url for to purge.
    */
-  function getPurgeURL(tab)//{{{
+  function getPurgeURL(date)//{{{
   {
-    debug('getPurgeURL', tab);
-
-    function getURL(tab, iconDataURI)
-    {
-      debug('getURL', tab, iconDataURI);
-
-      var deferred = Promise.defer();
-      setTimeout(function() {
-        var args = '' ;
-
-        args += tab.title ?
-        '&title=' + encodeURIComponent(tab.title) : '';
-        if (iconDataURI) {
-          args += '&favicon=' + encodeURIComponent(iconDataURI);
-        } else {
-          args += tab.favIconUrl ?
-            '&favicon=' + encodeURIComponent(tab.favIconUrl) : '';
-        }
-
-        var page = blankUrl;
-        if (tab.url) {
-          args += '&url=' + encodeURIComponent(tab.url);
-        }
-
-        deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
-      }, 0);
-      return deferred.promise;
-    }
+    debug('getPurgeURL', date);
 
     var deferred = Promise.defer();
     setTimeout(function() {
-      if (toType(tab) !== 'object') {
-        error('getPurgeURL is invalid arguments.');
-        deferred.reject();
-        return;
-      }
-
-      if (tab.favIconUrl) {
-        getDataURI(tab.favIconUrl)
-        .then(function(iconDataURI) {
-          getURL(tab, iconDataURI)
-          .then(function(url) {
-            deferred.resolve({ url: url, iconDataURI: iconDataURI });
-          }, deferred.reject);
-        }, function(e) {
-          warn(e.stack || e);
-          getURL(tab, null)
-          .then(function(url) {
-            deferred.resolve({ url: url });
-          }, deferred.reject);
-        });
-      } else {
-        getURL(tab, null)
-        .then(function(url) {
-          deferred.resolve({ url: url });
-        }, deferred.reject);
-      }
+      var page = blankUrl;
+      var args = '&date=' + encodeURIComponent(date);
+      deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
     }, 0);
-
     return deferred.promise;
   }//}}}
 
@@ -1067,62 +967,88 @@
         return;
       }
 
-      chrome.tabs.get(tabId, function(tab) {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-          deferred.reject();
-          return;
-        }
-
-        var state = checkExcludeList(tab.url);
-        if (state & EXTENSION_EXCLUDE) {
-          log('The tabId have been included the exclusion list of extension. ' +
-              tabId);
-          deferred.reject();
-          return;
-        }
-
-        chrome.tabs.executeScript(
-          tabId, { file: getScrollPosScript }, function(scrollPosition) {
+      var p = [];
+      p.push(
+        new Promise(function(resolve, reject) {
+          chrome.tabs.get(tabId, function(tab) {
             if (chrome.runtime.lastError) {
               error(chrome.runtime.lastError.message);
-              deferred.reject();
+              reject();
               return;
             }
-
-            getPurgeURL(tab).then(function(returnObject) {
-              var url = returnObject.url;
-              var iconDataURI = returnObject.iconDataURI;
-
-              function afterPurge(updated) {
-                if (chrome.runtime.lastError) {
-                  error(chrome.runtime.lastError.message);
-                  deferred.reject();
-                  return;
-                }
-
-                unloaded[updated.id] = {
-                  title: tab.title,
-                  iconDataURI: iconDataURI || icons[NORMAL_EXCLUDE],
-                  url: tab.url,
-                  purgeurl: url,
-                  scrollPosition: scrollPosition[0] || { x: 0 , y: 0 }
-                };
-
-                writeHistory(tab)
-                .then(deleteAllPurgedTabUrlFromHistory)
-                .then(deferred.resolve)
-                .catch(deferred.reject);
-              }
-
-              chrome.tabs.executeScript(tabId, {
-                code: 'window.location.replace("' + url + '");' },
-              function() {
-                chrome.tabs.get(tabId, afterPurge);
-              });
-            });
+            resolve(tab);
           });
+        })
+      );
+      p.push(
+        new Promise(function(resolve, reject) {
+          chrome.tabs.executeScript(
+            tabId, { file: getScrollPosScript }, function(scrollPosition) {
+              if (chrome.runtime.lastError) {
+                error(chrome.runtime.lastError.message);
+                reject();
+                return;
+              }
+              resolve(scrollPosition);
+            }
+          );
+        })
+      );
+      Promise.all(p)
+      .then(function(results) {
+        return new Promise(function(resolve, reject) {
+          var tab = results[0];
+          var scrollPosition = results[1];
+
+          if (tab.status !== 'complete') {
+            error("The target tab has not been completed loading yet.", tab);
+            reject();
+            return;
+          }
+
+          var state = checkExcludeList(tab.url);
+          if (state & EXTENSION_EXCLUDE) {
+            warn(
+              'The tabId have been included the exclusion list of extension.',
+              tabId);
+            reject();
+            return;
+          } else if (state & INVALID_EXCLUDE) {
+            error("Don't get the url of the tab.", tabId);
+            reject();
+            return;
+          }
+
+          writeHistory(tab)
+          .then(getPurgeURL)
+          .then(function(url) {
+            return new Promise(function(resolve2, reject2) {
+              chrome.tabs.executeScript(tabId, {
+                code: 'window.location.replace("' + url + '");' }, function() {
+                  if (chrome.runtime.lastError) {
+                    error(chrome.runtime.lastError.message);
+                    reject2();
+                    return;
+                  }
+                  resolve2();
+                }
+              );
+            });
+          })
+          .then(function() {
+            unloaded[tabId] = {
+              url            : tab.url,
+              scrollPosition : scrollPosition[0] || { x : 0 , y : 0 },
+            };
+
+            return deleteAllPurgedTabUrlFromHistory();
+          })
+          .then(resolve)
+          .catch(reject);
         });
+      })
+      .then(deferred.resolve)
+      .catch(deferred.reject);
     }, 0);
     return deferred.promise;
   }//}}}
@@ -1306,10 +1232,9 @@
      sessions.forEach(function(v) {
        p.push(
          new Promise(function(resolve, reject) {
-           getPurgeURL(v)
-           .then(function(result) {
+           getPurgeURL(v.date)
+           .then(function(purgeurl) {
              return new Promise(function(resolve2, reject2) {
-               var purgeurl = result.url;
                chrome.tabs.create(
                  { url: purgeurl, active: false }, function(tab) {
                    if (chrome.runtime.lastError) {
@@ -1320,11 +1245,8 @@
 
                    var unloadedObj = {};
                    unloadedObj[tab.id] = {
-                     title: v.title,
-                     iconDataURI: v.dataURI,
-                     url: v.url,
-                     purgeurl: purgeurl,
-                     scrollPosition : { x: 0 , y: 0 },
+                     url            : v.url,
+                     scrollPosition : { x : 0 , y : 0 },
                    };
                    resolve2(unloadedObj);
                  }
@@ -1691,14 +1613,11 @@
           return;
         }
 
-        function toAdd(current, iconDataURI)
+        function toAdd(current)
         {
           if (isReleasePage(current.url)) {
             unloaded[current.id] = {
-              title          : current.title,
-              iconDataURI    : iconDataURI || icons[NORMAL_EXCLUDE],
               url            : getParameterByName(current.url, 'url'),
-              purgeurl       : current.url,
               scrollPosition : { x: 0 , y: 0 },
             };
           }
@@ -1712,23 +1631,9 @@
             new Promise(function(resolve) {
               var result = checkExcludeList(v.url);
               if (result ^ (NORMAL_EXCLUDE & INVALID_EXCLUDE)) {
-                if (v.favIconUrl) {
-                  getDataURI(v.favIconUrl)
-                  .then(function(response) {
-                    toAdd(v, response);
-                    resolve();
-                  }, function(e) {
-                    warn(e.stack || e);
-                    toAdd(v);
-                    resolve();
-                  });
-                } else {
-                  toAdd(v);
-                  resolve();
-                }
-              } else {
-                resolve();
+                toAdd(v);
               }
+              resolve();
             })
           );
         });

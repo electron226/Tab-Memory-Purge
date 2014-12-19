@@ -2,6 +2,8 @@
 (function(window, document) {
   "use strict";
 
+  var db = null;
+
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     switch (message.event) {
       case 'location_replace':
@@ -47,50 +49,67 @@
     return null;
   }
 
-  /**
-   * ファビコン変更
-   * @param {String} favicon 変更するファビコンを表すURL
-   */
-  function changeFavicon(favicon)
-  {
-    var head = document.querySelector('head');
-    var link = document.createElement('link');
-    link.rel = 'icon';
-    link.href = decodeURIComponent(favicon);
-    head.appendChild(link);
-  }
-
   document.addEventListener('click', function() {
     var args = getQueryString();
-    if (args.url) {
-      window.location.replace(args.url);
-    }
+    return db.get({
+      name: dbHistoryName,
+      key: parseInt(args.date, 10),
+    })
+    .then(function(history) {
+      if (history.url) {
+        window.location.replace(history.url);
+      }
+    });
   }, true);
 
   document.addEventListener('DOMContentLoaded', function() {
-    var args = getQueryString();
+    (function() {
+      db = new Database(dbName, dbVersion);
+      return db.open(dbCreateStores);
+    })()
+    .then(function() {
+      var args = getQueryString();
+      return db.get({
+        name : dbHistoryName,
+        key  : parseInt(args.date, 10),
+      });
+    })
+    .then(function(history) {
+      var span = document.querySelector('#url');
+      if (history.url) {
+        var url     = history.url;
+        var a       = document.createElement('a');
+        a.href      = url;
+        a.innerText = url;
+        span.appendChild(a);
+      } else {
+        span.innerHTML = 'None';
+      }
 
-    // recommend element.
-    if (args.title) {
-      document.title = args.title;
-      document.querySelector('#title').textContent = document.title;
-    }
+      return db.get({
+        name : dbPageInfoName,
+        key  : history.url,
+      });
+    })
+    .then(function(pageInfo) {
+      document.title = pageInfo.title;
+      document.querySelector('#title').textContent = pageInfo.title;
 
-    // recommend element.
-    if (args.favicon) {
-      changeFavicon(args.favicon);
-    }
+      return db.get({
+        name : dbDataURIName,
+        key  : pageInfo.host,
+      });
+    })
+    .then(function(dataURIInfo) {
+      return new Promise(function(resolve) {
+        var head = document.querySelector('head');
+        var link = document.createElement('link');
+        link.rel  = 'icon';
+        link.href = decodeURIComponent(dataURIInfo.dataURI);
+        head.appendChild(link);
 
-    // Indispensable element.
-    var span = document.querySelector('#url');
-    if (args.url) {
-      var url = args.url;
-      var a = document.createElement('a');
-      a.href = url;
-      a.innerText = url;
-      span.appendChild(a);
-    } else {
-      span.innerHTML = 'None';
-    }
+        resolve();
+      });
+    });
   });
 })(window, document);
