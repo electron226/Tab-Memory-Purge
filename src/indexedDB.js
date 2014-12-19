@@ -352,18 +352,18 @@
     return deferred.promise;
   };
 
-  Database.prototype.deleteDatabase = function(dbName) {
-    debug('called deleteAll function of Database class.', dbName);
+  Database.prototype.deleteDatabase = function() {
+    debug('called deleteAll function of Database class.');
 
     var deferred = Promise.defer();
-    setTimeout(function() {
-      var req = indexedDB.deleteDatabase(dbName);
+    setTimeout(function($this) {
+      var req = indexedDB.deleteDatabase($this.databaseName);
       req.onsuccess = deferred.resolve;
       req.onerror = function(e) {
         error(e);
         deferred.reject();
       };
-    }, 0);
+    }, 0, this);
     return deferred.promise;
   };
 
