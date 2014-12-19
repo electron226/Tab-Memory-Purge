@@ -92,11 +92,12 @@
     "excludeDialogMenuItemId": true,
 
     "DISABLE_TIMER": true,
+    "INVALID_EXCLUDE": true,
+    "KEYBIND_EXCLUDE": true,
     "NORMAL_EXCLUDE": true,
     "TEMP_EXCLUDE": true,
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
-    "KEYBIND_EXCLUDE": true,
 
     "Database": true,
     

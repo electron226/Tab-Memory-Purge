@@ -872,6 +872,10 @@
   {
     debug('checkExcludeList');
 
+    if (url === void 0 || url === null || url.length === 0) {
+      return INVALID_EXCLUDE;
+    }
+
     // Check the keybind exclude list.
     var keybind = checkMatchUrlString(
       url, getTargetExcludeList('keybind')) || 0;
@@ -914,11 +918,8 @@
         }
         currentIcon = changeIcon;
 
-        var ALL_VALUES_EXCEPT_KEYBIND =
-          DISABLE_TIMER |
-          NORMAL_EXCLUDE | USE_EXCLUDE | TEMP_EXCLUDE | EXTENSION_EXCLUDE;
         var title = 'Tab Memory Purge\n';
-        switch (changeIcon & ALL_VALUES_EXCEPT_KEYBIND) {
+        switch (changeIcon & (KEYBIND_EXCLUDE ^ 0xFFFF)) {
           case DISABLE_TIMER:
             title += "The purging timer of the all tabs has stopped.";
             break;
@@ -1715,7 +1716,7 @@
           p.push(
             new Promise(function(resolve) {
               var result = checkExcludeList(v.url);
-              if (result ^ NORMAL_EXCLUDE) {
+              if (result ^ (NORMAL_EXCLUDE & INVALID_EXCLUDE)) {
                 if (v.favIconUrl) {
                   getDataURI(v.favIconUrl)
                   .then(function(response) {
@@ -1961,9 +1962,10 @@
 
             var t = results.filter(function(v) {
               var state = checkExcludeList(v.url);
-              return !unloaded.hasOwnProperty(v.id) &&
-                     ((message.event === 'all_purge') ?
-                      EXTENSION_EXCLUDE ^ state : NORMAL_EXCLUDE & state) !== 0;
+              var retState = (message.event === 'all_purge') ?
+                             (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
+                             NORMAL_EXCLUDE & state;
+              return !unloaded.hasOwnProperty(v.id) && retState !== 0;
             });
             if (t.length === 0) {
               return;
@@ -2041,7 +2043,8 @@
           break;
         case 'keybind_check_exclude_list':
           var state = checkExcludeList(message.location.href);
-          sendResponse(state ^ (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE));
+          sendResponse(state ^
+            (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
           break;
       }
     }

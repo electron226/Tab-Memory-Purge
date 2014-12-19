@@ -115,11 +115,12 @@
   // a value which represents of the exclude list.
   var excludeValues = [
     'DISABLE_TIMER',     // 1
-    'KEYBIND_EXCLUDE',   // 2
-    'NORMAL_EXCLUDE',    // 4
-    'USE_EXCLUDE',       // 8
-    'TEMP_EXCLUDE',      // 16
-    'EXTENSION_EXCLUDE', // 32
+    'INVALID_EXCLUDE',   // 2
+    'KEYBIND_EXCLUDE',   // 4
+    'NORMAL_EXCLUDE',    // 8
+    'USE_EXCLUDE',       // 16
+    'TEMP_EXCLUDE',      // 32
+    'EXTENSION_EXCLUDE', // 64
   ];
   excludeValues.forEach(function(v, i) {
     window[v] = window[v] || 1 << i;
