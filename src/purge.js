@@ -69,6 +69,31 @@
     unloadedChange = true;
   });//}}}
 
+  function loadScrollPosition(tabId)//{{{
+  {
+    debug('loadScrollPosition', tabId);
+
+    return new Promise(function(resolve, reject) {
+      if (tempScrollPositions.hasOwnProperty(tabId)) {
+        var pos = tempScrollPositions[tabId];
+        chrome.tabs.executeScript(
+          tabId, { code: 'scroll(' + pos.x + ', ' + pos.y + ');' }, function() {
+            if (chrome.runtime.lastError) {
+              error(chrome.runtime.lastError.message);
+              reject();
+              return;
+            }
+
+            delete tempScrollPositions[tabId];
+            resolve();
+          }
+        );
+      } else {
+        resolve();
+      }
+    });
+  }//}}}
+
   function purgingAllTabsExceptForTheActiveTab()//{{{
   {
     debug('purgingAllTabsExceptForTheActiveTab');
@@ -1804,25 +1829,11 @@
       }
     } else {
       debug('chrome.tabs.onUpdated. complete.', tabId, changeInfo, tab);
-      reloadBrowserIcon(tab);
 
-      // 解放解除時に動作。
-      // 指定したタブの解放時のスクロール量があった場合、それを復元する
-      var scrollPos = tempScrollPositions[tabId];
-      if (toType(scrollPos) === 'object') {
-        chrome.tabs.executeScript(
-          tabId, { code: 'scroll(' + scrollPos.x + ', ' + scrollPos.y + ');' },
-          function() {
-            if (chrome.runtime.lastError) {
-              error(chrome.runtime.lastError.message);
-            }
-
-            delete tempScrollPositions[tabId];
-          }
-        );
-      } else {
-        delete tempScrollPositions[tabId];
-      }
+      loadScrollPosition(tabId)
+      .then(function() {
+        return reloadBrowserIcon(tab);
+      });
     }
   });//}}}
 
