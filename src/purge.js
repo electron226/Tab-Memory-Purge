@@ -221,22 +221,14 @@
   // Therefore, the callback function of setInterval is called.
   function initializeIntervalProcess(intervalTime)//{{{
   {
+    debug('initializeIntervalProcess', intervalTime);
+
     return new Promise(function(resolve, reject) {
       if (!myOptions) {
         error('myOptions is not loaded yet.');
         reject();
         return;
       }
-
-      var time = toType(intervalTime) === 'number' ? intervalTime :
-                                                     myOptions.interval_timing;
-      if (!time) {
-        error("Don't get the interval time.");
-        reject();
-        return;
-      }
-
-      debug('set interval time(seconds):', time);
 
       var runPurgingAllTabs = false;
       var runAutoPurgeCheck = false;
