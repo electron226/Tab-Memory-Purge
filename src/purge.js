@@ -106,14 +106,14 @@
         return;
       }
 
-      var maxOpeningTabs = myOptions.max_opening_tabs;
       var t = tabs.filter(function(v) {
         return !isReleasePage(v.url);
       });
 
+      var maxOpeningTabs      = myOptions.max_opening_tabs;
       var alreadyPurgedLength = tabs.length - t.length;
-      var maxLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
-      if (maxLength <= 0) {
+      var maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
+      if (maxPurgeLength <= 0) {
         debug("The counts of open tabs are within set value.");
         deferred.reject();
         return;
@@ -123,7 +123,7 @@
         return !v.active && (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
       });
 
-      for (var j = 0, lenJ = t.length; j < lenJ && j < maxLength; j++) {
+      for (var j = 0, lenJ = t.length; j < lenJ && j < maxPurgeLength; j++) {
         purge(t[j].id);
       }
 
@@ -141,7 +141,7 @@
    */
   function isLackTheMemory(criteria_memory_size)//{{{
   {
-    debug('isLackTheMemory');
+    debug('isLackTheMemory', criteria_memory_size);
 
     var deferred = Promise.defer();
     chrome.system.memory.getInfo(function(info) {
@@ -271,7 +271,7 @@
             });
           }
         }
-      }, time * 1000);//}}}
+      }, intervalTime * 1000);//}}}
 
       resolve();
     });
@@ -400,7 +400,7 @@
         name: dbHistoryName,
         range: IDBKeyRange.upperBound(
           new Date(now.getFullYear(), now.getMonth(), now.getDate() - length,
-            23, 59, 59, 999).getTime()
+                   23, 59, 59, 999).getTime()
         ),
       })
       .then(function(histories) {
@@ -424,7 +424,6 @@
       p.push( db.getAll({ name: dbHistoryName      } ) );
       p.push( db.getAll({ name: dbSessionName      } ) );
       p.push( db.getAll({ name: dbSavedSessionName } ) );
-
       Promise.all(p).then(function(results) {
         return new Promise(function(resolve2, reject2) {
           function check(array, target)
@@ -433,6 +432,7 @@
               var result = array.some(function(v) {
                 return v.url === target.url;
               });
+
               if (result) {
                 reject();
               } else {
@@ -454,7 +454,6 @@
                 p3.push( check(histories, v) );
                 p3.push( check(sessions, v) );
                 p3.push( check(savedSessions, v) );
-
                 Promise.all(p3).then(function() {
                   resolve3(v.url);
                 }, function() {
@@ -463,7 +462,6 @@
               })
             );
           });
-
           Promise.all(p2).then(function(results2) {
             var delKeys = results2.filter(function(v) {
               return v !== null;
@@ -507,7 +505,6 @@
               })
             );
           });
-
           Promise.all(p2).then(function(results2) {
             var delKeys = results2.filter(function(v) {
               return v !== null;
@@ -615,10 +612,10 @@
 
     return new Promise(function(resolve, reject) {
       var now = new Date();
-      var begin = new Date(
-        now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-      var end = new Date(
-        now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      var begin = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                           0, 0, 0, 0);
+      var end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+                           23, 59, 59, 999);
 
       db.getCursor({
         name: dbHistoryName,
@@ -631,6 +628,7 @@
         delKeys = delKeys.map(function(v) {
           return v.date;
         });
+
         return db.delete({ name: dbHistoryName, keys: delKeys });
       })
       .then(function() {
@@ -681,7 +679,6 @@
               }
             })
           );
-
           // If Promise was error, it is transaction error.
           // When its error was shown, to occur in the key already exist.
           // Therefore, I call the resolve function.
@@ -779,7 +776,7 @@
     var excludeArray = excludeObj.list.split('\n');
     for (var i = 0, len = excludeArray.length; i < len; i++) {
       if (excludeArray[i] !== '') {
-        var re = new RegExp(excludeArray[i], excludeObj.options);
+        var re = new RegExp(trim(excludeArray[i]), excludeObj.options);
         if (re.test(url)) {
           return excludeObj.returnValue;
         }
@@ -850,8 +847,8 @@
     }
 
     // Check the keybind exclude list.
-    var keybind = checkMatchUrlString(
-      url, getTargetExcludeList('keybind')) || 0;
+    var keybind =
+      checkMatchUrlString(url, getTargetExcludeList('keybind')) || 0;
 
     // Check the exclude list in the extension.
     var result = checkMatchUrlString(url, getTargetExcludeList('extension'));
@@ -867,7 +864,7 @@
 
     // Check to the temporary exclude list or don't match the exclude lists.
     return ((tempRelease.indexOf(url) !== -1) ?
-                  TEMP_EXCLUDE : NORMAL_EXCLUDE) | keybind;
+              TEMP_EXCLUDE : NORMAL_EXCLUDE) | keybind;
   }//}}}
 
   /**
@@ -900,7 +897,7 @@
           title += "The url of this tab is included your exclude list.";
         } else if (changeIcon & TEMP_EXCLUDE) {
           title += "The url of this tab is included" +
-                  " your temporary exclude list.";
+                   " your temporary exclude list.";
         } else if (changeIcon & EXTENSION_EXCLUDE) {
           title += "The url of this tab is included" +
                   " exclude list of in this extension.";
@@ -933,10 +930,10 @@
   {
     debug('getParameterByName', url, name);
 
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(decodeURIComponent(url));
+    var regex   = new RegExp("[\\?&]" + name + "       = ([^&#]*)");
+    var results = regex.exec(decodeURIComponent(url));
     return results === null ?
-      "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+           "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }//}}}
 
   /**
@@ -1023,9 +1020,8 @@
 
           var state = checkExcludeList(tab.url);
           if (state & EXTENSION_EXCLUDE) {
-            warn(
-              'The tabId have been included the exclusion list of extension.',
-              tabId);
+            warn('The tabId have been included the exclusion list' +
+                 ' of extension.', tabId);
             reject();
             return;
           } else if (state & INVALID_EXCLUDE) {
@@ -1121,9 +1117,11 @@
       }
 
       if (unloaded.hasOwnProperty(tabId)) {
-        unPurge(tabId).then(deferred.resolve, deferred.reject);
+        unPurge(tabId)
+        .then(deferred.resolve, deferred.reject);
       } else {
-        purge(tabId).then(deferred.resolve, deferred.reject);
+        purge(tabId)
+        .then(deferred.resolve, deferred.reject);
       }
     }, 0);
     return deferred.promise;
@@ -1137,6 +1135,7 @@
   function tick(tabId)//{{{
   {
     debug('tick');
+
     var deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number' || unloaded.hasOwnProperty(tabId)) {
@@ -1155,9 +1154,11 @@
         // アクティブタブへの処理の場合、行わない
         if (tab.active) {
           // アクティブにしたタブのアンロード時間更新
-          setTick(tabId).then(deferred.resolve, deferred.reject);
+          setTick(tabId)
+          .then(deferred.resolve, deferred.reject);
         } else {
-          purge(tabId).then(deferred.resolve, deferred.reject);
+          purge(tabId)
+          .then(deferred.resolve, deferred.reject);
         }
       });
     }, 0);
@@ -1171,6 +1172,7 @@
   function deleteTick(tabId)//{{{
   {
     debug('deleteTick');
+
     if (ticked.hasOwnProperty(tabId)) {
       clearInterval(ticked[tabId]);
       delete ticked[tabId];
@@ -1277,7 +1279,6 @@
          })
        );
      });
-
      Promise.all(p).then(function(results) {
        results.forEach(function(v) {
          for (var key in v) {
@@ -1352,6 +1353,7 @@
       var t = tabs.filter(function(v) {
         return v.index >= tab.index;
       });
+
       var tLength = 0;
       if (t.length === 0) {
         t = tabs.filter(function(v) {
@@ -1701,7 +1703,9 @@
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
     .then(deleteOldDatabase)
-    .then(initializeIntervalProcess)
+    .then(function() {
+      return initializeIntervalProcess(myOptions.interval_timing);
+    })
     .catch(function(e) {
       error(e.stack || e || 'initialize error.');
     });
