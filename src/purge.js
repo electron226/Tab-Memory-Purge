@@ -1704,7 +1704,7 @@
     .then(initializeAlreadyPurgedTabs)
     .then(deleteOldDatabase)
     .then(function() {
-      return initializeIntervalProcess(myOptions.interval_timing);
+      return initializeIntervalProcess(myOptions.interval_timing || 5);
     })
     .catch(function(e) {
       error(e.stack || e || 'initialize error.');
