@@ -33,27 +33,27 @@
 
   // デザイン
   // http://www.cssdesk.com/PLetB
-  var div = document.createElement('div');
-  var span = document.createElement('span');
+  var div    = document.createElement('div');
+  var span   = document.createElement('span');
   var button = document.createElement('button');
-  var input = document.createElement('input');
-  input.type = 'range';
+  var input  = document.createElement('input');
+  input.type           = 'range';
   input.style.position = "relative";
-  input.style.top = "0.4rem";
+  input.style.top      = "0.4rem";
 
   // parent
   var parent = div.cloneNode();
   parent.style.fontFamily = '"Meiryo", "メイリオ", "ＭＳ Ｐゴシック", ' +
                             '"Osaka-Mono", "Monospace", "Helvetica", ' +
                             '"Arial", sans-serif';
-  parent.style.fontSize = '12px';
-  parent.style.position = 'fixed';
+  parent.style.fontSize   = '12px';
+  parent.style.position   = 'fixed';
   parent.style.background = "rgba(245, 245, 245, 1.0)";
-  parent.style.boxShadow = "5px 5px 20px -2px gray";
-  parent.style.width = "500px";
-  parent.style.height = "380px";
-  parent.style.display = 'none';
-  parent.style.zIndex = '100';
+  parent.style.boxShadow  = "5px 5px 20px -2px gray";
+  parent.style.width      = "500px";
+  parent.style.height     = "380px";
+  parent.style.display    = 'none';
+  parent.style.zIndex     = '100';
 
   (function(window, parent) {
     function get(target)
@@ -63,7 +63,7 @@
 
     parent.style.left = (window.innerWidth / 2.0) -
                         (get(parent.style.width) / 2.0) + 'px';
-    parent.style.top = (window.innerHeight / 2.0) -
+    parent.style.top  = (window.innerHeight / 2.0) -
                        (get(parent.style.height) / 2.0) + 'px';
   })(window, parent);
 
@@ -74,7 +74,7 @@
 
   // title
   var titleBar = div.cloneNode();
-  titleBar.style.padding = '6px 12px';
+  titleBar.style.padding    = '6px 12px';
   titleBar.style.background = 'rgba(200, 240, 240, 1.0)';
 
   var title = span.cloneNode();
@@ -83,22 +83,22 @@
 
   var titleBarButton = button.cloneNode();
   titleBarButton.style.position = 'absolute';
-  titleBarButton.style.right = '12px';
-  titleBarButton.textContent = "x";
-  titleBarButton.onclick = close;
+  titleBarButton.style.right    = '12px';
+  titleBarButton.textContent    = "x";
+  titleBarButton.onclick        = close;
   titleBar.appendChild(titleBarButton);
 
   parent.appendChild(titleBar);
 
   // inside exclude dialog.
   var insideExcludeDialog = div.cloneNode();
-  insideExcludeDialog.style.padding = "12px 12px";
+  insideExcludeDialog.style.padding   = "12px 12px";
   insideExcludeDialog.style.textAlign = "center";
 
   var mes1 = div.cloneNode();
   mes1.textContent = chrome.i18n.getMessage('exclude_dialog_mes1');
 
-  var mes2 = div.cloneNode();
+  var mes2        = div.cloneNode();
   var mes2_inner1 = div.cloneNode();
   var mes2_inner2 = div.cloneNode();
   mes2_inner1.textContent = chrome.i18n.getMessage('exclude_dialog_mes2');
@@ -108,16 +108,16 @@
 
   var url = div.cloneNode();
   url.style.fontSize = '1rem';
-  url.style.padding = '26px 0';
-  url.textContent = hostname + pathname;
+  url.style.padding  = '26px 0';
+  url.textContent    = hostname + pathname;
 
-  var ranges = div.cloneNode();
+  var ranges   = div.cloneNode();
   var hostSpan = span.cloneNode();
   hostSpan.style.padding = "0 16px;";
-  hostSpan.textContent = "Host:";
+  hostSpan.textContent   = "Host:";
   var host = input.cloneNode();
-  host.min = 0;
-  host.max = hosts.length-1;
+  host.min   = 0;
+  host.max   = hosts.length-1;
   host.value = 0;
   host.onchange = function(e) {
     hostname = window.location.hostname;
@@ -135,8 +135,8 @@
     pageSpan.textContent = "Page:";
     var page = input.cloneNode();
     page.value = 0;
-    page.min = 0;
-    page.max = paths.length;
+    page.min   = 0;
+    page.max   = paths.length;
     page.onchange = function(e) {
       console.debug(paths);
       pathname = '';
@@ -160,13 +160,13 @@
   // buttons
   var br = document.createElement('br');
   var excludeDialogButtons = div.cloneNode();
-  excludeDialogButtons.style.position = "absolute";
-  excludeDialogButtons.style.right = "12px";
-  excludeDialogButtons.style.bottom = "12px";
+  excludeDialogButtons.style.position  = "absolute";
+  excludeDialogButtons.style.right     = "12px";
+  excludeDialogButtons.style.bottom    = "12px";
   excludeDialogButtons.style.textAlign = "right";
 
   var excludeButtonTemplate = button.cloneNode();
-  excludeButtonTemplate.style.width = '16rem';
+  excludeButtonTemplate.style.width  = '16rem';
   excludeButtonTemplate.style.margin = '2px';
 
   function setAddUrlToExcludeList(storageName)
@@ -177,7 +177,7 @@
         deferred.reject(new Error(chrome.runtime.lastError));
         return;
       }
-      var uri = hostname + pathname;
+      var uri    = hostname + pathname;
       var addUri = uri.replace(/\*/g, '').replace(/\/$/g, '');
 
       var item = items[storageName];
@@ -236,7 +236,7 @@
 
   var cancelBtn = excludeButtonTemplate.cloneNode();
   cancelBtn.textContent = chrome.i18n.getMessage('cancel');
-  cancelBtn.onclick = close;
+  cancelBtn.onclick     = close;
 
   var buttons = [
     toExcludeListBtn, toKeybindExcludeListBtn, toTempExcludeListBtn ];
