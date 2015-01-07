@@ -31,7 +31,8 @@
             "src/common.js",
             "src/common_func.js",
             "src/content_scripts/keyBind.js",
-            "src/content_scripts/excludeDialog.js"
+            "src/content_scripts/excludeDialog.js",
+            "src/content_scripts/formCache.js"
         ]
       }
     ],

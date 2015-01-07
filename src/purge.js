@@ -1033,6 +1033,11 @@
           var p2 = [];
           p2.push( getPurgeURL(tab.url) );
           p2.push( writeHistory(tab) );
+          p2.push(
+            new Promise(function(resolve2) {
+              chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve2);
+            })
+          );
           Promise.all(p2)
           .then(function(results2) {
             return new Promise(function(resolve2, reject2) {
