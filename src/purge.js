@@ -209,7 +209,7 @@
       })
       .then(deferred.resolve)
       .catch(function(e) {
-        error(e.stack || e);
+        error(e.stack || e.message || e);
         deferred.reject();
       });
     }, 0);
@@ -306,7 +306,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e.stack || e);
+        error(e.stack || e.message || e);
         reject();
       })
       .then(resolve)
@@ -473,7 +473,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e);
+        error(e.stack || e.message || e);
         reject();
       })
       .then(resolve)
@@ -516,7 +516,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e);
+        error(e.stack || e.message || e);
         reject();
       })
       .then(resolve)
@@ -552,7 +552,7 @@
             })
             .then(resolve2)
             .catch(function(e) {
-              error(e.stack);
+              error(e.stack || e.message || e);
               reject2();
             });
           } else {
@@ -600,7 +600,7 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e);
+        error(e.stack || e.message || e);
         reject(e);
       });
     });
@@ -687,7 +687,7 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e);
+        error(e.stack || e.message || e);
         reject(e);
       });
     });
@@ -1296,7 +1296,7 @@
        deferred.resolve();
      })
      .catch(function(e) {
-       error(e.stack);
+       error(e.stack || e.message || e);
        deferred.reject(e);
      });
    }, 0);
@@ -1601,7 +1601,7 @@
       Promise.all(p)
       .then(deferred.resolve)
       .catch(function(e) {
-        error(e);
+        error(e.stack || e.message || e);
         deferred.reject(e);
       });
     });
@@ -1712,7 +1712,7 @@
       return initializeIntervalProcess(myOptions.interval_timing || 5);
     })
     .catch(function(e) {
-      error(e.stack || e || 'initialize error.');
+      error(e.stack || e.message || e || 'initialize error.');
     });
   }//}}}
 
