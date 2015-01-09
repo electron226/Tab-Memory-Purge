@@ -1,8 +1,6 @@
 (function(document) {
   "use strict";
 
-  var PREFIX = 'TMP_';
-
   var SKIP_TYPE = [
     'file', 'submit', 'image', 'reset', 'button',
   ];
@@ -13,12 +11,14 @@
     });
   }
 
+  var PREFIX = 'TMP_';
+  var XPATH = '//input | //textarea';
+
   (function() {
     var restored = {};
 
     var el, keyName, value;
-    var elements = document.evaluate(
-      '//form//input | //textarea', document, null, 7, null);
+    var elements = document.evaluate(XPATH, document, null, 7, null);
     for (var i = 0, len = elements.snapshotLength; i < len; i++) {
       el = elements.snapshotItem(i);
       if (el.name === void 0 || el.name === null || checkSkipType(el.type)) {
@@ -27,17 +27,21 @@
 
       keyName = PREFIX + el.name;
       value   = sessionStorage.getItem(keyName);
-      if (value === void 0 || value === null) {
+      value   = (toType(value) === 'string') ? JSON.parse(value) : value;
+      if (value === void 0 || value === null || value.length === 0) {
         continue;
       }
 
       switch (el.type) {
       case 'checkbox':
       case 'radio':
-        el.checked = (el.value === value) ? true : false;
+        /*jshint loopfunc: true*/
+        el.checked =
+          value.some(function(v) { return el.value === v; }) ? true : false;
         break;
       default:
-        el.value = value;
+        el.value = value.shift();
+        sessionStorage.setItem(keyName, JSON.stringify(value));
         break;
       }
 
@@ -52,9 +56,8 @@
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     switch (message.event) {
     case 'form_cache':
-      var el;
-      var elements = document.evaluate(
-        '//form//input | //textarea', document, null, 7, null);
+      var el, keyName, value;
+      var elements = document.evaluate(XPATH, document, null, 7, null);
       for (var i = 0, len = elements.snapshotLength; i < len; i++) {
         el = elements.snapshotItem(i);
         if (el.name === void 0 || el.name === null ||
@@ -72,7 +75,12 @@
           break;
         }
 
-        sessionStorage.setItem(PREFIX + el.name, el.value);
+        keyName = PREFIX + el.name;
+        value   = sessionStorage.getItem(keyName);
+        value   = (toType(value) === 'string') ? JSON.parse(value) : [];
+
+        value.push(el.value);
+        sessionStorage.setItem(keyName, JSON.stringify(value));
       }
       sendResponse();
       break;
