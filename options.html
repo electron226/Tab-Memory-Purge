@@ -120,7 +120,7 @@
                   <span ng-show="currentLocale === 'ja'">
                     {{ data.date | date:'yyyy/MM/dd' }}
                   </span>
-                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
+                  <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'">
                     {{ data.date | date:'MM/dd/yyyy' }}
                   </span>
                 <button ng-click="deleteHistory(data.date)" translation="delete"></button>
@@ -147,7 +147,7 @@
                   <span ng-show="currentLocale === 'ja'">
                     {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }}
                   </span>
-                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
+                  <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'">
                     {{ session.date | date:'MM/dd/yyyy hh:mm:ss' }}
                   </span>
                 </button>
@@ -178,30 +178,30 @@
             <div>
               <button translation="reload" ng-click="reloadSession()"></button>
             </div>
-            <fieldset ng-repeat="sessions in sessionHistory | orderBy:'date':true">
+            <fieldset ng-repeat="session in sessionHistory | orderBy:'date':true">
               <legend>
-                <span ng-show="sessions.date === currentSessionTime">
+                <span ng-show="session.date === currentSessionTime">
                   <span ng-show="currentLocale === 'ja'" translation="current_session"></span>
                   <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="current_session"></span>
                 </span>
-                <span ng-show="sessions.date === previousSessionTime">
+                <span ng-show="session.date === previousSessionTime">
                   <span ng-show="currentLocale === 'ja'" translation="previous_session"></span>
                   <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="previous_session"></span>
                 </span>
-                <span ng-show="sessions.date !== currentSessionTime && sessions.date !== previousSessionTime">
+                <span ng-show="session.date !== currentSessionTime && session.date !== previousSessionTime">
                   <span ng-show="currentLocale === 'ja'">
-                    {{ sessions.date | date:'yyyy/MM/dd hh:mm:ss' }}
+                    {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }}
                   </span>
-                  <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'">
-                    {{ sessions.date | date:'MM/dd/yyyy hh:mm:ss' }}
+                  <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'">
+                    {{ session.date | date:'MM/dd/yyyy hh:mm:ss' }}
                   </span>
                 </span>
-                <button translation="save" ng-click="saved(sessions)"></button>
-                <button translation="delete" ng-click="deleted(sessions)"></button>
-                <button translation="restore" ng-click="restored(sessions.data)"></button>
+                <button translation="save" ng-click="saved(session)"></button>
+                <button translation="delete" ng-click="deleted(session)"></button>
+                <button translation="restore" ng-click="restored(session.data)"></button>
               </legend>
-              <div ng-repeat="data in sessions.data">
-                <a href="#" ng-click="deleteSpecificSession(sessions, data.id)">
+              <div ng-repeat="data in session.data">
+                <a href="#" ng-click="deleteSpecificSession(session, data.id)">
                   <span style="position: relative; top: 0.5rem; left: -0.3rem;">
                     <span class="delete_icon"></span>
                     <span class="delete_icon2"></span>
