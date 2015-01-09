@@ -556,14 +556,23 @@
           continue;
         }
 
-        if (text.match(/^\d+\/\d+\/\d+/) !== null) {
+        var tMatch = text.match(/^(\d+)\/(\d+)\/(\d+)(.*)/);
+        if (tMatch !== null) {
           if (angular.isString(dateVer) && items.length > 0) {
             changed.push({ dateVer: dateVer, items: items });
             dateVer = null;
             items = [];
           }
 
-          dateVer = text;
+          switch ($scope.currentLocale) {
+          case 'en':
+          case 'en-US': // United State
+            dateVer = tMatch[2] + '/' + tMatch[3] + '/' + tMatch[1] + tMatch[4];
+            break;
+          default: // include Japan.
+            dateVer = text;
+            break;
+          }
         } else {
           items.push(text);
         }
