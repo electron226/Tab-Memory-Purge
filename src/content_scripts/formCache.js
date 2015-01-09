@@ -1,18 +1,19 @@
 (function(document) {
   "use strict";
 
-  var SKIP_TYPE = [
-    'file', 'submit', 'image', 'reset', 'button',
-  ];
+  var PREFIX = 'TMP_';
+  var XPATH = '//input | //textarea';
+
   function checkSkipType(type)
   {
+    var SKIP_TYPE = [
+      'file', 'submit', 'image', 'reset', 'button',
+    ];
+
     return SKIP_TYPE.some(function(v) {
       return type === v;
     });
   }
-
-  var PREFIX = 'TMP_';
-  var XPATH = '//input | //textarea';
 
   (function() {
     var restored = {};
