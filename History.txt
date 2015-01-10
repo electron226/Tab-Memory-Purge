@@ -1,5 +1,5 @@
 2015/01/11 ver 2.3.7
-Added: When the extension restores the purge tabs, restore the previous form data to be purged (Issues #44).
+Added: When the extension restores the purge tabs, restore the previous form data of purged tab. (Issues #44)
 Changed: I will change that display a date format in the change history of the option page when locale is Japanese or English.
 Fixed: Do work the tabs in secret window.
 
