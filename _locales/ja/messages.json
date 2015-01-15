@@ -116,7 +116,7 @@
     "description": "オプションのその他の項目の設定"
   },
   "operateTitle": {
-    "message": "ストレージ操作",
+    "message": "設定値の操作",
     "description": "オプションの項目"
   },
   "operateSyncTitle": {

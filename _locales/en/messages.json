@@ -116,7 +116,7 @@
     "description": "another option in the options menu"
   },
   "operateTitle": {
-    "message": "Operate storage",
+    "message": "Operate set value",
     "description": "an option title on the option page"
   },
   "operateSyncTitle": {
