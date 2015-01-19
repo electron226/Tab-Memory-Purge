@@ -35,6 +35,10 @@
     "message": "情報",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "operate_settings": {
+    "message": "ｲﾝﾎﾟｰﾄ / ｴｸｽﾎﾟｰﾄ",
+    "description": "オプションページ内のページ切り替えボタンなど"
+  },
   "reload": {
     "message": "更新",
     "description": "更新ボタン"

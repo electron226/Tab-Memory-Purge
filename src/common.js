@@ -155,6 +155,7 @@
     { 'name': 'session_history' },
     { 'name': 'change_history' },
     { 'name': 'information' },
+    { 'name': 'operate_settings' },
   ];
 
   window.parentMenuId = 'parentMenu';

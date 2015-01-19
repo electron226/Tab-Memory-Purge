@@ -35,6 +35,10 @@
     "message": "INFORMATION",
     "description": "the string of buttons in the options page"
   },
+  "operate_settings": {
+    "message": "IMPORT/EXPORT",
+    "description": "the string of buttons in the options page"
+  },
   "reload": {
     "message": "RELOAD",
     "description": "the reload button"

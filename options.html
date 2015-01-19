@@ -260,6 +260,18 @@
             <h3><span translation="infomation_other"></span></h3>
             <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div>
           </section>
+
+          <section ng-controller="storageController" class="operate_settings">
+            <fieldset>
+              <legend translation="getSettings"></legend>
+              <div>
+                <button ng-click="export()"><span translation="export"></span></button>
+                <button ng-click="import()"><span translation="import"></span></button>
+                <span id="config_view_status" style="color: green;"></span>
+              </div>
+              <textarea id="config_view" cols="150" rows="30"></textarea>
+            </fieldset>
+          </section>
         </article>
 
         <footer ng-controller="storageController">
@@ -276,16 +288,6 @@
             <button ng-click="syncSave()"><span translation="save"></span></button>
             <button ng-click="syncLoad()"><span translation="load"></span></button>
             <span id="status_sync" style="color: green;"></span>
-          </fieldset>
-
-          <fieldset>
-            <legend translation="getSettings"></legend>
-            <div>
-              <button ng-click="export()"><span translation="export"></span></button>
-              <button ng-click="import()"><span translation="import"></span></button>
-              <span id="config_view_status" style="color: green;"></span>
-            </div>
-            <textarea id="config_view" cols="50" rows="5"></textarea>
           </fieldset>
         </footer>
       </div>
