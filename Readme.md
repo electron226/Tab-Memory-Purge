@@ -16,8 +16,9 @@ Google Chrome用のタブ拡張機能です。
     
 ## 簡単な仕様
 - タブごとにsetIntervalを設定し、指定したアンロード時間ごとにアンロードするか否かを判断。
+- 一定時間ごとに、解放されたタブの一覧(セッション)を保存・自動解放処理のチェックを行う。
 - タブをアクティブにすると、時間はリセット。
-- アンロードする場合、空ページを読み込み、メモリを解放します。
+- アンロードする場合、拡張機能内のほぼ空のページを読み込み、メモリを解放します。
 - 現在のタブが除外リストに追加されているかどうかでツールバーのアイコンが変化します。
     - ![なにもなし](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019.png) = どの除外リストにもマッチしませんでした。
     - ![キーバインド×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_with_keybind.png) = キーバインドの除外リストにマッチ
