@@ -49,10 +49,27 @@
     return null;
   }
 
-  document.addEventListener('click', function() {
+  function navigateToPageBeforePurged()
+  {
     var args = getQueryString();
     if (args.url) {
       window.location.replace(args.url);
+    }
+  }
+
+  document.addEventListener('click', navigateToPageBeforePurged, true);
+
+  var F5Key = generateKeyString({
+    ctrl    : false,
+    alt     : false,
+    shift   : false,
+    meta    : false,
+    keyCode : 116,
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (F5Key === generateKeyString(keyCheck(e))) {
+      navigateToPageBeforePurged();
     }
   }, true);
 
