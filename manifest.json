@@ -1,22 +1,22 @@
 ﻿{
-    "name": "__MSG_extName__",
-    "description": "__MSG_extDescription__",
-    "version": "2.3.7",
-    "manifest_version": 2,
-    "default_locale": "en",
-    "incognito": "split",
-    "icons": {
-      "48": "icon/icon_048.png",
-      "128": "icon/icon_128.png"
+    "name"             : "__MSG_extName__",
+    "description"      : "__MSG_extDescription__",
+    "version"          : "2.3.7",
+    "manifest_version" : 2,
+    "default_locale"   : "en",
+    "incognito"        : "split",
+    "icons" : {
+      "48"  : "icon/icon_048.png",
+      "128" : "icon/icon_128.png"
     },
-    "browser_action": {
-      "default_icon": "icon/icon_019.png",
-      "default_title": "__MSG_extName__",
-      "default_popup": "popup.html"
+    "browser_action" : {
+      "default_icon"  : "icon/icon_019.png",
+      "default_title" : "__MSG_extName__",
+      "default_popup" : "popup.html"
     },
-    "options_page": "options.html",
+    "options_page" : "options.html",
     "background" : {
-        "scripts": [
+        "scripts" : [
             "src/debug.js",
             "src/common.js",
             "src/common_func.js",
@@ -24,10 +24,10 @@
             "src/purge.js"
         ]
     },
-    "content_scripts": [
+    "content_scripts" : [
       {
-        "matches": ["http://*/*", "https://*/*"],
-        "js": [
+        "matches" : ["http://*/*", "https://*/*"],
+        "js" : [
             "src/common.js",
             "src/common_func.js",
             "src/content_scripts/keyBind.js",
@@ -36,11 +36,12 @@
         ]
       }
     ],
-    "permissions": [
+    "permissions" : [
       "tabs", "storage", "history",
-      "system.memory", "contextMenus", "http://*/*", "https://*/*"
+      "system.memory", "contextMenus",
+      "http://*/*", "https://*/*"
     ],
-    "web_accessible_resources": [
+    "web_accessible_resources" : [
       "blank.html"
     ]
 }
