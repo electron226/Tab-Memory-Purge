@@ -209,7 +209,7 @@
       })
       .then(deferred.resolve)
       .catch(function(e) {
-        error(e.stack || e.message || e);
+        e ? error(e) : function() {};
         deferred.reject();
       });
     }, 0);
@@ -306,7 +306,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e.stack || e.message || e);
+        e ? error(e) : function() {};
         reject();
       })
       .then(resolve)
@@ -473,7 +473,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e.stack || e.message || e);
+        e ? error(e) : function() {};
         reject();
       })
       .then(resolve)
@@ -516,7 +516,7 @@
           .catch(reject2);
         });
       }, function(e) {
-        error(e.stack || e.message || e);
+        e ? error(e) : function() {};
         reject();
       })
       .then(resolve)
@@ -551,10 +551,7 @@
               return db.delete({ name: dbSessionName, keys: delKeys });
             })
             .then(resolve2)
-            .catch(function(e) {
-              error(e.stack || e.message || e);
-              reject2();
-            });
+            .catch(reject2);
           } else {
             resolve2();
           }
@@ -571,7 +568,7 @@
                 sessionWrites.push({ date: nowTime, url: item.url });
               } else {
                 error("Don't find url.", item.url);
-                reject2(new Error("Don't find url."));
+                reject2();
               }
             }
           }
@@ -590,7 +587,7 @@
           chrome.storage.local.set(write, function() {
             if (chrome.runtime.lastError) {
               error(chrome.runtime.lastError.message);
-              reject2(chrome.runtime.lastError);
+              reject2();
               return;
             }
 
@@ -600,8 +597,8 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e.stack || e.message || e);
-        reject(e);
+        e ? error(e) : function() {};
+        reject();
       });
     });
   }//}}}
@@ -687,8 +684,8 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e.stack || e.message || e);
-        reject(e);
+        e ? error(e) : function() {};
+        reject();
       });
     });
   }//}}}
@@ -1296,8 +1293,8 @@
        deferred.resolve();
      })
      .catch(function(e) {
-       error(e.stack || e.message || e);
-       deferred.reject(e);
+       e ? error(e) : function() {};
+       deferred.reject();
      });
    }, 0);
 
@@ -1601,8 +1598,8 @@
       Promise.all(p)
       .then(deferred.resolve)
       .catch(function(e) {
-        error(e.stack || e.message || e);
-        deferred.reject(e);
+        e ? error(e) : function() {};
+        deferred.reject();
       });
     });
 
@@ -1712,7 +1709,7 @@
       return initializeIntervalProcess(myOptions.interval_timing || 5);
     })
     .catch(function(e) {
-      error(e.stack || e.message || e || 'initialize error.');
+      error(e || 'initialize error.');
     });
   }//}}}
 

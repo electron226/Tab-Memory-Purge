@@ -104,7 +104,7 @@
 
       Promise.all(p).then(deferred.resolve, function(e) {
         error(e.target.error.message);
-        deferred.reject(e.target.error);
+        deferred.reject();
       });
     }, 0, this);
     return deferred.promise;
@@ -140,7 +140,7 @@
               store.index(indexName).get(key) :
               store.get(key);
       } catch (e) {
-        warn(e.stack || e);
+        warn(e);
         req = store.get(key);
       }
 
@@ -325,7 +325,7 @@
 
       Promise.all(p).then(deferred.resolve, function(e) {
         error(e.target.error.message);
-        deferred.reject(e.target.error);
+        deferred.reject();
       });
     }, 0, this);
     return deferred.promise;
