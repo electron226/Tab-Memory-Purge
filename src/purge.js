@@ -43,8 +43,8 @@
    *       url            : the url before purging.
    *       scrollPosition : the object that represent the scroll position(x, y).
    */
-  var unloaded = {};
-  var unloadedCount = 0;
+  var unloaded       = {};
+  var unloadedCount  = 0;
   var unloadedChange = false;
   Object.observe(unloaded, function(changes) {//{{{
     debug('unloaded was changed.', changes);
@@ -529,7 +529,7 @@
     debug('writeSession', unloaded);
 
     return new Promise(function(resolve, reject) {
-      var now = new Date();
+      var now     = new Date();
       var nowTime = now.getTime();
 
       // currentSessionTimeの処理

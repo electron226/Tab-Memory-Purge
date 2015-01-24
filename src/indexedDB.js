@@ -131,7 +131,7 @@
 
       var tx = $this.db.transaction(storeName, 'readonly');
       tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      tx.onerror    = deferred.reject;
 
       var store = tx.objectStore(storeName);
       var req;
