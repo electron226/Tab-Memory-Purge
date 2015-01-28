@@ -230,6 +230,7 @@
         return;
       }
 
+      var runWriteSession   = false;
       var runPurgingAllTabs = false;
       var runAutoPurgeCheck = false;
       setInterval(function() {//{{{
@@ -239,7 +240,7 @@
           return;
         }
 
-        if (unloadedChange) {
+        if (unloadedChange && !runWriteSession) {
           debug('update session history');
           unloadedChange = false;
 
@@ -247,7 +248,13 @@
           // When user close multiple tabs, continuously call more than once.
           // Thus, the same session is added more than once.
           // So call at here.
-          writeSession(unloaded);
+          runWriteSession = true;
+          writeSession(unloaded)
+          .then(function() {
+            runWriteSession = false;
+          }, function() {
+            runWriteSession = false;
+          });
         }
 
         if (!disableTimer) {
