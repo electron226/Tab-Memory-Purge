@@ -2,7 +2,8 @@
   "libs": [
     "browser",
     "jquery",
-    "ecma5"
+    "ecma5",
+    "ecma6"
   ],
   "loadEagerly": [
   ],

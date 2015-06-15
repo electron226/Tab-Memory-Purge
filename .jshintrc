@@ -9,6 +9,7 @@
   "eqnull" : true, // == nullに対する警告を出さない。この比較は変数がnullまたはundefinedかどうか調べる際に有用です。
   "expr" : true,  // x || (x = 1); とかができるようにする
   "trailing" : true, // 行末の空白を禁止
+  "esnext": true, // ECMAScript 6
 
   // グローバル変数へのアクセスの管理
   "browser" : true,  // ブラウザ用のやつは許可

@@ -13,9 +13,9 @@
   Database.prototype.open = function(createProperties) {
     debug('called open function of Database class.', createProperties);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var req = indexedDB.open($this.databaseName, $this.version);
+      let req = indexedDB.open($this.databaseName, $this.version);
       req.onupgradeneeded = function(e) {
         debug('be running onupgradeneeded.');
 
@@ -24,24 +24,24 @@
           deferred.reject();
         };
 
-        var db = e.target.result;
+        let db = e.target.result;
 
-        for (var storeName in createProperties) {
+        for (let storeName in createProperties) {
           if (createProperties.hasOwnProperty(storeName)) {
             // delete previous object store in database.
             if (db.objectStoreNames.contains(storeName)) {
               db.deleteObjectStore(storeName);
             }
 
-            var property = createProperties[storeName].property;
-            var store = db.createObjectStore(storeName, property);
+            let property = createProperties[storeName].property;
+            let store = db.createObjectStore(storeName, property);
             if (createProperties[storeName].hasOwnProperty('indexs')) {
-              var indexs = createProperties[storeName].indexs;
-              for (var name in indexs) {
-                if (indexs.hasOwnProperty(name)) {
-                  var item = indexs[name];
+              let indexs = createProperties[storeName].indexs;
+              for (let indexName in indexs) {
+                if (indexs.hasOwnProperty(indexName)) {
+                  let item = indexs[indexName];
                   store.createIndex(
-                    name,
+                    indexName,
                     item.targets.length === 1 ? item.targets[0] : item.targets,
                     item.property
                   );
@@ -66,18 +66,18 @@
   Database.prototype.addOrPut = function(args, type) {
     debug('called addOrPut function of Database class.', args);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
       if (type === void 0 || type === null) {
         type = 'add';
       }
 
-      var storeName = args.name;
-      var data = (toType(args.data) === 'object') ? [ args.data ] : args.data;
+      let storeName = args.name;
+      let data = (toType(args.data) === 'object') ? [ args.data ] : args.data;
 
-      var tx = $this.db.transaction(storeName, 'readwrite');
+      let tx = $this.db.transaction(storeName, 'readwrite');
       tx.onabort = function(e) {
-        var error = e.target.error;
+        let error = e.target.error;
         if (error.name === 'QuotaExceededError') {
           error(error.name);
         }
@@ -85,12 +85,12 @@
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var p = [];
+      let store = tx.objectStore(storeName);
+      let p = [];
       data.forEach(function(v) {
         p.push(
           new Promise(function(resolve, reject) {
-            var req;
+            let req;
             if (type === 'add') {
               req = store.add(v);
             } else {
@@ -123,18 +123,18 @@
   Database.prototype.get = function(args) {
     debug('called get function of Database class.', args);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var storeName = args.name;
-      var key       = args.key;
-      var indexName = args.indexName;
+      let storeName = args.name;
+      let key       = args.key;
+      let indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
+      let tx = $this.db.transaction(storeName, 'readonly');
       tx.oncomplete = deferred.resolve;
       tx.onerror    = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var req;
+      let store = tx.objectStore(storeName);
+      let req;
       try {
         req = indexName ?
               store.index(indexName).get(key) :
@@ -156,17 +156,17 @@
   };
 
   Database.prototype.getAll = function(args) {
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var storeName = args.name;
-      var indexName = args.indexName;
+      let storeName = args.name;
+      let indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
+      let tx = $this.db.transaction(storeName, 'readonly');
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var req;
+      let store = tx.objectStore(storeName);
+      let req;
       try {
         req = indexName ?
               store.index(indexName).openCursor() :
@@ -176,9 +176,9 @@
         req = store.openCursor();
       }
 
-      var results = [];
+      let results = [];
       req.onsuccess = function() {
-        var cursor = this.result;
+        let cursor = this.result;
         if (cursor) {
           results.push(cursor.value);
           cursor.continue();
@@ -202,19 +202,19 @@
   Database.prototype.getCursor = function(args) {
     debug('called getCursor function of Database class.', args);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var storeName = args.name;
-      var range = args.range;
-      var direction = args.direction;
-      var indexName = args.indexName;
+      let storeName = args.name;
+      let range = args.range;
+      let direction = args.direction;
+      let indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
+      let tx = $this.db.transaction(storeName, 'readonly');
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var req;
+      let store = tx.objectStore(storeName);
+      let req;
       try {
         req = indexName ?
               store.index(indexName).openCursor(range, direction) :
@@ -224,9 +224,9 @@
         req = store.openCursor(range, direction);
       }
 
-      var results = [];
+      let results = [];
       req.onsuccess = function() {
-        var cursor = this.result;
+        let cursor = this.result;
         if (cursor) {
           results.push(cursor.value);
           cursor.continue();
@@ -245,16 +245,16 @@
   Database.prototype.update = function(args) {
     debug('called update function of Database class.', args);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var storeName = args.name;
-      var range = args.range;
-      var indexName = args.indexName;
-      var update = args.update;
+      let storeName = args.name;
+      let range = args.range;
+      let indexName = args.indexName;
+      let update = args.update;
 
-      var tx = $this.db.transaction(storeName, 'readwrite');
+      let tx = $this.db.transaction(storeName, 'readwrite');
       tx.onabort = function(e) {
-        var error = e.target.error;
+        let error = e.target.error;
         if (error.name === 'QuotaExceededError') {
           error(error.name);
         }
@@ -262,8 +262,8 @@
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var req;
+      let store = tx.objectStore(storeName);
+      let req;
       try {
         req = indexName ?
               store.index(indexName).openCursor(range) :
@@ -274,11 +274,11 @@
       }
 
       req.onsuccess = function() {
-        var cursor = this.result;
+        let cursor = this.result;
         if (cursor) {
-          var data = cursor.value;
+          let data = cursor.value;
 
-          for (var key in data) {
+          for (let key in data) {
             if (data.hasOwnProperty(key) && update.hasOwnProperty(key)) {
               data[key] = update[key];
             }
@@ -301,22 +301,22 @@
   Database.prototype.delete = function(args) {
     debug('called delete function of Database class.', args);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var storeName = args.name;
-      var keys = (toType(args.keys) !== 'array') ? [ args.keys ] : args.keys;
+      let storeName = args.name;
+      let keys = (toType(args.keys) !== 'array') ? [ args.keys ] : args.keys;
 
-      var tx = $this.db.transaction(storeName, 'readwrite');
+      let tx = $this.db.transaction(storeName, 'readwrite');
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
+      let store = tx.objectStore(storeName);
 
-      var p = [];
+      let p = [];
       keys.forEach(function(v) {
         p.push(
           new Promise(function(resolve, reject) {
-            var del = store.delete(v);
+            let del = store.delete(v);
             del.onsuccess = resolve;
             del.onerror = reject;
           })
@@ -334,14 +334,14 @@
   Database.prototype.clear = function(storeName) {
     debug('called clear function of Database class.', storeName);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var tx = $this.db.transaction(storeName, 'readwrite');
+      let tx = $this.db.transaction(storeName, 'readwrite');
       tx.oncomplete = deferred.resolve;
       tx.onerror = deferred.reject;
 
-      var store = tx.objectStore(storeName);
-      var cl = store.clear();
+      let store = tx.objectStore(storeName);
+      let cl = store.clear();
 
       cl.onsuccess = deferred.resolve;
       cl.onerror = function(e) {
@@ -355,9 +355,9 @@
   Database.prototype.deleteDatabase = function() {
     debug('called deleteAll function of Database class.');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
-      var req = indexedDB.deleteDatabase($this.databaseName);
+      let req = indexedDB.deleteDatabase($this.databaseName);
       req.onsuccess = deferred.resolve;
       req.onerror = function(e) {
         error(e);
@@ -370,7 +370,7 @@
   Database.prototype.close = function() {
     debug('called close function of Database class.');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function($this) {
       if ($this.db !== null) {
         $this.db.close();

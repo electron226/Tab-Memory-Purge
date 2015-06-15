@@ -9,7 +9,7 @@
    * key   = tabId
    * value = return setInterval value.
    */
-  var ticked = {};
+  var ticked = new Map();
 
   /**
    * When purge tabs, the object that the scroll position of purging tabs
@@ -17,7 +17,7 @@
    * key   = tabId
    * value = the object that represent the scroll position(x, y).
    */
-  var tempScrollPositions = {};
+  var tempScrollPositions = new Map();
 
   // the string that represents the temporary exclusion list
   var tempRelease = [];
@@ -49,7 +49,7 @@
   Object.observe(unloaded, function(changes) {//{{{
     debug('unloaded was changed.', changes);
 
-    var tabId;
+    let tabId;
     changes.forEach(function(v) {
       tabId = parseInt(v.name, 10);
       switch (v.type) {
@@ -59,7 +59,7 @@
           break;
         case 'delete':
           unloadedCount--;
-          tempScrollPositions[tabId] = v.oldValue.scrollPosition;
+          tempScrollPositions.set(tabId, v.oldValue.scrollPosition);
           setTick(tabId);
           break;
       }
@@ -74,8 +74,8 @@
     debug('loadScrollPosition', tabId);
 
     return new Promise(function(resolve, reject) {
-      if (tempScrollPositions.hasOwnProperty(tabId)) {
-        var pos = tempScrollPositions[tabId];
+      let pos = tempScrollPositions.get(tabId);
+      if (pos) {
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + pos.x + ', ' + pos.y + ');' }, function() {
             if (chrome.runtime.lastError) {
@@ -84,7 +84,7 @@
               return;
             }
 
-            delete tempScrollPositions[tabId];
+            tempScrollPositions.delete(tabId);
             resolve();
           }
         );
@@ -98,7 +98,7 @@
   {
     debug('purgingAllTabsExceptForTheActiveTab');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     chrome.tabs.query({}, function(tabs) {
       if (!myOptions) {
         error('myOptions is not loaded yet.');
@@ -106,25 +106,28 @@
         return;
       }
 
-      var t = tabs.filter(function(v) {
+      let t = tabs.filter(function(v) {
         return !isReleasePage(v.url);
       });
 
-      var maxOpeningTabs      = myOptions.max_opening_tabs;
-      var alreadyPurgedLength = tabs.length - t.length;
-      var maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
+      let maxOpeningTabs      = myOptions.max_opening_tabs;
+      let alreadyPurgedLength = tabs.length - t.length;
+      let maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
       if (maxPurgeLength <= 0) {
         debug("The counts of open tabs are within set value.");
         deferred.reject();
         return;
       }
 
-      t = t .filter(function(v) {
+      t = t.filter(function(v) {
         return !v.active && (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
       });
 
-      for (var j = 0, lenJ = t.length; j < lenJ && j < maxPurgeLength; j++) {
-        purge(t[j].id);
+      for (let i of t) {
+        if (maxPurgeLength-- <= 0) {
+          break;
+        }
+        purge(i.id);
       }
 
       deferred.resolve();
@@ -143,7 +146,7 @@
   {
     debug('isLackTheMemory', criteria_memory_size);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     chrome.system.memory.getInfo(function(info) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
@@ -151,7 +154,7 @@
         return;
       }
 
-      var ratio = info.availableCapacity / Math.pow(1024.0, 2);
+      let ratio = info.availableCapacity / Math.pow(1024.0, 2);
       debug('availableCapacity(MByte):', ratio);
       if (ratio < parseFloat(criteria_memory_size)) {
         deferred.resolve(true);
@@ -170,7 +173,7 @@
   {
     debug('autoPurgeCheck');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (!myOptions) {
         error('myOptions is not loaded yet.');
@@ -186,11 +189,9 @@
             return;
           }
 
-          var ids = [];
-          for (var i in ticked) {
-            if (ticked.hasOwnProperty(i)) {
-              ids.push(parseInt(i, 10));
-            }
+          let ids = [];
+          for (let i of ticked.keys()) {
+            ids.push(parseInt(i, 10));
           }
 
           ids.forEach(function(v) {
@@ -230,9 +231,9 @@
         return;
       }
 
-      var runWriteSession   = false;
-      var runPurgingAllTabs = false;
-      var runAutoPurgeCheck = false;
+      let runWriteSession   = false;
+      let runPurgingAllTabs = false;
+      let runAutoPurgeCheck = false;
       setInterval(function() {//{{{
         debug('run callback funciton of setInterval.');
         if (db === void 0 || db === null) {
@@ -288,7 +289,7 @@
   {
     debug('getHostName', url);
 
-    var result = /\/\/([\w-.~]*)\//i.exec(url);
+    let result = /\/\/([\w-.~]*)\//i.exec(url);
     if (result) {
       return result[1];
     } else {
@@ -302,7 +303,7 @@
     debug('deleteOldDatabase');
 
     return new Promise(function(resolve, reject) {
-      var p = [];
+      let p = [];
       p.push( deleteOldSession() );
       p.push( deleteOldHistory() );
       Promise.all(p).then(function() {
@@ -338,10 +339,10 @@
       .then(function(histories) {
         return new Promise(function(resolve2) {
           // -1 is the current session.
-          var max_sessions = parseInt(myOptions.max_sessions, 10) - 1;
+          let max_sessions = parseInt(myOptions.max_sessions, 10) - 1;
 
-          var tempList = {};
-          var dateList = [];
+          let tempList = {};
+          let dateList = [];
           histories.forEach(function(v) {
             if (!tempList.hasOwnProperty(v.date)) {
               tempList[v.date] = true;
@@ -364,7 +365,7 @@
             return;
           }
 
-          var range = (dateList.length === 1) ?
+          let range = (dateList.length === 1) ?
                       IDBKeyRange.only(dateList[0]) :
                       IDBKeyRange.bound(
                         dateList[0], dateList[dateList.length - 1]);
@@ -374,7 +375,7 @@
             indexName: 'date',
           })
           .then(function(sessions) {
-            var delKeys = sessions.map(function(v) {
+            let delKeys = sessions.map(function(v) {
               return v.id;
             });
 
@@ -400,9 +401,9 @@
         return;
       }
 
-      var length = parseInt(myOptions.max_history, 10);
+      let length = parseInt(myOptions.max_history, 10);
 
-      var now = new Date();
+      let now = new Date();
       db.getCursor({
         name: dbHistoryName,
         range: IDBKeyRange.upperBound(
@@ -411,7 +412,7 @@
         ),
       })
       .then(function(histories) {
-        var delKeys = histories.map(function(v) {
+        let delKeys = histories.map(function(v) {
           return v.date;
         });
         return db.delete({ name: dbHistoryName, keys: delKeys });
@@ -426,7 +427,7 @@
     debug('deleteNotUsePageInfo');
 
     return new Promise(function(resolve, reject) {
-      var p = [];
+      let p = [];
       p.push( db.getAll({ name: dbPageInfoName     } ) );
       p.push( db.getAll({ name: dbHistoryName      } ) );
       p.push( db.getAll({ name: dbSessionName      } ) );
@@ -436,7 +437,7 @@
           function check(array, target)
           {
             return new Promise(function(resolve, reject) {
-              var result = array.some(function(v) {
+              let result = array.some(function(v) {
                 return v.url === target.url;
               });
 
@@ -448,16 +449,16 @@
             });
           }
 
-          var pageInfos     = results[0];
-          var histories     = results[1];
-          var sessions      = results[2];
-          var savedSessions = results[3];
+          let pageInfos     = results[0];
+          let histories     = results[1];
+          let sessions      = results[2];
+          let savedSessions = results[3];
 
-          var p2 = [];
+          let p2 = [];
           pageInfos.forEach(function(v) {
             p2.push(
               new Promise(function(resolve3) {
-                var p3 = [];
+                let p3 = [];
                 p3.push( check(histories, v) );
                 p3.push( check(sessions, v) );
                 p3.push( check(savedSessions, v) );
@@ -470,7 +471,7 @@
             );
           });
           Promise.all(p2).then(function(results2) {
-            var delKeys = results2.filter(function(v) {
+            let delKeys = results2.filter(function(v) {
               return v !== null;
             });
 
@@ -493,19 +494,19 @@
     debug('deleteNotUseDataURI');
 
     return new Promise(function(resolve, reject) {
-      var p = [];
+      let p = [];
       p.push( db.getAll({ name: dbDataURIName } ) );
       p.push( db.getAll({ name: dbPageInfoName } ) );
       Promise.all(p).then(function(results) {
         return new Promise(function(resolve2, reject2) {
-          var dataURIs = results[0];
-          var pageInfos = results[1];
+          let dataURIs = results[0];
+          let pageInfos = results[1];
 
-          var p2 = [];
+          let p2 = [];
           dataURIs.forEach(function(v) {
             p2.push(
               new Promise(function(resolve3) {
-                var result = pageInfos.some(function(v2) {
+                let result = pageInfos.some(function(v2) {
                   return v2.host === v.host;
                 });
                 resolve3(result ? null : v.host);
@@ -513,7 +514,7 @@
             );
           });
           Promise.all(p2).then(function(results2) {
-            var delKeys = results2.filter(function(v) {
+            let delKeys = results2.filter(function(v) {
               return v !== null;
             });
 
@@ -536,8 +537,8 @@
     debug('writeSession', unloaded);
 
     return new Promise(function(resolve, reject) {
-      var now     = new Date();
-      var nowTime = now.getTime();
+      let now     = new Date();
+      let nowTime = now.getTime();
 
       // currentSessionTimeの処理
       (function() {
@@ -551,7 +552,7 @@
               indexName: 'date',
             })
             .then(function(histories) {
-              var delKeys = histories.map(function(v) {
+              let delKeys = histories.map(function(v) {
                 return v.id;
               });
 
@@ -566,10 +567,10 @@
       })()
       .then(function() {
         return new Promise(function(resolve2, reject2) {
-          var sessionWrites = [];
-          for (var tabId in unloaded) {
+          let sessionWrites = [];
+          for (let tabId in unloaded) {
             if (unloaded.hasOwnProperty(tabId)) {
-              var item = unloaded[tabId];
+              let item = unloaded[tabId];
               if (item.url) {
                 // session
                 sessionWrites.push({ date: nowTime, url: item.url });
@@ -589,7 +590,7 @@
         return new Promise(function(resolve2, reject2) {
           currentSessionTime = nowTime;
 
-          var write = {};
+          let write = {};
           write[previousSessionTimeKey] = nowTime;
           chrome.storage.local.set(write, function() {
             if (chrome.runtime.lastError) {
@@ -615,10 +616,10 @@
     debug('writeHistory', tab);
 
     return new Promise(function(resolve, reject) {
-      var now = new Date();
-      var begin = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+      let now = new Date();
+      let begin = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
                            0, 0, 0, 0);
-      var end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
+      let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
                            23, 59, 59, 999);
 
       db.getCursor({
@@ -626,7 +627,7 @@
         range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
       })
       .then(function(histories) {
-        var delKeys = histories.filter(function(v) {
+        let delKeys = histories.filter(function(v) {
           return v.url === tab.url;
         });
         delKeys = delKeys.map(function(v) {
@@ -647,8 +648,8 @@
       })
       .then(function() {
         return new Promise(function(resolve2) {
-          var host = getHostName(tab.url);
-          var p = [];
+          let host = getHostName(tab.url);
+          let p = [];
 
           // pageInfo
           p.push(
@@ -707,17 +708,17 @@
         });
       }
 
-      var regex = new RegExp('^' + blankUrl, 'i');
+      let regex = new RegExp('^' + blankUrl, 'i');
       chrome.history.search({ text: '' }, function(histories) {
-        var deleteUrls = {};
+        let deleteUrls = {};
         histories.forEach(function(v) {
           if (regex.test(v.url) && !deleteUrls.hasOwnProperty(v.url)) {
             deleteUrls[v.url] = true;
           }
         });
 
-        var p = [];
-        for (var url in deleteUrls) {
+        let p = [];
+        for (let url in deleteUrls) {
           if (deleteUrls.hasOwnProperty(url)) {
             p.push( deleteUrl(url) );
           }
@@ -777,10 +778,10 @@
   {
     debug('checkMatchUrlString');
 
-    var excludeArray = excludeObj.list.split('\n');
-    for (var i = 0, len = excludeArray.length; i < len; i++) {
+    let excludeArray = excludeObj.list.split('\n');
+    for (let i = 0, len = excludeArray.length; i < len; i++) {
       if (excludeArray[i] !== '') {
-        var re = new RegExp(trim(excludeArray[i]), excludeObj.options);
+        let re = new RegExp(trim(excludeArray[i]), excludeObj.options);
         if (re.test(url)) {
           return excludeObj.returnValue;
         }
@@ -851,11 +852,11 @@
     }
 
     // Check the keybind exclude list.
-    var keybind =
+    let keybind =
       checkMatchUrlString(url, getTargetExcludeList('keybind')) || 0;
 
     // Check the exclude list in the extension.
-    var result = checkMatchUrlString(url, getTargetExcludeList('extension'));
+    let result = checkMatchUrlString(url, getTargetExcludeList('extension'));
     if (result) {
       return result | keybind;
     }
@@ -880,9 +881,9 @@
   {
     debug('reloadBrowserIcon');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
 
-    var changeIcon = disableTimer ? DISABLE_TIMER : checkExcludeList(tab.url);
+    let changeIcon = disableTimer ? DISABLE_TIMER : checkExcludeList(tab.url);
     chrome.browserAction.setIcon(
       { path: icons[changeIcon], tabId: tab.id }, function() {
         if (chrome.runtime.lastError) {
@@ -892,7 +893,7 @@
         }
         currentIcon = changeIcon;
 
-        var title = 'Tab Memory Purge\n';
+        let title = 'Tab Memory Purge\n';
         if (changeIcon & DISABLE_TIMER) {
           title += "The purging timer of the all tabs has stopped.";
         } else if (changeIcon & NORMAL_EXCLUDE) {
@@ -934,8 +935,8 @@
   {
     debug('getParameterByName', url, name);
 
-    var regex   = new RegExp("[\\?&]" + name + "       = ([^&#]*)");
-    var results = regex.exec(decodeURIComponent(url));
+    let regex   = new RegExp("[\\?&]" + name + "       = ([^&#]*)");
+    let results = regex.exec(decodeURIComponent(url));
     return results === null ?
            "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }//}}}
@@ -951,10 +952,10 @@
   {
     debug('getPurgeURL', url);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
-      var page = blankUrl;
-      var args = '&url=' + encodeURIComponent(url);
+      let page = blankUrl;
+      let args = '&url=' + encodeURIComponent(url);
       deferred.resolve(encodeURI(page) + '?' + encodeURIComponent(args));
     }, 0);
     return deferred.promise;
@@ -969,7 +970,7 @@
   {
     debug('purge');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number') {
         error("tabId is not number.");
@@ -983,7 +984,7 @@
         return;
       }
 
-      var p = [];
+      let p = [];
       p.push(
         new Promise(function(resolve, reject) {
           chrome.tabs.get(tabId, function(tab) {
@@ -1013,8 +1014,8 @@
       Promise.all(p)
       .then(function(results) {
         return new Promise(function(resolve, reject) {
-          var tab = results[0];
-          var scrollPosition = results[1];
+          let tab = results[0];
+          let scrollPosition = results[1];
 
           if (tab.status !== 'complete') {
             error("The target tab has not been completed loading yet.", tab);
@@ -1022,7 +1023,7 @@
             return;
           }
 
-          var state = checkExcludeList(tab.url);
+          let state = checkExcludeList(tab.url);
           if (state & EXTENSION_EXCLUDE) {
             warn('The tabId have been included the exclusion list' +
                  ' of extension.', tabId);
@@ -1034,7 +1035,7 @@
             return;
           }
 
-          var p2 = [];
+          let p2 = [];
           p2.push( getPurgeURL(tab.url) );
           p2.push( writeHistory(tab) );
           p2.push(
@@ -1045,7 +1046,7 @@
           Promise.all(p2)
           .then(function(results2) {
             return new Promise(function(resolve2, reject2) {
-              var url = results2[0];
+              let url = results2[0];
 
               chrome.tabs.executeScript(tabId, {
                 code: 'window.location.replace("' + url + '");' }, function() {
@@ -1086,7 +1087,7 @@
   {
     debug('unPurge', tabId);
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number') {
         error("tabId is not number.");
@@ -1094,7 +1095,7 @@
         return;
       }
 
-      var url = unloaded[tabId].url;
+      let url = unloaded[tabId].url;
       chrome.tabs.sendMessage(tabId,
         { event: 'location_replace' }, function(useChrome) {
           // If the url is empty in purge page.
@@ -1117,7 +1118,7 @@
   function purgeToggle(tabId)//{{{
   {
     debug('purgeToggle');
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number') {
         error("tabId is not number.");
@@ -1145,7 +1146,7 @@
   {
     debug('tick');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (toType(tabId) !== 'number' || unloaded.hasOwnProperty(tabId)) {
         error("tabId isn't number or added to unloaded already. " + tabId);
@@ -1182,9 +1183,9 @@
   {
     debug('deleteTick');
 
-    if (ticked.hasOwnProperty(tabId)) {
-      clearInterval(ticked[tabId]);
-      delete ticked[tabId];
+    if (ticked.has(tabId)) {
+      clearInterval(ticked.get(tabId));
+      ticked.delete(tabId);
     }
   }//}}}
 
@@ -1198,7 +1199,7 @@
   {
     debug('setTick');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       if (!myOptions) {
         error('myOptions is not loaded yet.');
@@ -1225,14 +1226,14 @@
         }
 
         // 全ての除外アドレス一覧と比較
-        var state = checkExcludeList(tab.url);
+        let state = checkExcludeList(tab.url);
         if (state & NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
-          var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
+          let timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
           // Update.
-          deleteTick(tabId);
-          ticked[tabId] = setInterval(function() { tick(tabId); } , timer);
+          ticked.delete(tabId);
+          ticked.set(tabId, setInterval(function() { tick(tabId); } , timer));
         } else { // include exclude list
           deleteTick(tabId);
         }
@@ -1255,9 +1256,9 @@
   {
    debug('restore', sessions);
 
-   var deferred = Promise.defer();
+   let deferred = Promise.defer();
    setTimeout(function() {
-     var p = [];
+     let p = [];
 
      sessions.forEach(function(v) {
        p.push(
@@ -1273,7 +1274,7 @@
                      return;
                    }
 
-                   var unloadedObj = {};
+                   let unloadedObj = {};
                    unloadedObj[tab.id] = {
                      url            : v.url,
                      scrollPosition : { x : 0 , y : 0 },
@@ -1290,8 +1291,8 @@
      });
      Promise.all(p).then(function(results) {
        results.forEach(function(v) {
-         for (var key in v) {
-           var tabId = parseInt(key, 10);
+         for (let key in v) {
+           let tabId = parseInt(key, 10);
            if (v.hasOwnProperty(key) && !unloaded.hasOwnProperty(tabId)) {
              unloaded[tabId] = v[key];
            }
@@ -1312,7 +1313,7 @@
   {
     debug('switchTempRelease', url);
 
-    var index = tempRelease.indexOf(url);
+    let index = tempRelease.indexOf(url);
     if (index === -1) {
       // push url in tempRelease.
       tempRelease.push(url);
@@ -1346,7 +1347,7 @@
   {
     debug('searchUnloadedTabNearPosition');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
 
     // 現在のタブの左右の未解放のタブを選択する
     chrome.windows.get(tab.windowId, { populate: true }, function(win) {
@@ -1356,14 +1357,14 @@
         return;
       }
 
-      var tabs = win.tabs.filter(function(v) {
+      let tabs = win.tabs.filter(function(v) {
         return !unloaded.hasOwnProperty(v.id) && !isReleasePage(v.url);
       });
-      var t = tabs.filter(function(v) {
+      let t = tabs.filter(function(v) {
         return v.index >= tab.index;
       });
 
-      var tLength = 0;
+      let tLength = 0;
       if (t.length === 0) {
         t = tabs.filter(function(v) {
           return v.index < tab.index;
@@ -1424,9 +1425,9 @@
                   return;
                 }
 
-                var previousSessionTime = options[previousSessionTimeKey];
+                let previousSessionTime = options[previousSessionTimeKey];
                 if (previousSessionTime) {
-                  var restoreSession = sessions.filter(function(v) {
+                  let restoreSession = sessions.filter(function(v) {
                     return previousSessionTime === v.date;
                   });
                   if (restoreSession.length > 0) {
@@ -1464,7 +1465,7 @@
   function getVersion()//{{{
   {
     debug('getVersion');
-    var details = chrome.app.getDetails();
+    let details = chrome.app.getDetails();
     return details.version;
   }//}}}
 
@@ -1475,14 +1476,14 @@
     function updateVersion(currVersion)
     {
       return new Promise(function(resolve) {
-        var write = {};
+        let write = {};
         write[versionKey] = currVersion;
         chrome.storage.local.set(write, resolve);
       });
     }
 
-    var deferred = Promise.defer();
-    var currVersion = getVersion();
+    let deferred = Promise.defer();
+    let currVersion = getVersion();
     chrome.storage.local.get(versionKey, function(storages) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
@@ -1491,7 +1492,7 @@
       }
 
       // ver chrome.storage.
-      var prevVersion = storages[versionKey];
+      let prevVersion = storages[versionKey];
       if (currVersion !== prevVersion) {
         // この拡張機能でインストールしたかどうか
         if (prevVersion === void 0) {
@@ -1526,17 +1527,17 @@
   {
     debug('getInitAndLoadOptions');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     chrome.storage.local.get(null, function(items) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
         deferred.reject();
         return;
       }
-      var key;
+      let key;
 
       // All remove invalid options. but exclude version.
-      var removeKeys = [];
+      let removeKeys = [];
       for (key in items) {
         if (items.hasOwnProperty(key) && !defaultValues.hasOwnProperty(key)) {
           removeKeys.push(key);
@@ -1552,7 +1553,7 @@
         }
 
         // My options are initialized.
-        var options = items;
+        let options = items;
         for (key in defaultValues) {
           if (defaultValues.hasOwnProperty(key) &&
               !options.hasOwnProperty(key)) {
@@ -1574,11 +1575,11 @@
   {
     debug('initializeContextMenu');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     // Remove all context menu.
     // then create context menu on the browser action.
     chrome.contextMenus.removeAll(function() {
-      var p = [];
+      let p = [];
       contextMenus.forEach(function(v) {
         p.push(
           new Promise(function(resolve) {
@@ -1617,7 +1618,7 @@
   {
     debug('initializeUseOptions');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       myOptions = options;
 
@@ -1634,7 +1635,7 @@
   {
     debug('initializeAlreadyPurgedTabs');
 
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     setTimeout(function() {
       chrome.tabs.query({}, function(tabs) {
         if (chrome.runtime.lastError) {
@@ -1655,11 +1656,11 @@
         }
 
         // If already purging tab, be adding the object of purging tab.
-        var p = [];
+        let p = [];
         tabs.forEach(function(v) {
           p.push(
             new Promise(function(resolve) {
-              var result = checkExcludeList(v.url);
+              let result = checkExcludeList(v.url);
               if (result ^ (NORMAL_EXCLUDE & INVALID_EXCLUDE)) {
                 toAdd(v);
               }
@@ -1742,7 +1743,7 @@
           }
 
           tabs.forEach(function(v) {
-            var result = checkExcludeList(v.url);
+            let result = checkExcludeList(v.url);
             if (result & NORMAL_EXCLUDE && !isReleasePage(v.url)) {
               setTick(v.id);
             }
@@ -1750,12 +1751,10 @@
           lastProcess();
         });
       } else {
-        for (var i in ticked) {
-          if (ticked.hasOwnProperty(i)) {
-            clearInterval(ticked[i]);
-          }
+        for (let i of ticked.keys()) {
+          clearInterval(ticked.get(i));
         }
-        ticked = {};
+        ticked.clear();
         lastProcess();
       }
     });
@@ -1770,7 +1769,7 @@
   function onActivatedFunc(tabId)//{{{
   {
     debug('onActivatedFunc', tabId);
-    var deferred = Promise.defer();
+    let deferred = Promise.defer();
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         error(chrome.runtime.lastError.message);
@@ -1882,9 +1881,9 @@
               return;
             }
 
-            var t = results.filter(function(v) {
-              var state = checkExcludeList(v.url);
-              var retState = (message.event === 'all_purge') ?
+            let t = results.filter(function(v) {
+              let state = checkExcludeList(v.url);
+              let retState = (message.event === 'all_purge') ?
                              (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
                              NORMAL_EXCLUDE & state;
               return !unloaded.hasOwnProperty(v.id) && retState !== 0;
@@ -1894,7 +1893,7 @@
             }
             results = t;
 
-            var p = [];
+            let p = [];
             results.forEach(function(v) {
               p.push(purge(v.id));
             });
@@ -1909,7 +1908,7 @@
           break;
         case 'all_unpurge':
           // 解放されている全てのタブを解放解除
-          for (var key in unloaded) {
+          for (let key in unloaded) {
             if (unloaded.hasOwnProperty(key)) {
               unPurge(parseInt(key, 10));
             }
@@ -1919,7 +1918,7 @@
           getCurrentTab()
           .then(function(tab) {
             return new Promise(function(resolve, reject) {
-              var index = tempRelease.indexOf(tab.url);
+              let index = tempRelease.indexOf(tab.url);
               if (index === -1) {
                 tempRelease.push(tab.url);
                 setTick(tab.id).then(function() {
@@ -1968,7 +1967,7 @@
           displayPageOfOption = null;
           break;
         case 'keybind_check_exclude_list':
-          var state = checkExcludeList(message.location.href);
+          let state = checkExcludeList(message.location.href);
           sendResponse(state ^
             (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
           break;

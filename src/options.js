@@ -3,7 +3,7 @@
 
   var optionModule = angular.module('options', ['myCommons']);
   optionModule.config(['$compileProvider', function($compileProvider){
-    var urlRegex =
+    let urlRegex =
     /^\s*(data|https?|ftp|mailto|file|chrome-extension|blob:chrome-extension):/;
     $compileProvider.aHrefSanitizationWhitelist(urlRegex);
     $compileProvider.imgSrcSanitizationWhitelist(urlRegex);
@@ -17,7 +17,7 @@
     $scope.db = new Database(dbName, dbVersion);
     $scope.db.open(dbCreateStores);
 
-    var regTool = $document.find(
+    let regTool = $document.find(
       '[ng-controller="RegexToolController"]');
     $scope.showRegexTool = function() {
       regTool.toggleClass('show');
@@ -26,7 +26,7 @@
     // select menu.
     $scope.selectMenu = '';
     $scope.menuItems = angular.copy(optionMenus);
-    var menu = {
+    let menu = {
       menuElement: $document.find('#config_change'),
       barName: 'change_bar',
       enable: function(name) {
@@ -41,17 +41,17 @@
           return;
         }
 
-        var t = this.menuElement.find('.' + name);
+        let t = this.menuElement.find('.' + name);
         if (t.length !== 0) {
-          var bar = t.find('.' + this.barName);
+          let bar = t.find('.' + this.barName);
           (show) ? bar.show() : bar.hide();
           t.find('[translation="' + name + '"]').css('color', color);
         }
       },
     };
 
-    var pageElement = $document.find('#option_items').children('section');
-    var footer = $document.find('footer');
+    let pageElement = $document.find('#option_items').children('section');
+    let footer = $document.find('footer');
     $scope.$watch('selectMenu', function(newValue, oldValue) {
       debug('selectMenu was changed. on OptionController.',
         newValue, oldValue);
@@ -60,8 +60,8 @@
         menu.enable(newValue);
 
         pageElement.each(function(index, element) {
-          var el = angular.element(element);
-          var className = el.attr('class').replace(/ng-scope/, '').trim();
+          let el = angular.element(element);
+          let className = el.attr('class').replace(/ng-scope/, '').trim();
           if (newValue === className) {
             el.show();
           } else {
@@ -119,19 +119,19 @@
     $scope.keys = [];
     $scope.start = null;
 
-    var section = $document.find('[ng-controller="keybindController"]');
+    let section = $document.find('[ng-controller="keybindController"]');
     $scope.$watch('options.keybind', function(newValue, oldValue) {
       debug('keybind was changed.', newValue, oldValue);
       if (angular.isObject(newValue)) {
-        var pressKeys = section.find('input[type="text"].pressKey');
+        let pressKeys = section.find('input[type="text"].pressKey');
         if (pressKeys.length === 0) {
           error('option.keybind is watching error. pressKeys is zero.');
           return;
         }
 
-        var obj = null;
-        var className = null;
-        for (var i = 0, len = pressKeys.length; i < len; i++) {
+        let obj = null;
+        let className = null;
+        for (let i = 0, len = pressKeys.length; i < len; i++) {
           className = pressKeys[i].parentNode.parentNode.className;
           obj = angular.fromJson(newValue[className]);
           pressKeys[i].value = jQuery.isEmptyObject(obj) ?
@@ -145,14 +145,14 @@
     };
 
     $scope.clearBind = function($event) {
-      var keyBinds = angular.copy($scope.options.keybind);
+      let keyBinds = angular.copy($scope.options.keybind);
       keyBinds[$event.target.parentNode.parentNode.className] = '{}';
       $scope.$parent.options.keybind = keyBinds;
     };
 
     $document.keyup(function(event) {
       if (angular.isObject($scope.start)) {
-        var keyBinds = angular.copy($scope.options.keybind);
+        let keyBinds = angular.copy($scope.options.keybind);
         keyBinds[$scope.start.className] = angular.toJson(keyCheck(event));
         $scope.$apply(function() {
           $scope.$parent.options.keybind = keyBinds;
@@ -170,7 +170,7 @@
   optionModule.controller('historyController', ['$scope', function($scope) {
     $scope.history = [];
     $scope.selectHistory = '';
-    var searchDate = null;
+    let searchDate = null;
 
     $scope.$watch('selectHistory', function(newValue) {
       debug('selectHistory was changed on historyController.', newValue);
@@ -190,9 +190,9 @@
       }
     };
 
-    var showHistory = function() {
+    let showHistory = function() {
       return new Promise(function(resolve, reject) {
-        var p = [];
+        let p = [];
         p.push( $scope.db.getAll({ name: dbHistoryName }) );
         p.push( $scope.db.getAll({ name: dbPageInfoName }) );
         p.push( $scope.db.getAll({ name: dbDataURIName }) );
@@ -200,24 +200,24 @@
         Promise.all(p)
         .then(function(results) {
           return new Promise(function(resolve2) {
-            var histories = results[0];
-            var pageInfos = results[1];
-            var dataURIs = results[2];
+            let histories = results[0];
+            let pageInfos = results[1];
+            let dataURIs = results[2];
 
-            var pageInfoDict = {};
+            let pageInfoDict = {};
             pageInfos.forEach(function(v) {
               pageInfoDict[v.url] = { title: v.title, host: v.host };
             });
 
-            var dataURIDict = {};
+            let dataURIDict = {};
             dataURIs.forEach(function(v) {
               dataURIDict[v.host] = v.dataURI;
             });
 
-            var page;
-            var date, tempDate;
-            var showList = [];
-            var dataList = [];
+            let page;
+            let date, tempDate;
+            let showList = [];
+            let dataList = [];
             histories.forEach(function(v) {
               page = pageInfoDict[v.url];
               if (page === void 0 || page === null) {
@@ -282,16 +282,16 @@
 
     $scope.deleteHistory = function(date) {
       return new Promise(function(resolve, reject) {
-        var begin = new Date(
+        let begin = new Date(
           date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-        var end = new Date(
+        let end = new Date(
           date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
         $scope.db.getCursor({
           name: dbHistoryName,
           range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
         })
         .then(function(histories) {
-          var delKeys = histories.map(function(v) {
+          let delKeys = histories.map(function(v) {
             return v.date;
           });
           return $scope.db.delete({
@@ -342,7 +342,7 @@
       $scope.displaySavedSession = null;
       $scope.currentSessionTime = null;
 
-      var showSavedSession = function() {
+      let showSavedSession = function() {
         return new Promise(function(resolve, reject) {
           loadSession($scope.db, dbSavedSessionName)
           .then(function(showList) {
@@ -358,9 +358,9 @@
         });
       };
 
-      var showSession = function() {
+      let showSession = function() {
         return new Promise(function(resolve, reject) {
-          var p = [];
+          let p = [];
           p.push(
             new Promise(function(resolve2, reject2) {
               chrome.runtime.sendMessage(
@@ -376,8 +376,8 @@
           p.push( loadSession($scope.db, dbSessionName) );
 
           Promise.all(p).then(function(results) {
-            var currentSessionTime = results[0];
-            var showSessionList = results[1];
+            let currentSessionTime = results[0];
+            let showSessionList = results[1];
 
             $scope.$apply(function() {
               $scope.currentSessionTime = currentSessionTime;
@@ -423,7 +423,7 @@
             indexName: 'date',
           })
           .then(function(sessions) {
-            var delKeys = sessions.map(function(v) {
+            let delKeys = sessions.map(function(v) {
               return v.id;
             });
 
@@ -452,7 +452,7 @@
           })
           .then(function() {
             return new Promise(function(resolve2) {
-              var newSessions = sessions.filter(function(v) {
+              let newSessions = sessions.filter(function(v) {
                 return v.id !== id;
               });
               $scope.displaySavedSession = newSessions;
@@ -514,7 +514,7 @@
             indexName: 'date',
           })
           .then(function(targetSessions) {
-            var delKeys = targetSessions.map(function(v) {
+            let delKeys = targetSessions.map(function(v) {
               return v.id;
             });
             return $scope.db.delete({
@@ -545,18 +545,18 @@
 
     $http.get(changeHistory)
     .success(function(data) {
-      var lists = data.split('\n');
-      var text = null;
-      var dateVer = null;
-      var items = [];
-      var changed = [];
-      for (var i = 0, len = lists.length; i < len; i++) {
-        text = jQuery.trim(lists[i]);
+      let lists   = data.split('\n');
+      let text    = null;
+      let dateVer = null;
+      let items   = [];
+      let changed = [];
+      for (let i of lists) {
+        text = jQuery.trim(i);
         if (text.length === 0) {
           continue;
         }
 
-        var tMatch = text.match(/^(\d+)\/(\d+)\/(\d+)(.*)/);
+        let tMatch = text.match(/^(\d+)\/(\d+)\/(\d+)(.*)/);
         if (tMatch !== null) {
           if (angular.isString(dateVer) && items.length > 0) {
             changed.push({ dateVer: dateVer, items: items });
@@ -586,10 +586,10 @@
 
   optionModule.controller('storageController',
     ['$scope', '$document', function($scope, $document) {
-    var status = $document.find('#status');
-    var statusSync = $document.find('#status_sync');
-    var configStatus = $document.find('#config_view_status');
-    var configView = $document.find('#config_view');
+    let status = $document.find('#status');
+    let statusSync = $document.find('#status_sync');
+    let configStatus = $document.find('#config_view_status');
+    let configView = $document.find('#config_view');
 
     $scope.$watchCollection('options', function(newValues, oldValues) {
       debug('options was changed.', newValues, oldValues);
@@ -651,7 +651,7 @@
     };
     $scope.export = function() {
       return new Promise(function(resolve, reject) {
-        var exportOptions = angular.copy($scope.options);
+        let exportOptions = angular.copy($scope.options);
         delete exportOptions[versionKey];
         delete exportOptions[previousSessionTimeKey];
         configView.val(angular.toJson(exportOptions, true));
@@ -680,8 +680,8 @@
             return;
           }
 
-          var options = {};
-          for (var key in defaultValues) {
+          let options = {};
+          for (let key in defaultValues) {
             if (defaultValues.hasOwnProperty(key)) {
               options[key] = items.hasOwnProperty(key) ?
                                 items[key] : defaultValues[key];
@@ -782,8 +782,8 @@
     }
 
     function regexCheck() {
-      var splitedTargets;
-      var regex;
+      let splitedTargets;
+      let regex;
       try {
         splitedTargets = $scope.regex.target.split('\n');
         regex = new RegExp(
@@ -793,7 +793,7 @@
         return;
       }
 
-      var resultHTML = '';
+      let resultHTML = '';
       splitedTargets.forEach(function(v) {
         resultHTML += v.replace(regex, replacer) + '<br>';
       });

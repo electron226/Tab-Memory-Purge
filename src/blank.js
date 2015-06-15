@@ -7,7 +7,7 @@
   chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     switch (message.event) {
       case 'location_replace':
-        var url = document.getElementById('url');
+        let url = document.getElementById('url');
         if (url.textContent.length === 0) {
           sendResponse(true);
         } else {
@@ -26,20 +26,20 @@
   {
     if (1 < document.location.search.length) {
       // 最初の1文字(?)を除いた文字列を取得
-      var query = decodeURIComponent(document.location.search.substring(1));
+      let query = decodeURIComponent(document.location.search.substring(1));
 
       // 引数ごとに分割
-      var parameters = query.split('&');
-      var result = {};
-      for (var i = 0; i < parameters.length; i++) {
-        var element = parameters[i].split('=');
+      let parameters = query.split('&');
+      let result = {};
+      for (let i of parameters) {
+        let element = i.split('=');
         if (element[0] === '' ||
-          element[1] === undefined || element[1] === null) {
+            element[1] === undefined || element[1] === null) {
           continue;
         }
 
-        var paramName = element[0];
-        var paramValue = decodeURIComponent(element[1]);
+        let paramName = element[0];
+        let paramValue = decodeURIComponent(element[1]);
         result[paramName] = paramValue;
       }
 
@@ -51,7 +51,7 @@
 
   function navigateToPageBeforePurged()
   {
-    var args = getQueryString();
+    let args = getQueryString();
     if (args.url) {
       window.location.replace(args.url);
     }
@@ -79,12 +79,12 @@
       return db.open(dbCreateStores);
     })()
     .then(function() {
-      var args = getQueryString();
+      let args = getQueryString();
 
-      var span = document.querySelector('#url');
+      let span = document.querySelector('#url');
       if (args.url) {
-        var url     = args.url;
-        var a       = document.createElement('a');
+        let url     = args.url;
+        let a       = document.createElement('a');
         a.href      = url;
         a.innerText = url;
         span.appendChild(a);
@@ -108,8 +108,8 @@
     })
     .then(function(dataURIInfo) {
       return new Promise(function(resolve) {
-        var head = document.querySelector('head');
-        var link = document.createElement('link');
+        let head = document.querySelector('head');
+        let link = document.createElement('link');
         link.rel  = 'icon';
         link.href = decodeURIComponent(dataURIInfo.dataURI);
         head.appendChild(link);
