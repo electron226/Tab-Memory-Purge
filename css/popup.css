@@ -4,38 +4,37 @@ body
     'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
 
-    min-width: 230px;
+    min-width: 350px;
 }
 
-div
+.icon
 {
-    width: 200px;
+    position: relative;
+    top: 2px;
+    right: 7px;
+    width: 16px;
+    height: 16px;
+}
+
+div.btn
+{
+    width: 320px;
     margin: 5px auto;
     padding: 5px 15px;
 
     cursor: pointer;
-    text-align: center;
+    text-align: left;
 
-    color: #fff;
-    border: 0 solid #fff;
-    border-radius: 14px;
-    background: -webkit-gradient(
-    linear, left top, left bottom,
-    from(#3d99c9),
-    to(#245a9c));
-    box-shadow: 0 3px 3px rgba(0,0,0,0.5),
-    inset 0 0 0 rgba(255,000,217,0);
-    text-shadow: 0 -1px 0 rgba(000,000,000,0.2),
-    0 1px 0 rgba(255,255,255,0.3);
+    color: #333;
+    text-shadow: 0 -1px 0 rgba(000,000,000,0.2), 0 1px 0 rgba(255,255,255,0.3);
 }
 
-div:hover
+div.btn:hover
 {
-    box-shadow: 0 3px 8px rgba(0,0,128,0.75),
-    inset 0 0 5px rgba(0,0,255,1);
+    box-shadow: 0 1px 8px 1px #AAA;
 }
 
-div:active
+div.btn:active
 {
-    background: rgba(0,0,212,0.5);
+    box-shadow: 0 0 1px 1px #AAA inset;
 }

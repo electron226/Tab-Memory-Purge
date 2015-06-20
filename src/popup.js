@@ -1,46 +1,116 @@
-(function() {
+(function(window, document) {
   "use strict";
 
-  var popupModule = angular.module('popup', ['myCommons']);
-  popupModule.controller('popupController',
-    ['$scope', function($scope) {
-    $scope.commands = [
-      { name: "release"                        , state: true } ,
-      { name: "not_release"                    , state: true } ,
-      { name: "remove_not_release"             , state: true } ,
-      { name: "all_purge"                      , state: true } ,
-      { name: "all_purge_without_exclude_list" , state: true } ,
-      { name: "all_unpurge"                    , state: true } ,
-    ];
+  document.addEventListener('DOMContentLoaded', function() {
+    initButtons()
+    .then(updatePurgeOrRestoreButton)
+    .then(updateNotReleaseButton)
+    .then(loadTranslation(document, translationPath))
+    .catch(function(e) {
+      error("Doesn't initialize the translation correctly.\n error: %s", e);
+    });
+  }, true);
 
-    $scope.clicked = function(name) {
-      window.close();
-      switch (name) {
-        case 'not_release':
-        case 'remove_not_release':
-          chrome.runtime.sendMessage({ event: 'switch_not_release' });
-          break;
-        default:
-          chrome.runtime.sendMessage({ event: name });
-          break;
-      }
-    };
+  function updatePurgeOrRestoreButton()
+  {
+    return new Promise(function(resolve, reject) {
+      chrome.runtime.sendMessage(
+        { event: 'current_icon' }, function(iconValue) {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError.messsage);
+            return;
+          }
 
-    chrome.runtime.sendMessage({ event: 'current_icon' }, function(iconValue) {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.messsage);
-        return;
-      }
+          let p = document.querySelector('div[name="release"]');
+          let r = document.querySelector('div[name="restore_release"]');
+          if (p === null || r === null) {
+            reject("fail updatePurgeOrRestoreButton function. " +
+                   "Doesn't find release and restore.");
+            return;
+          }
 
-      $scope.$apply(function() {
-        if (iconValue === TEMP_EXCLUDE) {
-          $scope.commands[1].state = false; // not_release
-          $scope.commands[2].state = true; // remove_not_release
-        } else {
-          $scope.commands[1].state = true; // not_release
-          $scope.commands[2].state = false; // remove_not_release
+          if (iconValue & NORMAL_EXCLUDE) {
+            p.style.display = 'block';
+            r.style.display = 'none';
+          } else {
+            p.style.display = 'none';
+            r.style.display = 'block';
+          }
+
+          resolve();
         }
+      );
+    });
+  }
+
+  function updateNotReleaseButton()
+  {
+    return new Promise(function(resolve, reject) {
+      chrome.runtime.sendMessage(
+        { event: 'current_icon' }, function(iconValue) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.messsage);
+          return;
+        }
+
+        let nr = document.querySelector('div[name="not_release"]');
+        let rnr = document.querySelector('div[name="remove_not_release"]');
+        if (nr === null || rnr === null) {
+          reject("fail updateNotReleaseButton function. " +
+                 "Doesn't find not_release and remove_not_release.");
+          return;
+        }
+
+        if (iconValue & TEMP_EXCLUDE) {
+          nr.style.display = 'none';
+          rnr.style.display = 'block';
+        } else {
+          rnr.style.display = 'none';
+          nr.style.display = 'block';
+        }
+        resolve();
       });
     });
-  }]);
-})(document);
+  }
+
+  function buttonClicked(event)
+  {
+    let name = event.target.getAttribute('name');
+
+    window.close();
+
+    switch (name) {
+    case 'restore_release':
+      chrome.runtime.sendMessage({ event: 'release' });
+      break;
+    case 'not_release':
+    case 'remove_not_release':
+      chrome.runtime.sendMessage({ event: 'switch_not_release' });
+      break;
+    default:
+      chrome.runtime.sendMessage({ event: name });
+      break;
+    }
+  }
+
+  function initButtons()
+  {
+    return new Promise(function(resolve) {
+      let buttons = document.querySelectorAll('div.btn');
+      let el, inAll;
+      for (let i = 0; i < buttons.length; i++) {
+        el = buttons[i];
+        el.addEventListener('click', buttonClicked, true);
+
+        // The elements of the all are setting name into item.
+        inAll = el.querySelectorAll('*');
+        for (let j = 0; j < inAll.length; j++) {
+          if (!(inAll[j].getAttribute('name'))) {
+            inAll[j].setAttribute('name', el.getAttribute('name'));
+          }
+        }
+      }
+      resolve();
+    });
+  }
+})(window, document);

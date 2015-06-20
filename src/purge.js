@@ -744,7 +744,7 @@
       chrome.tabs.getSelected(function(tab) {
         if (chrome.runtime.lastError) {
           error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError.message);
           return;
         }
         resolve(tab);
@@ -1913,6 +1913,10 @@
               unPurge(parseInt(key, 10));
             }
           }
+          break;
+        case 'option':
+          // オプションページを開く
+          chrome.tabs.create({ url: optionPage });
           break;
         case 'add_to_temp_exclude_list':
           getCurrentTab()

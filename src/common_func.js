@@ -4,6 +4,33 @@
 (function(window) {
   "use strict";
 
+  window.loadTranslation = window.loadTranslation || function(document, path) {
+    return new Promise(function(resolve, reject) {
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', path, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          let t = JSON.parse(this.response);
+          let el = document.evaluate(
+            '//*[@translation]', document, null, 7, null);
+          let item, textName;
+          for (let i = 0; i < el.snapshotLength; i++) {
+            item = el.snapshotItem(i);
+            textName = item.getAttribute('translation');
+            if (t.hasOwnProperty(textName)) {
+              item.textContent = chrome.i18n.getMessage(textName);
+            }
+          }
+          resolve(true);
+        } else {
+          reject(new Error(xhr.statusText));
+        }
+      };
+      xhr.onerror = reject;
+      xhr.send();
+    });
+  };
+
   /**
    * Get sesion history list.
    * @param {Database} db - the instance of Database class in indexedDB.js.

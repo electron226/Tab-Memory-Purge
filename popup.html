@@ -1,20 +1,61 @@
 <!DOCTYPE html>
-<html lang="ja" ng-app="popup" ng-csp>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>popup</title>
-    <link rel="stylesheet" href="css/lib/angular-csp.css" type="text/css">
     <link rel="stylesheet" href="css/popup.css" type="text/css">
 </head>
 
-<body ng-controller="popupController">
-  <div ng-repeat="command in commands" translation="{{ command.name }}" ng-click="clicked(command.name)" ng-if="command.state"></div>
+<body>
+  <div id="mainMenu">
+    <div name="release" class="btn">
+      <img src="icon/material design/svg/forward18.svg" class="icon">
+      <span translation="release"></span>
+    </div>
 
-  <script type="text/javascript" src="src/lib/jquery-2.1.1.min.js"></script>
-  <script type="text/javascript" src="src/lib/angular.min.js"></script>
+    <div name="restore_release" class="btn">
+      <img src="icon/material design/svg/back57.svg" class="icon">
+      <span translation="restore"></span>
+    </div>
+
+    <div name="not_release" class="btn">
+      <img src="icon/material design/svg/pause44.svg" class="icon">
+      <span translation="not_release"></span>
+    </div>
+
+    <div name="remove_not_release" class="btn">
+      <img src="icon/material design/svg/play106.svg" class="icon">
+      <span translation="remove_not_release"></span>
+    </div>
+
+    <div name="all_purge" class="btn">
+      <img src="icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
+      <span translation="all_purge"></span>
+    </div>
+
+    <div name="all_purge_without_exclude_list" class="btn">
+      <img src="icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
+      <span translation="all_purge_without_exclude_list"></span>
+    </div>
+
+    <div name="all_unpurge" class="btn">
+      <img src="icon/material design/svg/reply18.svg" class="icon">
+      <span translation="all_unpurge"></span>
+    </div>
+
+    <div name="option" class="btn">
+      <img src="icon/material design/svg/settings50.svg" class="icon">
+      <span translation="option"></span>
+      <span style="float: right;">
+        <img src="icon/material design/svg/three170.svg" class="icon">
+      </span>
+      <span style="clear: right;"></span>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="src/debug.js"></script>
   <script type="text/javascript" src="src/common.js"></script>
   <script type="text/javascript" src="src/common_func.js"></script>
-  <script type="text/javascript" src="src/myCommon_angular.js"></script>
   <script type="text/javascript" src="src/popup.js"></script>
 </body>
 </html>

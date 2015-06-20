@@ -51,6 +51,7 @@
     "profile": true,
     "profileEnd": true,
     
+    "loadTranslation": true,
     "loadSession": true,
 
     "formatDate": true,
