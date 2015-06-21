@@ -117,7 +117,7 @@
     'DISABLE_TIMER',     // 1
     'INVALID_EXCLUDE',   // 2
     'KEYBIND_EXCLUDE',   // 4
-    'NORMAL_EXCLUDE',    // 8
+    'NORMAL',    // 8
     'USE_EXCLUDE',       // 16
     'TEMP_EXCLUDE',      // 32
     'EXTENSION_EXCLUDE', // 64
@@ -127,11 +127,11 @@
   });
 
   // the path of icons.
-  // defined NORMAL_EXCLUDE etc... in common.js.
+  // defined NORMAL etc... in common.js.
   var icons = {};
   var iconPartOfNamesAndNumbers = {
     'icon_disable_timer'         : DISABLE_TIMER,
-    'icon_019'                   : NORMAL_EXCLUDE,
+    'icon_019'                   : NORMAL,
     'icon_019_use_exclude'       : USE_EXCLUDE,
     'icon_019_temp_exclude'      : TEMP_EXCLUDE,
     'icon_019_extension_exclude' : EXTENSION_EXCLUDE,

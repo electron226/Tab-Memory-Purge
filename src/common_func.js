@@ -89,7 +89,7 @@
               url     : v.url,
               title   : page.title,
               host    : page.host,
-              dataURI : dataURIDict[page.host] || icons[NORMAL_EXCLUDE],
+              dataURI : dataURIDict[page.host] || icons[NORMAL],
             });
           });
 

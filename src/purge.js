@@ -120,7 +120,7 @@
       }
 
       t = t.filter(function(v) {
-        return !v.active && (checkExcludeList(v.url) & NORMAL_EXCLUDE) !== 0;
+        return !v.active && (checkExcludeList(v.url) & NORMAL) !== 0;
       });
 
       for (let i of t) {
@@ -837,7 +837,7 @@
   *               EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
   *               USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
   *               TEMP_EXCLUDE   = 一時的な非解放リストと一致
-  *               NORMAL_EXCLUDE = 一致しなかった。
+  *               NORMAL = 一致しなかった。
   *             And if match the exclusion list of key bindings,
   *             make a bit addition of KEYBIND_EXCLUDE.
   *
@@ -869,7 +869,7 @@
 
     // Check to the temporary exclude list or don't match the exclude lists.
     return ((tempRelease.indexOf(url) !== -1) ?
-              TEMP_EXCLUDE : NORMAL_EXCLUDE) | keybind;
+              TEMP_EXCLUDE : NORMAL) | keybind;
   }//}}}
 
   /**
@@ -896,7 +896,7 @@
         let title = 'Tab Memory Purge\n';
         if (changeIcon & DISABLE_TIMER) {
           title += "The purging timer of the all tabs has stopped.";
-        } else if (changeIcon & NORMAL_EXCLUDE) {
+        } else if (changeIcon & NORMAL) {
           title += "The url of this tab isn't include exclude list.";
         } else if (changeIcon & USE_EXCLUDE) {
           title += "The url of this tab is included your exclude list.";
@@ -1227,7 +1227,7 @@
 
         // 全ての除外アドレス一覧と比較
         let state = checkExcludeList(tab.url);
-        if (state & NORMAL_EXCLUDE) { // 除外アドレスに含まれていない場合
+        if (state & NORMAL) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
           let timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
@@ -1661,7 +1661,7 @@
           p.push(
             new Promise(function(resolve) {
               let result = checkExcludeList(v.url);
-              if (result ^ (NORMAL_EXCLUDE & INVALID_EXCLUDE)) {
+              if (result ^ (NORMAL & INVALID_EXCLUDE)) {
                 toAdd(v);
               }
               resolve();
@@ -1744,7 +1744,7 @@
 
           tabs.forEach(function(v) {
             let result = checkExcludeList(v.url);
-            if (result & NORMAL_EXCLUDE && !isReleasePage(v.url)) {
+            if (result & NORMAL && !isReleasePage(v.url)) {
               setTick(v.id);
             }
           });
@@ -1885,7 +1885,7 @@
               let state = checkExcludeList(v.url);
               let retState = (message.event === 'all_purge') ?
                              (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
-                             NORMAL_EXCLUDE & state;
+                             NORMAL & state;
               return !unloaded.hasOwnProperty(v.id) && retState !== 0;
             });
             if (t.length === 0) {
