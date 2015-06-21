@@ -78,11 +78,25 @@
 
   function buttonClicked(event)
   {
+    let m, s;
     let name = event.target.getAttribute('name');
 
-    window.close();
-
     switch (name) {
+    case 'option_prev':
+      m = document.querySelectorAll('.menu');
+      debug(m);
+      for (let i = 0; i < m.length; i++) {
+        s = m[i].getAttribute('class').replace('option_menu', '').trim();
+        m[i].setAttribute('class', s);
+      }
+      return; // return.
+    case 'option_menu':
+      m = document.querySelectorAll('.menu');
+      for (let i = 0; i < m.length; i++) {
+        s = m[i].getAttribute('class');
+        m[i].setAttribute('class', s + ' ' + 'option_menu');
+      }
+      return; // return.
     case 'restore_release':
       chrome.runtime.sendMessage({ event: 'release' });
       break;
@@ -94,6 +108,7 @@
       chrome.runtime.sendMessage({ event: name });
       break;
     }
+    window.close();
   }
 
   function initButtons()

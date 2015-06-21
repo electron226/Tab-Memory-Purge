@@ -4,25 +4,59 @@ body
     'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
 
-    min-width: 350px;
+    min-width: 340px;
+}
+
+nav, div
+{
+    transition: all 0.5s ease 0s;
+}
+
+.mainMenu
+{
+    width:      320px;
+    position:   relative;
+    top:        0;
+    left:       0;
+    z-index:    2;
+    background: #FFF;
+}
+
+.sideMenu
+{
+    width:      320px;
+    position:   fixed;
+    top:        0;
+    left:       350px;
+    z-index:    1;
+    background: #FFF;
+}
+
+.option_menu
+{
+    -moz-transform:    translateX(-360px);
+    -ms-transform:     translateX(-360px);
+    -o-transform:      translateX(-360px);
+    -webkit-transform: translateX(-360px);
+    transform:         translateX(-360px);
 }
 
 .icon
 {
     position: relative;
-    top: 2px;
-    right: 7px;
-    width: 16px;
-    height: 16px;
+    top:      2px;
+    right:    7px;
+    width:    16px;
+    height:   16px;
 }
 
 div.btn
 {
-    width: 320px;
-    margin: 5px auto;
-    padding: 5px 15px;
+    width:   320px;
+    margin:  5px auto;
+    padding: 5px 10px;
 
-    cursor: pointer;
+    cursor:     pointer;
     text-align: left;
 
     color: #333;
