@@ -64,7 +64,10 @@
           return;
         }
 
-        if (iconValue & TEMP_EXCLUDE) {
+        if (iconValue & (USE_EXCLUDE | EXTENSION_EXCLUDE)) {
+          nr.style.display = 'none';
+          rnr.style.display = 'none';
+        } else if (iconValue & TEMP_EXCLUDE) {
           nr.style.display = 'none';
           rnr.style.display = 'block';
         } else {
