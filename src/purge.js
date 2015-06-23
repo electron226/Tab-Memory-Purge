@@ -1567,53 +1567,6 @@
     return deferred.promise;
   }//}}}
 
-  /**
-   * the context menu is initializing.
-   * @return {Promise} promiseが返る。
-   */
-  function initializeContextMenu()//{{{
-  {
-    debug('initializeContextMenu');
-
-    let deferred = Promise.defer();
-    // Remove all context menu.
-    // then create context menu on the browser action.
-    chrome.contextMenus.removeAll(function() {
-      let p = [];
-      contextMenus.forEach(function(v) {
-        p.push(
-          new Promise(function(resolve) {
-            chrome.contextMenus.create(
-              { id: v.id, title: v.title, contexts: ['browser_action'] },
-              resolve);
-          })
-        );
-      });
-      optionMenus.forEach(function(value, i) {
-        p.push(
-          new Promise(function(resolve) {
-            setTimeout(function() {
-              chrome.contextMenus.create({
-                id: i.toString(),
-                title: chrome.i18n.getMessage(value.name),
-                parentId: parentMenuId,
-                contexts: ['browser_action']
-              }, resolve);
-            }, 0);
-          })
-        );
-      });
-      Promise.all(p)
-      .then(deferred.resolve)
-      .catch(function(e) {
-        e ? error(e) : function() {};
-        deferred.reject();
-      });
-    });
-
-    return deferred.promise;
-  }//}}}
-
   function initializeUseOptions(options)//{{{
   {
     debug('initializeUseOptions');
@@ -1708,7 +1661,6 @@
 
     initializeDatabase()
     .then(versionCheckAndUpdate)
-    .then(initializeContextMenu)
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
@@ -1975,50 +1927,27 @@
           sendResponse(state ^
             (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
           break;
+        case 'switchTimerState':
+          switchDisableTimerState()
+          .catch(function(e) {
+            error(e);
+          });
+          break;
+        case 'excludeDialogMenu':
+          getCurrentTab()
+          .then(function(tab) {
+            return new Promise(function(resolve) {
+              chrome.tabs.sendMessage(
+                tab.id, { event: 'showExcludeDialog' }, resolve);
+            });
+          })
+          .catch(function(e) {
+            error(e);
+          });
+          break;
       }
     }
   );//}}}
-
-  chrome.contextMenus.onClicked.addListener(function(info) {//{{{
-    debug('chrome.contextMenus.onClicked.addListener', info);
-    switch (info.menuItemId) {
-    case excludeDialogMenuItemId:
-      getCurrentTab()
-      .then(function(tab) {
-        return new Promise(function(resolve) {
-          chrome.tabs.sendMessage(
-            tab.id, { event: 'showExcludeDialog' }, resolve);
-        });
-      });
-      break;
-    case switchDisableTimerMenuItemId:
-      switchDisableTimerState();
-      break;
-    default:
-      chrome.tabs.query({ url: optionPage }, function(results) {
-        if (chrome.runtime.lastError) {
-          error(chrome.runtime.lastError.message);
-          return;
-        }
-
-        if (results.length === 0) {
-          displayPageOfOption = parseInt(info.menuItemId, 10);
-          chrome.tabs.create({ url: optionPage });
-        } else {
-          chrome.tabs.update(results[0].id, { active: true }, function() {
-            if (chrome.runtime.lastError) {
-              error(chrome.runtime.lastError.message);
-              return;
-            }
-
-            chrome.tabs.sendMessage(results[0].id,
-              { event: 'contextMenus', index: info.menuItemId });
-          });
-        }
-      });
-      break;
-    }
-  });//}}}
 
   initialize();
 })();
