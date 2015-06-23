@@ -72,3 +72,11 @@ div.btn:active
 {
     box-shadow: 0 0 1px 1px #AAA inset;
 }
+
+hr
+{
+    border: none;
+    border-top: solid 1px #000;
+    color: #FFF;
+    margin: 6px 0;
+}

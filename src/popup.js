@@ -107,6 +107,12 @@
     case 'remove_not_release':
       chrome.runtime.sendMessage({ event: 'switch_not_release' });
       break;
+    case 'switchTimer':
+      chrome.runtime.sendMessage({ event: 'switchTimerState' });
+      break;
+    case 'add_current_tab_exclude_list':
+      chrome.runtime.sendMessage({ event: 'excludeDialogMenu' });
+      break;
     default:
       chrome.runtime.sendMessage({ event: name });
       break;
