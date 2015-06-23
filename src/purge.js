@@ -1905,7 +1905,8 @@
           });
           break;
         case 'restore':
-          restore(message.session).then(function() {
+          restore(message.session)
+          .then(function() {
             return new Promise(function(resolve) {
               log('restore is completed.');
               resolve();
