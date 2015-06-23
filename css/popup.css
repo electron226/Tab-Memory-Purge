@@ -1,7 +1,7 @@
 body
 {
     font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic',
-    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+        'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
 
     min-width: 340px;
@@ -22,17 +22,17 @@ nav, div
     background: #FFF;
 }
 
-.sideMenu
+.optionMenu
 {
     width:      320px;
-    position:   fixed;
+    position:   absolute;
     top:        0;
     left:       350px;
     z-index:    1;
     background: #FFF;
 }
 
-.option_menu
+.option_menu_show
 {
     -moz-transform:    translateX(-360px);
     -ms-transform:     translateX(-360px);

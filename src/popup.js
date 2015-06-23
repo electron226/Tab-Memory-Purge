@@ -89,7 +89,7 @@
       m = document.querySelectorAll('.menu');
       debug(m);
       for (let i = 0; i < m.length; i++) {
-        s = m[i].getAttribute('class').replace('option_menu', '').trim();
+        s = m[i].getAttribute('class').replace('option_menu_show', '').trim();
         m[i].setAttribute('class', s);
       }
       return; // return.
@@ -97,7 +97,7 @@
       m = document.querySelectorAll('.menu');
       for (let i = 0; i < m.length; i++) {
         s = m[i].getAttribute('class');
-        m[i].setAttribute('class', s + ' ' + 'option_menu');
+        m[i].setAttribute('class', s + ' ' + 'option_menu_show');
       }
       return; // return.
     case 'restore_release':
