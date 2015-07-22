@@ -19,25 +19,25 @@ ul
 {
     width: 100%;
     padding: 1em 0;
-    background-color: #6CBAD8;
+    background-color: #7EC4CE;
     box-shadow: 0 0 3px 0 gray;
     border: 0;
 }
 
 .sectionButton:hover
 {
-    background-color: #68C5E8;
+    background-color: #97D4DD;
 }
 
 .sectionButton.select
 {
-    background-color: #7FDCFF;
+    background-color: #CBEFF4;
 }
 
 .sectionMenu
 {
     width: 98%;
-    background-color: #CAE7F2;
+    background-color: #CBEFF4;
     box-shadow: 0 3px 3px 0 gray;
     padding: 1em 0;
     margin: 0 auto;
@@ -59,9 +59,9 @@ ul
 .historyStyle
 {
     /* background-color: #7FDCFF; */
-    background-color: #CAE7F2;
-    padding: 3px;
+    background-color: #E2F8FB;
     box-shadow: 0 3px 3px 0 gray;
+    padding: 0.3em;
 }
 
 .historyItemList
