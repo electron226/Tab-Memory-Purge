@@ -39,6 +39,14 @@
     "message": "IMPORT/EXPORT",
     "description": "the string of buttons in the options page"
   },
+  "apply": {
+    "message": "APPLY",
+    "description": "the apply button"
+  },
+  "copy": {
+    "message": "COPY",
+    "description": "the copy button"
+  },
   "reload": {
     "message": "RELOAD",
     "description": "the reload button"

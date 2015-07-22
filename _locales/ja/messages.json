@@ -39,6 +39,14 @@
     "message": "ｲﾝﾎﾟｰﾄ / ｴｸｽﾎﾟｰﾄ",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "apply": {
+    "message": "適用",
+    "description": "適用ボタン"
+  },
+  "copy": {
+    "message": "コピー",
+    "description": "コピーボタン"
+  },
   "reload": {
     "message": "更新",
     "description": "更新ボタン"

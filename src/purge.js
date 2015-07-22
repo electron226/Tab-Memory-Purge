@@ -779,7 +779,7 @@
     debug('checkMatchUrlString');
 
     let excludeArray = excludeObj.list.split('\n');
-    for (let i = 0, len = excludeArray.length; i < len; i++) {
+    for (let i = 0; i < excludeArray.length; i = (i + 1) | 0) {
       if (excludeArray[i] !== '') {
         let re = new RegExp(trim(excludeArray[i]), excludeObj.options);
         if (re.test(url)) {
@@ -1291,9 +1291,14 @@
      });
      Promise.all(p).then(function(results) {
        results.forEach(function(v) {
+         let tabId;
          for (let key in v) {
-           let tabId = parseInt(key, 10);
-           if (v.hasOwnProperty(key) && !unloaded.hasOwnProperty(tabId)) {
+           if (!v.hasOwnProperty(key)) {
+             continue;
+           }
+
+           tabId = parseInt(key, 10);
+           if (!unloaded.hasOwnProperty(tabId)) {
              unloaded[tabId] = v[key];
            }
          }

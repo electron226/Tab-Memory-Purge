@@ -42,9 +42,9 @@
   window.versionKey = window.versionKey || 'version';
   defaultValues[window.versionKey] = chrome.app.getDetails();
 
-  window.previousSessionTimeKey =
-    window.previousSessionTimeKey || 'previous_session_time';
-  defaultValues[window.previousSessionTimeKey] = null;
+  // window.previousSessionTimeKey =
+  //   window.previousSessionTimeKey || 'previous_session_time';
+  // defaultValues[window.previousSessionTimeKey] = null;
 
   window.defaultValues = window.defaultValues || defaultValues;
 
@@ -152,14 +152,4 @@
 
   window.optionPage = chrome.runtime.getURL('options.html');
   window.changeHistory = chrome.runtime.getURL('History.txt');
-
-  window.optionMenus = [
-    { 'name': 'option' },
-    { 'name': 'keybind' },
-    { 'name': 'history' },
-    { 'name': 'session_history' },
-    { 'name': 'change_history' },
-    { 'name': 'information' },
-    { 'name': 'operate_settings' },
-  ];
 })(window);
