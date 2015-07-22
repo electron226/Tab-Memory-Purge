@@ -86,42 +86,37 @@
           <li class="keybind_release keyOption">
             <span translation="release" class="keybindTitle"></span>
             <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_release" class="keybindValue" disabled></input>
+            <input type="text" name="keybind_release" class="keybindValue doNotShow" disabled></input>
             <input type="text" class="pressKey" disabled></input>
             <button class="keybind_clear">CLEAR</button>
-            <span class="status" style="width: 100px; color: red"></span>
           </li>
           <li class="keybind_switch_not_release keyOption">
             <span translation="switch_not_release" class="keybindTitle"></span>
             <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_switch_not_release" class="keybindValue" disabled></input>
+            <input type="text" name="keybind_switch_not_release" class="keybindValue doNotShow" disabled></input>
             <input type="text" class="pressKey" disabled></input>
             <button class="keybind_clear">CLEAR</button>
-            <span class="status" style="width: 100px; color: red"></span>
           </li>
           <li class="keybind_all_purge keyOption">
             <span translation="all_purge" class="keybindTitle"></span>
             <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_purge" class="keybindValue" disabled></input>
+            <input type="text" name="keybind_all_purge" class="keybindValue doNotShow" disabled></input>
             <input type="text" class="pressKey" disabled></input>
             <button class="keybind_clear">CLEAR</button>
-            <span class="status" style="width: 100px; color: red"></span>
           </li>
           <li class="keybind_all_purge_without_exclude_list keyOption">
             <span translation="all_purge_without_exclude_list" class="keybindTitle"></span>
             <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_purge_without_exclude_list" class="keybindValue" disabled></input>
+            <input type="text" name="keybind_all_purge_without_exclude_list" class="keybindValue doNotShow" disabled></input>
             <input type="text" class="pressKey" disabled></input>
             <button class="keybind_clear">CLEAR</button>
-            <span class="status" style="width: 100px; color: red"></span>
           </li>
           <li class="keybind_all_unpurge keyOption">
             <span translation="all_unpurge" class="keybindTitle"></span>
             <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_unpurge" class="keybindValue" disabled></input>
+            <input type="text" name="keybind_all_unpurge" class="keybindValue doNotShow" disabled></input>
             <input type="text" class="pressKey" disabled></input>
             <button class="keybind_clear">CLEAR</button>
-            <span class="status" style="width: 100px; color: red"></span>
           </li>
           <li style="margin-top: 1em;">
             <span translation="keybind_exclude_url"></span>&nbsp;<button onclick="showRegexTool()"><span translation="regex_tool"></span></button>
@@ -138,23 +133,33 @@
       </section>
 
       <section id="history" class="sectionMenu">
-        <fieldset class="historyDate prototype">
+        <div class="searchHistory">
+          <input type="date" id="searchHistoryDate" class="historyStyle" list="historyDateList" style="width: 15%;">
+          <datalist id="historyDateList">
+          </datalist>
+          <input type="text" id="searchHistoryItem" class="historyStyle" style="width: 80%;">
+        </div>
+
+        <!-- the element of the class of historyDate add here. -->
+        <div class="historyList"></div>
+
+        <!-- This use into the article of the history of a section menu. -->
+        <fieldset class="historyDate prototype doNotShow">
           <legend class="historyStyle">
             <span class="historyDateTitle">historyDateTitle</span>
             <img src="icon/close.svg" alt="close button" class="historyDateDelete pageIcon">
           </legend>
 
           <!-- the element of the class of historyItem add here. -->
-          <article class="historyItemList">
-          </article>
+          <article class="historyItemList"></article>
         </fieldset>
 
-        <!-- This use into the article of the history of a section menu. -->
-        <section class="historyItem prototype historyStyle">
+        <!-- This use into the article of the history item. -->
+        <section class="historyItem prototype historyStyle doNotShow">
           <img src="icon/close.svg" alt="close button" class="historyItemDelete pageIcon">
           <span class="historyItemDate">item date</span>
           <span>
-            <a href="#" target="_blank" class="historyItemURL">
+            <a href="#" target="_blank" class="historyItemUrl">
               <img src="" alt="page icon" class="historyItemIcon pageIcon">
               <span class="historyItemTitle">item title</span>
             </a>

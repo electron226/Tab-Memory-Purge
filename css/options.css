@@ -43,30 +43,43 @@ ul
     margin: 0 auto;
 }
 
-.keybindValue
+.doNotShow
 {
     display: none;
 }
 
+.searchHistory
+{
+    width: 95%;
+    margin: 0 auto;
+}
+
 .historyDate
 {
-    /* background-color: #6CBAD8; */
-    margin: 0 8px 1em;
+    margin: 1em 8px 0;
     border: 0;
-    /* box-shadow: 0 3px 3px 0 gray; */
 }
 
 .historyStyle
 {
-    /* background-color: #7FDCFF; */
     background-color: #E2F8FB;
-    box-shadow: 0 3px 3px 0 gray;
+    box-shadow: 0 1px 1px 0 gray;
     padding: 0.3em;
 }
 
 .historyItemList
 {
-    margin: auto 8px;
+    margin: auto 7px;
+    width: 99%;
+    display: table;
+    table-layout: fixed;
+}
+
+.historyItem
+{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 input, textarea
@@ -132,11 +145,6 @@ nav li
     height: 16px;
     position: relative;
     top: 3px;
-}
-
-.prototype
-{
-    display: none;
 }
 
 /* header > h2 */

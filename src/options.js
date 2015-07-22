@@ -297,23 +297,40 @@
   let sectionButtonClassName = buttonSelector.substring(1);
 
   let operateOption = new OperateOptionValue();
-  let keybindTrace = new KeyTrace();
-  let menuToggle = new ShowMenuSelection(
+  let keybindTrace  = new KeyTrace();
+  let menuToggle    = new ShowMenuSelection(
     { menu: menuSelector, button: buttonSelector }, 'select');
   let afterMenuSelection = processAfterMenuSelection();
 
-  let prototypeSelectorOfHistoryDate            = '.historyDate.prototype';
-  let prototypeSelectorOfHistoryItem            = '.historyItem.prototype';
-  let selectorOfLocationWhereAddHistoryDateItem = '#history';
-  let selectorOfLocationWhereAddItem           = '.historyItemList';
+  let elementDoesNotClassName = 'doNotShow';
+
+  let selectorHistoryDate                       = '.historyDate';
+  let selectorHistoryItem                       = '.historyItem';
+  let selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
+  let selectorOfLocationWhereAddItem            = '.historyItemList';
   let selectorDateTitle                         = '.historyDateTitle';
   let selectorDateDelete                        = '.historyDateDelete';
   let selectorHistoryItemDelete                 = '.historyItemDelete';
   let selectorHistoryItemDate                   = '.historyItemDate';
-  let selectorHistoryItemHref                   = '.historyItemURL';
+  let selectorHistoryItemHref                   = '.historyItemUrl';
   let selectorHistoryItemIcon                   = '.historyItemIcon';
   let selectorHistoryItemTitle                  = '.historyItemTitle';
+  let selectorSearchHistoryDate                 = '#searchHistoryDate';
+  let selectorSearchHistoryItem                 = '#searchHistoryItem';
+  let selectorSearchHistoryDateList             = '#historyDateList';
+
+  let prototypeClassName = 'prototype';
+  let prototypeSelectorOfHistoryDate =
+    selectorHistoryDate + '.' + prototypeClassName;
+  let prototypeSelectorOfHistoryItem =
+    selectorHistoryItem + '.' + prototypeClassName;
 //}}}
+
+  function addStringToAttributeOfElement(element, attrName, addStr)//{{{
+  {
+    element.setAttribute(
+      attrName, element.getAttribute(attrName) + ' ' + addStr);
+  }//}}}
 
   function removeStringFromAttributeOfElement(element, attrName, removeStr)//{{{
   {
@@ -322,67 +339,183 @@
       attrName, element.getAttribute(attrName).replace(re, ''));
   }//}}}
 
+  function removeHistoryDate(event)//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      let date = new Date(parseInt(event.target.getAttribute('name'), 10));
+      let begin = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+      let end = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+      db.getCursor({
+        name: dbHistoryName,
+        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
+      })
+      .then(function(histories) {
+        let delKeys = histories.map(function(v) {
+          return v.date;
+        });
+        return db.delete({
+          name: dbHistoryName,
+          keys: delKeys,
+        });
+      })
+      .then(function(ret) {
+        return new Promise(function(resolve) {
+          let historyDateLegend = event.target.parentNode;
+          let historyDateField  = historyDateLegend.parentNode;
+          let historyList       = historyDateField.parentNode;
+          historyList.removeChild(historyDateField);
+
+          resolve(ret);
+        });
+      })
+      .then(resolve)
+      .catch(function(e) {
+        error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeHistoryItem(event)//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      db.delete({
+        name: dbHistoryName,
+        keys: parseInt(event.target.getAttribute('name'), 10),
+      })
+      .then(function(ret) {
+        return new Promise(function(resolve) {
+          let historyItem     = event.target.parentNode;
+          let historyItemList = historyItem.parentNode;
+          historyItemList.removeChild(historyItem);
+
+          resolve(ret);
+        });
+      })
+      .then(resolve)
+      .catch(function(e) {
+        error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function getPrototypeAndRemoveTag(selector) {//{{{
+    let proto = document.querySelector(selector).cloneNode(true);
+    removeStringFromAttributeOfElement(proto, 'class', elementDoesNotClassName);
+    removeStringFromAttributeOfElement(proto, 'class', prototypeClassName);
+    return proto;
+  }//}}}
+
+  function addAutocompleteDateList(selector)//{{{
+  {
+    let autocompleteList = document.querySelector(selector);
+    let optionElement = document.createElement('option');
+
+    while (autocompleteList.firstChild) {
+      autocompleteList.removeChild(autocompleteList.firstChild);
+    }
+
+    return function(date) {
+      let option = optionElement.cloneNode(true);
+      option.value = formatDate(date, 'YYYY-MM-DD');
+      autocompleteList.appendChild(option);
+    };
+  }//}}}
+
+  function createHistoryDate(prototypeSelector)//{{{
+  {
+    let historyDatePrototype =
+      getPrototypeAndRemoveTag(prototypeSelector);
+
+    return function(addData) {
+      let historyDate = historyDatePrototype.cloneNode(true);
+      historyDate.setAttribute('name', addData.date.getTime());
+
+      let dateTitle = historyDate.querySelector(selectorDateTitle);
+      dateTitle.textContent = formatDate(addData.date, 'YYYY/MM/DD');
+
+      let dateRemove = historyDate.querySelector(selectorDateDelete);
+      dateRemove.setAttribute('name', addData.date.getTime());
+      dateRemove.addEventListener('click', removeHistoryDate, true);
+
+      return historyDate;
+    };
+  }//}}}
+
+  function createHistoryDateItemList(prototypeSelector)//{{{
+  {
+    let historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
+    let historyItemList = document.createElement('div');
+
+    return  {
+      set: function(addItem) {
+        let historyItem = historyItemPrototype.cloneNode(true);
+
+        let itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
+        itemRemove.addEventListener('click', removeHistoryItem, true);
+        // item.date is already after use getTime.
+        itemRemove.setAttribute('name', addItem.date);
+
+        let itemDate = historyItem.querySelector(selectorHistoryItemDate);
+        itemDate.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
+
+        let itemHref = historyItem.querySelector(selectorHistoryItemHref);
+        itemHref.href = addItem.url;
+
+        let ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
+        ItemIcon.src = addItem.dataURI;
+
+        let itemTitle = historyItem.querySelector(selectorHistoryItemTitle);
+        itemTitle.textContent = addItem.title;
+
+        historyItemList.appendChild(historyItem);
+      },
+      get: function() {
+        return historyItemList.childNodes;
+      },
+    };
+  }//}}}
+
   function showAllHistory()//{{{
   {
     return new Promise(function(resolve, reject) {
       getAllHistory()
       .then(function(historyArray) {
-        let getPrototypeAndRemoveTag = function(selector) {
-          let proto = document.querySelector(selector).cloneNode(true);
-          removeStringFromAttributeOfElement(proto, 'class', 'prototype');
-          return proto;
-        };
+        let autocompleteDateList =
+          addAutocompleteDateList(selectorSearchHistoryDateList);
 
         let historyDateList =
           document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
+        while (historyDateList.firstChild) {
+          historyDateList.removeChild(historyDateList.firstChild);
+        }
 
-        let historyDatePrototype =
-          getPrototypeAndRemoveTag(prototypeSelectorOfHistoryDate);
-        let historyItemPrototype =
-          getPrototypeAndRemoveTag(prototypeSelectorOfHistoryItem);
+        let historyDate =
+          createHistoryDate(prototypeSelectorOfHistoryDate);
+        let historyDateItemList =
+          createHistoryDateItemList(prototypeSelectorOfHistoryItem);
 
-        let historyDate, historyItem, historyItemList;
-        let dateTitle, dateRemove;
-        let itemDate, itemHref, ItemIcon, itemTitle, itemRemove;
-        let data, item, i, j;
+        let hDate, historyItemList, itemList;
+        let data, i, j, z;
         for (i = (historyArray.length - 1) | 0; 0 <= i; i = (i - 1) | 0) {
           data = historyArray[i];
+          hDate = historyDate(data);
+          autocompleteDateList(data.date);
 
-          historyDate = historyDatePrototype.cloneNode(true);
-
-          dateTitle = historyDate.querySelector(selectorDateTitle);
-          dateTitle.textContent = formatDate(data.date, 'YYYY/MM/DD');
-
-          dateRemove = historyDate.querySelector(selectorDateDelete);
-          dateRemove.setAttribute('name', data.date.getTime());
-
-          historyItemList =
-            historyDate.querySelector(selectorOfLocationWhereAddItem);
           for (j = (data.data.length - 1) | 0; 0 <= j; j = (j - 1) | 0) {
-            item = data.data[j];
+            historyDateItemList.set(data.data[j]);
+          }
+          itemList = historyDateItemList.get();
 
-            historyItem = historyItemPrototype.cloneNode(true);
-
-            itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
-            // item.date is already after use getTime.
-            itemRemove.setAttribute('name', item.date);
-
-            itemDate = historyItem.querySelector(selectorHistoryItemDate);
-            itemDate.textContent = formatDate(new Date(item.date), 'hh:mm:ss');
-
-            itemHref = historyItem.querySelector(selectorHistoryItemHref);
-            itemHref.href = item.url;
-
-            ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
-            ItemIcon.src = item.dataURI;
-
-            itemTitle = historyItem.querySelector(selectorHistoryItemTitle);
-            itemTitle.textContent = item.title;
-
-            historyItemList.appendChild(historyItem);
+          historyItemList = hDate.querySelector(selectorOfLocationWhereAddItem);
+          for (z = 0; z < itemList.length; z = (z + 1) | 0) {
+            historyItemList.appendChild(itemList[z]);
           }
 
-          historyDateList.appendChild(historyDate);
+          historyDateList.appendChild(hDate);
         }
 
         resolve();
@@ -474,6 +607,63 @@
     });
   }//}}}
 
+  function showSpecificHistoryDate(event)//{{{
+  {
+    let value      = event.target.value;
+    let regex      = new RegExp(/(\d+)-(\d+)-(\d+)/);
+    let matches, searchDate;
+    if (value.length > 0) {
+      matches    = value.match(regex);
+      searchDate = new Date(matches[1], (matches[2] - 1) | 0, matches[3]);
+    }
+
+    let historyDateList = document.querySelectorAll(
+      selectorHistoryDate + ':not(.' + prototypeClassName + ')');
+    let item, date;
+    for (let i = 0; i < historyDateList.length; i = (i + 1) | 0) {
+      item = historyDateList[i];
+      date = new Date(parseInt(item.name, 10));
+      if (value.length === 0 || date.getTime() === searchDate.getTime()) {
+        removeStringFromAttributeOfElement(
+          item, 'class', elementDoesNotClassName);
+      } else {
+        addStringToAttributeOfElement(item, 'class', elementDoesNotClassName);
+      }
+    }
+  }//}}}
+
+  function showSpecificHistoryItem(event)//{{{
+  {
+    let regex = new RegExp(event.target.value.trim(), 'g');
+    let section, item;
+    let itemTitles = document.querySelectorAll(
+      selectorHistoryItemTitle + ':not(.' + prototypeClassName + ')');
+    for (let i = 0; i < itemTitles.length; i = (i + 1) | 0) {
+      item = itemTitles[i];
+      section = item.parentNode.parentNode.parentNode;
+      if (regex.test(item.textContent)) {
+        removeStringFromAttributeOfElement(
+          section, 'class', elementDoesNotClassName);
+      } else {
+        addStringToAttributeOfElement(
+          section, 'class', elementDoesNotClassName);
+      }
+    }
+  }//}}}
+
+  function initHistoryEvent(d)//{{{
+  {
+    return new Promise(function(resolve) {
+      let searchDate = d.querySelector(selectorSearchHistoryDate);
+      searchDate.addEventListener('change', showSpecificHistoryDate, true);
+
+      let searchItem = d.querySelector(selectorSearchHistoryItem);
+      searchItem.addEventListener('keyup', showSpecificHistoryItem, true);
+
+      resolve();
+    });
+  }//}}}
+
   function changeMenu(name)//{{{
   {
     return new Promise(function(resolve, reject) {
@@ -511,13 +701,17 @@
 
   function updateOptionValueToStorage(e)//{{{
   {
-    let writeObj = {};
+    let name = e.target.name;
+    if (name === void 0 || name === null || name.length === 0) {
+      return;
+    }
 
-    operateOption.get(document, e.target.name)
+    let writeObj = {};
+    operateOption.get(document, name)
     .then(function(item) {
-      writeObj[e.target.name] = item;
+      writeObj[name] = item;
       chrome.storage.local.set(writeObj, function() {
-        log('have wrote the data. name: ' + e.target.name + ', value: ' + item);
+        log('have wrote the data. name: ' + name + ', value: ' + item);
       });
     })
     .catch(function(mes) {
@@ -664,6 +858,7 @@
     .then(initOptionElementEvent(document))
     .then(initButtonEvent(document))
     .then(initKeybindEvent(document))
+    .then(initHistoryEvent(document))
     .catch(function(e) {
       error(e);
     });
