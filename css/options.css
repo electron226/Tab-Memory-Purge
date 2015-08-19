@@ -6,6 +6,7 @@ button
     font-family: 'Meiryo UI', 'メイリオ', 'ＭＳ Ｐゴシック',
         'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
+    color: #212121;
 }
 
 ul
@@ -19,25 +20,20 @@ ul
 {
     width: 100%;
     padding: 1em 0;
-    background-color: #7EC4CE;
-    box-shadow: 0 0 3px 0 gray;
+    background-color: #03A9F4;
+    /* box-shadow: 0 0 3px 0 gray; */
     border: 0;
 }
 
-.sectionButton:hover
+.sectionButton:hover, .sectionButton.select
 {
-    background-color: #97D4DD;
-}
-
-.sectionButton.select
-{
-    background-color: #CBEFF4;
+    background-color: #B3E5FC;
 }
 
 .sectionMenu
 {
     width: 98%;
-    background-color: #CBEFF4;
+    background-color: #FFFFFF;
     box-shadow: 0 3px 3px 0 gray;
     padding: 1em 0;
     margin: 0 auto;
@@ -54,7 +50,7 @@ ul
     margin: 0 auto;
 }
 
-.historyDate
+.historyField
 {
     margin: 1em 8px 0;
     border: 0;
@@ -62,9 +58,10 @@ ul
 
 .historyStyle
 {
-    background-color: #E2F8FB;
-    box-shadow: 0 1px 1px 0 gray;
+    /* background-color: #B6B6B6; */
+    box-shadow: 0 0 1px 0 #212121;
     padding: 0.3em;
+    margin-bottom: 0.5em;
 }
 
 .historyItemList
@@ -83,6 +80,11 @@ ul
 }
 
 input, textarea
+{
+    border: thin solid #727272;
+}
+
+.dontShowBorder
 {
     border: 0;
 }
