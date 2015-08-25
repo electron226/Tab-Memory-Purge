@@ -590,17 +590,18 @@
         return new Promise(function(resolve2, reject2) {
           currentSessionTime = nowTime;
 
-          var write = {};
-          write[previousSessionTimeKey] = nowTime;
-          chrome.storage.local.set(write, function() {
-            if (chrome.runtime.lastError) {
-              error(chrome.runtime.lastError.message);
-              reject2();
-              return;
-            }
+          resolve2();
+          // var write = {};
+          // write[previousSessionTimeKey] = nowTime;
+          // chrome.storage.local.set(write, function() {
+          //   if (chrome.runtime.lastError) {
+          //     error(chrome.runtime.lastError.message);
+          //     reject2();
+          //     return;
+          //   }
 
-            resolve2();
-          });
+          //   resolve2();
+          // });
         });
       })
       .then(resolve)
@@ -1423,32 +1424,35 @@
           // restore process.
           if (options.when_updated_restore_session) {
             loadSession(db, dbSessionName)
-            .then(function(sessions) {
-              return new Promise(function(resolve3, reject3) {
-                if (sessions.length === 0) {
-                  resolve3();
-                  return;
-                }
+            // .then(function(sessions) {
+            .then(function() {
+              return new Promise(function(resolve3) {
+              // return new Promise(function(resolve3, reject3) {
+                resolve3();
+                // if (sessions.length === 0) {
+                //   resolve3();
+                //   return;
+                // }
 
-                var previousSessionTime = options[previousSessionTimeKey];
-                if (previousSessionTime) {
-                  var restoreSession = sessions.filter(function(v) {
-                    return previousSessionTime === v.date;
-                  });
-                  if (restoreSession.length > 0) {
-                    if (restoreSession.length > 1) {
-                      warn('the length of restoreSession is greater than 1.');
-                    }
+                // var previousSessionTime = options[previousSessionTimeKey];
+                // if (previousSessionTime) {
+                //   var restoreSession = sessions.filter(function(v) {
+                //     return previousSessionTime === v.date;
+                //   });
+                //   if (restoreSession.length > 0) {
+                //     if (restoreSession.length > 1) {
+                //       warn('the length of restoreSession is greater than 1.');
+                //     }
 
-                    restore(restoreSession[0].data)
-                    .then(resolve3)
-                    .catch(reject3);
-                  } else {
-                    resolve3();
-                  }
-                } else {
-                  resolve3();
-                }
+                //     restore(restoreSession[0].data)
+                //     .then(resolve3)
+                //     .catch(reject3);
+                //   } else {
+                //     resolve3();
+                //   }
+                // } else {
+                //   resolve3();
+                // }
               });
             })
             .then(resolve2)
