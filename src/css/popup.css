@@ -1,0 +1,89 @@
+body
+{
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic',
+    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-size: 14px;
+
+    min-width: 340px;
+}
+
+nav,
+div
+{
+    transition: all 0.5s ease 0s;
+}
+
+.mainMenu
+{
+    position: relative;
+    z-index: 2;
+    top: 0;
+    left: 0;
+
+    width: 320px;
+
+    background: #fff;
+}
+
+.optionMenu
+{
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 350px;
+
+    width: 320px;
+
+    background: #fff;
+}
+
+.option_menu_show
+{
+    -webkit-transform: translateX(-360px);
+       -moz-transform: translateX(-360px);
+        -ms-transform: translateX(-360px);
+         -o-transform: translateX(-360px);
+            transform: translateX(-360px);
+}
+
+.icon
+{
+    position: relative;
+    top: 2px;
+    right: 7px;
+
+    width: 16px;
+    height: 16px;
+}
+
+div.btn
+{
+    width: 320px;
+    margin: 5px auto;
+    padding: 5px 10px;
+
+    cursor: pointer;
+    text-align: left;
+
+    color: #333;
+    text-shadow: 0 -1px 0 rgba(000,000,000,0.2), 0 1px 0 rgba(255,255,255,0.3);
+}
+
+div.btn:hover
+{
+    box-shadow: 0 1px 8px 1px #aaa;
+}
+
+div.btn:active
+{
+    box-shadow: 0 0 1px 1px #aaa inset;
+}
+
+hr
+{
+    margin: 6px 0;
+
+    color: #fff;
+    border: none;
+    border-top: solid 1px #000;
+}

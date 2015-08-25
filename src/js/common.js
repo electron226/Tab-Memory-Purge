@@ -115,7 +115,7 @@
   window.translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
                            chrome.runtime.getURL('_locales/en/messages.json');
   // file of get scroll position of tab.
-  window.getScrollPosScript = 'src/content_scripts/getScrollPosition.js';
+  window.getScrollPosScript = 'js/load_scripts/getScrollPosition.js';
 
   // a value which represents of the exclude list.
   var excludeValues = [

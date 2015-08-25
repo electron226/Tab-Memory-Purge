@@ -6,15 +6,15 @@
 
   window.loadTranslation = window.loadTranslation || function(document, path) {
     return new Promise(function(resolve, reject) {
-      let xhr = new XMLHttpRequest();
+      var xhr = new XMLHttpRequest();
       xhr.open('GET', path, true);
       xhr.onload = function() {
         if (xhr.status === 200) {
-          let t = JSON.parse(this.response);
-          let el = document.evaluate(
+          var t = JSON.parse(this.response);
+          var el = document.evaluate(
             '//*[@translation]', document, null, 7, null);
-          let item, textName;
-          for (let i = 0; i < el.snapshotLength; i++) {
+          var item, textName;
+          for (var i = 0; i < el.snapshotLength; i++) {
             item = el.snapshotItem(i);
             textName = item.getAttribute('translation');
             if (t.hasOwnProperty(textName)) {

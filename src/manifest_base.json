@@ -1,5 +1,5 @@
 ﻿{
-    "name"             : "__MSG_extName__",
+    "name"             : "__MSG_extName__@@extensionTitleDebug",
     "description"      : "__MSG_extDescription__",
     "version"          : "2.3.7",
     "manifest_version" : 2,
@@ -16,24 +16,12 @@
     },
     "options_page" : "options.html",
     "background" : {
-        "scripts" : [
-            "src/debug.js",
-            "src/common.js",
-            "src/common_func.js",
-            "src/indexedDB.js",
-            "src/purge.js"
-        ]
+        "scripts" : @@backgroundScripts
     },
     "content_scripts" : [
       {
         "matches" : ["http://*/*", "https://*/*"],
-        "js" : [
-            "src/common.js",
-            "src/common_func.js",
-            "src/content_scripts/keyBind.js",
-            "src/content_scripts/excludeDialog.js",
-            "src/content_scripts/formCache.js"
-        ]
+        "js" : @@contentScripts
       }
     ],
     "permissions" : [

@@ -10,6 +10,7 @@
   "expr" : true,  // x || (x = 1); とかができるようにする
   "trailing" : true, // 行末の空白を禁止
   "esnext": true, // ECMAScript 6
+  "node": true,
 
   // グローバル変数へのアクセスの管理
   "browser" : true,  // ブラウザ用のやつは許可

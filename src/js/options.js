@@ -1,7 +1,7 @@
 ﻿(function(window, document) {
   'use strict';
 
-  let OperateOptionValue = function() {//{{{
+  var OperateOptionValue = function() {//{{{
   };
   OperateOptionValue.prototype.get = function(d, name) {
     return this.call(d, name, null, 'get');
@@ -15,7 +15,7 @@
         type = 'get';
       }
 
-      let el = d.querySelector(
+      var el = d.querySelector(
         "input[name='" + name + "'], textarea[name='" + name + "']");
       if (el) {
         try {
@@ -72,14 +72,14 @@
     });
   };
   OperateOptionValue.prototype.init = function(d) {
-    let $this = this;
+    var $this = this;
 
     return new Promise(function(resolve, reject) {
-      let p;
+      var p;
 
       chrome.storage.local.get(function(items) {
         p = [];
-        for (let key in defaultValues) {
+        for (var key in defaultValues) {
           if (defaultValues.hasOwnProperty(key)) {
             p.push($this.set(d, key,
               items.hasOwnProperty(key) ? items[key] : defaultValues[key]));
@@ -90,7 +90,7 @@
     });
   };//}}}
 
-  let ShowMenuSelection = function(selectors, className_when_select) {//{{{
+  var ShowMenuSelection = function(selectors, className_when_select) {//{{{
     ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
 
     this.menuSelector          = selectors.menu;
@@ -99,11 +99,11 @@
   };
   ShowMenuSelection.prototype.showMenu = function(selector) {
     return function(idName) {
-      let oldStyle, newStyle;
-      let showMenu = document.querySelector(selector + '#' + idName + '');
+      var oldStyle, newStyle;
+      var showMenu = document.querySelector(selector + '#' + idName + '');
 
-      let el    = showMenu;
-      let style = el.getAttribute('style');
+      var el    = showMenu;
+      var style = el.getAttribute('style');
       if (style === null) {
         el.setAttribute('style', 'display: block;');
       } else {
@@ -112,9 +112,9 @@
         el.setAttribute('style', oldStyle + newStyle);
       }
 
-      let dontShowMenu =
+      var dontShowMenu =
         document.querySelectorAll(selector + ':not(#' + idName + ')');
-      for (let i = 0, len = dontShowMenu.length; i < len; i++) {
+      for (var i = 0, len = dontShowMenu.length; i < len; i++) {
         el    = dontShowMenu[i];
         style = el.getAttribute('style');
         if (style === null) {
@@ -129,10 +129,10 @@
     };
   };
   ShowMenuSelection.prototype.changeSelectionButtonColor = function(selector) {
-    let $this = this;
+    var $this = this;
 
     return function(name) {
-      let o = document.querySelector(
+      var o = document.querySelector(
         selector + '.' + $this.className_when_select);
       if (o !== null) {
         o.setAttribute('class',
@@ -140,16 +140,16 @@
             $this.className_when_select, '').trim() );
       }
 
-      let n = document.querySelector(selector + '[name = "' + name + '"]');
+      var n = document.querySelector(selector + '[name = "' + name + '"]');
       n.setAttribute('class',
         n.getAttribute('class') + ' ' + $this.className_when_select);
     };
   };
   ShowMenuSelection.prototype.show = function(name) {
-    let $this = this;
+    var $this = this;
 
     return new Promise(function(resolve) {
-      let showMenuArea, selectMenuButton;
+      var showMenuArea, selectMenuButton;
 
       showMenuArea     = $this.showMenu($this.menuSelector);
       selectMenuButton = $this.changeSelectionButtonColor($this.buttonSelector);
@@ -161,7 +161,7 @@
     });
   };//}}}
 
-  let KeyTrace = function(id) {//{{{
+  var KeyTrace = function(id) {//{{{
     this.id = id || null;
     this.result = null;
   };
@@ -205,10 +205,10 @@
   //         return;
   //       }
 
-  //       let writeObject = {};
-  //       let keybind = items.keybind;
+  //       var writeObject = {};
+  //       var keybind = items.keybind;
   //       if (keybind) {
-  //         for (let key in keybind) {
+  //         for (var key in keybind) {
   //           if (keybind.hasOwnProperty(key)) {
   //             writeObject['keybind_' + key] = keybind[key];
   //           }
@@ -237,7 +237,7 @@
   {
     log('processAfterMenuSelection');
 
-    let keybindTick = null;
+    var keybindTick = null;
 
     return function(name) {
       return new Promise(function(resolve, reject) {
@@ -266,6 +266,12 @@
           }, 1000);
           break;
         case 'session_history':
+          setTimeout(function() {
+            showAllSessionHistory()
+            .catch(function(e) {
+              error(e);
+            });
+          }, 1000);
           break;
         case 'change_history':
           break;
@@ -281,49 +287,88 @@
   }//}}}
 
 //{{{ variables
-  let defaultMenu = "history";
+  var defaultMenu = "history";
 
   // indexedDB
-  let db = null;
+  var db = null;
 
-  let keybindClassNameOfSetButton   = 'keybind_set';
-  let keybindClassNameOfClearButton = 'keybind_clear';
-  let selectorKeybindOption         = '.keyOption';
-  let selectorShowingKeybind        = '.pressKey';
-  let selectorKeybindValue          = '.keybindValue';
+  var keybindClassNameOfSetButton   = 'keybind_set';
+  var keybindClassNameOfClearButton = 'keybind_clear';
+  var selectorKeybindOption         = '.keyOption';
+  var selectorShowingKeybind        = '.pressKey';
+  var selectorKeybindValue          = '.keybindValue';
 
-  let menuSelector           = '.sectionMenu';
-  let buttonSelector         = '.sectionButton';
-  let sectionButtonClassName = buttonSelector.substring(1);
+  var menuSelector           = '.sectionMenu';
+  var buttonSelector         = '.sectionButton';
+  var sectionButtonClassName = buttonSelector.substring(1);
 
-  let operateOption = new OperateOptionValue();
-  let keybindTrace  = new KeyTrace();
-  let menuToggle    = new ShowMenuSelection(
+  var operateOption = new OperateOptionValue();
+  var keybindTrace  = new KeyTrace();
+  var menuToggle    = new ShowMenuSelection(
     { menu: menuSelector, button: buttonSelector }, 'select');
-  let afterMenuSelection = processAfterMenuSelection();
+  var afterMenuSelection = processAfterMenuSelection();
 
-  let elementDoesNotClassName = 'doNotShow';
+  var elementDoesNotClassName = 'doNotShow';
+  var prototypeClassName      = 'prototype';
 
-  let selectorHistoryDate                       = '.historyDate';
-  let selectorHistoryItem                       = '.historyItem';
-  let selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
-  let selectorOfLocationWhereAddItem            = '.historyItemList';
-  let selectorDateTitle                         = '.historyDateTitle';
-  let selectorDateDelete                        = '.historyDateDelete';
-  let selectorHistoryItemDelete                 = '.historyItemDelete';
-  let selectorHistoryItemDate                   = '.historyItemDate';
-  let selectorHistoryItemHref                   = '.historyItemUrl';
-  let selectorHistoryItemIcon                   = '.historyItemIcon';
-  let selectorHistoryItemTitle                  = '.historyItemTitle';
-  let selectorSearchHistoryDate                 = '#searchHistoryDate';
-  let selectorSearchHistoryItem                 = '#searchHistoryItem';
-  let selectorSearchHistoryDateList             = '#historyDateList';
-
-  let prototypeClassName = 'prototype';
-  let prototypeSelectorOfHistoryDate =
+  var selectorHistoryDate                       = '.historyDate';
+  var selectorHistoryItem                       = '.historyItem';
+  var selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
+  var selectorOfLocationWhereAddItem            = '.historyItemList';
+  var selectorDateTitle                         = '.historyDateTitle';
+  var selectorDateDelete                        = '.historyDateDelete';
+  var selectorHistoryItemDelete                 = '.historyItemDelete';
+  var selectorHistoryItemDate                   = '.historyItemDate';
+  var selectorHistoryItemHref                   = '.historyItemUrl';
+  var selectorHistoryItemIcon                   = '.historyItemIcon';
+  var selectorHistoryItemTitle                  = '.historyItemTitle';
+  var selectorSearchHistoryDate                 = '#searchHistoryDate';
+  var selectorSearchHistoryItem                 = '#searchHistoryItem';
+  var selectorSearchHistoryDateList             = '#historyDateList';
+  var prototypeSelectorOfHistoryDate =
     selectorHistoryDate + '.' + prototypeClassName;
-  let prototypeSelectorOfHistoryItem =
+  var prototypeSelectorOfHistoryItem =
     selectorHistoryItem + '.' + prototypeClassName;
+
+  var selectorSessionHistorySection                = '#session_history';
+  var selectorAddSavedSessionHistoryListLocation = '.savedSessionHistoryList';
+  var selectorAddSessionHistoryListLocation      = '.sessionHistoryList';
+  var selectorSavedSessionHistory                = '.savedSessionHistory';
+  var selectorSessionHistory                     = '.sessionHistory';
+
+  var selectorAddSavedSessionHistoryItemLocation =
+      '.savedSessionHistoryItemList';
+  var selectorAddSessionHistoryItemLocation = '.sessionHistoryItemList';
+
+  var selectorSessionHistoryItem            = '.sessionHistoryItem';
+
+  // sessionとsavedSessionで重複しているクラスをまとめる
+  var selectorSavedSessionInfo              = '.savedSessionInfo';
+  var selectorSessionInfo                   = '.sessionInfo';
+  var selectorSavedSessionTitle             = '.savedSessionTitle';
+  var selectorSessionTitle                  = '.sessionTitle';
+  var selectorSavedSessionDate              = '.savedSessionDate';
+  var selectorSessionDate                   = '.sessionDate';
+  var selectorSavedSessionDelete            = '.savedSessionDelete';
+  var selectorSessionDelete                 = '.sessionDelete';
+  var selectorSessionSave                   = '.sessionSave';
+  var selectorWindowNumber                  = '.windowNumber';
+
+  var selectorAddSessionItemLocation        = '.sessionItemList';
+  var selectorSessionItem                   = '.sessionItem';
+  var selectorSessionItemDelete             = '.sessionItemDelete';
+  var selectorSessionItemUrl                = '.sessionItemUrl';
+  var selectorSessionItemIcon               = '.sessionItemIcon';
+  var selectorSessionItemTitle              = '.sessionItemTitle';
+
+  var prototypeSelectorOfSavedSessionHistory =
+    selectorSavedSessionHistory + '.' + prototypeClassName;
+  var prototypeSelectorOfSessionHistory =
+    selectorSessionHistory + '.' + prototypeClassName;
+  var prototypeSelectorOfSessionHistoryItem =
+    selectorSessionHistoryItem + '.' + prototypeClassName;
+  var prototypeSelectorOfSessionItem =
+    selectorSessionItem + '.' + prototypeClassName;
 //}}}
 
   function addStringToAttributeOfElement(element, attrName, addStr)//{{{
@@ -334,7 +379,7 @@
 
   function removeStringFromAttributeOfElement(element, attrName, removeStr)//{{{
   {
-    let re = new RegExp('\\s*' + removeStr, 'ig');
+    var re = new RegExp('\\s*' + removeStr, 'ig');
     element.setAttribute(
       attrName, element.getAttribute(attrName).replace(re, ''));
   }//}}}
@@ -342,17 +387,17 @@
   function removeHistoryDate(event)//{{{
   {
     return new Promise(function(resolve, reject) {
-      let date = new Date(parseInt(event.target.getAttribute('name'), 10));
-      let begin = new Date(
+      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
+      var begin = new Date(
         date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-      let end = new Date(
+      var end = new Date(
         date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
       db.getCursor({
         name: dbHistoryName,
         range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
       })
       .then(function(histories) {
-        let delKeys = histories.map(function(v) {
+        var delKeys = histories.map(function(v) {
           return v.date;
         });
         return db.delete({
@@ -362,9 +407,9 @@
       })
       .then(function(ret) {
         return new Promise(function(resolve) {
-          let historyDateLegend = event.target.parentNode;
-          let historyDateField  = historyDateLegend.parentNode;
-          let historyList       = historyDateField.parentNode;
+          var historyDateLegend = event.target.parentNode;
+          var historyDateField  = historyDateLegend.parentNode;
+          var historyList       = historyDateField.parentNode;
           historyList.removeChild(historyDateField);
 
           resolve(ret);
@@ -387,8 +432,8 @@
       })
       .then(function(ret) {
         return new Promise(function(resolve) {
-          let historyItem     = event.target.parentNode;
-          let historyItemList = historyItem.parentNode;
+          var historyItem     = event.target.parentNode;
+          var historyItemList = historyItem.parentNode;
           historyItemList.removeChild(historyItem);
 
           resolve(ret);
@@ -403,7 +448,7 @@
   }//}}}
 
   function getPrototypeAndRemoveTag(selector) {//{{{
-    let proto = document.querySelector(selector).cloneNode(true);
+    var proto = document.querySelector(selector).cloneNode(true);
     removeStringFromAttributeOfElement(proto, 'class', elementDoesNotClassName);
     removeStringFromAttributeOfElement(proto, 'class', prototypeClassName);
     return proto;
@@ -411,15 +456,15 @@
 
   function addAutocompleteDateList(selector)//{{{
   {
-    let autocompleteList = document.querySelector(selector);
-    let optionElement = document.createElement('option');
+    var autocompleteList = document.querySelector(selector);
+    var optionElement = document.createElement('option');
 
     while (autocompleteList.firstChild) {
       autocompleteList.removeChild(autocompleteList.firstChild);
     }
 
     return function(date) {
-      let option = optionElement.cloneNode(true);
+      var option = optionElement.cloneNode(true);
       option.value = formatDate(date, 'YYYY-MM-DD');
       autocompleteList.appendChild(option);
     };
@@ -427,17 +472,17 @@
 
   function createHistoryDate(prototypeSelector)//{{{
   {
-    let historyDatePrototype =
+    var historyDatePrototype =
       getPrototypeAndRemoveTag(prototypeSelector);
 
     return function(addData) {
-      let historyDate = historyDatePrototype.cloneNode(true);
+      var historyDate = historyDatePrototype.cloneNode(true);
       historyDate.setAttribute('name', addData.date.getTime());
 
-      let dateTitle = historyDate.querySelector(selectorDateTitle);
+      var dateTitle = historyDate.querySelector(selectorDateTitle);
       dateTitle.textContent = formatDate(addData.date, 'YYYY/MM/DD');
 
-      let dateRemove = historyDate.querySelector(selectorDateDelete);
+      var dateRemove = historyDate.querySelector(selectorDateDelete);
       dateRemove.setAttribute('name', addData.date.getTime());
       dateRemove.addEventListener('click', removeHistoryDate, true);
 
@@ -447,28 +492,28 @@
 
   function createHistoryDateItemList(prototypeSelector)//{{{
   {
-    let historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
-    let historyItemList = document.createElement('div');
+    var historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
+    var historyItemList = document.createElement('div');
 
     return  {
       set: function(addItem) {
-        let historyItem = historyItemPrototype.cloneNode(true);
+        var historyItem = historyItemPrototype.cloneNode(true);
 
-        let itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
+        var itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
         itemRemove.addEventListener('click', removeHistoryItem, true);
         // item.date is already after use getTime.
         itemRemove.setAttribute('name', addItem.date);
 
-        let itemDate = historyItem.querySelector(selectorHistoryItemDate);
+        var itemDate = historyItem.querySelector(selectorHistoryItemDate);
         itemDate.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
 
-        let itemHref = historyItem.querySelector(selectorHistoryItemHref);
+        var itemHref = historyItem.querySelector(selectorHistoryItemHref);
         itemHref.href = addItem.url;
 
-        let ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
+        var ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
         ItemIcon.src = addItem.dataURI;
 
-        let itemTitle = historyItem.querySelector(selectorHistoryItemTitle);
+        var itemTitle = historyItem.querySelector(selectorHistoryItemTitle);
         itemTitle.textContent = addItem.title;
 
         historyItemList.appendChild(historyItem);
@@ -479,27 +524,340 @@
     };
   }//}}}
 
+  function getDictSplitEachSessionDate(sessions)//{{{
+  {
+    var data;
+    var ret = {};
+    for (var i = 0; i < sessions.length; i = (i + 1) | 0) {
+      data = sessions[i];
+      if (!ret.hasOwnProperty(data.date)) {
+        ret[data.date] = [];
+      }
+      ret[data.date].push(data);
+    }
+    return ret;
+  }//}}}
+
+  function saveSession(event)//{{{
+  {
+    var t = event.target.parentNode.parentNode.parentNode;
+    var date = parseInt(t.name);
+    debug(t);
+    db.getCursor({
+      name      : dbSessionName,
+      range     : IDBKeyRange.only(date),
+      indexName : 'date',
+    })
+    .then(function(histories) {
+      return db.put({
+        name: dbSavedSessionName,
+        data: histories,
+      });
+    })
+    .catch(function(e) {
+      error(e);
+    });
+  }//}}}
+
+  function deleteSavedSession(event)//{{{
+  {
+    var t = event.target.parentNode.parentNode.parentNode;
+    var date = parseInt(t.name);
+    debug(t);
+  }//}}}
+
+  function deleteSession(event)//{{{
+  {
+    var t = event.target.parentNode.parentNode.parentNode;
+    var date = parseInt(t.name);
+    debug(t);
+  }//}}}
+
+  function deleteSessionItem(event)//{{{
+  {
+    var t = event.target.parentNode.parentNode.parentNode;
+    var date = parseInt(t.name);
+    debug(t);
+  }//}}}
+
+  function createSessionItemList(prototypeSelector)//{{{
+  {
+    var historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
+    var historyItemList = document.createElement('div');
+
+    return  {
+      set: function(addItem) {
+        var historyItem = historyItemPrototype.cloneNode(true);
+
+        var itemRemove = historyItem.querySelector(selectorSessionItemDelete);
+        itemRemove.addEventListener('click', deleteSessionItem, true);
+        // item.date is already after use getTime.
+        itemRemove.setAttribute('name', addItem.date);
+
+        var itemHref = historyItem.querySelector(selectorSessionItemUrl);
+        itemHref.href = addItem.url;
+
+        var ItemIcon = historyItem.querySelector(selectorSessionItemIcon);
+        ItemIcon.src = addItem.dataURI;
+
+        var itemTitle = historyItem.querySelector(selectorSessionItemTitle);
+        itemTitle.textContent = addItem.title;
+
+        historyItemList.appendChild(historyItem);
+      },
+      get: function() {
+        return historyItemList.childNodes;
+      },
+      clear: function() {
+        historyItemList = document.createElement('div');
+      },
+    };
+  }//}}}
+
+  function showAllSessionHistory()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      getAllSessionHistory()
+      .then(function(results) {
+        var savedSessions = results[0].reverse();
+        var sessions      = results[1].reverse();
+        log('savedSessions', savedSessions);
+        log('sessions', sessions);
+
+        var pElm = document.querySelector(selectorSessionHistorySection);
+
+        var addSavedList = pElm.querySelector(
+                             selectorAddSavedSessionHistoryListLocation);
+        while (addSavedList.firstChild) {
+          addSavedList.removeChild(addSavedList.firstChild);
+        }
+        var addList = pElm.querySelector(selectorAddSessionHistoryListLocation);
+        while (addList.firstChild) {
+          addList.removeChild(addList.firstChild);
+        }
+
+        var prototypeSavedSessionHistory =
+          getPrototypeAndRemoveTag(prototypeSelectorOfSavedSessionHistory);
+        var prototypeSessionHistory =
+          getPrototypeAndRemoveTag(prototypeSelectorOfSessionHistory);
+        var prototypeSessionHistoryItem =
+          getPrototypeAndRemoveTag(prototypeSelectorOfSessionHistoryItem);
+        var prototypeSessionItem =
+          getPrototypeAndRemoveTag(prototypeSelectorOfSessionItem);
+
+        var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
+
+        var s, i, j, v2, key, sKeys,
+            sessionHistory, sessionDate, sessionSave, sessionDelete,
+            addSessionHistoryItem,
+            sessionItem, sessionItemDel, sessionItemIcon, sessionItemTitle,
+            sessionItemUrl;
+        
+        savedSessions.forEach(function(v) {
+          s = getDictSplitEachSessionDate(v.data);
+
+          sKeys = [];
+          for (key in s) {
+            sKeys.unshift(key);
+          }
+          for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
+            key = sKeys[i];
+
+            sessionHistory = prototypeSavedSessionHistory.cloneNode(true);
+            sessionHistory.setAttribute('name', parseInt(key));
+            sessionDate = sessionHistory.querySelector(
+              selectorSavedSessionDate);
+            sessionDate.textContent = formatDate(
+              new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
+            sessionDelete = sessionHistory.querySelector(
+              selectorSavedSessionDelete);
+            sessionDelete.addEventListener('click', deleteSavedSession);
+            addSessionHistoryItem = sessionHistory.querySelector(
+              selectorAddSavedSessionHistoryItemLocation);
+
+            cSIL.clear();
+            for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
+              v2 = s[key][j];
+              cSIL.set(v2);
+            }
+
+            var list = cSIL.get();
+            for (j = 0; j < list.length; j = (j + 1) | 0) {
+              addSessionHistoryItem.appendChild(list[j]);
+            }
+
+            addSavedList.appendChild(sessionHistory);
+          }
+        });
+
+        sessions.forEach(function(v) {
+          s = getDictSplitEachSessionDate(v.data);
+
+          sKeys = [];
+          for (key in s) {
+            sKeys.unshift(key);
+          }
+          for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
+            key = sKeys[i];
+
+            sessionHistory = prototypeSessionHistory.cloneNode(true);
+            sessionHistory.setAttribute('name', parseInt(key));
+            sessionDate    = sessionHistory.querySelector(selectorSessionDate);
+            sessionDate.textContent = formatDate(
+              new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
+            sessionSave = sessionHistory.querySelector(selectorSessionSave);
+            sessionSave.addEventListener('click', saveSession);
+            sessionDelete = sessionHistory.querySelector(selectorSessionDelete);
+            sessionDelete.addEventListener('click', deleteSession);
+            addSessionHistoryItem = sessionHistory.querySelector(
+              selectorAddSessionHistoryItemLocation);
+
+            cSIL.clear();
+            for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
+              v2 = s[key][j];
+              cSIL.set(v2);
+            }
+
+            var list = cSIL.get();
+            for (j = 0; j < list.length; j = (j + 1) | 0) {
+              addSessionHistoryItem.appendChild(list[j]);
+            }
+
+            addList.appendChild(sessionHistory);
+          }
+        });
+
+        resolve();
+      })
+      .catch(reject);
+    });
+  }//}}}
+
+  function getAllSessionHistory()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      if (db === void 0 || db === null) {
+        reject(new Error("IndexedDB doesn't initialize yet."));
+        return;
+      }
+
+      var p = [];
+      p.push( db.getAll({ name: dbSavedSessionName }) );
+      p.push( db.getAll({ name: dbSessionName }) );
+      p.push( db.getAll({ name: dbPageInfoName }) );
+      p.push( db.getAll({ name: dbDataURIName }) );
+      Promise.all(p)
+      .then(function(results) {
+        var savedSessions = results[0];
+        var sessions = results[1];
+        var pageInfos = results[2];
+        var dataURIs = results[3];
+
+        var p = [];
+        p.push(
+          getListAfterJoinHistoryDataOnDB([savedSessions, pageInfos, dataURIs])
+        );
+        p.push(
+          getListAfterJoinHistoryDataOnDB([sessions, pageInfos, dataURIs])
+        );
+        Promise.all(p)
+        .then(resolve)
+        .catch(reject);
+      })
+      .catch(reject);
+    });
+  }//}}}
+
+  function getListAfterJoinHistoryDataOnDB(array)//{{{
+  {
+    return new Promise(function(resolve) {
+      var histories = array[0];
+      var pageInfos = array[1];
+      var dataURIs  = array[2];
+
+      var pageInfoDict = {};
+      pageInfos.forEach(function(v) {
+        pageInfoDict[v.url] = { title: v.title, host: v.host };
+      });
+
+      var dataURIDict = {};
+      dataURIs.forEach(function(v) {
+        dataURIDict[v.host] = v.dataURI;
+      });
+
+      var page;
+      var date, tempDate;
+      var showList = [];
+      var dataList = [];
+      histories.forEach(function(v) {
+        page = pageInfoDict[v.url];
+        if (page === void 0 || page === null) {
+          warn("Don't find data in pageInfo of indexedDB.", v.url);
+          return;
+        }
+
+        date = new Date(v.date);
+        if (!tempDate) {
+          tempDate = date;
+        }
+
+        if (formatDate(tempDate, 'YYYY/MM/DD') !==
+          formatDate(date, 'YYYY/MM/DD')) {
+          showList.push({
+            date : new Date(tempDate.getFullYear(),
+              tempDate.getMonth(),
+              tempDate.getDate(),
+              0, 0, 0, 0),
+            data : dataList,
+          });
+            tempDate = date;
+            dataList = [];
+          }
+
+          dataList.push({
+            date    : v.date,
+            url     : v.url,
+            title   : page.title,
+            host    : page.host,
+            dataURI : dataURIDict[page.host] || icons[NORMAL],
+          });
+      });
+
+      if (dataList.length > 0) {
+        showList.push({
+          date : new Date(tempDate.getFullYear(),
+            tempDate.getMonth(),
+            tempDate.getDate(),
+            0, 0, 0, 0),
+          data : dataList,
+        });
+      }
+
+      resolve(showList);
+    });
+  }//}}}
+
   function showAllHistory()//{{{
   {
     return new Promise(function(resolve, reject) {
       getAllHistory()
       .then(function(historyArray) {
-        let autocompleteDateList =
+        var autocompleteDateList =
           addAutocompleteDateList(selectorSearchHistoryDateList);
 
-        let historyDateList =
+        var historyDateList =
           document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
         while (historyDateList.firstChild) {
           historyDateList.removeChild(historyDateList.firstChild);
         }
 
-        let historyDate =
+        var historyDate =
           createHistoryDate(prototypeSelectorOfHistoryDate);
-        let historyDateItemList =
+        var historyDateItemList =
           createHistoryDateItemList(prototypeSelectorOfHistoryItem);
 
-        let hDate, historyItemList, itemList;
-        let data, i, j, z;
+        var hDate, historyItemList, itemList;
+        var data, i, j, z;
         for (i = (historyArray.length - 1) | 0; 0 <= i; i = (i - 1) | 0) {
           data = historyArray[i];
           hDate = historyDate(data);
@@ -532,95 +890,31 @@
         return;
       }
 
-      let p = [];
+      var p = [];
       p.push( db.getAll({ name: dbHistoryName }) );
       p.push( db.getAll({ name: dbPageInfoName }) );
       p.push( db.getAll({ name: dbDataURIName }) );
-
       Promise.all(p)
-      .then(function(results) {
-        let histories = results[0];
-        let pageInfos = results[1];
-        let dataURIs = results[2];
-
-        let pageInfoDict = {};
-        pageInfos.forEach(function(v) {
-          pageInfoDict[v.url] = { title: v.title, host: v.host };
-        });
-
-        let dataURIDict = {};
-        dataURIs.forEach(function(v) {
-          dataURIDict[v.host] = v.dataURI;
-        });
-
-        let page;
-        let date, tempDate;
-        let showList = [];
-        let dataList = [];
-        histories.forEach(function(v) {
-          page = pageInfoDict[v.url];
-          if (page === void 0 || page === null) {
-            warn("Don't find data in pageInfo of indexedDB.", v.url);
-            return;
-          }
-
-          date = new Date(v.date);
-          if (!tempDate) {
-            tempDate = date;
-          }
-
-          if (formatDate(tempDate, 'YYYY/MM/DD') !==
-              formatDate(date, 'YYYY/MM/DD')) {
-            showList.push({
-              date : new Date(tempDate.getFullYear(),
-                tempDate.getMonth(),
-                tempDate.getDate(),
-                0, 0, 0, 0),
-              data : dataList,
-            });
-            tempDate = date;
-            dataList = [];
-          }
-
-          dataList.push({
-            date    : v.date,
-            url     : v.url,
-            title   : page.title,
-            host    : page.host,
-            dataURI : dataURIDict[page.host] || icons[NORMAL],
-          });
-        });
-
-        if (dataList.length > 0) {
-          showList.push({
-            date : new Date(tempDate.getFullYear(),
-              tempDate.getMonth(),
-              tempDate.getDate(),
-              0, 0, 0, 0),
-            data : dataList,
-          });
-        }
-
-        resolve(showList);
-      })
+      .then(getListAfterJoinHistoryDataOnDB)
+      .then(resolve)
       .catch(reject);
     });
   }//}}}
 
   function showSpecificHistoryDate(event)//{{{
   {
-    let value      = event.target.value;
-    let regex      = new RegExp(/(\d+)-(\d+)-(\d+)/);
-    let matches, searchDate;
+    var value      = event.target.value;
+    var regex      = new RegExp(/(\d+)-(\d+)-(\d+)/);
+    var matches, searchDate;
     if (value.length > 0) {
       matches    = value.match(regex);
       searchDate = new Date(matches[1], (matches[2] - 1) | 0, matches[3]);
     }
 
-    let historyDateList = document.querySelectorAll(
+    var historyDateList = document.querySelectorAll(
       selectorHistoryDate + ':not(.' + prototypeClassName + ')');
-    let item, date;
-    for (let i = 0; i < historyDateList.length; i = (i + 1) | 0) {
+    var item, date;
+    for (var i = 0; i < historyDateList.length; i = (i + 1) | 0) {
       item = historyDateList[i];
       date = new Date(parseInt(item.name, 10));
       if (value.length === 0 || date.getTime() === searchDate.getTime()) {
@@ -634,11 +928,11 @@
 
   function showSpecificHistoryItem(event)//{{{
   {
-    let regex = new RegExp(event.target.value.trim(), 'g');
-    let section, item;
-    let itemTitles = document.querySelectorAll(
+    var regex = new RegExp(event.target.value.trim(), 'g');
+    var section, item;
+    var itemTitles = document.querySelectorAll(
       selectorHistoryItemTitle + ':not(.' + prototypeClassName + ')');
-    for (let i = 0; i < itemTitles.length; i = (i + 1) | 0) {
+    for (var i = 0; i < itemTitles.length; i = (i + 1) | 0) {
       item = itemTitles[i];
       section = item.parentNode.parentNode.parentNode;
       if (regex.test(item.textContent)) {
@@ -654,10 +948,10 @@
   function initHistoryEvent(d)//{{{
   {
     return new Promise(function(resolve) {
-      let searchDate = d.querySelector(selectorSearchHistoryDate);
+      var searchDate = d.querySelector(selectorSearchHistoryDate);
       searchDate.addEventListener('change', showSpecificHistoryDate, true);
 
-      let searchItem = d.querySelector(selectorSearchHistoryItem);
+      var searchItem = d.querySelector(selectorSearchHistoryItem);
       searchItem.addEventListener('keyup', showSpecificHistoryItem, true);
 
       resolve();
@@ -676,7 +970,7 @@
 
   function sectionButtonClicked(event)//{{{
   {
-    let t = event.target;
+    var t = event.target;
     if (t.getAttribute('class') !== sectionButtonClassName) {
       return;
     }
@@ -688,8 +982,8 @@
   {
     return new Promise(function(resolve, reject) {
       try {
-        let e = d.querySelectorAll(buttonSelector);
-        for (let i = 0; i < e.length; i = (i + 1) | 0) {
+        var e = d.querySelectorAll(buttonSelector);
+        for (var i = 0; i < e.length; i = (i + 1) | 0) {
           e[i].addEventListener('click', sectionButtonClicked, true);
         }
         resolve();
@@ -701,12 +995,12 @@
 
   function updateOptionValueToStorage(e)//{{{
   {
-    let name = e.target.name;
+    var name = e.target.name;
     if (name === void 0 || name === null || name.length === 0) {
       return;
     }
 
-    let writeObj = {};
+    var writeObj = {};
     operateOption.get(document, name)
     .then(function(item) {
       writeObj[name] = item;
@@ -722,7 +1016,7 @@
   function initOptionElementEvent(d)//{{{
   {
     return new Promise(function(resolve) {
-      let i, els;
+      var i, els;
 
       els = d.querySelectorAll("input");
       for (i = 0; i < els.length; i = (i + 1) | 0) {
@@ -742,9 +1036,9 @@
   {
     log('showAllKeybindString');
 
-    let options = document.querySelectorAll(selectorKeybindOption);
-    let keyJson, keyString;
-    for (let i = 0; i < options.length; i = (i + 1) | 0) {
+    var options = document.querySelectorAll(selectorKeybindOption);
+    var keyJson, keyString;
+    for (var i = 0; i < options.length; i = (i + 1) | 0) {
       keyJson   = options[i].querySelector(selectorKeybindValue);
       keyString = options[i].querySelector(selectorShowingKeybind);
       try {
@@ -763,13 +1057,13 @@
 
   function setKeybindOption(className, keyInfo)//{{{
   {
-    let option = document.querySelector(
+    var option = document.querySelector(
       '.' + className + selectorKeybindOption);
 
-    let keybindValue = option.querySelector(selectorKeybindValue);
+    var keybindValue = option.querySelector(selectorKeybindValue);
     keybindValue.value = JSON.stringify(keyInfo);
 
-    let showKeybindString = option.querySelector(selectorShowingKeybind);
+    var showKeybindString = option.querySelector(selectorShowingKeybind);
     try {
       showKeybindString.value = generateKeyString(keyInfo);
     } catch (e) {
@@ -780,13 +1074,13 @@
   function keyupEvent(event)//{{{
   {
     if (keybindTrace.isRun()) {
-      let info = keybindTrace.traceEvent(event);
+      var info = keybindTrace.traceEvent(event);
       setKeybindOption(info.id, info.key);
 
       // save the keybind with using event to storage.
-      let newEvent = document.createEvent('HTMLEvents');
+      var newEvent = document.createEvent('HTMLEvents');
       newEvent.initEvent('change', false, true);
-      let traceTarget = document.querySelector(
+      var traceTarget = document.querySelector(
         '*[name="' + info.id + '"]' + selectorKeybindValue);
       traceTarget.dispatchEvent(newEvent);
     }
@@ -802,11 +1096,11 @@
 
   function buttonClicked(event)//{{{
   {
-    let cName           = event.target.getAttribute('class');
+    var cName           = event.target.getAttribute('class');
 
     // keybind only.
-    let parentClassName = event.target.parentNode.getAttribute('class');
-    let optionName;
+    var parentClassName = event.target.parentNode.getAttribute('class');
+    var optionName;
     if (parentClassName) {
       optionName = parentClassName.replace(
         selectorKeybindOption.replace(/^./, ''), '').trim();
@@ -823,9 +1117,9 @@
       setKeybindOption(optionName, {});
 
       // save the keybind with using event to storage.
-      let el = document.querySelector(
+      var el = document.querySelector(
         '[name="' + optionName + '"]' + selectorKeybindValue);
-      let newEvent = document.createEvent('HTMLEvents');
+      var newEvent = document.createEvent('HTMLEvents');
       newEvent.initEvent('change', false, true);
       el.dispatchEvent(newEvent);
       break;
@@ -835,8 +1129,8 @@
   function initButtonEvent(d)//{{{
   {
     return new Promise(function(resolve) {
-      let els = d.querySelectorAll('button');
-      for (let i = 0; i < els.length; i = (i + 1) | 0) {
+      var els = d.querySelectorAll('button');
+      for (var i = 0; i < els.length; i = (i + 1) | 0) {
         els[i].addEventListener('click', buttonClicked, true);
       }
       resolve();
@@ -866,7 +1160,7 @@
 
   // var optionModule = angular.module('options', ['myCommons']);
   // optionModule.config(['$compileProvider', function($compileProvider){
-  //   let urlRegex =
+  //   var urlRegex =
   //   /^\s*(data|https?|ftp|mailto|file|
     //   chrome-extension|blob:chrome-extension):/;
   //   $compileProvider.aHrefSanitizationWhitelist(urlRegex);
@@ -881,7 +1175,7 @@
   //   $scope.db = new Database(dbName, dbVersion);
   //   $scope.db.open(dbCreateStores);
 
-  //   let regTool = $document.find(
+  //   var regTool = $document.find(
   //     '[ng-controller="RegexToolController"]');
   //   $scope.showRegexTool = function() {
   //     regTool.toggleClass('show');
@@ -890,7 +1184,7 @@
   //   // select menu.
   //   $scope.selectMenu = '';
   //   $scope.menuItems = angular.copy(optionMenus);
-  //   let menu = {
+  //   var menu = {
   //     menuElement: $document.find('#config_change'),
   //     barName: 'change_bar',
   //     enable: function(name) {
@@ -905,17 +1199,17 @@
   //         return;
   //       }
 
-  //       let t = this.menuElement.find('.' + name);
+  //       var t = this.menuElement.find('.' + name);
   //       if (t.length !== 0) {
-  //         let bar = t.find('.' + this.barName);
+  //         var bar = t.find('.' + this.barName);
   //         (show) ? bar.show() : bar.hide();
   //         t.find('[translation="' + name + '"]').css('color', color);
   //       }
   //     },
   //   };
 
-  //   let pageElement = $document.find('#option_items').children('section');
-  //   let footer = $document.find('footer');
+  //   var pageElement = $document.find('#option_items').children('section');
+  //   var footer = $document.find('footer');
   //   $scope.$watch('selectMenu', function(newValue, oldValue) {
   //     debug('selectMenu was changed. on OptionController.',
   //       newValue, oldValue);
@@ -924,8 +1218,8 @@
   //       menu.enable(newValue);
 
   //       pageElement.each(function(index, element) {
-  //         let el = angular.element(element);
-  //         let className = el.attr('class').replace(/ng-scope/, '').trim();
+  //         var el = angular.element(element);
+  //         var className = el.attr('class').replace(/ng-scope/, '').trim();
   //         if (newValue === className) {
   //           el.show();
   //         } else {
@@ -976,19 +1270,19 @@
   //   $scope.keys = [];
   //   $scope.start = null;
 
-  //   let section = $document.find('[ng-controller="keybindController"]');
+  //   var section = $document.find('[ng-controller="keybindController"]');
   //   $scope.$watch('options.keybind', function(newValue, oldValue) {
   //     debug('keybind was changed.', newValue, oldValue);
   //     if (angular.isObject(newValue)) {
-  //       let pressKeys = section.find('input[type="text"].pressKey');
+  //       var pressKeys = section.find('input[type="text"].pressKey');
   //       if (pressKeys.length === 0) {
   //         error('option.keybind is watching error. pressKeys is zero.');
   //         return;
   //       }
 
-  //       let obj = null;
-  //       let className = null;
-  //       for (let i = 0, len = pressKeys.length; i < len; i++) {
+  //       var obj = null;
+  //       var className = null;
+  //       for (var i = 0, len = pressKeys.length; i < len; i++) {
   //         className = pressKeys[i].parentNode.parentNode.className;
   //         obj = angular.fromJson(newValue[className]);
   //         pressKeys[i].value = jQuery.isEmptyObject(obj) ?
@@ -1002,14 +1296,14 @@
   //   };
 
   //   $scope.clearBind = function($event) {
-  //     let keyBinds = angular.copy($scope.options.keybind);
+  //     var keyBinds = angular.copy($scope.options.keybind);
   //     keyBinds[$event.target.parentNode.parentNode.className] = '{}';
   //     $scope.$parent.options.keybind = keyBinds;
   //   };
 
   //   $document.keyup(function(event) {
   //     if (angular.isObject($scope.start)) {
-  //       let keyBinds = angular.copy($scope.options.keybind);
+  //       var keyBinds = angular.copy($scope.options.keybind);
   //       keyBinds[$scope.start.className] = angular.toJson(keyCheck(event));
   //       $scope.$apply(function() {
   //         $scope.$parent.options.keybind = keyBinds;
@@ -1027,7 +1321,7 @@
   // optionModule.controller('historyController', ['$scope', function($scope) {
   //   $scope.history = [];
   //   $scope.selectHistory = '';
-  //   let searchDate = null;
+  //   var searchDate = null;
 
   //   $scope.$watch('selectHistory', function(newValue) {
   //     debug('selectHistory was changed on historyController.', newValue);
@@ -1047,9 +1341,9 @@
   //     }
   //   };
 
-  //   let showHistory = function() {
+  //   var showHistory = function() {
   //     return new Promise(function(resolve, reject) {
-  //       let p = [];
+  //       var p = [];
   //       p.push( $scope.db.getAll({ name: dbHistoryName }) );
   //       p.push( $scope.db.getAll({ name: dbPageInfoName }) );
   //       p.push( $scope.db.getAll({ name: dbDataURIName }) );
@@ -1057,24 +1351,24 @@
   //       Promise.all(p)
   //       .then(function(results) {
   //         return new Promise(function(resolve2) {
-  //           let histories = results[0];
-  //           let pageInfos = results[1];
-  //           let dataURIs = results[2];
+  //           var histories = results[0];
+  //           var pageInfos = results[1];
+  //           var dataURIs = results[2];
 
-  //           let pageInfoDict = {};
+  //           var pageInfoDict = {};
   //           pageInfos.forEach(function(v) {
   //             pageInfoDict[v.url] = { title: v.title, host: v.host };
   //           });
 
-  //           let dataURIDict = {};
+  //           var dataURIDict = {};
   //           dataURIs.forEach(function(v) {
   //             dataURIDict[v.host] = v.dataURI;
   //           });
 
-  //           let page;
-  //           let date, tempDate;
-  //           let showList = [];
-  //           let dataList = [];
+  //           var page;
+  //           var date, tempDate;
+  //           var showList = [];
+  //           var dataList = [];
   //           histories.forEach(function(v) {
   //             page = pageInfoDict[v.url];
   //             if (page === void 0 || page === null) {
@@ -1139,9 +1433,9 @@
 
   //   $scope.deleteHistory = function(date) {
   //     return new Promise(function(resolve, reject) {
-  //       let begin = new Date(
+  //       var begin = new Date(
   //         date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-  //       let end = new Date(
+  //       var end = new Date(
   //         date.getFullYear(), date.getMonth(), date.getDate(),
   //         23, 59, 59, 999);
   //       $scope.db.getCursor({
@@ -1149,7 +1443,7 @@
   //         range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
   //       })
   //       .then(function(histories) {
-  //         let delKeys = histories.map(function(v) {
+  //         var delKeys = histories.map(function(v) {
   //           return v.date;
   //         });
   //         return $scope.db.delete({
@@ -1200,7 +1494,7 @@
   //     $scope.displaySavedSession = null;
   //     $scope.currentSessionTime = null;
 
-  //     let showSavedSession = function() {
+  //     var showSavedSession = function() {
   //       return new Promise(function(resolve, reject) {
   //         loadSession($scope.db, dbSavedSessionName)
   //         .then(function(showList) {
@@ -1216,9 +1510,9 @@
   //       });
   //     };
 
-  //     let showSession = function() {
+  //     var showSession = function() {
   //       return new Promise(function(resolve, reject) {
-  //         let p = [];
+  //         var p = [];
   //         p.push(
   //           new Promise(function(resolve2, reject2) {
   //             chrome.runtime.sendMessage(
@@ -1234,8 +1528,8 @@
   //         p.push( loadSession($scope.db, dbSessionName) );
 
   //         Promise.all(p).then(function(results) {
-  //           let currentSessionTime = results[0];
-  //           let showSessionList = results[1];
+  //           var currentSessionTime = results[0];
+  //           var showSessionList = results[1];
 
   //           $scope.$apply(function() {
   //             $scope.currentSessionTime = currentSessionTime;
@@ -1283,7 +1577,7 @@
   //           indexName: 'date',
   //         })
   //         .then(function(sessions) {
-  //           let delKeys = sessions.map(function(v) {
+  //           var delKeys = sessions.map(function(v) {
   //             return v.id;
   //           });
 
@@ -1312,7 +1606,7 @@
   //         })
   //         .then(function() {
   //           return new Promise(function(resolve2) {
-  //             let newSessions = sessions.filter(function(v) {
+  //             var newSessions = sessions.filter(function(v) {
   //               return v.id !== id;
   //             });
   //             $scope.displaySavedSession = newSessions;
@@ -1374,7 +1668,7 @@
   //           indexName: 'date',
   //         })
   //         .then(function(targetSessions) {
-  //           let delKeys = targetSessions.map(function(v) {
+  //           var delKeys = targetSessions.map(function(v) {
   //             return v.id;
   //           });
   //           return $scope.db.delete({
@@ -1405,18 +1699,18 @@
 
   //   $http.get(changeHistory)
   //   .success(function(data) {
-  //     let lists   = data.split('\n');
-  //     let text    = null;
-  //     let dateVer = null;
-  //     let items   = [];
-  //     let changed = [];
-  //     for (let i of lists) {
+  //     var lists   = data.split('\n');
+  //     var text    = null;
+  //     var dateVer = null;
+  //     var items   = [];
+  //     var changed = [];
+  //     for (var i of lists) {
   //       text = jQuery.trim(i);
   //       if (text.length === 0) {
   //         continue;
   //       }
 
-  //       let tMatch = text.match(/^(\d+)\/(\d+)\/(\d+)(.*)/);
+  //       var tMatch = text.match(/^(\d+)\/(\d+)\/(\d+)(.*)/);
   //       if (tMatch !== null) {
   //         if (angular.isString(dateVer) && items.length > 0) {
   //           changed.push({ dateVer: dateVer, items: items });
@@ -1447,10 +1741,10 @@
 
   // optionModule.controller('storageController',
   //   ['$scope', '$document', function($scope, $document) {
-  //   let status = $document.find('#status');
-  //   let statusSync = $document.find('#status_sync');
-  //   let configStatus = $document.find('#config_view_status');
-  //   let configView = $document.find('#config_view');
+  //   var status = $document.find('#status');
+  //   var statusSync = $document.find('#status_sync');
+  //   var configStatus = $document.find('#config_view_status');
+  //   var configView = $document.find('#config_view');
 
   //   $scope.$watchCollection('options', function(newValues, oldValues) {
   //     debug('options was changed.', newValues, oldValues);
@@ -1512,7 +1806,7 @@
   //   };
   //   $scope.export = function() {
   //     return new Promise(function(resolve, reject) {
-  //       let exportOptions = angular.copy($scope.options);
+  //       var exportOptions = angular.copy($scope.options);
   //       delete exportOptions[versionKey];
   //       delete exportOptions[previousSessionTimeKey];
   //       configView.val(angular.toJson(exportOptions, true));
@@ -1541,8 +1835,8 @@
   //           return;
   //         }
 
-  //         let options = {};
-  //         for (let key in defaultValues) {
+  //         var options = {};
+  //         for (var key in defaultValues) {
   //           if (defaultValues.hasOwnProperty(key)) {
   //             options[key] = items.hasOwnProperty(key) ?
   //                               items[key] : defaultValues[key];
@@ -1643,8 +1937,8 @@
   //   }
 
   //   function regexCheck() {
-  //     let splitedTargets;
-  //     let regex;
+  //     var splitedTargets;
+  //     var regex;
   //     try {
   //       splitedTargets = $scope.regex.target.split('\n');
   //       regex = new RegExp(
@@ -1654,7 +1948,7 @@
   //       return;
   //     }
 
-  //     let resultHTML = '';
+  //     var resultHTML = '';
   //     splitedTargets.forEach(function(v) {
   //       resultHTML += v.replace(regex, replacer) + '<br>';
   //     });

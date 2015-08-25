@@ -11,9 +11,9 @@
           return;
         }
 
-        let keyInfo;
-        let keys = {};
-        for (let keyName in items) {
+        var keyInfo;
+        var keys = {};
+        for (var keyName in items) {
           if (items.hasOwnProperty(keyName) &&
               keyName.indexOf('keybind_') !== -1) {
             try {
@@ -35,8 +35,8 @@
   }
 
   document.addEventListener('keyup', function(e) {
-    let currentFocus = document.activeElement;
-    let activeElementName = currentFocus.tagName.toLowerCase();
+    var currentFocus = document.activeElement;
+    var activeElementName = currentFocus.tagName.toLowerCase();
     if (activeElementName === 'input' || activeElementName === 'textarea') {
       return;
     }
@@ -47,9 +47,9 @@
         if (result) {
           getKeyBinds()
           .then(function(keys) {
-            let pushKey = JSON.stringify(keyCheck(e));
+            var pushKey = JSON.stringify(keyCheck(e));
 
-            for (let key in keys) {
+            for (var key in keys) {
               if (keys.hasOwnProperty(key) && keys[key] === pushKey) {
                 chrome.runtime.sendMessage(
                   { event: key.replace(/^keybind_/, '') });

@@ -1,0 +1,31 @@
+{
+  "name": "tab-memory-purge",
+  "version": "2.3.7",
+  "description": "This extension releases the memory of inactive tabs after a specified time.",
+  "main": "purge.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electron226/Tab-Memory-Purge.git"
+  },
+  "author": "electron226",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electron226/Tab-Memory-Purge/issues"
+  },
+  "homepage": "https://github.com/electron226/Tab-Memory-Purge#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^0.8.1",
+    "grunt-contrib-cssmin": "^0.13.0",
+    "grunt-contrib-htmlmin": "^0.4.0",
+    "grunt-contrib-uglify": "^0.9.2",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-csscomb": "^3.1.0",
+    "grunt-replace": "^0.10.2",
+    "grunt-usemin": "^3.1.1"
+  }
+}

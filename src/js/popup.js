@@ -21,8 +21,8 @@
             return;
           }
 
-          let p = document.querySelector('div[name="release"]');
-          let r = document.querySelector('div[name="restore_release"]');
+          var p = document.querySelector('div[name="release"]');
+          var r = document.querySelector('div[name="restore_release"]');
           if (p === null || r === null) {
             reject("fail updatePurgeOrRestoreButton function. " +
                    "Doesn't find release and restore.");
@@ -56,8 +56,8 @@
           return;
         }
 
-        let nr = document.querySelector('div[name="not_release"]');
-        let rnr = document.querySelector('div[name="remove_not_release"]');
+        var nr = document.querySelector('div[name="not_release"]');
+        var rnr = document.querySelector('div[name="remove_not_release"]');
         if (nr === null || rnr === null) {
           reject("fail updateNotReleaseButton function. " +
                  "Doesn't find not_release and remove_not_release.");
@@ -81,21 +81,20 @@
 
   function buttonClicked(event)
   {
-    let m, s;
-    let name = event.target.getAttribute('name');
+    var i, m, s;
+    var name = event.target.getAttribute('name');
 
     switch (name) {
     case 'option_prev':
       m = document.querySelectorAll('.menu');
-      debug(m);
-      for (let i = 0; i < m.length; i++) {
+      for (i = 0; i < m.length; i = (i + 1) | 0) {
         s = m[i].getAttribute('class').replace('option_menu_show', '').trim();
         m[i].setAttribute('class', s);
       }
       return; // return.
     case 'option_menu':
       m = document.querySelectorAll('.menu');
-      for (let i = 0; i < m.length; i++) {
+      for (i = 0; i < m.length; i = (i + 1) | 0) {
         s = m[i].getAttribute('class');
         m[i].setAttribute('class', s + ' ' + 'option_menu_show');
       }
@@ -123,15 +122,15 @@
   function initButtons()
   {
     return new Promise(function(resolve) {
-      let buttons = document.querySelectorAll('div.btn');
-      let el, inAll;
-      for (let i = 0; i < buttons.length; i++) {
+      var buttons = document.querySelectorAll('div.btn');
+      var i, j, el, inAll;
+      for (i = 0; i < buttons.length; i = (i + 1) | 0) {
         el = buttons[i];
         el.addEventListener('click', buttonClicked, true);
 
         // The elements of the all are setting name into item.
         inAll = el.querySelectorAll('*');
-        for (let j = 0; j < inAll.length; j++) {
+        for (j = 0; j < inAll.length; j = (j + 1) | 0) {
           if (!(inAll[j].getAttribute('name'))) {
             inAll[j].setAttribute('name', el.getAttribute('name'));
           }

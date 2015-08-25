@@ -1,11 +1,11 @@
 ﻿<!DOCTYPE html>
-<!-- <html lang="ja" ng-app="options" ng-csp> -->
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
     <title>Tab Memory Purge Options</title>
-    <!-- <link rel="stylesheet" href="css/lib/angular-csp.css" type="text/css"> -->
+    <!-- build:css css/options.min.css -->
     <link rel="stylesheet" href="css/options.css" type="text/css">
+    <!-- endbuild -->
   </head>
   <body>
     <header>
@@ -144,19 +144,19 @@
         <div class="historyList"></div>
 
         <!-- This use into the article of the history of a section menu. -->
-        <fieldset class="historyDate prototype doNotShow">
+        <fieldset class="historyDate prototype doNotShow historyField">
           <legend class="historyStyle">
             <span class="historyDateTitle">historyDateTitle</span>
-            <img src="icon/close.svg" alt="close button" class="historyDateDelete pageIcon">
+            <img src="../icon/close.svg" alt="close button" class="historyDateDelete pageIcon">
           </legend>
 
           <!-- the element of the class of historyItem add here. -->
-          <article class="historyItemList"></article>
+          <article class="historyItemList elipsis_over"></article>
         </fieldset>
 
         <!-- This use into the article of the history item. -->
-        <section class="historyItem prototype historyStyle doNotShow">
-          <img src="icon/close.svg" alt="close button" class="historyItemDelete pageIcon">
+        <section class="historyItem prototype historyStyle doNotShow elipsis_inner">
+          <img src="../icon/close.svg" alt="close button" class="historyItemDelete pageIcon">
           <span class="historyItemDate">item date</span>
           <span>
             <a href="#" target="_blank" class="historyItemUrl">
@@ -168,7 +168,58 @@
       </section>
 
       <section id="session_history" class="sectionMenu">
-        session_history
+        <!-- show area -->
+        <article>
+          <section class="savedSessionHistoryList elipsis_over"></section>
+          <section class="sessionHistoryList elipsis_over"></section>
+        </article>
+
+        <!-- savedSession prototype -->
+        <fieldset class="savedSessionHistory prototype doNotShow elipsis_inner">
+          <legend class="savedSessionInfo historyStyle">
+            <div>
+              <!-- <span class="savedSessionTitle"></span> -->
+              <span class="savedSessionDate"></span>
+              <img src="../icon/close.svg" alt="close button" class="savedSessionDelete pageIcon">
+            </div>
+          </legend>
+
+          <article class="savedSessionHistoryItemList elipsis_over"></article>
+        </fieldset>
+
+        <!-- session prototype -->
+        <fieldset class="sessionHistory prototype doNotShow elipsis_inner historyField">
+          <legend class="sessionInfo historyStyle">
+            <div>
+              <span class="sessionDate"></span>
+              <img src="../icon/close.svg" alt="save button" class="sessionSave pageIcon saveIcon">
+              <img src="../icon/close.svg" alt="close button" class="sessionDelete pageIcon">
+            </div>
+          </legend>
+
+          <article class="sessionHistoryItemList elipsis_over"></article>
+        </fieldset>
+
+        <!-- sessionHistoryItem prototype -->
+        <section class="sessionHistoryItem prototype doNotShow elipsis_inner">
+          <div>
+            <span translate="window">Window&nbsp;</span>
+            <span class="windowNumber"></span>
+          </div>
+
+          <section class="sessionItemList elipsis_over"></section>
+        </section>
+
+        <!-- sessionItem prototype -->
+        <section class="sessionItem prototype doNotShow elipsis_inner historyStyle">
+          <img src="../icon/close.svg" alt="close button" class="sessionItemDelete pageIcon">
+          <span>
+            <a href="#" target="_blank" class="sessionItemUrl">
+              <img src="" alt="page icon" class="sessionItemIcon pageIcon">
+              <span class="sessionItemTitle">item title</span>
+            </a>
+          </span>
+        </section>
       </section>
 
       <section id="change_history" class="sectionMenu">
@@ -177,6 +228,7 @@
 
       <section id="information" class="sectionMenu">
         information
+        <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
       </section>
 
       <section id="operate_settings" class="sectionMenu">
@@ -432,14 +484,14 @@
           <!--     <li> -->
           <!--       <div translation="spec4"></div> -->
           <!--       <ul> -->
-          <!--         <li><img src="icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li> -->
-          <!--         <li><img src="icon/icon_019_with_keybind.png">&nbsp;<span translation="spec_icon_with_keybind"></span></li> -->
-          <!--         <li><img src="icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li> -->
-          <!--         <li><img src="icon/icon_019_use_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li> -->
-          <!--         <li><img src="icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li> -->
-          <!--         <li><img src="icon/icon_019_extension_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li> -->
-          <!--         <li><img src="icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li> -->
-          <!--         <li><img src="icon/icon_019_temp_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li> -->
+          <!--         <li><img src="../icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_with_keybind.png">&nbsp;<span translation="spec_icon_with_keybind"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_use_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_extension_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li> -->
+          <!--         <li><img src="../icon/icon_019_temp_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li> -->
           <!--       </ul> -->
           <!--     </li> -->
           <!--     <li><span translation="spec5"></span></li> -->
@@ -521,13 +573,16 @@
       <!-- <div style="clear: left;"></div> -->
     <!-- </div> -->
 
-    <!-- <script type="text/javascript" src="src/lib/jquery-2.1.1.min.js"></script> -->
-    <!-- <script type="text/javascript" src="src/lib/angular.min.js"></script> -->
-    <script type="text/javascript" src="src/debug.js"></script>
-    <script type="text/javascript" src="src/common.js"></script>
-    <script type="text/javascript" src="src/common_func.js"></script>
-    <script type="text/javascript" src="src/indexedDB.js"></script>
-    <!-- <script type="text/javascript" src="src/myCommon_angular.js"></script> -->
-    <script type="text/javascript" src="src/options.js"></script>
+    <!-- build:js js/dCommons.min.js -->
+    <script src="js/debug.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/common_func.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/indexedDB.min.js-->
+    <script type="text/javascript" src="js/indexedDB.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/options.min.js-->
+    <script type="text/javascript" src="js/options.js"></script>
+    <!-- endbuild -->
   </body>
 </html>

@@ -1,7 +1,8 @@
 (function(window){
   "use strict";
 
-  var debugMode = true;
+  //var debugMode = true;
+  var debugMode = @@debugMode;
 
   // all debug methods.
   var debugMethods = [

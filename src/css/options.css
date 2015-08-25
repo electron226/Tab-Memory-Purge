@@ -4,15 +4,17 @@ textarea,
 button
 {
     font-family: 'Meiryo UI', 'メイリオ', 'ＭＳ Ｐゴシック',
-        'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
+
     color: #212121;
 }
 
 ul
 {
-    padding: 0;
     margin: 0 1em;
+    padding: 0;
+
     list-style: none;
 }
 
@@ -20,23 +22,26 @@ ul
 {
     width: 100%;
     padding: 1em 0;
-    background-color: #03A9F4;
     /* box-shadow: 0 0 3px 0 gray; */
+
     border: 0;
+    background-color: #03a9f4;
 }
 
-.sectionButton:hover, .sectionButton.select
+.sectionButton:hover,
+.sectionButton.select
 {
-    background-color: #B3E5FC;
+    background-color: #b3e5fc;
 }
 
 .sectionMenu
 {
     width: 98%;
-    background-color: #FFFFFF;
-    box-shadow: 0 3px 3px 0 gray;
-    padding: 1em 0;
     margin: 0 auto;
+    padding: 1em 0;
+
+    background-color: #fff;
+    box-shadow: 0 3px 3px 0 gray;
 }
 
 .doNotShow
@@ -53,33 +58,57 @@ ul
 .historyField
 {
     margin: 1em 8px 0;
+
     border: 0;
 }
 
 .historyStyle
 {
-    /* background-color: #B6B6B6; */
-    box-shadow: 0 0 1px 0 #212121;
-    padding: 0.3em;
     margin-bottom: 0.5em;
+    padding: 0.3em;
+    /* background-color: #B6B6B6; */
+
+    box-shadow: 0 0 1px 0 #212121;
 }
 
-.historyItemList
+.elipsis_over
 {
-    margin: auto 7px;
-    width: 99%;
     display: table;
+
+    width: 99%;
+    margin: auto 7px;
+
     table-layout: fixed;
 }
 
-.historyItem
+.elipsis_inner
 {
     overflow: hidden;
+
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-input, textarea
+.sessionHistoryItemList
+{
+    display: table;
+
+    width: 99%;
+    margin: auto 7px;
+
+    table-layout: fixed;
+}
+
+.sessionItem
+{
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+input,
+textarea
 {
     border: thin solid #727272;
 }
@@ -91,20 +120,24 @@ input, textarea
 
 nav
 {
+    font-size: 0;
+
     margin: 0;
     padding: 0;
+
     list-style-type: none;
 
-    font-size: 0;
     text-align: center;
 }
 
 nav li
 {
-    display: inline-block;
-    
     font-size: 14px;
+
+    display: inline-block;
+
     width: 14%;
+
     text-align: center;
 }
 
@@ -116,6 +149,7 @@ nav li
 .keybindTitle
 {
     display: inline-block;
+
     width: 300px;
 }
 
@@ -127,6 +161,7 @@ nav li
 .importAndExport li
 {
     font-size: 14px;
+
     display: inline-block;
 
     width: 45%;
@@ -137,16 +172,21 @@ nav li
 {
     width: 100%;
     height: 100%;
-
     margin-top: 0.5em;
+}
+
+.saveIcon
+{
+    transform: rotate(45deg);
 }
 
 .pageIcon
 {
-    width: 16px;
-    height: 16px;
     position: relative;
     top: 3px;
+
+    width: 16px;
+    height: 16px;
 }
 
 /* header > h2 */

@@ -23,11 +23,16 @@
         <li>url&nbsp;&nbsp;&nbsp;:&nbsp;<span id="url"></span></li>
     </ul>
     <div>If you are clicked on this page, this page is jumped to the page of the url.</div>
-
-    <script src="src/debug.js"></script>
-    <script src="src/common.js"></script>
-    <script src="src/common_func.js"></script>
-    <script src="src/indexedDB.js"></script>
-    <script src="src/blank.js"></script>
+    <!-- build:js js/dCommons.min.js -->
+    <script src="js/debug.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/common_func.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/indexedDB.min.js-->
+    <script type="text/javascript" src="js/indexedDB.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/blank.min.js -->
+    <script src="js/blank.js"></script>
+    <!-- endbuild -->
 </body>
 </html>

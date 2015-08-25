@@ -3,64 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>popup</title>
+    <!-- build:css css/popup.min.css -->
     <link rel="stylesheet" href="css/popup.css" type="text/css">
+    <!-- endbuild -->
 </head>
 
 <body>
   <div class="menu">
     <nav class="mainMenu">
       <div name="release" class="btn">
-        <img src="icon/material design/svg/forward18.svg" class="icon">
+        <img src="../icon/material design/svg/forward18.svg" class="icon">
         <span translation="release"></span>
       </div>
 
       <div name="restore_release" class="btn">
-        <img src="icon/material design/svg/back57.svg" class="icon">
+        <img src="../icon/material design/svg/back57.svg" class="icon">
         <span translation="restore"></span>
       </div>
 
       <div name="not_release" class="btn">
-        <img src="icon/material design/svg/pause44.svg" class="icon">
+        <img src="../icon/material design/svg/pause44.svg" class="icon">
         <span translation="not_release"></span>
       </div>
 
       <div name="remove_not_release" class="btn">
-        <img src="icon/material design/svg/play106.svg" class="icon">
+        <img src="../icon/material design/svg/play106.svg" class="icon">
         <span translation="remove_not_release"></span>
       </div>
 
       <div name="all_purge" class="btn">
-        <img src="icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
+        <img src="../icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
         <span translation="all_purge"></span>
       </div>
 
       <div name="all_purge_without_exclude_list" class="btn">
-        <img src="icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
+        <img src="../icon/material design/svg/reply18.svg" class="icon" style="transform: scaleX(-1)">
         <span translation="all_purge_without_exclude_list"></span>
       </div>
 
       <div name="all_unpurge" class="btn">
-        <img src="icon/material design/svg/reply18.svg" class="icon">
+        <img src="../icon/material design/svg/reply18.svg" class="icon">
         <span translation="all_unpurge"></span>
       </div>
 
       <hr>
 
       <div name="switchTimer" class="btn">
-        <img src="icon/material design/svg/turn20.svg" class="icon">
+        <img src="../icon/material design/svg/turn20.svg" class="icon">
         <span translation="switchTimer"></span>
       </div>
 
       <div name="add_current_tab_exclude_list" class="btn">
-        <img src="icon/material design/svg/add186.svg" class="icon">
+        <img src="../icon/material design/svg/add186.svg" class="icon">
         <span translation="add_current_tab_exclude_list"></span>
       </div>
 
       <div name="option_menu" class="btn">
-        <img src="icon/material design/svg/settings49.svg" class="icon">
+        <img src="../icon/material design/svg/settings49.svg" class="icon">
         <span translation="option"></span>
         <span style="float: right;">
-          <img src="icon/material design/svg/three170.svg" class="icon">
+          <img src="../icon/material design/svg/three170.svg" class="icon">
         </span>
         <span style="clear: right;"></span>
       </div>
@@ -68,7 +70,7 @@
 
     <nav class="optionMenu">
       <div name="option_prev" class="btn" style="position: relative; left: 7px;">
-        <img src="icon/material design/svg/three170.svg" class="icon">
+        <img src="../icon/material design/svg/three170.svg" class="icon">
       </div>
 
       <div name="option" class="btn">
@@ -97,9 +99,13 @@
     </nav>
   </div>
 
-  <script type="text/javascript" src="src/debug.js"></script>
-  <script type="text/javascript" src="src/common.js"></script>
-  <script type="text/javascript" src="src/common_func.js"></script>
-  <script type="text/javascript" src="src/popup.js"></script>
+    <!-- build:js js/dCommons.min.js -->
+    <script src="js/debug.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/common_func.js"></script>
+    <!-- endbuild -->
+    <!-- build:js js/popup.min.js-->
+    <script type="text/javascript" src="js/popup.js"></script>
+    <!-- endbuild -->
 </body>
 </html>
