@@ -8,6 +8,9 @@
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', path, true);
+      xhr.ontimeout = function() {
+        console.error('timeout. path: ' + path);
+      };
       xhr.onload = function() {
         if (xhr.status === 200) {
           var t = JSON.parse(this.response);
@@ -27,6 +30,7 @@
         }
       };
       xhr.onerror = reject;
+      xhr.timeout = 60;
       xhr.send();
     });
   };
@@ -145,6 +149,9 @@
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.responseType = 'arraybuffer';
+      xhr.ontimeout = function() {
+        console.error('timeout. url: ' + url);
+      };
       xhr.onload = function() {
         if (xhr.status === 200) {
           var bytes = new Uint8Array(this.response);
@@ -160,6 +167,7 @@
         }
       };
       xhr.onerror = reject;
+      xhr.timeout = 60;
       xhr.send();
     });
   };
