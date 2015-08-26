@@ -39,11 +39,7 @@ div
 
 .option_menu_show
 {
-    -webkit-transform: translateX(-360px);
-       -moz-transform: translateX(-360px);
-        -ms-transform: translateX(-360px);
-         -o-transform: translateX(-360px);
-            transform: translateX(-360px);
+    transform: translateX(-360px);
 }
 
 .icon
