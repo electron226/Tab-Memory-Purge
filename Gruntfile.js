@@ -130,6 +130,22 @@ module.exports = function(grunt) {
         },
       },
     },
+    autoprefixer: {
+      options: {
+        browsers: [ 'last 2 Chrome versions' ],
+      },
+      prefix: {
+        files: [
+          {
+            expand: true,
+            flatten: true,
+            src: 'src/css/*.css',
+            dest: 'src/css/',
+            filter: 'isFile',
+          },
+        ],
+      },
+    },
     csscomb: {
       format: {
         files: {
@@ -233,6 +249,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-usemin');
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
+  grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
@@ -242,12 +259,14 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', [
     'clean:debug',
+    'autoprefixer:prefix',
     'csscomb:format',
     'replace:debug',
   ]);
   grunt.registerTask('build', [
     'clean:build',
     'copy',
+    'autoprefixer:prefix',
     'csscomb:format',
     'replace:build',
     'useminPrepare',
