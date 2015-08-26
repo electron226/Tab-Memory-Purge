@@ -157,6 +157,21 @@ module.exports = function(grunt) {
         ],
       },
     },
+    sass: {
+      build: {
+        // options: {
+        // },
+        files: [
+          {
+            expand: true,
+            cwd: 'src/sass/',
+            src: [ '*.scss' ],
+            dest: 'src/css',
+            ext: '.css',
+          },
+        ],
+      },
+    },
     csscomb: {
       format: {
         files: {
@@ -223,9 +238,6 @@ module.exports = function(grunt) {
       },
     },
     watch: {
-      options: {
-        livereload: 60000,
-      },
       files: {
         files: [
           '_locales/**/*',
@@ -242,9 +254,16 @@ module.exports = function(grunt) {
         files: ['src/**/*.html'],
         tasks: ['copy:html', 'htmlmin'],
       },
+      sass: {
+        files: ['src/sass/**/*.scss'],
+        tasks: ['sass'],
+      },
       css: {
         files: ['src/css/**/*.css'],
-        tasks: ['cssmin'],
+        tasks: ['csscomb', 'cssmin'],
+        options: {
+          livereload: true,
+        },
       },
       js: {
         files: ['src/js/**/*.js'],
@@ -261,6 +280,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -269,8 +289,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', [
+  grunt.registerTask('debug', [
     'clean:debug',
+    'sass:build',
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:debug',
@@ -278,6 +299,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', [
     'clean:build',
     'copy',
+    'sass:build',
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:build',
@@ -291,5 +313,8 @@ module.exports = function(grunt) {
   grunt.registerTask('package', [
     'build',
     'compress',
+  ]);
+  grunt.registerTask('default', [
+    'debug',
   ]);
 };

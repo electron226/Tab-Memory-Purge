@@ -1,0 +1,82 @@
+$fontSize:       14px;
+$minWidth:       340px;
+$inWidth:        $minWidth - 20px;
+$boxShadowColor: #aaa;
+$iconSize:       16px;
+
+.backgroundColorWhite {
+    background-color: #fff;
+}
+
+body {
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-size: $fontSize;
+
+    min-width: $minWidth;
+}
+
+nav, div {
+    transition: all 0.5s ease 0s;
+}
+
+.mainMenu {
+    @extend .backgroundColorWhite;
+
+    position: relative;
+    z-index:  2;
+    top:      0;
+    left:     0;
+
+    width: $inWidth;
+}
+
+.optionMenu {
+    @extend .backgroundColorWhite;
+
+    position: absolute;
+    z-index:  1;
+    top:      0;
+    left:     $minWidth + 10px;
+
+    width:    $inWidth;
+}
+
+.option_menu_show {
+    transform: translateX(-360px);
+}
+
+.icon {
+    position: relative;
+    top:      2px;
+    right:    7px;
+    width:    $iconSize;
+    height:   $iconSize;
+}
+
+div.btn {
+    width:   $inWidth;
+    margin:  5px auto;
+    padding: 5px 10px;
+
+    cursor:     pointer;
+    text-align: left;
+
+    color: #333;
+    text-shadow: 0 -1px 0 rgba(000,000,000,0.2), 0 1px 0 rgba(255,255,255,0.3);
+}
+
+div.btn:hover {
+    box-shadow: 0 1px 8px 1px $boxShadowColor;
+}
+
+div.btn:active {
+    box-shadow: 0 0 1px 1px $boxShadowColor inset;
+}
+
+hr {
+    margin: 6px 0;
+
+    color: #fff;
+    border: none;
+    border-top: solid 1px #000;
+}

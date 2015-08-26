@@ -1,10 +1,16 @@
+.border0,
+.sectionButton,
+.historyField
+{
+    border: 0;
+}
+
 body,
 input,
 textarea,
 button
 {
-    font-family: 'Meiryo UI', 'メイリオ', 'ＭＳ Ｐゴシック',
-    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
 
     color: #212121;
@@ -22,9 +28,7 @@ ul
 {
     width: 100%;
     padding: 1em 0;
-    /* box-shadow: 0 0 3px 0 gray; */
 
-    border: 0;
     background-color: #03a9f4;
 }
 
@@ -58,37 +62,17 @@ ul
 .historyField
 {
     margin: 1em 8px 0;
-
-    border: 0;
 }
 
 .historyStyle
 {
     margin-bottom: 0.5em;
     padding: 0.3em;
-    /* background-color: #B6B6B6; */
 
     box-shadow: 0 0 1px 0 #212121;
 }
 
-.elipsis_over
-{
-    display: table;
-
-    width: 99%;
-    margin: auto 7px;
-
-    table-layout: fixed;
-}
-
-.elipsis_inner
-{
-    overflow: hidden;
-
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
+.ellipsis_over,
 .sessionHistoryItemList
 {
     display: table;
@@ -99,6 +83,7 @@ ul
     table-layout: fixed;
 }
 
+.ellipsis_inner,
 .sessionItem
 {
     overflow: hidden;
@@ -113,11 +98,6 @@ textarea
     border: thin solid #727272;
 }
 
-.dontShowBorder
-{
-    border: 0;
-}
-
 nav
 {
     font-size: 0;
@@ -129,7 +109,6 @@ nav
 
     text-align: center;
 }
-
 nav li
 {
     font-size: 14px;
@@ -157,7 +136,6 @@ nav li
 {
     font-size: 0;
 }
-
 .importAndExport li
 {
     font-size: 14px;
@@ -167,7 +145,6 @@ nav li
     width: 45%;
     height: 30em;
 }
-
 .importAndExport textarea
 {
     width: 100%;
@@ -188,205 +165,3 @@ nav li
     width: 16px;
     height: 16px;
 }
-
-/* header > h2 */
-/* { */
-/*     margin-bottom: 5px; */
-/* } */
-
-/* nav */
-/* { */
-/*     margin-bottom: 1em; */
-/* } */
-
-/* fieldset */
-/* { */
-/*     margin: 1em auto; */
-
-/*     border-width: 1px solid; */
-/*     border-radius: 5px; */
-/* } */
-
-/* #config_change */
-/* { */
-/*     position: fixed; */
-/*     z-index: 20; */
-/*     top: 50px; */
-
-/*     width: 120px; */
-
-/*     text-align: center; */
-/* } */
-
-/* #config_page */
-/* { */
-/*     position: relative; */
-/*     z-index: 0; */
-/*     left: 120px; */
-
-/*     max-width: 1200px; */
-/* } */
-
-/* .change_bar */
-/* { */
-/*     width: 3px; */
-
-/*     background-color: gray; */
-/* } */
-
-/* .arrow_animation */
-/* { */
-/*     -webkit-animation: spin 1.5s linear infinite; */
-/*             animation: spin 1.5s linear infinite; */
-/* } */
-
-/* .arrow */
-/* { */
-/*     width: 0.5rem; */
-/*     height: 0.5rem; */
-
-/*     transform: rotate(-45deg); */
-
-/*     border-top: solid 2px; */
-/*     border-left: solid 2px; */
-/* } */
-
-/* @-webkit-keyframes spin */
-/* { */
-/*     0% */
-/*     { */
-/*         -webkit-transform: rotate3d(1, 0, 0, 0deg); */
-/*     } */
-/*     100% */
-/*     { */
-/*         -webkit-transform: rotate3d(1, 0, 0, 360deg); */
-/*     } */
-/* } */
-/* @keyframes spin */
-/* { */
-/*     0% */
-/*     { */
-/*         -webkit-transform: rotate3d(1, 0, 0, 0deg); */
-/*     } */
-/*     100% */
-/*     { */
-/*         -webkit-transform: rotate3d(1, 0, 0, 360deg); */
-/*     } */
-/* } */
-
-/* .delete_icon */
-/* { */
-/*     position: absolute; */
-/*     left: 0.175rem; */
-
-/*     width: 0.25rem; */
-/*     height: 0.25rem; */
-
-/*     transform: rotate(-45deg); */
-
-/*     border-top: solid 2px; */
-/*     border-left: solid 2px; */
-/* } */
-/* .delete_icon2 */
-/* { */
-/*     position: absolute; */
-/*     left: -0.175rem; */
-
-/*     width: 0.25rem; */
-/*     height: 0.25rem; */
-
-/*     transform: rotate(135deg); */
-
-/*     border-top: solid 2px; */
-/*     border-left: solid 2px; */
-/* } */
-
-/* #sample_url */
-/* { */
-/*     width: 472px; */
-/* } */
-
-/* div#history_date_list */
-/* { */
-/*     position: absolute; */
-/*     left: -1em; */
-
-/*     overflow: auto; */
-
-/*     width: 120px; */
-/*     height: 400px; */
-/*     margin-top: 12px; */
-/* } */
-
-/* .savedBtn */
-/* { */
-/*     width: 100px; */
-/*     padding: 10px 0; */
-
-/*     color: black; */
-/*     border-top: 1px solid #ddd; */
-/*     border-right: 1px solid #bbb; */
-/*     border-bottom: 1px solid #bbb; */
-/*     border-left: 1px solid #ddd; */
-/*     background: #eee; */
-/*     box-shadow: 1px 1px 1px 1px gray; */
-/* } */
-
-/* .savedBtn:hover */
-/* { */
-/*     color: red; */
-/* } */
-
-/* .savedBtn:active */
-/* { */
-/*     position: relative; */
-/*     top: 1px; */
-/*     left: 1px; */
-
-/*     color: red; */
-/*     box-shadow: 0 0 0 0 gray; */
-/* } */
-
-/* ツールチップ*/
-/* div.tooltip > div.tooltip */
-/* { */
-/*     display: none; */
-
-/*     max-width: 550px; */
-/*     margin-left: 8px; */
-/*     padding: 2px 3px; */
-/* } */
-
-/* div.tooltip:hover > div.tooltip */
-/* { */
-/*     position: absolute; */
-
-/*     display: inline; */
-
-/*     color: #6c6c6c; */
-/*     border: 1px solid #ccc; */
-/*     background: #fff; */
-/* } */
-
-/* /1* 正規表現ツール *1/ */
-/* [ng-controller='RegexToolController'] */
-/* { */
-/*     position: fixed; */
-/*     /1* transition: 1.0s ease 0.0s; *1/ */
-/*     top: 100%; */
-
-/*     padding: 10px; */
-
-/*     background-color: lightcyan; */
-/* } */
-
-/* [ng-controller='RegexToolController'].show */
-/* { */
-/*     transform: translate(0, -400px); */
-/* } */
-
-/* [ng-controller='RegexToolController'] button */
-/* { */
-/*     position: absolute; */
-/*     right: 1%; */
-/* } */

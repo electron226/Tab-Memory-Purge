@@ -1,0 +1,153 @@
+$iconSize:                 16px;
+$fontSize:                 14px;
+$fontColor:                #212121;
+$sectionButtonColor:       #03a9f4;
+$sectionButtonSelectColor: #b3e5fc;
+$InputBorderColor:         #727272;
+
+.border0 {
+    border: 0;
+}
+
+body, input, textarea, button {
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-size: $fontSize;
+
+    color: $fontColor;
+}
+
+ul {
+    margin: 0 1em;
+    padding: 0;
+
+    list-style: none;
+}
+
+.sectionButton {
+    @extend .border0;
+
+    width: 100%;
+    padding: 1em 0;
+
+    background-color: $sectionButtonColor;
+}
+
+.sectionButton:hover, .sectionButton.select {
+    background-color: $sectionButtonSelectColor;
+}
+
+.sectionMenu {
+    width: 98%;
+    margin: 0 auto;
+    padding: 1em 0;
+
+    background-color: #fff;
+    box-shadow: 0 3px 3px 0 gray;
+}
+
+.doNotShow {
+    display: none;
+}
+
+.searchHistory {
+    width: 95%;
+    margin: 0 auto;
+}
+
+.historyField {
+    @extend .border0;
+
+    margin: 1em 8px 0;
+}
+
+.historyStyle {
+    margin-bottom: 0.5em;
+    padding: 0.3em;
+
+    box-shadow: 0 0 1px 0 $fontColor;
+}
+
+.ellipsis_over {
+    display: table;
+
+    width: 99%;
+    margin: auto 7px;
+
+    table-layout: fixed;
+}
+
+.ellipsis_inner {
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.sessionHistoryItemList {
+    @extend .ellipsis_over;
+}
+
+.sessionItem {
+    @extend .ellipsis_inner;
+}
+
+input, textarea {
+    border: thin solid $InputBorderColor;
+}
+
+nav {
+    font-size: 0;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+
+    li {
+        font-size: 14px;
+        display: inline-block;
+        width: 14%;
+        text-align: center;
+    }
+}
+
+.sectionMenu {
+    li {
+        margin: 0.5em;
+    }
+}
+
+.keybindTitle {
+    display: inline-block;
+    width: 300px;
+}
+
+.importAndExport {
+    ul {
+        font-size: 0;
+    }
+
+    li {
+        font-size: 14px;
+        display: inline-block;
+        width: 45%;
+        height: 30em;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100%;
+        margin-top: 0.5em;
+    }
+}
+
+.saveIcon {
+    transform: rotate(45deg);
+}
+
+.pageIcon {
+    position: relative;
+    top: 3px;
+
+    width: $iconSize;
+    height: $iconSize;
+}

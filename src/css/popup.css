@@ -1,7 +1,13 @@
+.backgroundColorWhite,
+.mainMenu,
+.optionMenu
+{
+    background-color: #fff;
+}
+
 body
 {
-    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic',
-    'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
     font-size: 14px;
 
     min-width: 340px;
@@ -21,8 +27,6 @@ div
     left: 0;
 
     width: 320px;
-
-    background: #fff;
 }
 
 .optionMenu
@@ -33,8 +37,6 @@ div
     left: 350px;
 
     width: 320px;
-
-    background: #fff;
 }
 
 .option_menu_show
@@ -62,7 +64,7 @@ div.btn
     text-align: left;
 
     color: #333;
-    text-shadow: 0 -1px 0 rgba(000,000,000,0.2), 0 1px 0 rgba(255,255,255,0.3);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 div.btn:hover
