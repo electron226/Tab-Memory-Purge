@@ -3,9 +3,21 @@ module.exports = function(grunt) {
   'use strict';
 
   grunt.initConfig({
+    compress: {
+      options: {
+        level: 6,
+        archive: 'archive.zip'
+      },
+      files: {
+        expand: true,
+        cwd: 'dist/',
+        src: [ '**/*' ],
+        filter: 'isFile',
+      },
+    },
     clean: {
       debug: [ 'src/manifest.json', 'src/js/debug.js' ],
-      build: [ '.tmp', 'dist' ],
+      build: [ '.tmp', 'dist', 'archive.zip' ],
     },
     copy: {
       build: {
@@ -124,7 +136,6 @@ module.exports = function(grunt) {
         },
         files: {
           'dist/blank.html':   'dist/blank.html',
-          'dist/index.html':   'dist/index.html',
           'dist/options.html': 'dist/options.html',
           'dist/popup.html':   'dist/popup.html',
         },
@@ -250,6 +261,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-htmlmin');
@@ -275,5 +287,9 @@ module.exports = function(grunt) {
     'uglify:build',
     'usemin',
     'htmlmin',
+  ]);
+  grunt.registerTask('package', [
+    'build',
+    'compress',
   ]);
 };
