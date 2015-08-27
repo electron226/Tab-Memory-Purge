@@ -554,11 +554,16 @@
       indexName : 'date',
     })
     .then(function(histories) {
+      var newTime = Date.now();
+      var newSessions = histories.map(function(v) {
+        return { date: newTime, url: v.url };
+      });
       return db.put({
         name: dbSavedSessionName,
-        data: histories,
+        data: newSessions,
       });
     })
+    .then(showAllSessionHistory)
     .catch(function(e) {
       error(e);
     });
