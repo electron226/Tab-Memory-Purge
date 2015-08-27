@@ -519,7 +519,12 @@
         historyItemList.appendChild(historyItem);
       },
       get: function() {
-        return historyItemList.childNodes;
+        var a = [];
+        var l = historyItemList.childNodes;
+        for (var j = 0; j < l.length; j = (j + 1) | 0) {
+          a.push(l[j]);
+        }
+        return a;
       },
     };
   }//}}}
@@ -606,7 +611,12 @@
         historyItemList.appendChild(historyItem);
       },
       get: function() {
-        return historyItemList.childNodes;
+        var a = [];
+        var l = historyItemList.childNodes;
+        for (var j = 0; j < l.length; j = (j + 1) | 0) {
+          a.push(l[j]);
+        }
+        return a;
       },
       clear: function() {
         historyItemList = document.createElement('div');
