@@ -20,12 +20,12 @@ Google Chrome用のタブ拡張機能です。
 - タブをアクティブにすると、時間はリセット。
 - アンロードする場合、拡張機能内のほぼ空のページを読み込み、メモリを解放します。
 - 現在のタブが除外リストに追加されているかどうかでツールバーのアイコンが変化します。
-    - ![なにもなし](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019.png) = どの除外リストにもマッチしませんでした。
-    - ![キーバインド×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_with_keybind.png) = キーバインドの除外リストにマッチ
-    - ![赤×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_use_exclude.png) = ユーザが指定した除外リストにマッチ
-    - ![赤K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_use_exclude_with_keybind.png) = ユーザが指定した除外リストとキーバインドの除外リストにマッチ
-    - ![黄×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_extension_exclude.png) = 拡張機能内で固定された除外リストにマッチ
-    - ![黄K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_extension_exclude_with_keybind.png) = 拡張機能内で固定された除外リストとキーバインドの除外リストにマッチ
-    - ![緑×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_temp_exclude.png) = 一時的な除外リストにマッチ
-    - ![緑K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/icon/icon_019_temp_exclude_with_keybind.png) = 一時的な除外リストとキーバインドの除外リストにマッチ
+    - ![なにもなし](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019.png) = どの除外リストにもマッチしませんでした。
+    - ![キーバインド×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_with_keybind.png) = キーバインドの除外リストにマッチ
+    - ![赤×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_use_exclude.png) = ユーザが指定した除外リストにマッチ
+    - ![赤K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_use_exclude_with_keybind.png) = ユーザが指定した除外リストとキーバインドの除外リストにマッチ
+    - ![黄×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_extension_exclude.png) = 拡張機能内で固定された除外リストにマッチ
+    - ![黄K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_extension_exclude_with_keybind.png) = 拡張機能内で固定された除外リストとキーバインドの除外リストにマッチ
+    - ![緑×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_temp_exclude.png) = 一時的な除外リストにマッチ
+    - ![緑K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_temp_exclude_with_keybind.png) = 一時的な除外リストとキーバインドの除外リストにマッチ
 - ブラウザアクションのアイコンに現在、解放しているタブの数を表示します。
