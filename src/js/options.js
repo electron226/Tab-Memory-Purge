@@ -384,11 +384,11 @@
   // var selectorSessionInfo                   = '.sessionInfo';
   // var selectorSavedSessionTitle             = '.savedSessionTitle';
   // var selectorSessionTitle                  = '.sessionTitle';
-  var selectorSavedSessionDate              = '.savedSessionDate';
-  var selectorSessionDate                   = '.sessionDate';
-  var selectorSavedSessionDelete            = '.savedSessionDelete';
-  var selectorSessionDelete                 = '.sessionDelete';
-  var selectorSessionSave                   = '.sessionSave';
+  var selectorSavedSessionDate    = '.savedSessionDate';
+  var selectorSessionDate         = '.sessionDate';
+  var selectorSessionDelete       = '.sessionDelete';
+  var selectorSessionSave         = '.sessionSave';
+  var selectorSessionRestore      = '.sessionRestore';
   // var selectorWindowNumber                  = '.windowNumber';
 
   // var selectorAddSessionItemLocation        = '.sessionItemList';
@@ -676,6 +676,34 @@
     });
   }//}}}
 
+  function restoreSession(event)//{{{
+  {
+    var t = event.target.parentNode.parentNode.parentNode;
+    var className = t.getAttribute('class');
+    var dbName =
+      className.indexOf(selectorSessionHistory.substr(1)) !== -1 ?
+      dbSessionName :
+      className.indexOf(selectorSavedSessionHistory.substr(1)) !== -1 ?
+      dbSavedSessionName : null;
+    if (dbName === null) {
+      error('occur the invalid database name into restoreSesion function.');
+      return;
+    }
+
+    var date = parseInt(t.name);
+    db.getCursor({
+      name      : dbName,
+      range     : IDBKeyRange.only(date),
+      indexName : 'date',
+    })
+    .then(function(histories) {
+      chrome.runtime.sendMessage({ event: 'restore', session: histories });
+    })
+    .catch(function(e) {
+      error(e);
+    });
+  }//}}}
+
   function deleteSessionItem(event)//{{{
   {
     var t = event.target.parentNode.parentNode.parentNode;
@@ -837,7 +865,8 @@
         var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
 
         var s, i, j, v2, key, sKeys,
-            sessionHistory, sessionDate, sessionSave, sessionDelete,
+            sessionHistory, sessionDate,
+            sessionSave, sessionDelete, sessionRestore,
             addSessionHistoryItem;
         
         savedSessions.forEach(function(v) {//{{{
@@ -852,13 +881,19 @@
 
             sessionHistory = prototypeSavedSessionHistory.cloneNode(true);
             sessionHistory.setAttribute('name', parseInt(key));
+
             sessionDate = sessionHistory.querySelector(
               selectorSavedSessionDate);
             sessionDate.textContent = formatDate(
               new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
-            sessionDelete = sessionHistory.querySelector(
-              selectorSavedSessionDelete);
+
+            sessionDelete = sessionHistory.querySelector(selectorSessionDelete);
             sessionDelete.addEventListener('click', deleteSession);
+
+            sessionRestore =
+              sessionHistory.querySelector(selectorSessionRestore);
+            sessionRestore.addEventListener('click', restoreSession);
+
             addSessionHistoryItem = sessionHistory.querySelector(
               selectorAddSavedSessionHistoryItemLocation);
 
@@ -910,6 +945,10 @@
               sessionDelete =
                 sessionHistory.querySelector(selectorSessionDelete);
               sessionDelete.addEventListener('click', deleteSession);
+
+              sessionRestore =
+                sessionHistory.querySelector(selectorSessionRestore);
+              sessionRestore.addEventListener('click', restoreSession);
 
               addSessionHistoryItem = sessionHistory.querySelector(
                 selectorAddSessionHistoryItemLocation);
