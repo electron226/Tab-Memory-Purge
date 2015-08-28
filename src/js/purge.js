@@ -29,7 +29,6 @@
   var currentSessionTime  = null;
 
   var currentIcon         = null;
-  var displayPageOfOption = null;
   var disableTimer        = false;
   //}}}
 
@@ -1086,11 +1085,11 @@
   {
     debug('unPurge', tabId);
 
-    var deferred = Promise.defer();
-    setTimeout(function() {
+    return new Promise(function(resolve, reject) {
       if (toType(tabId) !== 'number') {
-        error("tabId is not number.");
-        deferred.reject();
+        var msg = "tabId is not number.";
+        error(msg);
+        reject(msg);
         return;
       }
 
@@ -1099,14 +1098,13 @@
         { event: 'location_replace' }, function(useChrome) {
           // If the url is empty in purge page.
           if (useChrome) {
-            chrome.tabs.update(tabId, { url: url }, deferred.resolve);
+            chrome.tabs.update(tabId, { url: url }, resolve);
           } else {
-            deferred.resolve();
+            resolve();
           }
         }
       );
-    }, 0);
-    return deferred.promise;
+    });
   }//}}}
 
   /**
@@ -1409,14 +1407,7 @@
     debug('Extension Updated.');
 
     return new Promise(function(resolve, reject) {
-      (function() {
-        return new Promise(function(resolve2) {
-          // the changed history of the option menu.
-          displayPageOfOption = "updated";
-          chrome.tabs.create({ url: optionPage }, resolve2);
-        });
-      })()
-      .then(getInitAndLoadOptions)
+      getInitAndLoadOptions()
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
           // restore process.
@@ -1942,13 +1933,6 @@
           break;
         case 'current_icon':
           sendResponse(currentIcon);
-          break;
-        case 'current_session':
-          sendResponse(currentSessionTime);
-          break;
-        case 'display_option_page':
-          sendResponse(displayPageOfOption);
-          displayPageOfOption = null;
           break;
         case 'keybind_check_exclude_list':
           var state = checkExcludeList(message.location.href);

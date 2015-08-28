@@ -89,4 +89,4 @@
   });
 
   console.log('the form cache scripts of TAB MEMORY PURGE is loaded.');
-})(document);
+})(this.document);

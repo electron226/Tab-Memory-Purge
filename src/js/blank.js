@@ -4,18 +4,21 @@
 
   var db = null;
 
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    switch (message.event) {
-      case 'location_replace':
-        var url = document.getElementById('url');
-        if (url.textContent.length === 0) {
-          sendResponse(true);
-        } else {
-          window.location.replace(url.textContent);
-        }
-        break;
+  chrome.runtime.onMessage.addListener(
+    function(message, sender, sendResponse) {
+      switch (message.event) {
+        case 'location_replace':
+          var url = document.getElementById('url');
+          if (url.textContent.length === 0) {
+            sendResponse(true);
+          } else {
+            window.location.replace(url.textContent);
+            sendResponse(false);
+          }
+          break;
+      }
     }
-  });
+  );
 
   /**
    * 受け取った引数を分解し、連想配列(ハッシュ)として返す。
@@ -118,4 +121,4 @@
       });
     });
   });
-})(window, document);
+})(this, this.document);
