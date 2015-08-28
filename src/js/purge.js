@@ -1764,6 +1764,18 @@
     return deferred.promise;
   }//}}}
 
+  function updateOptionValues()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      getInitAndLoadOptions()
+      .then(function(options) {
+        myOptions = options;
+        resolve();
+      })
+      .catch(reject);
+    });
+  }//}}}
+
   chrome.tabs.onActivated.addListener(function(activeInfo) {//{{{
     debug('chrome.tabs.onActivated.', activeInfo);
     if (unloaded.hasOwnProperty(activeInfo.tabId) &&
@@ -1908,21 +1920,15 @@
             });
           });
           break;
+        case 'reload_option_value':
+          updateOptionValues();
+          break;
         case 'load_options_and_reload_current_tab':
           getCurrentTab()
           .then(function(tab) {
-            return new Promise(function(resolve, reject) {
-              getInitAndLoadOptions()
-              .then(function(options) {
-                myOptions = options;
-
-                setTick(tab.id)
-                .then(function() {
-                  return reloadBrowserIcon(tab);
-                }, reject)
-                .then(resolve, reject);
-              });
-            });
+            updateOptionValues()
+            .then(setTick(tab.id))
+            .then(reloadBrowserIcon(tab));
           });
           break;
         case 'restore':

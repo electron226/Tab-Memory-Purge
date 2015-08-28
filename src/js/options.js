@@ -1167,6 +1167,15 @@
     });
   }//}}}
 
+  function applyNewOptionToExtensionProcess()//{{{
+  {
+    return new Promise(function(resolve) {
+      log("apply new option to this extension's process.");
+      chrome.runtime.sendMessage({ event: 'reload_option_value' });
+      resolve();
+    });
+  }//}}}
+
   function updateOptionValueToStorage(e)//{{{
   {
     var name = e.target.name;
@@ -1177,11 +1186,15 @@
     var writeObj = {};
     operateOption.get(document, name)
     .then(function(item) {
-      writeObj[name] = item;
-      chrome.storage.local.set(writeObj, function() {
-        log('have wrote the data. name: ' + name + ', value: ' + item);
+      return new Promise(function(resolve) {
+        writeObj[name] = item;
+        chrome.storage.local.set(writeObj, function() {
+          log('have wrote the data. name: ' + name + ', value: ' + item);
+          resolve();
+        });
       });
     })
+    .then(applyNewOptionToExtensionProcess)
     .catch(function(mes) {
       error(mes);
     });
