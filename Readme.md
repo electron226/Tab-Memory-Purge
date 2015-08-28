@@ -1,7 +1,6 @@
 # Tab Memory Purge
-Google Chrome用のタブ拡張機能です。  
-
-設定した条件にそって、使用していないタブのメモリを解放します。  
+Google Chrome用のタブ拡張機能です。
+設定した条件にそって、使用していないタブのメモリを解放します。
 
 ## 設定可能項目
 - 非アクティブのタブをアンロードする時間
@@ -29,3 +28,9 @@ Google Chrome用のタブ拡張機能です。
     - ![緑×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_temp_exclude.png) = 一時的な除外リストにマッチ
     - ![緑K×](https://raw.githubusercontent.com/electron226/Tab-Memory-Purge/master/src/icon/icon_019_temp_exclude_with_keybind.png) = 一時的な除外リストとキーバインドの除外リストにマッチ
 - ブラウザアクションのアイコンに現在、解放しているタブの数を表示します。
+
+## ライセンス
+[GPL Version 3](https://github.com/electron226/Tab-Memory-Purge/blob/master/LICENSE.md)
+
+https://github.com/electron226/Tab-Memory-Purge/tree/master/src/icon/material%20design
+Those icons made by Google from www.flaticon.com is licensed by [CC BY 3.0](https://github.com/electron226/Tab-Memory-Purge/blob/master/src/icon/material%20design/CC%20BY%203.0.md)
