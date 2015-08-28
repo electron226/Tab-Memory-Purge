@@ -1549,6 +1549,8 @@
           delete items[key];
         }
       }
+      // delete old current session time.
+      removeKeys.push(previousSessionTimeKey);
 
       chrome.storage.local.remove(removeKeys, function() {
         if (chrome.runtime.lastError) {
