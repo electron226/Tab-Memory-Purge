@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       },
     },
     clean: {
-      debug: [ 'src/manifest.json', 'src/js/debug.js' ],
+      debug: [ 'src/manifest.json', 'src/css', 'src/js/debug.js' ],
       build: [ '.tmp', 'dist', 'archive.zip' ],
     },
     copy: {
@@ -238,7 +238,10 @@ module.exports = function(grunt) {
       },
     },
     watch: {
-      files: {
+      // options: {
+      //   livereload: 60000,
+      // },
+      other: {
         files: [
           '_locales/**/*',
           'icon/**/*',
@@ -256,15 +259,12 @@ module.exports = function(grunt) {
       },
       sass: {
         files: ['src/sass/**/*.scss'],
-        tasks: ['sass'],
+        tasks: ['sass', 'csscomb', 'cssmin'],
       },
-      css: {
-        files: ['src/css/**/*.css'],
-        tasks: ['csscomb', 'cssmin'],
-        options: {
-          livereload: true,
-        },
-      },
+      // css: {
+      //   files: ['src/css/**/*.css'],
+      //   tasks: ['csscomb', 'cssmin'],
+      // },
       js: {
         files: ['src/js/**/*.js'],
         tasks: ['uglify'],
@@ -295,6 +295,7 @@ module.exports = function(grunt) {
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:debug',
+    'watch',
   ]);
   grunt.registerTask('build', [
     'clean:build',
