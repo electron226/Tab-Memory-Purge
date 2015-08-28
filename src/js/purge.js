@@ -1518,6 +1518,21 @@
     return deferred.promise;
   }//}}}
 
+  function deletePreviousSessionTime()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      // delete old current session time.
+      chrome.storage.local.remove(previousSessionTimeKey, function() {
+        if (chrome.runtime.lastError) {
+          error(chrome.runtime.lastError.message);
+          reject(chrome.runtime.lastError.message);
+          return;
+        }
+        resolve();
+      });
+    });
+  }//}}}
+
   /**
    * getInitAndLoadOptions
    * Load my options in chrome.storage.
@@ -1549,8 +1564,6 @@
           delete items[key];
         }
       }
-      // delete old current session time.
-      removeKeys.push(previousSessionTimeKey);
 
       chrome.storage.local.remove(removeKeys, function() {
         if (chrome.runtime.lastError) {
@@ -1668,6 +1681,7 @@
 
     initializeDatabase()
     .then(versionCheckAndUpdate)
+    .then(deletePreviousSessionTime)
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
