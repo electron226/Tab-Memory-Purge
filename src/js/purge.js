@@ -537,8 +537,7 @@
     debug('writeSession', unloaded);
 
     return new Promise(function(resolve, reject) {
-      var now     = new Date();
-      var nowTime = now.getTime();
+      var nowTime = Date.now();
 
       // currentSessionTimeの処理
       (function() {
@@ -586,23 +585,23 @@
           .catch(reject2);
         });
       })
-      // .then(function() {
-      //   return new Promise(function(resolve2, reject2) {
-      //     currentSessionTime = nowTime;
+      .then(function() {
+        return new Promise(function(resolve2, reject2) {
+          currentSessionTime = nowTime;
 
-      //     var write = {};
-      //     write[previousSessionTimeKey] = nowTime;
-      //     chrome.storage.local.set(write, function() {
-      //       if (chrome.runtime.lastError) {
-      //         error(chrome.runtime.lastError.message);
-      //         reject2();
-      //         return;
-      //       }
+          var write = {};
+          write[previousSessionTimeKey] = nowTime;
+          chrome.storage.local.set(write, function() {
+            if (chrome.runtime.lastError) {
+              error(chrome.runtime.lastError.message);
+              reject2();
+              return;
+            }
 
-      //       resolve2();
-      //     });
-      //   });
-      // })
+            resolve2();
+          });
+        });
+      })
       .then(resolve)
       .catch(function(e) {
         e ? error(e) : function() {};
@@ -1423,34 +1422,35 @@
           // restore process.
           if (options.when_updated_restore_session) {
             loadSession(db, dbSessionName)
-            // .then(function(sessions) {
-            //   return new Promise(function(resolve3, reject3) {
-            //     if (sessions.length === 0) {
-            //       resolve3();
-            //       return;
-            //     }
+            .then(function(sessions) {
+              return new Promise(function(resolve3, reject3) {
+                if (sessions.length === 0) {
+                  resolve3();
+                  return;
+                }
 
-            //     var previousSessionTime = options[previousSessionTimeKey];
-            //     if (previousSessionTime) {
-            //       var restoreSession = sessions.filter(function(v) {
-            //         return previousSessionTime === v.date;
-            //       });
-            //       if (restoreSession.length > 0) {
-            //         if (restoreSession.length > 1) {
-            //          warn('the length of restoreSession is greater than 1.');
-            //         }
+                var previousSessionTime = options[previousSessionTimeKey];
+                if (previousSessionTime) {
+                  var restoreSession = sessions.filter(function(v) {
+                    return previousSessionTime === v.date;
+                  });
 
-            //         restore(restoreSession[0].data)
-            //         .then(resolve3)
-            //         .catch(reject3);
-            //       } else {
-            //         resolve3();
-            //       }
-            //     } else {
-            //       resolve3();
-            //     }
-            //   });
-            // })
+                  if (restoreSession.length > 0) {
+                    if (restoreSession.length > 1) {
+                     warn('the length of restoreSession is greater than 1.');
+                    }
+
+                    restore(restoreSession[0].data)
+                    .then(resolve3)
+                    .catch(reject3);
+                  } else {
+                    resolve3();
+                  }
+                } else {
+                  resolve3();
+                }
+              });
+            })
             .then(resolve2)
             .catch(reject2);
           } else {

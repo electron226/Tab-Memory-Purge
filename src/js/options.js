@@ -414,6 +414,7 @@
 
   var excludeKeyNames = [];
   excludeKeyNames.push(versionKey);
+  excludeKeyNames.push(previousSessionTimeKey);
 //}}}
 
   function deleteKeyItemFromObject(obj, deleteKeys)//{{{
@@ -806,42 +807,59 @@
           }
         });//}}}
 
-        sessions.forEach(function(v) {//{{{
-          s = getDictSplitEachSessionDate(v.data);
+        //{{{
+        chrome.storage.local.get(previousSessionTimeKey, function(items) {
+          var currentTime = items[previousSessionTimeKey];
 
-          sKeys = [];
-          for (key in s) {
-            sKeys.unshift(key);
-          }
-          for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
-            key = sKeys[i];
+          sessions.forEach(function(v) {
+            s = getDictSplitEachSessionDate(v.data);
 
-            sessionHistory = prototypeSessionHistory.cloneNode(true);
-            sessionHistory.setAttribute('name', parseInt(key));
-            sessionDate    = sessionHistory.querySelector(selectorSessionDate);
-            sessionDate.textContent = formatDate(
-              new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
-            sessionSave = sessionHistory.querySelector(selectorSessionSave);
-            sessionSave.addEventListener('click', saveSession);
-            sessionDelete = sessionHistory.querySelector(selectorSessionDelete);
-            sessionDelete.addEventListener('click', deleteSession);
-            addSessionHistoryItem = sessionHistory.querySelector(
-              selectorAddSessionHistoryItemLocation);
-
-            cSIL.clear();
-            for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
-              v2 = s[key][j];
-              cSIL.set(v2);
+            sKeys = [];
+            for (key in s) {
+              sKeys.unshift(key);
             }
+            for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
+              key = sKeys[i];
 
-            var list = cSIL.get();
-            for (j = 0; j < list.length; j = (j + 1) | 0) {
-              addSessionHistoryItem.appendChild(list[j]);
+              sessionHistory = prototypeSessionHistory.cloneNode(true);
+              sessionHistory.setAttribute('name', parseInt(key));
+
+              sessionDate = sessionHistory.querySelector(selectorSessionDate);
+              if (currentTime !== void 0 &&
+                  currentTime !== undefined &&
+                  parseInt(currentTime) === parseInt(key)) {
+                sessionDate.textContent = 'Current Session';
+              } else {
+                sessionDate.textContent = formatDate(
+                  new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
+              }
+
+              sessionSave = sessionHistory.querySelector(selectorSessionSave);
+              sessionSave.addEventListener('click', saveSession);
+
+              sessionDelete =
+                sessionHistory.querySelector(selectorSessionDelete);
+              sessionDelete.addEventListener('click', deleteSession);
+
+              addSessionHistoryItem = sessionHistory.querySelector(
+                selectorAddSessionHistoryItemLocation);
+
+              cSIL.clear();
+              for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
+                v2 = s[key][j];
+                cSIL.set(v2);
+              }
+
+              var list = cSIL.get();
+              for (j = 0; j < list.length; j = (j + 1) | 0) {
+                addSessionHistoryItem.appendChild(list[j]);
+              }
+
+              addList.appendChild(sessionHistory);
             }
-
-            addList.appendChild(sessionHistory);
-          }
-        });//}}}
+          });
+        });
+        //}}}
 
         resolve();
       })
