@@ -45,8 +45,17 @@ ul {
     box-shadow: 0 3px 3px 0 gray;
 }
 
+.inWidthOfSection {
+    width: 95%;
+    margin: 0 1em;
+}
+
 .doNotShow {
     display: none;
+}
+
+.prototype {
+    @extend .doNotShow;
 }
 
 .searchHistory {
@@ -150,4 +159,11 @@ nav {
 
     width: $iconSize;
     height: $iconSize;
+}
+
+.changeHistoryFrame {
+    width: 98%;
+    min-height: 600px;
+    margin: 1em 8px 0;
+    padding: 1em 0;
 }

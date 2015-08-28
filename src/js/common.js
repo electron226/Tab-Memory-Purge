@@ -22,13 +22,6 @@
     'when_updated_restore_session': false,
     'interval_timing': 5,
 
-    // 'keybind': {
-    //   'release': JSON.stringify({}),
-    //   'switch_not_release': JSON.stringify({}),
-    //   'all_purge': JSON.stringify({}),
-    //   'all_purge_without_exclude_list': JSON.stringify({}),
-    //   'all_unpurge': JSON.stringify({}),
-    // },
     'keybind_release': JSON.stringify({}),
     'keybind_switch_not_release': JSON.stringify({}),
     'keybind_all_purge': JSON.stringify({}),

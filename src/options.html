@@ -68,7 +68,8 @@
             <label><input type="checkbox" name="when_updated_restore_session"><span translation="when_updated_restore_session"></span></label>
           </li>
           <li style="margin-top: 1em;">
-            <span translation="exclude_url"></span>&nbsp;<button click="showRegexTool()"><span translation="regex_tool"></span></button>
+            <span translation="exclude_url"></span>
+            <!-- &nbsp;<button click="showRegexTool()"><span translation="regex_tool"></span></button> -->
           </li>
           <li>
             <textarea name="exclude_url" rows="10" cols="80" style="float: left;"></textarea>
@@ -119,7 +120,8 @@
             <button class="keybind_clear">CLEAR</button>
           </li>
           <li style="margin-top: 1em;">
-            <span translation="keybind_exclude_url"></span>&nbsp;<button onclick="showRegexTool()"><span translation="regex_tool"></span></button>
+            <span translation="keybind_exclude_url"></span>
+            <!-- &nbsp;<button onclick="showRegexTool()"><span translation="regex_tool"></span></button> -->
           </li>
           <li>
             <textarea name="keybind_exclude_url" rows="10" cols="80" style="float: left;"></textarea>
@@ -144,10 +146,9 @@
         <div class="historyList"></div>
 
         <!-- This use into the article of the history of a section menu. -->
-        <fieldset class="historyDate prototype doNotShow historyField">
+        <fieldset class="historyDate prototype historyField">
           <legend class="historyStyle">
-            <span class="historyDateTitle">historyDateTitle</span>
-            <img src="../icon/close.svg" alt="close button" class="historyDateDelete pageIcon">
+            <span class="historyDateTitle">historyDateTitle</span><img src="../icon/close.svg" alt="close button" class="historyDateDelete pageIcon">
           </legend>
 
           <!-- the element of the class of historyItem add here. -->
@@ -155,7 +156,7 @@
         </fieldset>
 
         <!-- This use into the article of the history item. -->
-        <section class="historyItem prototype historyStyle doNotShow ellipsis_inner">
+        <section class="historyItem prototype historyStyle ellipsis_inner">
           <img src="../icon/close.svg" alt="close button" class="historyItemDelete pageIcon">
           <span class="historyItemDate">item date</span>
           <span>
@@ -175,7 +176,7 @@
         </article>
 
         <!-- savedSession prototype -->
-        <fieldset class="savedSessionHistory prototype doNotShow ellipsis_inner">
+        <fieldset class="savedSessionHistory prototype ellipsis_inner">
           <legend class="savedSessionInfo historyStyle">
             <div>
               <!-- <span class="savedSessionTitle"></span> -->
@@ -188,7 +189,7 @@
         </fieldset>
 
         <!-- session prototype -->
-        <fieldset class="sessionHistory prototype doNotShow ellipsis_inner historyField">
+        <fieldset class="sessionHistory prototype ellipsis_inner historyField">
           <legend class="sessionInfo historyStyle">
             <div>
               <span class="sessionDate"></span>
@@ -201,17 +202,18 @@
         </fieldset>
 
         <!-- sessionHistoryItem prototype -->
-        <section class="sessionHistoryItem prototype doNotShow ellipsis_inner">
-          <div>
-            <span translate="window">Window&nbsp;</span>
-            <span class="windowNumber"></span>
-          </div>
+        <!-- This not use yet. -->
+        <!-- <section class="sessionHistoryItem prototype ellipsis_inner"> -->
+        <!--   <div> -->
+        <!--     <span translate="window">Window&nbsp;</span> -->
+        <!--     <span class="windowNumber"></span> -->
+        <!--   </div> -->
 
-          <section class="sessionItemList ellipsis_over"></section>
-        </section>
+        <!--   <section class="sessionItemList ellipsis_over"></section> -->
+        <!-- </section> -->
 
         <!-- sessionItem prototype -->
-        <section class="sessionItem prototype doNotShow ellipsis_inner historyStyle">
+        <section class="sessionItem prototype ellipsis_inner historyStyle">
           <img src="../icon/close.svg" alt="close button" class="sessionItemDelete pageIcon">
           <span>
             <a href="#" target="_blank" class="sessionItemUrl">
@@ -223,12 +225,52 @@
       </section>
 
       <section id="change_history" class="sectionMenu">
-        change_history
+        <iframe src="History.txt" sandbox="allow-same-origin" class="changeHistoryFrame"></iframe>
       </section>
 
       <section id="information" class="sectionMenu">
-        information
-        <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+        <div class="inWidthOfSection">
+          <section>
+            <h3><span translation="specification"></span></h3>
+            <ul style="list-style-type: disc">
+              <li><span translation="spec1"></span></li>
+              <li><span translation="spec2"></span></li>
+              <li><span translation="spec3"></span></li>
+              <li>
+                <div translation="spec4"></div>
+                <ul>
+                  <li><img src="../icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li>
+                  <li><img src="../icon/icon_019_with_keybind.png">&nbsp;<span translation="spec_icon_with_keybind"></span></li>
+                  <li><img src="../icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li>
+                  <li><img src="../icon/icon_019_use_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li>
+                  <li><img src="../icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li>
+                  <li><img src="../icon/icon_019_extension_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li>
+                  <li><img src="../icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li>
+                  <li><img src="../icon/icon_019_temp_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li>
+                </ul>
+              </li>
+              <li><span translation="spec5"></span></li>
+            </ul>
+          </section>
+
+          <section>
+            <h3><span translation="warning"></span></h3>
+            <div><span translation="warn1"></span></div>
+          </section>
+
+          <section>
+            <h3><span translation="feedback"></span></h3>
+            <div><span translation="feedback_explanation"></span></div>
+            <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span translation="feedback_send"></span></a></div>
+          </section>
+
+          <section>
+            <h3><span translation="infomation_other"></span></h3>
+            <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div>
+
+            <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+          </section>
+        </div>
       </section>
 
       <section id="operate_settings" class="sectionMenu">
@@ -236,16 +278,16 @@
           <li>
             <div>
               <span translation="export"></span>
-              <button name="copy" name="export" translation="copy"></button>
+              <button class="copy" name="export" translation="copy"></button>
             </div>
-            <textarea id="export" name="export"></textarea>
+            <textarea id="export"></textarea>
           </li>
           <li>
             <div>
               <span translation="import"></span>
-              <button name="apply" name="import" translation="apply"></button>
+              <button class="apply" name="import" translation="apply"></button>
             </div>
-            <textarea id="import" name="import"></textarea>
+            <textarea id="import"></textarea>
           </li>
         </ul>
       </section>
@@ -253,325 +295,6 @@
 
     <footer>
     </footer>
-  <!-- <body ng-controller="OptionController" ng-clock> -->
-  <!--   <nav id="config_change"> -->
-  <!--     <table> -->
-  <!--       <tr ng-repeat="item in menuItems" ng-click="menuSelect($event)" class="{{ item.name }}"> -->
-  <!--         <td><span class="change_bar">&nbsp;</span></td> -->
-  <!--         <td><span translation="{{ item.name }}"></span></td> -->
-  <!--         <td ng-show="item.name === 'session_history'" style="position: absolute; left: 12px;"> -->
-  <!--           <div ng-show="showRestoreMessage" style="position: relative; color: red; top: 0.2rem; left: 5.75rem;"> -->
-  <!--             <div class="arrow_animation"> -->
-  <!--               <div class="arrow"></div> -->
-  <!--             </div> -->
-  <!--             <div style="position: absolute; top: -0.25rem; left: 0.75rem;"><span translation="if_restore_session_message" style="position: fixed; background-color: white; padding: 6px; font-weight: bold;"></span></div> -->
-  <!--           </div> -->
-  <!--         </td> -->
-  <!--       </tr> -->
-  <!--     </table> -->
-  <!--   </nav> -->
-
-  <!--   <form> -->
-  <!--     <div id="config_page"> -->
-  <!--       <header> -->
-  <!--         <h2><span translation="extName"></span>&nbsp;<span id="menu_title"><span translation="option"></span></span></h2> -->
-  <!--       </header> -->
-
-  <!--       <article id="option_items"> -->
-          <!-- options of normally. .-->
-          <!-- <section class="option"> -->
-          <!--   <fieldset> -->
-          <!--     <legend translation="setTimerTitle"></legend> -->
-          <!--     <input type="number" ng-model="options.timer" style="width: 75px;" min="1">&nbsp;<span translation="minute"></span> -->
-          <!--   </fieldset> -->
-
-          <!--   <fieldset> -->
-          <!--     <legend> -->
-          <!--       <span translation="exclude_url"></span>&nbsp;<button ng-click="showRegexTool()"><span translation="regex_tool"></span></button> -->
-          <!--     </legend> -->
-          <!--     <textarea ng-model="options.exclude_url" rows="8" cols="60" style="float: left;"></textarea> -->
-          <!--     <div> -->
-          <!--       <div translation="option"></div> -->
-          <!--       <input type="checkbox" ng-model="options.regex_insensitive"><span translation="regex_confuse"></span> -->
-          <!--     </div> -->
-          <!--     <div style="clear: left;"></div> -->
-          <!--   </fieldset> -->
-
-          <!--   <fieldset> -->
-          <!--     <legend translation="otherTitle"></legend> -->
-          <!--     <div> -->
-          <!--       <label><span translation="max_history"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_history" style="width: 50px;" min="1" max="365">&nbsp;Days -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label><span translation="max_sessions"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_sessions" style="width: 50px;" min="1">&nbsp;Sessions -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label><span translation="interval_timing"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.interval_timing" style="width: 50px;" min="5">&nbsp;<span translation="second"></span> -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label> -->
-          <!--         <input type="checkbox" ng-model="options.no_release"><span translation="no_release"></span> -->
-          <!--       </label> -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label><input type="checkbox" ng-model="options.enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.remaiming_memory" style="width: 50px;" min="1">&nbsp;M -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label><input type="checkbox" ng-model="options.purging_all_tabs_except_active"><span translation="purging_all_tabs_except_active"></span></label>&nbsp;:&nbsp;<input type="number" ng-model="options.max_opening_tabs" style="width: 50px;" min="1">&nbsp;Tabs -->
-          <!--     </div> -->
-          <!--     <div> -->
-          <!--       <label><input type="checkbox" ng-model="options.when_updated_restore_session"><span translation="when_updated_restore_session"></span></label> -->
-          <!--     </div> -->
-          <!--   </fieldset> -->
-          <!-- </section> -->
-
-          <!-- options of the keybind. -->
-          <!-- <section class="keybind" ng-controller="keybindController"> -->
-          <!--   <fieldset> -->
-          <!--     <legend translation="keybind"></legend> -->
-          <!--     <table> -->
-          <!--       <tr ng-repeat="item in keys" class="{{ item.name }}"> -->
-          <!--         <td><span translation="{{ item.name }}"></span></td> -->
-          <!--         <td><button ng-click="setBind($event)">SET</button></td> -->
-          <!--         <td><input type="text" class="pressKey" disabled></input></td> -->
-          <!--         <td><button ng-click="clearBind($event)">CLEAR</button></td> -->
-          <!--         <td class="status" style="width: 100px; color: red"></td> -->
-          <!--       </tr> -->
-          <!--     </table> -->
-          <!--   </fieldset> -->
-
-          <!--   <fieldset> -->
-          <!--     <legend> -->
-          <!--       <span translation="keybind_exclude_url"></span>&nbsp;<button ng-click="showRegexTool()"><span translation="regex_tool"></span></button> -->
-          <!--     </legend> -->
-          <!--     <textarea ng-model="options.keybind_exclude_url" rows="8" cols="60" style="float: left;"></textarea> -->
-          <!--     <div> -->
-          <!--       <div translation="option"></div> -->
-          <!--       <input type="checkbox" ng-model="options.keybind_regex_insensitive"><span translation="regex_confuse"></span> -->
-          <!--     </div> -->
-          <!--     <div style="clear: left;"></div> -->
-          <!--   </fieldset> -->
-          <!-- </section> -->
-
-          <!-- <section class="history" ng-controller="historyController"> -->
-          <!--   <div> -->
-          <!--     <input type="date" list="historyDates" ng-model="selectHistory"> -->
-          <!--     <datalist id="historyDates"> -->
-          <!--       <option ng-repeat="data in history | orderBy:'date':true">{{ data.date | date:'yyyy-MM-dd' }}</option> -->
-          <!--     </datalist> -->
-          <!--     <input type="text" ng-model="historyQuery" placeholder="Search the titie or the url." style="width: 300px;"> -->
-          <!--     <button translation="reload" ng-click="reloadHistory()"></button> -->
-          <!--   </div> -->
-          <!--   <fieldset ng-repeat="data in history | orderBy:'date':true" ng-show="showDate(data.date)"> -->
-          <!--     <legend> -->
-          <!--         <span ng-show="currentLocale === 'ja'"> -->
-          <!--           {{ data.date | date:'yyyy/MM/dd' }} -->
-          <!--         </span> -->
-          <!--         <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'"> -->
-          <!--           {{ data.date | date:'MM/dd/yyyy' }} -->
-          <!--         </span> -->
-          <!--       <button ng-click="deleteHistory(data.date)" translation="delete"></button> -->
-          <!--     </legend> -->
-          <!--     <div ng-repeat="item in data.data | orderBy:'date':true | filter:historyQuery"> -->
-          <!--       <a href="#" ng-click="deleteHistoryItem(item.date)" style="margin-right: 1rem;"> -->
-          <!--         <span style="position: relative; top: 0.3rem;"> -->
-          <!--           <span class="delete_icon"></span> -->
-          <!--           <span class="delete_icon2"></span> -->
-          <!--         </span> -->
-          <!--       </a> -->
-          <!--       <span style="margin-right: 1rem;">{{ item.date | date: 'HH:mm:ss' }}</span> -->
-          <!--       <a href="{{ item.url }}" target="_blank"> -->
-          <!--         <img src="{{ item.dataURI }}" ng-show="item.dataURI !== underfined" style="width: 16px; height: 16px">{{ item.title }}</a> -->
-          <!--     </div> -->
-          <!--   </fieldset> -->
-          <!-- </section> -->
-
-          <!-- <section class="session_history" ng-controller="sessionHistoryController"> -->
-          <!--   <fieldset style="padding: 16px" ng-hide="savedSessionHistory.length === 0"> -->
-          <!--     <legend>Saved Sessions</legend> -->
-          <!--     <span ng-repeat="session in savedSessionHistory | orderBy:'date':true" class="savedSession"> -->
-          <!--       <button class="savedBtn" ng-click="savedSessionClicked(session)"> -->
-          <!--         <span ng-show="currentLocale === 'ja'"> -->
-          <!--           {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }} -->
-          <!--         </span> -->
-          <!--         <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'"> -->
-          <!--           {{ session.date | date:'MM/dd/yyyy hh:mm:ss' }} -->
-          <!--         </span> -->
-          <!--       </button> -->
-          <!--     </span> -->
-          <!--     <div ng-show="displaySavedSession" style="padding: 10px 0 10px 0"> -->
-          <!--       <button translation="restore" ng-click="restored(displaySavedSession)"></button> -->
-          <!--       <button translation="delete" ng-click="deleteSavedSession(displaySavedSession)"></button> -->
-          <!--     </div> -->
-          <!--     <div ng-hide="displaySavedSession" style="padding-top: 16px; color: red;" translation="wantToOperateMessage"></div> -->
-          <!--     <div ng-repeat="data in displaySavedSession"> -->
-          <!--       <a href="#" ng-click="deleteSavedSpecificSession(displaySavedSession, data.id)"> -->
-          <!--         <span style="position: relative; top: 0.5rem; left: -0.3rem;"> -->
-          <!--           <span class="delete_icon"></span> -->
-          <!--           <span class="delete_icon2"></span> -->
-          <!--         </span> -->
-          <!--       </a> -->
-          <!--       <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"> -->
-          <!--         <span ng-show="data.dataURI !== undefined"> -->
-          <!--           <img src="{{ data.dataURI }}" style="width: 16px; height: 16px;">{{ data.title }} -->
-          <!--         </span> -->
-          <!--         <span ng-show="data.dataURI === undefined"> -->
-          <!--           {{ data.url }} -->
-          <!--         </span> -->
-          <!--       </a> -->
-          <!--     </div> -->
-          <!--   </fieldset> -->
-
-          <!--   <div> -->
-          <!--     <button translation="reload" ng-click="reloadSession()"></button> -->
-          <!--   </div> -->
-          <!--   <fieldset ng-repeat="session in sessionHistory | orderBy:'date':true"> -->
-          <!--     <legend> -->
-          <!--       <span ng-show="session.date === currentSessionTime"> -->
-          <!--         <span ng-show="currentLocale === 'ja'" translation="current_session"></span> -->
-          <!--         <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="current_session"></span> -->
-          <!--       </span> -->
-          <!--       <span ng-show="session.date === previousSessionTime"> -->
-          <!--         <span ng-show="currentLocale === 'ja'" translation="previous_session"></span> -->
-          <!--         <span ng-show="currentLocale === 'en-US' || currentLocale === 'en'" translation="previous_session"></span> -->
-          <!--       </span> -->
-          <!--       <span ng-show="session.date !== currentSessionTime && session.date !== previousSessionTime"> -->
-          <!--         <span ng-show="currentLocale === 'ja'"> -->
-          <!--           {{ session.date | date:'yyyy/MM/dd hh:mm:ss' }} -->
-          <!--         </span> -->
-          <!--         <span ng-show="currentLocale === 'en' || currentLocale === 'en-US'"> -->
-          <!--           {{ session.date | date:'MM/dd/yyyy hh:mm:ss' }} -->
-          <!--         </span> -->
-          <!--       </span> -->
-          <!--       <button translation="save" ng-click="saved(session)"></button> -->
-          <!--       <button translation="delete" ng-click="deleted(session)"></button> -->
-          <!--       <button translation="restore" ng-click="restored(session.data)"></button> -->
-          <!--     </legend> -->
-          <!--     <div ng-repeat="data in session.data"> -->
-          <!--       <a href="#" ng-click="deleteSpecificSession(session, data.id)"> -->
-          <!--         <span style="position: relative; top: 0.5rem; left: -0.3rem;"> -->
-          <!--           <span class="delete_icon"></span> -->
-          <!--           <span class="delete_icon2"></span> -->
-          <!--         </span> -->
-          <!--       </a> -->
-          <!--       <a href="{{ data.url }}" target="_blank" style="position: relative; left: 0.5rem;"> -->
-          <!--         <span ng-show="data.dataURI !== undefined"> -->
-          <!--           <img src="{{ data.dataURI }}" style="width: 16px; height: 16px;">{{ data.title }} -->
-          <!--         </span> -->
-          <!--         <span ng-show="data.dataURI === undefined"> -->
-          <!--           {{ data.url }} -->
-          <!--         </span> -->
-          <!--       </a> -->
-          <!--     </div> -->
-          <!--   </fieldset> -->
-          <!-- </section> -->
-
-          <!-- <section class="change_history" ng-controller="changeHistoryController"> -->
-          <!--   <div ng-repeat="data in changed"> -->
-          <!--     <h3>{{ data.dateVer }}</h3> -->
-          <!--     <div ng-repeat="item in data.items" style="margin-left: 1.5rem;"> -->
-          <!--       {{ item }} -->
-          <!--     </div> -->
-          <!--   </div> -->
-          <!-- </section> -->
-
-          <!-- <section class="information"> -->
-          <!--   <h3><span translation="specification"></span></h3> -->
-          <!--   <ul style="list-style-type: disc"> -->
-          <!--     <li><span translation="spec1"></span></li> -->
-          <!--     <li><span translation="spec2"></span></li> -->
-          <!--     <li><span translation="spec3"></span></li> -->
-          <!--     <li> -->
-          <!--       <div translation="spec4"></div> -->
-          <!--       <ul> -->
-          <!--         <li><img src="../icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_with_keybind.png">&nbsp;<span translation="spec_icon_with_keybind"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_use_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_extension_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li> -->
-          <!--         <li><img src="../icon/icon_019_temp_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li> -->
-          <!--       </ul> -->
-          <!--     </li> -->
-          <!--     <li><span translation="spec5"></span></li> -->
-          <!--   </ul> -->
-
-          <!--   <h3><span translation="warning"></span></h3> -->
-          <!--   <div><span translation="warn1"></span></div> -->
-
-          <!--   <h3><span translation="feedback"></span></h3> -->
-          <!--   <div><span translation="feedback_explanation"></span></div> -->
-          <!--   <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span translation="feedback_send"></span></a></div> -->
-
-          <!--   <h3><span translation="infomation_other"></span></h3> -->
-          <!--   <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div> -->
-
-          <!--   <div style="margin-top: 1em;">Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div> -->
-          <!-- </section> -->
-
-          <!-- <section ng-controller="storageController" class="operate_settings"> -->
-          <!--   <fieldset> -->
-          <!--     <legend translation="getSettings"></legend> -->
-          <!--     <div> -->
-          <!--       <button ng-click="export()"><span translation="export"></span></button> -->
-          <!--       <button ng-click="import()"><span translation="import"></span></button> -->
-          <!--       <span id="config_view_status" style="color: green;"></span> -->
-          <!--     </div> -->
-          <!--     <textarea id="config_view" cols="150" rows="30"></textarea> -->
-          <!--   </fieldset> -->
-          <!-- </section> -->
-        <!-- </article> -->
-
-        <!-- <footer ng-controller="storageController"> -->
-          <!-- <fieldset> -->
-          <!--   <legend translation="operateTitle"></legend> -->
-          <!--   <button ng-click="save()"><span translation="save"></span></button> -->
-          <!--   <button ng-click="load()"><span translation="load"></span></button> -->
-          <!--   <button ng-click="init()"><span translation="init"></span></button> -->
-          <!--   <span id="status" style="color: green;"></span> -->
-          <!-- </fieldset> -->
-
-          <!-- <fieldset> -->
-          <!--   <legend translation="operateSyncTitle"></legend> -->
-          <!--   <button ng-click="syncSave()"><span translation="save"></span></button> -->
-          <!--   <button ng-click="syncLoad()"><span translation="load"></span></button> -->
-          <!--   <span id="status_sync" style="color: green;"></span> -->
-          <!-- </fieldset> -->
-        <!-- </footer> -->
-      <!-- </div> -->
-    <!-- </form> -->
-
-    <!-- <1!-- 正規表現確認ツール --1> -->
-    <!-- <div ng-controller="RegexToolController"> -->
-      <!-- <div> -->
-        <!-- <button ng-click="showRegexTool()">x</button> -->
-        <!-- <div translation="regex"></div> -->
-        <!-- <input type="text" ng-model="regex.word" style="width: 400px;"><input type="checkbox" ng-model="regex.option"><span translation="regex_confuse"></span> -->
-      <!-- </div> -->
-      <!-- <div style="float: left;"> -->
-        <!-- <div translation="regex_compare_string"></div> -->
-        <!-- <textarea ng-model="regex.target" style="width: 400px; height: 100px; resize: none;"></textarea> -->
-      <!-- </div> -->
-      <!-- <div> -->
-        <!-- <div translation="regex_result"></div> -->
-        <!-- <span ng-bind-html="regex.result" style="background-color: lightgray; position: absolute; width: 400px; height: 100px;"></span> -->
-      <!-- </div> -->
-      <!-- <div style="clear: float;"></div> -->
-
-      <!-- <div style="float: left;"> -->
-        <!-- <fieldset ng-repeat="reg in regex"> -->
-          <!-- <legend translation="{{ reg.translationName }}"></legend> -->
-          <!-- <table style="border-spacing: 0px;"> -->
-          <!--   <tr ng-repeat="items in reg.reference"> -->
-          <!--     <td ng-repeat-start="item in items" style="padding: 0 1rem;">{{ item.word }}</td> -->
-          <!--     <td ng-repeat-end translation="{{ item.translationName }}"></td> -->
-          <!--   </tr> -->
-          <!-- </table> -->
-        <!-- </fieldset> -->
-      <!-- </div> -->
-      <!-- <div style="clear: left;"></div> -->
-    <!-- </div> -->
 
     <!-- build:js js/dCommons.min.js -->
     <script src="js/debug.js"></script>
