@@ -29,10 +29,7 @@
             return;
           }
 
-          if (iconValue & USE_EXCLUDE) {
-            p.style.display = 'none';
-            r.style.display = 'none';
-          } else if (iconValue & (NORMAL | TEMP_EXCLUDE)) {
+          if (iconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
             p.style.display = 'block';
             r.style.display = 'none';
           } else {
@@ -139,4 +136,4 @@
       resolve();
     });
   }
-})(window, document);
+})(this, this.document);
