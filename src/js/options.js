@@ -2,9 +2,6 @@
   'use strict';
 
   var OperateOptionValue = function() {//{{{
-    this.excludeKeysWhenExport = {
-      'version': true,
-    };
   };
   OperateOptionValue.prototype.get = function(d, name) {
     return this.call(d, name, null, 'get');
@@ -100,13 +97,11 @@
     });
   };
   OperateOptionValue.prototype.export = function() {
-    var $this = this;
     return new Promise(function(resolve) {
       chrome.storage.local.get(function(items) {
         var r = {};
         for (var key in defaultValues) {
-          if (defaultValues.hasOwnProperty(key) &&
-              !$this.excludeKeysWhenExport.hasOwnProperty(key)) {
+          if (defaultValues.hasOwnProperty(key)) {
             r[key] = items.hasOwnProperty(key) ?
                      items[key] : defaultValues[key];
           }
@@ -118,12 +113,6 @@
   OperateOptionValue.prototype.import = function(d, importOptions) {
     var $this = this;
     return new Promise(function(resolve, reject) {
-      for (var key in $this.excludeKeysWhenExport) {
-        if ($this.excludeKeysWhenExport.hasOwnProperty(key)) {
-          delete importOptions[key];
-        }
-      }
-
       $this.load(d, importOptions)
       .then(function() {
         resolve(importOptions);
@@ -422,15 +411,33 @@
 
   var selectorExportLocation = '#export';
   var selectorImportLocation = '#import';
+
+  var excludeKeyNames = [];
+  excludeKeyNames.push(versionKey);
 //}}}
+
+  function deleteKeyItemFromObject(obj, deleteKeys)//{{{
+  {
+    if (toType(obj) !== 'object' || toType(deleteKeys) !== 'array') {
+      throw new Error('Invalid arguments.');
+    }
+
+    var newObj = obj;
+    for (var i = 0; i < deleteKeys.length; i = (i + 1) | 0) {
+      delete newObj[ deleteKeys[i] ];
+    }
+
+    return newObj;
+  }//}}}
 
   function showOptionValuesToOperateSettingsPage()//{{{
   {
     return new Promise(function(resolve) {
       operateOption.export()
       .then(function(options) {
+        var newOptions = deleteKeyItemFromObject(options, excludeKeyNames);
         var e = document.querySelector(selectorExportLocation);
-        e.value = JSON.stringify(options, null, '    ');
+        e.value = JSON.stringify(newOptions, null, '    ');
         resolve();
       });
     });
@@ -1259,6 +1266,7 @@
         break;
       }
 
+      value = deleteKeyItemFromObject(value, excludeKeyNames);
       operateOption.import(document, value)
       .then(function(writeOptions) {
         return new Promise(function(resolve) {
