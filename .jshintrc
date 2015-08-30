@@ -12,7 +12,7 @@
   "esnext": true, // ECMAScript 6
   "node": true,
   "forin": true,
-  "latedef": true // 定義する前に変数を利用するのを禁止にしない
+  "latedef": true, // 定義する前に変数を利用するのを禁止にしない
 
   // グローバル変数へのアクセスの管理
   "browser" : true,  // ブラウザ用のやつは許可
@@ -96,5 +96,5 @@
     "deleteTick": true,
     "setTick": true,
     "unloadTimeProlong": true
-  },
+  }
 }

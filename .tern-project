@@ -1,13 +1,11 @@
 {
   "libs": [
     "browser",
-    "jquery",
     "ecma5",
     "ecma6"
   ],
   "loadEagerly": [
   ],
   "plugins": {
-    "angular": true
   }
 }

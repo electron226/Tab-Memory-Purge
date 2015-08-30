@@ -3,6 +3,5 @@
 archive.zip
 dist/*
 node_modules/*
-src/js/debug.js
 src/manifest.json
 src/css/*
