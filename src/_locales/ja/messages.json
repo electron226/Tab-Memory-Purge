@@ -199,10 +199,6 @@
     "message": "設定値を超えたアクティブタブ以外のタブを解放",
     "description": "Purging all tabs except for the active tab."
   },
-  "when_updated_restore_session": {
-    "message": "アップデート時に解放していたタブが閉じた場合、セッションを即座に復元する。",
-    "description": "オプションの項目"
-  },
   "interval_timing": {
     "message": "現在のセッションや自動開放処理のチェック間隔",
     "description": "the item of the options."

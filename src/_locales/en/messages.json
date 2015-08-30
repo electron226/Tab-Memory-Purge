@@ -199,10 +199,6 @@
     "message": "Than set value more have opened tabs are purged except active tabs",
     "description": "Purging all tabs except for the active tab."
   },
-  "when_updated_restore_session": {
-    "message": "When this extension was updated, If your purging tabs have closed, the extension restores session promptly.",
-    "description": "the item of the options."
-  },
   "interval_timing": {
     "message": "The current session and automatic purging process are interval to check",
     "description": "the item of the options."
