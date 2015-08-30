@@ -102,7 +102,9 @@
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
+    "UPDATE_CONFIRM_DIALOG": true,
     "RESTORE_PREVIOUS_SESSION": true,
+    "updateCheckTime": true,
 
     "Database": true,
     

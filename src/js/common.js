@@ -146,5 +146,7 @@
   window.optionPage = chrome.runtime.getURL('options.html');
   window.changeHistory = chrome.runtime.getURL('History.txt');
 
+  window.UPDATE_CONFIRM_DIALOG    = 'TMP_UPDATE_CONFIRMATION_DIALOG';
   window.RESTORE_PREVIOUS_SESSION = 'TMP_RESTORE_PREVIOUS_SESSION';
+  window.updateCheckTime          = 30 * 60 * 1000; // min * sec * Millisec.
 })(this);

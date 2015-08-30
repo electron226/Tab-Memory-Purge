@@ -1436,7 +1436,9 @@
       getInitAndLoadOptions()
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
-          if (options[previousSessionTimeKey]) {
+          var previousSessionTime = options[previousSessionTimeKey];
+          if (previousSessionTime !== void 0 &&
+              previousSessionTime !== null) {
             showDialogOfRestoreSessionBeforeUpdate()
             .then(resolve2)
             .catch(reject2);
@@ -1663,6 +1665,7 @@
     .then(function() {
       return initializeIntervalProcess(myOptions.interval_timing || 5);
     })
+    .then(initializeIntervalUpdateCheck(updateCheckTime))
     .catch(function(e) {
       error(e || 'initialize error.');
     });
@@ -1954,11 +1957,58 @@
     }
   );//}}}
 
+  function updateCheck()//{{{
+  {
+    debug('updateCheck');
+
+    return new Promise(function(resolve) {
+      chrome.runtime.requestUpdateCheck(function(status, version) {
+        if (status === 'update_available') {
+          log('update is avaliable now.');
+          resolve(version);
+          return;
+        } else if (status === 'no_update') {
+          log('no update found.');
+        } else if (status === 'throttled') {
+          log('Has been occurring many request update checks. ' +
+              'You need to back off the updating request.');
+        }
+
+        resolve(null);
+      });
+    });
+  }//}}}
+
+  function initializeIntervalUpdateCheck(checkTime)//{{{
+  {
+    debug('initializeIntervalUpdateCheck', checkTime);
+
+    return new Promise(function(resolve) {
+      setInterval(updateCheck, checkTime);
+      resolve();
+    });
+  }//}}}
+
+  chrome.runtime.onUpdateAvailable.addListener(function(details) {//{{{
+    debug("runtime.onUpdateAvailable", details);
+    showUpdateConfirmationDialog();
+  });//}}}
+
   chrome.notifications.onButtonClicked.addListener(//{{{
     function(notificationId, buttonIndex) {
       debug('nortifications.onButtonClicked', notificationId, buttonIndex);
 
       switch (notificationId) {
+      case UPDATE_CONFIRM_DIALOG:
+        if (buttonIndex === 0) {
+          writeSession(unloaded)
+          .then(function() {
+            // reload the extension, and update the extension.
+            chrome.runtime.reload();
+          })
+          .catch(catchShowError);
+        }
+        break;
       case RESTORE_PREVIOUS_SESSION:
         if (buttonIndex === 0) {
           getInitAndLoadOptions()
@@ -1989,8 +2039,29 @@
             { title: 'No' },
           ],
         },
-        function(notificationId) {
-          resolve(notificationId);
+        function() {
+          resolve();
+        }
+      );
+    });
+  }//}}}
+
+  function showUpdateConfirmationDialog() {//{{{
+    return new Promise(function(resolve) {
+      chrome.notifications.create(
+        UPDATE_CONFIRM_DIALOG,
+        {
+          type: 'basic',
+          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
+          title: 'Update is available.',
+          message: 'New version is available now.',
+          buttons: [
+            { title: 'Update' },
+            { title: 'Later' },
+          ],
+        },
+        function() {
+          resolve();
         }
       );
     });
