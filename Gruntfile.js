@@ -11,7 +11,7 @@ module.exports = function(grunt) {
       files: {
         expand: true,
         cwd: 'dist/',
-        src: [ '**/*' ],
+        src: [ '**/*', '!**/*.md', '!**/*.pdf' ],
         filter: 'isFile',
       },
     },
@@ -26,6 +26,7 @@ module.exports = function(grunt) {
         src: [
           '_locales/**/*',
           'icon/**/*',
+          '!icon/icon.svg',
           'History.txt',
         ],
         dest: 'dist/',
