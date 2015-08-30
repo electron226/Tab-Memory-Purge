@@ -32,5 +32,5 @@ Google Chrome用のタブ拡張機能です。
 ## ライセンス
 [GPL Version 3](https://github.com/electron226/Tab-Memory-Purge/blob/master/LICENSE.md)
 
-https://github.com/electron226/Tab-Memory-Purge/tree/master/src/icon/material%20design
 Those icons made by Google from www.flaticon.com is licensed by [CC BY 3.0](https://github.com/electron226/Tab-Memory-Purge/blob/master/src/icon/material%20design/CC%20BY%203.0.md)
+https://github.com/electron226/Tab-Memory-Purge/tree/master/src/icon/material%20design
