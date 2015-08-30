@@ -1386,6 +1386,45 @@
     });
   }//}}}
 
+  function restoreSessionBeforeUpdate(previousSessionTime)//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      if (previousSessionTime === undefined || previousSessionTime === null) {
+        error("previousSessionTime is undefined or null");
+        reject();
+        return;
+      }
+
+      loadSession(db, dbSessionName)
+      .then(function(sessions) {
+        return new Promise(function(resolve2, reject2) {
+          if (sessions.length === 0) {
+            resolve2();
+            return;
+          }
+
+          var restoreSession = sessions.filter(function(v) {
+            return previousSessionTime === v.date;
+          });
+
+          if (restoreSession.length > 0) {
+            if (restoreSession.length > 1) {
+             warn('the length of restoreSession is greater than 1.');
+            }
+
+            restore(restoreSession[0].data)
+            .then(resolve2)
+            .catch(reject2);
+            return;
+          }
+          resolve2();
+        });
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
   /**
    * 拡張機能がアップデートされたときの処理
    */
@@ -1397,35 +1436,8 @@
       getInitAndLoadOptions()
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
-          // restore process.
-          if (options.when_updated_restore_session) {
-            loadSession(db, dbSessionName)
-            .then(function(sessions) {
-              return new Promise(function(resolve3, reject3) {
-                if (sessions.length === 0) {
-                  resolve3();
-                  return;
-                }
-
-                var previousSessionTime = options[previousSessionTimeKey];
-                if (previousSessionTime) {
-                  var restoreSession = sessions.filter(function(v) {
-                    return previousSessionTime === v.date;
-                  });
-
-                  if (restoreSession.length > 0) {
-                    if (restoreSession.length > 1) {
-                     warn('the length of restoreSession is greater than 1.');
-                    }
-
-                    restore(restoreSession[0].data)
-                    .then(resolve3)
-                    .catch(reject3);
-                  }
-                }
-                resolve3();
-              });
-            })
+          if (options[previousSessionTimeKey]) {
+            showDialogOfRestoreSessionBeforeUpdate()
             .then(resolve2)
             .catch(reject2);
           } else {
@@ -1644,7 +1656,6 @@
 
     initializeDatabase()
     .then(versionCheckAndUpdate)
-    .then(deletePreviousSessionTime)
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
@@ -1942,6 +1953,48 @@
       }
     }
   );//}}}
+
+  chrome.notifications.onButtonClicked.addListener(//{{{
+    function(notificationId, buttonIndex) {
+      debug('nortifications.onButtonClicked', notificationId, buttonIndex);
+
+      switch (notificationId) {
+      case RESTORE_PREVIOUS_SESSION:
+        if (buttonIndex === 0) {
+          getInitAndLoadOptions()
+          .then(function(options) {
+            return restoreSessionBeforeUpdate(options[previousSessionTimeKey]);
+          })
+          .then(deletePreviousSessionTime)
+          .catch(catchShowError);
+        } else {
+          deletePreviousSessionTime();
+        }
+        break;
+      }
+    }
+  );//}}}
+
+  function showDialogOfRestoreSessionBeforeUpdate() {//{{{
+    return new Promise(function(resolve) {
+      chrome.notifications.create(
+        RESTORE_PREVIOUS_SESSION,
+        {
+          type: 'basic',
+          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
+          title: 'Restore the session before update.',
+          message: 'Do want to restore the session before update?',
+          buttons: [
+            { title: 'Restore' },
+            { title: 'No' },
+          ],
+        },
+        function(notificationId) {
+          resolve(notificationId);
+        }
+      );
+    });
+  }//}}}
 
   initialize();
 })();

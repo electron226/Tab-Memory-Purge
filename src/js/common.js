@@ -145,4 +145,6 @@
 
   window.optionPage = chrome.runtime.getURL('options.html');
   window.changeHistory = chrome.runtime.getURL('History.txt');
-})(window);
+
+  window.RESTORE_PREVIOUS_SESSION = 'TMP_RESTORE_PREVIOUS_SESSION';
+})(this);

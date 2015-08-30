@@ -102,6 +102,8 @@
     "USE_EXCLUDE": true,
     "EXTENSION_EXCLUDE": true,
 
+    "RESTORE_PREVIOUS_SESSION": true,
+
     "Database": true,
     
     "deleteTick": true,

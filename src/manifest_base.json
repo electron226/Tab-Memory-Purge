@@ -27,6 +27,7 @@
     "permissions" : [
       "tabs", "storage", "history",
       "system.memory", "contextMenus",
+      "notifications",
       "http://*/*", "https://*/*"
     ],
     "web_accessible_resources" : [
