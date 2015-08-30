@@ -4,6 +4,8 @@
 (function(window) {
   "use strict";
 
+  var ajaxTimeout = 60 * 1000;
+
   window.loadTranslation = window.loadTranslation || function(document, path) {
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
@@ -30,7 +32,7 @@
         }
       };
       xhr.onerror = reject;
-      xhr.timeout = 60;
+      xhr.timeout = ajaxTimeout;
       xhr.send();
     });
   };
@@ -167,7 +169,7 @@
         }
       };
       xhr.onerror = reject;
-      xhr.timeout = 60;
+      xhr.timeout = ajaxTimeout;
       xhr.send();
     });
   };
