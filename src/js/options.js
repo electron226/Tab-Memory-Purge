@@ -1163,8 +1163,8 @@
           e[i].addEventListener('click', sectionButtonClicked, true);
         }
         resolve();
-      } catch (e) {
-        reject(e);
+      } catch (err) {
+        reject(err);
       }
     });
   }//}}}

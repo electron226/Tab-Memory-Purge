@@ -11,6 +11,8 @@
   "trailing" : true, // 行末の空白を禁止
   "esnext": true, // ECMAScript 6
   "node": true,
+  "forin": true,
+  "latedef": true // 定義する前に変数を利用するのを禁止にしない
 
   // グローバル変数へのアクセスの管理
   "browser" : true,  // ブラウザ用のやつは許可
@@ -95,5 +97,4 @@
     "setTick": true,
     "unloadTimeProlong": true
   },
-  "latedef": true // 定義する前に変数を利用するのを禁止にしない
 }

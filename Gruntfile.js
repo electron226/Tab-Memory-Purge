@@ -173,6 +173,15 @@ module.exports = function(grunt) {
         }],
       },
     },
+    jshint: {
+      check: {
+        files: [{
+          expand: true,
+          cwd:    'src/js',
+          src:    ['**/*.js', '!**/*.min.css'],
+        }],
+      }
+    },
     uglify: {
       options: {
         compress: {
@@ -264,6 +273,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -279,6 +289,7 @@ module.exports = function(grunt) {
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:debug',
+    'jshint:check',
     'watch',
   ]);
   grunt.registerTask('build', [
@@ -290,6 +301,7 @@ module.exports = function(grunt) {
     'replace:build',
     'useminPrepare',
     'cssmin:build',
+    'jshint:check',
     'uglify:commons',
     'uglify:build',
     'usemin',
