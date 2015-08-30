@@ -67,7 +67,7 @@
           return;
         }
       }
-      warn("Doesn't find the elememt name: " + name);
+      console.warn("Doesn't find the elememt name: " + name);
       resolve();
     });
   };
@@ -267,14 +267,14 @@
 
   function processAfterMenuSelection()//{{{
   {
-    log('processAfterMenuSelection');
+    console.log('processAfterMenuSelection');
 
     var keybindTick = null;
 
     return function(name) {
       return new Promise(function(resolve, reject) {
         if (keybindTick) {
-          log('keybindTick is cleared.');
+          console.log('keybindTick is cleared.');
           clearInterval(keybindTick);
           keybindTick = null;
         }
@@ -293,7 +293,7 @@
           setTimeout(function() {
             showAllHistory()
             .catch(function(e) {
-              error(e);
+              console.error(e);
             });
           }, 1000);
           break;
@@ -301,7 +301,7 @@
           setTimeout(function() {
             showAllSessionHistory()
             .catch(function(e) {
-              error(e);
+              console.error(e);
             });
           }, 1000);
           break;
@@ -310,7 +310,7 @@
         case 'operate_settings':
           showOptionValuesToOperateSettingsPage()
           .catch(function(e) {
-            error(e);
+            console.error(e);
           });
           break;
         default:
@@ -491,7 +491,7 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e);
+        console.error(e);
         reject(e);
       });
     });
@@ -515,7 +515,7 @@
       })
       .then(resolve)
       .catch(function(e) {
-        error(e);
+        console.error(e);
         reject(e);
       });
     });
@@ -636,7 +636,7 @@
     })
     .then(showAllSessionHistory)
     .catch(function(e) {
-      error(e);
+      console.error(e);
     });
   }//}}}
 
@@ -650,7 +650,8 @@
       className.indexOf(selectorSavedSessionHistory.substr(1)) !== -1 ?
       dbSavedSessionName : null;
     if (dbName === null) {
-      error('occur the invalid database name into deleteSession function.');
+      console.error(
+        'occur the invalid database name into deleteSession function.');
       return;
     }
 
@@ -672,7 +673,7 @@
     })
     .then(showAllSessionHistory)
     .catch(function(e) {
-      error(e);
+      console.error(e);
     });
   }//}}}
 
@@ -686,7 +687,8 @@
       className.indexOf(selectorSavedSessionHistory.substr(1)) !== -1 ?
       dbSavedSessionName : null;
     if (dbName === null) {
-      error('occur the invalid database name into restoreSesion function.');
+      console.error(
+        'occur the invalid database name into restoreSesion function.');
       return;
     }
 
@@ -700,7 +702,7 @@
       chrome.runtime.sendMessage({ event: 'restore', session: histories });
     })
     .catch(function(e) {
-      error(e);
+      console.error(e);
     });
   }//}}}
 
@@ -721,7 +723,7 @@
     })
     .then(showAllSessionHistory)
     .catch(function(e) {
-      error(e);
+      console.error(e);
     });
   }//}}}
 
@@ -789,7 +791,7 @@
       histories.forEach(function(v) {
         page = pageInfoDict[v.url];
         if (page === void 0 || page === null) {
-          warn("Don't find data in pageInfo of indexedDB.", v.url);
+          console.warn("Don't find data in pageInfo of indexedDB.", v.url);
           return;
         }
 
@@ -1170,7 +1172,7 @@
   function applyNewOptionToExtensionProcess()//{{{
   {
     return new Promise(function(resolve) {
-      log("apply new option to this extension's process.");
+      console.log("apply new option to this extension's process.");
       chrome.runtime.sendMessage({ event: 'reload_option_value' });
       resolve();
     });
@@ -1189,14 +1191,15 @@
       return new Promise(function(resolve) {
         writeObj[name] = item;
         chrome.storage.local.set(writeObj, function() {
-          log('have wrote the data. name: ' + name + ', value: ' + item);
+          console.log(
+            'have wrote the data. name: ' + name + ', value: ' + item);
           resolve();
         });
       });
     })
     .then(applyNewOptionToExtensionProcess)
     .catch(function(mes) {
-      error(mes);
+      console.error(mes);
     });
   }//}}}
 
@@ -1221,7 +1224,7 @@
 
   function showAllKeybindString()//{{{
   {
-    log('showAllKeybindString');
+    console.log('showAllKeybindString');
 
     var options = document.querySelectorAll(selectorKeybindOption);
     var keyJson, keyString;
@@ -1237,7 +1240,7 @@
 
         keyString.value = generateKeyString(JSON.parse(keyJson.value));
       } catch (e) {
-        warn(e, keyJson.value);
+        console.warn(e, keyJson.value);
       }
     }
   }//}}}
@@ -1317,7 +1320,7 @@
       el.select();
       var result = document.execCommand('copy');
       var msg = result ? 'successed' : 'failured';
-      log('have copied the string of import area. it is ' + msg + '.');
+      console.log('have copied the string of import area. it is ' + msg + '.');
 
       window.getSelection().removeAllRanges();
       break;
@@ -1329,9 +1332,9 @@
         value = JSON.parse(el.value.trim());
       } catch (e) {
         if (e instanceof SyntaxError) {
-          error("Invalid string. The string isn't json string.");
+          console.error("Invalid string. The string isn't json string.");
         } else {
-          error(e);
+          console.error(e);
         }
         break;
       }
@@ -1345,7 +1348,7 @@
       })
       .then(showOptionValuesToOperateSettingsPage)
       .catch(function(e) {
-        error(e);
+        console.error(e);
       });
       break;
     }
@@ -1379,7 +1382,7 @@
     .then(initKeybindEvent(document))
     .then(initHistoryEvent(document))
     .catch(function(e) {
-      error(e);
+      console.error(e);
     });
   }, true);//}}}
 }(this, this.document));

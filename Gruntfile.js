@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       },
     },
     clean: {
-      debug: [ 'src/manifest.json', 'src/css', 'src/js/debug.js' ],
+      debug: [ 'src/manifest.json', 'src/css' ],
       build: [ '.tmp', 'dist', 'archive.zip' ],
     },
     copy: {
@@ -45,17 +45,12 @@ module.exports = function(grunt) {
         options: {
           patterns: [
             {
-              match: 'debugMode',
-              replacement: true,
-            },
-            {
               match: 'extensionTitleDebug',
               replacement: ' Debug',
             },
             {
               match: 'backgroundScripts',
               replacement: [
-                "js/debug.js",
                 "js/common.js",
                 "js/common_func.js",
                 "js/indexedDB.js",
@@ -77,11 +72,6 @@ module.exports = function(grunt) {
         files: [
           {
             flatten: true,
-            src: ['src/js/debug_base.js'],
-            dest: 'src/js/debug.js',
-          },
-          {
-            flatten: true,
             src: ['src/manifest_base.json'],
             dest: 'src/manifest.json',
           }
@@ -91,17 +81,13 @@ module.exports = function(grunt) {
         options: {
           patterns: [
             {
-              match: 'debugMode',
-              replacement: false,
-            },
-            {
               match: 'extensionTitleDebug',
               replacement: '',
             },
             {
               match: 'backgroundScripts',
               replacement: [
-                "js/dCommons.min.js",
+                "js/commons.min.js",
                 "js/indexedDB.min.js",
                 "js/purge.min.js",
               ],
@@ -109,18 +95,13 @@ module.exports = function(grunt) {
             {
               match: 'contentScripts',
               replacement: [
-                "js/dCommons.min.js",
+                "js/commons.min.js",
                 "js/content_scripts/content_scripts.min.js",
               ],
             }
           ]
         },
         files: [
-          {
-            flatten: true,
-            src: ['src/js/debug_base.js'],
-            dest: 'src/js/debug.js',
-          },
           {
             flatten: true,
             src: ['src/manifest_base.json'],
@@ -194,14 +175,16 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
+        compress: {
+          drop_console: true,
+        },
         mangle: {
-          'chrome': false,
+          chrome: false,
         },
       },
-      dCommons: {
+      commons: {
         files: {
-          'dist/js/dCommons.min.js': [
-            'src/js/debug.js',
+          'dist/js/commons.min.js': [
             'src/js/common.js',
             'src/js/common_func.js'
           ],
@@ -250,9 +233,9 @@ module.exports = function(grunt) {
         ],
         tasks: ['copy:dist'],
       },
-      dCommons: {
-        files: ['src/js/debug_base.js', 'src/js/common.js', 'src/js/common_func.js'],
-        tasks: ['copy', 'uglify:dCommons'],
+      commons: {
+        files: ['src/js/common.js', 'src/js/common_func.js'],
+        tasks: ['copy', 'uglify:commons'],
       },
       html: {
         files: ['src/**/*.html'],
@@ -307,7 +290,7 @@ module.exports = function(grunt) {
     'replace:build',
     'useminPrepare',
     'cssmin:build',
-    'uglify:dCommons',
+    'uglify:commons',
     'uglify:build',
     'usemin',
     'htmlmin',

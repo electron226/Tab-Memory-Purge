@@ -7,7 +7,8 @@
     .then(updateNotReleaseButton)
     .then(loadTranslation(document, translationPath))
     .catch(function(e) {
-      error("Doesn't initialize the translation correctly.\n error: %s", e);
+      console.error(
+        "Doesn't initialize the translation correctly.\n error: %s", e);
     });
   }, true);
 

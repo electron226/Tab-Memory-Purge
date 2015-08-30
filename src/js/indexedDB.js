@@ -11,16 +11,16 @@
   };
 
   Database.prototype.open = function(createProperties) {
-    debug('called open function of Database class.', createProperties);
+    console.log('called open function of Database class.', createProperties);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
       var req = indexedDB.open($this.databaseName, $this.version);
       req.onupgradeneeded = function(e) {
-        debug('be running onupgradeneeded.');
+        console.log('be running onupgradeneeded.');
 
         e.target.transaction.onerror = function(e) {
-          error(e);
+          console.error(e);
           deferred.reject();
         };
 
@@ -56,7 +56,7 @@
         deferred.resolve(e);
       };
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -64,7 +64,7 @@
   };
 
   Database.prototype.addOrPut = function(args, type) {
-    debug('called addOrPut function of Database class.', args);
+    console.log('called addOrPut function of Database class.', args);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -79,7 +79,7 @@
       tx.onabort = function(e) {
         var error = e.target.error;
         if (error.name === 'QuotaExceededError') {
-          error(error.name);
+          console.error(error.name);
         }
       };
       tx.oncomplete = deferred.resolve;
@@ -103,7 +103,7 @@
       });
 
       Promise.all(p).then(deferred.resolve, function(e) {
-        error(e.target.error.message);
+        console.error(e.target.error.message);
         deferred.reject();
       });
     }, 0, this);
@@ -111,17 +111,17 @@
   };
 
   Database.prototype.add = function(args) {
-    debug('called add function of Database class.', args);
+    console.log('called add function of Database class.', args);
     return this.addOrPut(args, 'add');
   };
 
   Database.prototype.put = function(args) {
-    debug('called put function of Database class.', args);
+    console.log('called put function of Database class.', args);
     return this.addOrPut(args, 'put');
   };
 
   Database.prototype.get = function(args) {
-    debug('called get function of Database class.', args);
+    console.log('called get function of Database class.', args);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -148,7 +148,7 @@
         deferred.resolve(this.result);
       };
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -187,7 +187,7 @@
         }
       };
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -200,7 +200,7 @@
   //
   // When indexName was error, this function isn't use it.
   Database.prototype.getCursor = function(args) {
-    debug('called getCursor function of Database class.', args);
+    console.log('called getCursor function of Database class.', args);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -235,7 +235,7 @@
         }
       };
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -243,7 +243,7 @@
   };
 
   Database.prototype.update = function(args) {
-    debug('called update function of Database class.', args);
+    console.log('called update function of Database class.', args);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -256,7 +256,7 @@
       tx.onabort = function(e) {
         var error = e.target.error;
         if (error.name === 'QuotaExceededError') {
-          error(error.name);
+          console.error(error.name);
         }
       };
       tx.oncomplete = deferred.resolve;
@@ -291,7 +291,7 @@
         }
       };
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -299,7 +299,7 @@
   };
 
   Database.prototype.delete = function(args) {
-    debug('called delete function of Database class.', args);
+    console.log('called delete function of Database class.', args);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -324,7 +324,7 @@
       });
 
       Promise.all(p).then(deferred.resolve, function(e) {
-        error(e.target.error.message);
+        console.error(e.target.error.message);
         deferred.reject();
       });
     }, 0, this);
@@ -332,7 +332,7 @@
   };
 
   Database.prototype.clear = function(storeName) {
-    debug('called clear function of Database class.', storeName);
+    console.log('called clear function of Database class.', storeName);
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
@@ -345,7 +345,7 @@
 
       cl.onsuccess = deferred.resolve;
       cl.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -353,14 +353,14 @@
   };
 
   Database.prototype.deleteDatabase = function() {
-    debug('called deleteAll function of Database class.');
+    console.log('called deleteAll function of Database class.');
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
       var req = indexedDB.deleteDatabase($this.databaseName);
       req.onsuccess = deferred.resolve;
       req.onerror = function(e) {
-        error(e);
+        console.error(e);
         deferred.reject();
       };
     }, 0, this);
@@ -368,7 +368,7 @@
   };
 
   Database.prototype.close = function() {
-    debug('called close function of Database class.');
+    console.log('called close function of Database class.');
 
     var deferred = Promise.defer();
     setTimeout(function($this) {
