@@ -608,92 +608,114 @@
     });
   }//}}}
 
-  function writeHistory(tab)//{{{
-  {
-    console.log('writeHistory', tab);
+  function closureOfWriteHistory() {//{{{
+    var writeSet = new Set();
 
-    return new Promise(function(resolve, reject) {
-      var now = new Date();
-      var begin = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-                           0, 0, 0, 0);
-      var end = new Date(now.getFullYear(), now.getMonth(), now.getDate(),
-                           23, 59, 59, 999);
+    function writeHistory(tab)//{{{
+    {
+      console.log('writeHistory', tab);
 
-      db.getCursor({
-        name: dbHistoryName,
-        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
-      })
-      .then(function(histories) {
-        var delKeys = histories.filter(function(v) {
-          return v.url === tab.url;
-        });
-        delKeys = delKeys.map(function(v) {
-          return v.date;
-        });
+      return new Promise(function(resolve, reject) {
+        if (writeSet.has(tab.url)) {
+          console.warn(
+            'Be running to write the same URL of a history to Database' +
+            ' already.');
+          resolve();
+          return;
+        }
+        writeSet.add(tab.url);
 
-        return db.delete({ name: dbHistoryName, keys: delKeys });
-      })
-      .then(function() {
-        // history
-        return db.add({
+        var now   = new Date();
+        var year  = now.getUTCFullYear();
+        var month = now.getUTCMonth();
+        var day   = now.getUTCDay();
+        var begin = new Date(year, month, day, 0, 0, 0, 0);
+
+        db.getCursor({
           name: dbHistoryName,
-          data: {
-            date: now.getTime(),
-            url: tab.url,
-          },
-        });
-      })
-      .then(function() {
-        return new Promise(function(resolve2) {
-          var host = getHostName(tab.url);
-          var p = [];
+          range: IDBKeyRange.lowerBound(begin.getTime()),
+        })
+        .then(function(histories) {
+          var delKeys = histories.filter(function(v) {
+            return v.url === tab.url;
+          });
 
-          // pageInfo
-          p.push(
-            db.add({
-              name: dbPageInfoName,
-              data: {
-                url: tab.url,
-                title: tab.title || 'Unknown',
-                host: host,
-              },
-            })
-          );
-          // dataURI.
-          p.push(
-            new Promise(function(resolve3, reject3) {
-              if (tab.favIconUrl) {
-                getDataURI(tab.favIconUrl)
-                .then(function(iconDataURI) {
-                  return db.add({
-                    name: dbDataURIName,
-                    data: {
-                      host: host,
-                      dataURI: iconDataURI,
-                    }
-                  });
-                })
-                .then(resolve3)
-                .catch(reject3);
-              } else {
-                console.log("Don't find favIconUrl.");
-                resolve3();
-              }
-            })
-          );
-          // If Promise was error, it is transaction error.
-          // When its error was shown, to occur in the key already exist.
-          // Therefore, I call the resolve function.
-          Promise.all(p).then(resolve2, resolve2);
+          delKeys = delKeys.map(function(v) {
+            return v.date;
+          });
+          console.log('delKeys', delKeys);
+
+          return db.delete({ name: dbHistoryName, keys: delKeys });
+        })
+        .then(function() {
+          // history
+          return db.add({
+            name: dbHistoryName,
+            data: {
+              date: now.getTime(),
+              url: tab.url,
+            },
+          });
+        })
+        .then(function() {
+          return new Promise(function(resolve2) {
+            var host = getHostName(tab.url);
+            var p = [];
+
+            // pageInfo
+            p.push(
+              db.add({
+                name: dbPageInfoName,
+                data: {
+                  url: tab.url,
+                  title: tab.title || 'Unknown',
+                  host: host,
+                },
+              })
+            );
+            // dataURI.
+            p.push(
+              new Promise(function(resolve3, reject3) {
+                if (tab.favIconUrl) {
+                  getDataURI(tab.favIconUrl)
+                  .then(function(iconDataURI) {
+                    return db.add({
+                      name: dbDataURIName,
+                      data: {
+                        host: host,
+                        dataURI: iconDataURI,
+                      }
+                    });
+                  })
+                  .then(resolve3)
+                  .catch(reject3);
+                } else {
+                  console.log("Don't find favIconUrl.");
+                  resolve3();
+                }
+              })
+            );
+            // If Promise was error, it is transaction error.
+            // When its error was shown, to occur in the key already exist.
+            // Therefore, I call the resolve function.
+            Promise.all(p).then(resolve2, resolve2);
+          });
+        })
+        .then(function() {
+          writeSet.delete(tab.url);
+          resolve();
+        })
+        .catch(function(e) {
+          console.error(e);
+          reject();
         });
-      })
-      .then(resolve)
-      .catch(function(e) {
-        console.error(e);
-        reject();
       });
-    });
+    }//}}}
+
+    return writeHistory;
   }//}}}
+
+  var writeHistory = closureOfWriteHistory();
 
   function deleteAllPurgedTabUrlFromHistory()//{{{
   {
