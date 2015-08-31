@@ -1403,8 +1403,7 @@
     console.log('Extension Installed.');
 
     return new Promise(function(resolve) {
-      // インストール時にオプションページを表示
-      chrome.tabs.create({ url: optionPage }, resolve);
+      chrome.runtime.openOptionsPage().then(resolve);
     });
   }//}}}
 
@@ -1919,10 +1918,6 @@
               unPurge(parseInt(key, 10));
             }
           }
-          break;
-        case 'option':
-          // オプションページを開く
-          chrome.tabs.create({ url: optionPage });
           break;
         case 'add_to_temp_exclude_list':
           getCurrentTab()
