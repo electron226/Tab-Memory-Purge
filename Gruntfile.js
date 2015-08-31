@@ -11,13 +11,14 @@ module.exports = function(grunt) {
       files: {
         expand: true,
         cwd: 'dist/',
-        src: [ '**/*', '!**/*.md', '!**/*.pdf' ],
+        src: [ '**/*', '!**/*.md', '!**/*.pdf', '!**/*.js.map' ],
         filter: 'isFile',
       },
     },
     clean: {
       debug: [ 'src/manifest.json', 'src/css' ],
-      build: [ '.tmp', 'dist', 'archive.zip' ],
+      build: [ 'tmp', 'dist', 'archive.zip' ],
+      tmp: [ 'tmp' ],
     },
     copy: {
       build: {
@@ -180,7 +181,23 @@ module.exports = function(grunt) {
           cwd:    'src/js',
           src:    ['**/*.js', '!**/*.min.css'],
         }],
-      }
+      },
+    },
+    babel: {
+      options: {
+        sourceMap: true,
+        blacklist: [ 'strict' ],
+      },
+      build: {
+        files: [{
+          expand: true,
+          cwd:    'src/',
+          src:    ['**/*.js', '!**/*.min.css'],
+          dest:   'tmp',
+          ext:    '.js',
+          filter: 'isFile',
+        }],
+      },
     },
     uglify: {
       options: {
@@ -194,26 +211,26 @@ module.exports = function(grunt) {
       commons: {
         files: {
           'dist/js/commons.min.js': [
-            'src/js/common.js',
-            'src/js/common_func.js'
+            'tmp/js/common.js',
+            'tmp/js/common_func.js'
           ],
         },
       },
       build: {
         files: {
-          'dist/js/blank.min.js':     ['src/js/blank.js'],
-          'dist/js/indexedDB.min.js': ['src/js/indexedDB.js'],
-          'dist/js/options.min.js':   ['src/js/options.js'],
-          'dist/js/popup.min.js':     ['src/js/popup.js'],
-          'dist/js/purge.min.js':     ['src/js/purge.js'],
+          'dist/js/blank.min.js':     ['tmp/js/blank.js'],
+          'dist/js/indexedDB.min.js': ['tmp/js/indexedDB.js'],
+          'dist/js/options.min.js':   ['tmp/js/options.js'],
+          'dist/js/popup.min.js':     ['tmp/js/popup.js'],
+          'dist/js/purge.min.js':     ['tmp/js/purge.js'],
 
-          // 'dist/js/load_scripts/getScrollPosition.min.js': ['src/js/load_scripts/getScrollPosition.js'],
-          'dist/js/load_scripts/getScrollPosition.js': ['src/js/load_scripts/getScrollPosition.js'],
+          // 'dist/js/load_scripts/getScrollPosition.min.js': ['tmp/js/load_scripts/getScrollPosition.js'],
+          'dist/js/load_scripts/getScrollPosition.js': ['tmp/js/load_scripts/getScrollPosition.js'],
 
           'dist/js/content_scripts/content_scripts.min.js': [
-            'src/js/content_scripts/excludeDialog.js',
-            'src/js/content_scripts/formCache.js',
-            'src/js/content_scripts/keybind.js',
+            'tmp/js/content_scripts/excludeDialog.js',
+            'tmp/js/content_scripts/formCache.js',
+            'tmp/js/content_scripts/keybind.js',
           ],
         },
       }
@@ -272,6 +289,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-usemin');
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
+  grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-sass');
@@ -302,10 +320,12 @@ module.exports = function(grunt) {
     'useminPrepare',
     'cssmin:build',
     'jshint:check',
+    'babel:build',
     'uglify:commons',
     'uglify:build',
     'usemin',
     'htmlmin',
+    'clean:tmp',
   ]);
   grunt.registerTask('package', [
     'build',

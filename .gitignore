@@ -2,6 +2,7 @@
 *.swp
 archive.zip
 dist/*
+tmp/*
 node_modules/*
 src/manifest.json
 src/css/*
