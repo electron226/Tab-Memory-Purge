@@ -21,8 +21,8 @@
   "globals": { // is not defined対策
     "_": false,
     "$": true,
-    "jQuery": true,
-    "angular": true,
+    "jQuery": false,
+    "angular": false,
     "chrome": true,
     "localStorage": true,
 
@@ -38,7 +38,10 @@
     "IDBIndex": true,
     
     "loadTranslation": true,
-    "loadSession": true,
+    "getListAfterJoinHistoryDataOnDB": true,
+    "getHistoryListFromIndexedDB": true,
+
+    "getQueryString": true,
 
     "formatDate": true,
     "deepCompare": true,

@@ -1417,7 +1417,7 @@
         return;
       }
 
-      loadSession(db, dbSessionName)
+      getHistoryListFromIndexedDB(db, dbSessionName)
       .then(function(sessions) {
         return new Promise(function(resolve2, reject2) {
           if (sessions.length === 0) {

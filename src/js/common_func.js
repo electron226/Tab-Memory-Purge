@@ -6,7 +6,8 @@
 
   var ajaxTimeout = 60 * 1000;
 
-  window.loadTranslation = window.loadTranslation || function(document, path) {
+  function loadTranslation(document, path) //{{{
+  {
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', path, true);
@@ -35,86 +36,132 @@
       xhr.timeout = ajaxTimeout;
       xhr.send();
     });
-  };
+  }//}}}
+
+  function getListAfterJoinHistoryDataOnDB(array)//{{{
+  {
+    return new Promise(function(resolve) {
+      var histories = array[0];
+      var pageInfos = array[1];
+      var dataURIs  = array[2];
+
+      var pageInfoDict = {};
+      pageInfos.forEach(function(v) {
+        pageInfoDict[v.url] = { title: v.title, host: v.host };
+      });
+
+      var dataURIDict = {};
+      dataURIs.forEach(function(v) {
+        dataURIDict[v.host] = v.dataURI;
+      });
+
+      var page;
+      var date, tempDate;
+      var showList = [];
+      var dataList = [];
+      histories.forEach(function(v) {
+        page = pageInfoDict[v.url];
+        if (page === void 0 || page === null) {
+          console.warn("Don't find data in pageInfo of indexedDB.", v.url);
+          return;
+        }
+
+        date = new Date(v.date);
+        if (!tempDate) {
+          tempDate = date;
+        }
+
+        if (formatDate(tempDate, 'YYYY/MM/DD') !==
+          formatDate(date, 'YYYY/MM/DD')) {
+          showList.push({
+            date : new Date(tempDate.getFullYear(),
+              tempDate.getMonth(),
+              tempDate.getDate(),
+              0, 0, 0, 0),
+            data : dataList,
+          });
+            tempDate = date;
+            dataList = [];
+          }
+
+          dataList.push({
+            id      : v.id,
+            date    : v.date,
+            url     : v.url,
+            title   : page.title,
+            host    : page.host,
+            dataURI : dataURIDict[page.host] || icons[NORMAL],
+          });
+      });
+
+      if (dataList.length > 0) {
+        showList.push({
+          date : new Date(tempDate.getFullYear(),
+                          tempDate.getMonth(),
+                          tempDate.getDate(),
+                          0, 0, 0, 0),
+          data : dataList,
+        });
+      }
+
+      resolve(showList);
+    });
+  }//}}}
 
   /**
-   * Get sesion history list.
+   * Get history list.
    * @param {Database} db - the instance of Database class in indexedDB.js.
-   * @param {String} sessionDBName - the target session name in indexedDB.
+   * @param {String} dbName - the target history name in indexedDB.
    * @return {Promise} return promise.
    */
-  window.loadSession = window.loadSession || function(db, sessionDBName) {
+  function getHistoryListFromIndexedDB(db, dbName)//{{{
+  {
     return new Promise(function(resolve, reject) {
       var p = [];
-      p.push( db.getAll({ name: sessionDBName }) );
+      p.push( db.getAll({ name: dbName }) );
       p.push( db.getAll({ name: dbPageInfoName }) );
       p.push( db.getAll({ name: dbDataURIName }) );
 
       Promise.all(p)
-      .then(function(results) {
-        return new Promise(function(resolve2) {
-          var sessions = results[0];
-          var pageInfos = results[1];
-          var dataURIs = results[2];
-
-          var pageInfoDict = {};
-          pageInfos.forEach(function(v) {
-            pageInfoDict[v.url] = { title: v.title, host: v.host };
-          });
-
-          var dataURIDict = {};
-          dataURIs.forEach(function(v) {
-            dataURIDict[v.host] = v.dataURI;
-          });
-
-          var page;
-          var tempDate;
-          var showList = [];
-          var dataList = [];
-          sessions.forEach(function(v) {
-            page = pageInfoDict[v.url];
-            if (page === void 0 || page === null) {
-              console.warn("Don't find data in pageInfo of indexedDB.", v.url);
-              return;
-            }
-
-            if (tempDate === void 0 || tempDate === null) {
-              tempDate = v.date;
-            } else if (tempDate !== v.date) {
-              showList.push({
-                date : tempDate,
-                data : dataList,
-              });
-              tempDate = v.date;
-              dataList = [];
-            }
-
-            dataList.push({
-              id      : v.id,
-              date    : v.date,
-              url     : v.url,
-              title   : page.title,
-              host    : page.host,
-              dataURI : dataURIDict[page.host] || icons[NORMAL],
-            });
-          });
-
-          if (dataList.length > 0) {
-            showList.push({
-              date : tempDate,
-              data : dataList,
-            });
-          }
-
-          resolve2(showList);
-        });
-      })
+      .then(getListAfterJoinHistoryDataOnDB)
       .then(resolve)
       .catch(reject);
     });
-  };
+  }//}}}
 
-  window.cloneObject = window.cloneObject || function(obj) {
+  /**
+   * 受け取った引数を分解し、連想配列(ハッシュ)として返す。
+   * @return {Object} 引数を表す連想配列。キーは受け取った引数名。
+   *                  引数がない場合はnullが返る。
+   */
+  function getQueryString(document)//{{{
+  {
+    if (1 < document.location.search.length) {
+      // 最初の1文字(?)を除いた文字列を取得
+      var query = decodeURIComponent(document.location.search.substring(1));
+
+      // 引数ごとに分割
+      var parameters = query.split('&');
+      var result = {};
+      for (var i = 0; i < parameters.length; i = (i + 1) | 0) {
+        var element = parameters[i].split('=');
+        if (element[0] === '' ||
+            element[1] === undefined || element[1] === null) {
+          continue;
+        }
+
+        var paramName = element[0];
+        var paramValue = decodeURIComponent(element[1]);
+        result[paramName] = paramValue;
+      }
+
+      return result;
+    }
+
+    return null;
+  }//}}}
+
+  function cloneObject(obj) {//{{{
     if (toType(obj) !== 'object') {
       return obj;
     }
@@ -125,9 +172,9 @@
       }
     }
     return copy;
-  };
+  }//}}}
 
-  window.getDataType = window.getDataType || function(buf) {
+  function getDataType(buf) {//{{{
     if (buf[0] === 0xFF && buf[1] === 0xD8 &&
         buf[buf.byteLength - 2] === 0xFF && buf[buf.byteLength - 1] === 0xD9) {
       return 'image/jpeg';
@@ -144,9 +191,9 @@
     } else {
       return 'image/unknown';
     }
-  };
+  }//}}}
 
-  window.getDataURI = window.getDataURI || function(url) {
+  function getDataURI(url) {//{{{
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
@@ -172,7 +219,7 @@
       xhr.timeout = ajaxTimeout;
       xhr.send();
     });
-  };
+  }//}}}
 
   /**
    * keyCheck
@@ -181,7 +228,7 @@
    * @param {Event} e Event on keypress, keydown or keyup.
    * @return {Object} object of key information.
    */
-  window.keyCheck = window.keyCheck || function(e) {
+  function keyCheck(e) {//{{{
     if (e === void 0) {
       throw new Error("Invalid argument. don't get event object.");
     }
@@ -193,7 +240,7 @@
       meta: e.metaKey,
       keyCode: e.keyCode
     };
-  };
+  }//}}}
 
   /**
    * generateKeyString
@@ -202,7 +249,7 @@
    * @param {Object} keyInfo has got return value of keyCheck function.
    * @return {String} result string.
    */
-  window.generateKeyString = window.generateKeyString || function(keyInfo) {
+  function generateKeyString(keyInfo) {//{{{
     if (toType(keyInfo) !== 'object') {
       throw new Error('Invalid type of argument.');
     }
@@ -218,25 +265,25 @@
     /* refernece to
      * http://www.javascripter.net/faq/keycodes.htm */
     switch (keyInfo.keyCode) {
-      case 8: output += 'BackSpace'; break;
-      case 9: output += 'Tab'; break;
-      case 12: output += 'Numpad 5'; break;
-      case 13: output += 'Enter'; break;
-      case 19: output += 'Pause'; break;
-      case 20: output += 'CapsLock'; break;
-      case 27: output += 'Esc'; break;
-      case 32: output += 'Space'; break;
-      case 33: output += 'Page Up'; break;
-      case 34: output += 'Page Down'; break;
-      case 35: output += 'End'; break;
-      case 36: output += 'Home'; break;
-      case 37: output += 'Left'; break;
-      case 38: output += 'Up'; break;
-      case 39: output += 'Right'; break;
-      case 40: output += 'Down'; break;
-      case 44: output += 'PrintScreen'; break;
-      case 45: output += 'Insert'; break;
-      case 46: output += 'Delete'; break;
+      case 8:   output += 'BackSpace'; break;
+      case 9:   output += 'Tab'; break;
+      case 12:  output += 'Numpad 5'; break;
+      case 13:  output += 'Enter'; break;
+      case 19:  output += 'Pause'; break;
+      case 20:  output += 'CapsLock'; break;
+      case 27:  output += 'Esc'; break;
+      case 32:  output += 'Space'; break;
+      case 33:  output += 'Page Up'; break;
+      case 34:  output += 'Page Down'; break;
+      case 35:  output += 'End'; break;
+      case 36:  output += 'Home'; break;
+      case 37:  output += 'Left'; break;
+      case 38:  output += 'Up'; break;
+      case 39:  output += 'Right'; break;
+      case 40:  output += 'Down'; break;
+      case 44:  output += 'PrintScreen'; break;
+      case 45:  output += 'Insert'; break;
+      case 46:  output += 'Delete'; break;
       case 106: output += 'Numpad*'; break;
       case 107: output += 'Numpad+'; break;
       case 109: output += 'Numpad-'; break;
@@ -269,19 +316,19 @@
     }
 
     return trim(output);
-  };
+  }//}}}
 
   /* base program.
    * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
    */
-  window.toType = window.toType || function(obj) {
+  function toType(obj) {//{{{
     var type = ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
     if (type === 'global') {
       if (obj === void 0) { return 'undefined'; }
       else if (obj === null) { return 'null'; }
     }
     return type;
-  };
+  }//}}}
 
   /**
    * 日付をフォーマットする
@@ -290,7 +337,8 @@
    * @param  {String} [format] フォーマット
    * @return {String}          フォーマット済み日付
    */
-  window.formatDate = window.formatDate || function(date, format) {
+  function formatData(date, format)//{{{
+  {
     if (!format) {
       format = 'YYYY-MM-DD hh:mm:ss.SSS';
     }
@@ -308,19 +356,26 @@
       }
     }
     return format;
-  };
+  }//}}}
 
-  window.trim = window.trim || function(string) {
+  function trim(string)//{{{
+  {
     if (toType(string) !== 'string') {
       throw new Error('Argument error. used not string object.');
     }
     return string.replace(/(^\s+)|(\s+$)/g, '');
-  };
+  }//}}}
 
-  /*
+  /**
+   * deepCompare
    * http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
+   *
+   * @param {Any} x - an object compare to y.
+   * @param {Any} y - an object compare to x.
+   * @return {Boolean} true or false.
    */
-  window.deepCompare = window.deepCompare || function() {
+  function deepCompare()//{{{
+  {
     /*jshint forin: false*/
     var i, l, leftChain, rightChain;
 
@@ -433,9 +488,10 @@
     }
 
     return true;
-  };
+  }//}}}
 
-  window.unique = window.unique || function(array) {
+  function unique(array)//{{{
+  {
     if (toType(array) !== 'array') {
       throw new Error('Argument error. used not array object.');
     }
@@ -451,9 +507,10 @@
     }
 
     return ret;
-  };
+  }//}}}
 
-  window.arrayEqual = window.arrayEqual || function(x1, x2) {
+  function arrayEqual(x1, x2)//{{{
+  {
     if (x1.length !== x2.length) {
       return false;
     }
@@ -467,31 +524,55 @@
       j++;
     }
     return true;
-  };
+  }//}}}
 
   // ブラウザの応答性は下がる(ビジーウェイト)
-  window.sleep = window.sleep || function(T) {
+  function sleep(T) //{{{
+  {
     var d1 = new Date().getTime();
     var d2 = new Date().getTime();
     while (d2 < d1 + T) {
       d2 = new Date().getTime();
     }
-  };
+  }//}}}
 
-  window.dictSize = window.dictSize || function(dict) {
+  function dictSize(dict)//{{{
+  {
     /*jshint unused: false, forin: false*/
     var c = 0;
     for (var _ in dict) {
       c++;
     }
     return c;
-  };
+  }//}}}
 
-  window.equals = window.equals || function(l, r) {
+  function equals(l, r)//{{{
+  {
     if (toType(l) === toType(r)) {
       throw new Error('Do not equal argument type.');
     }
 
     return window.deepCompare(l, r);
-  };
+  }//}}}
+
+  window.getListAfterJoinHistoryDataOnDB =
+    window.getListAfterJoinHistoryDataOnDB || getListAfterJoinHistoryDataOnDB;
+  window.getHistoryListFromIndexedDB =
+    window.getHistoryListFromIndexedDB || getHistoryListFromIndexedDB;
+  window.loadTranslation   = window.loadTranslation || loadTranslation;
+  window.getQueryString    = window.getQueryString || getQueryString;
+  window.cloneObject       = window.cloneObject || cloneObject;
+  window.getDataType       = window.getDataType || getDataType;
+  window.getDataURI        = window.getDataURI || getDataURI;
+  window.keyCheck          = window.keyCheck || keyCheck;
+  window.generateKeyString = window.generateKeyString || generateKeyString;
+  window.toType            = window.toType || toType;
+  window.formatDate        = window.formatDate || formatData;
+  window.trim              = window.trim || trim;
+  window.deepCompare       = window.deepCompare || deepCompare;
+  window.unique            = window.unique || unique;
+  window.arrayEqual        = window.arrayEqual || arrayEqual;
+  window.sleep             = window.sleep || sleep;
+  window.dictSize          = window.dictSize || dictSize;
+  window.equals            = window.equals || equals;
 })(window);

@@ -767,76 +767,6 @@
     };
   }//}}}
 
-  function getListAfterJoinHistoryDataOnDB(array)//{{{
-  {
-    return new Promise(function(resolve) {
-      var histories = array[0];
-      var pageInfos = array[1];
-      var dataURIs  = array[2];
-
-      var pageInfoDict = {};
-      pageInfos.forEach(function(v) {
-        pageInfoDict[v.url] = { title: v.title, host: v.host };
-      });
-
-      var dataURIDict = {};
-      dataURIs.forEach(function(v) {
-        dataURIDict[v.host] = v.dataURI;
-      });
-
-      var page;
-      var date, tempDate;
-      var showList = [];
-      var dataList = [];
-      histories.forEach(function(v) {
-        page = pageInfoDict[v.url];
-        if (page === void 0 || page === null) {
-          console.warn("Don't find data in pageInfo of indexedDB.", v.url);
-          return;
-        }
-
-        date = new Date(v.date);
-        if (!tempDate) {
-          tempDate = date;
-        }
-
-        if (formatDate(tempDate, 'YYYY/MM/DD') !==
-          formatDate(date, 'YYYY/MM/DD')) {
-          showList.push({
-            date : new Date(tempDate.getFullYear(),
-              tempDate.getMonth(),
-              tempDate.getDate(),
-              0, 0, 0, 0),
-            data : dataList,
-          });
-            tempDate = date;
-            dataList = [];
-          }
-
-          dataList.push({
-            id      : v.id,
-            date    : v.date,
-            url     : v.url,
-            title   : page.title,
-            host    : page.host,
-            dataURI : dataURIDict[page.host] || icons[NORMAL],
-          });
-      });
-
-      if (dataList.length > 0) {
-        showList.push({
-          date : new Date(tempDate.getFullYear(),
-            tempDate.getMonth(),
-            tempDate.getDate(),
-            0, 0, 0, 0),
-          data : dataList,
-        });
-      }
-
-      resolve(showList);
-    });
-  }//}}}
-
   function showAllSessionHistory()//{{{
   {
     return new Promise(function(resolve, reject) {
@@ -1070,12 +1000,7 @@
         return;
       }
 
-      var p = [];
-      p.push( db.getAll({ name: dbHistoryName }) );
-      p.push( db.getAll({ name: dbPageInfoName }) );
-      p.push( db.getAll({ name: dbDataURIName }) );
-      Promise.all(p)
-      .then(getListAfterJoinHistoryDataOnDB)
+      getHistoryListFromIndexedDB(db, dbHistoryName)
       .then(resolve)
       .catch(reject);
     });
