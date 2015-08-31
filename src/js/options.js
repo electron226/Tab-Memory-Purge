@@ -366,7 +366,7 @@
   var selectorDateDelete                        = '.historyDateDelete';
   var selectorHistoryItemDelete                 = '.historyItemDelete';
   var selectorHistoryItemDate                   = '.historyItemDate';
-  var selectorHistoryItemHref                   = '.historyItemUrl';
+  var selectorHistoryItemUrl                   = '.historyItemUrl';
   var selectorHistoryItemIcon                   = '.historyItemIcon';
   var selectorHistoryItemTitle                  = '.historyItemTitle';
   var selectorSearchHistoryDate                 = '#searchHistoryDate';
@@ -588,7 +588,7 @@
         var itemDate = historyItem.querySelector(selectorHistoryItemDate);
         itemDate.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
 
-        var itemHref = historyItem.querySelector(selectorHistoryItemHref);
+        var itemHref = historyItem.querySelector(selectorHistoryItemUrl);
         itemHref.href = addItem.url;
 
         var ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
@@ -1043,13 +1043,14 @@
   function showSpecificHistoryItem(event)//{{{
   {
     var regex = new RegExp(event.target.value.trim(), 'g');
-    var section, item;
+    var item, section, historyItem;
     var itemTitles = document.querySelectorAll(
       selectorHistoryItemTitle + ':not(.' + prototypeClassName + ')');
     for (var i = 0; i < itemTitles.length; i = (i + 1) | 0) {
       item = itemTitles[i];
       section = item.parentNode.parentNode.parentNode;
-      if (regex.test(item.textContent)) {
+      historyItem = section.querySelector(selectorHistoryItemUrl);
+      if (regex.test(item.textContent) || regex.test(historyItem.href)) {
         removeStringFromAttributeOfElement(
           section, 'class', elementDoesNotClassName);
       } else {
