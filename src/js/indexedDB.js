@@ -140,7 +140,7 @@
               store.index(indexName).get(key) :
               store.get(key);
       } catch (e) {
-        warn(e);
+        console.warn(e);
         req = store.get(key);
       }
 
@@ -172,7 +172,7 @@
               store.index(indexName).openCursor() :
               store.openCursor();
       } catch (e) {
-        warn(e);
+        console.warn(e);
         req = store.openCursor();
       }
 
@@ -220,7 +220,7 @@
               store.index(indexName).openCursor(range, direction) :
               store.openCursor(range, direction);
       } catch (e) {
-        warn(e);
+        console.warn(e);
         req = store.openCursor(range, direction);
       }
 
@@ -269,7 +269,7 @@
               store.index(indexName).openCursor(range) :
               store.openCursor(range);
       } catch (e) {
-        warn(e);
+        console.warn(e);
         req = store.openCursor(range);
       }
 

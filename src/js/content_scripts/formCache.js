@@ -50,7 +50,9 @@
     }
 
     for (var key in restored) {
-      sessionStorage.removeItem(key);
+      if (restored.hasOwnProperty(key)) {
+        sessionStorage.removeItem(key);
+      }
     }
   })();
 

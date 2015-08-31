@@ -876,7 +876,9 @@
 
           sKeys = [];
           for (key in s) {
-            sKeys.unshift(key);
+            if (s.hasOwnProperty(key)) {
+              sKeys.unshift(key);
+            }
           }
           for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
             key = sKeys[i];
@@ -923,7 +925,9 @@
 
             sKeys = [];
             for (key in s) {
-              sKeys.unshift(key);
+              if (s.hasOwnProperty(key)) {
+                sKeys.unshift(key);
+              }
             }
             for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
               key = sKeys[i];

@@ -74,7 +74,7 @@
           sessions.forEach(function(v) {
             page = pageInfoDict[v.url];
             if (page === void 0 || page === null) {
-              warn("Don't find data in pageInfo of indexedDB.", v.url);
+              console.warn("Don't find data in pageInfo of indexedDB.", v.url);
               return;
             }
 
@@ -321,6 +321,7 @@
    * http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
    */
   window.deepCompare = window.deepCompare || function() {
+    /*jshint forin: false*/
     var i, l, leftChain, rightChain;
 
     function compare2Objects (x, y) {
@@ -478,7 +479,7 @@
   };
 
   window.dictSize = window.dictSize || function(dict) {
-    /*jshint unused: false*/
+    /*jshint unused: false, forin: false*/
     var c = 0;
     for (var _ in dict) {
       c++;

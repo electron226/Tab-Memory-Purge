@@ -135,10 +135,12 @@
   };
   var keybindIconSuffix = '_with_keybind';
   for (var key in iconPartOfNamesAndNumbers) {
-    icons[iconPartOfNamesAndNumbers[key]] =
-        chrome.runtime.getURL('icon/' + key + '.png');
-    icons[iconPartOfNamesAndNumbers[key] | KEYBIND_EXCLUDE] =
-        chrome.runtime.getURL('icon/' + key + keybindIconSuffix + '.png');
+    if (iconPartOfNamesAndNumbers.hasOwnProperty(key)) {
+      icons[iconPartOfNamesAndNumbers[key]] =
+          chrome.runtime.getURL('icon/' + key + '.png');
+      icons[iconPartOfNamesAndNumbers[key] | KEYBIND_EXCLUDE] =
+          chrome.runtime.getURL('icon/' + key + keybindIconSuffix + '.png');
+    }
   }
   window.icons = window.icons || icons;
 
