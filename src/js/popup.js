@@ -77,6 +77,11 @@
     });
   }
 
+  function popupClose()
+  {
+    window.close();
+  }
+
   function buttonClicked(event)
   {
     var i, m, s;
@@ -98,23 +103,40 @@
       }
       return; // return.
     case 'restore_release':
-      chrome.runtime.sendMessage({ event: 'release' });
+      chrome.runtime.sendMessage({ event: 'release' }, popupClose);
       break;
     case 'not_release':
     case 'remove_not_release':
-      chrome.runtime.sendMessage({ event: 'switch_not_release' });
+      chrome.runtime.sendMessage({ event: 'switch_not_release' }, popupClose);
       break;
     case 'switchTimer':
-      chrome.runtime.sendMessage({ event: 'switchTimerState' });
+      chrome.runtime.sendMessage({ event: 'switchTimerState' }, popupClose);
       break;
     case 'add_current_tab_exclude_list':
-      chrome.runtime.sendMessage({ event: 'excludeDialogMenu' });
+      chrome.runtime.sendMessage({ event: 'excludeDialogMenu' }, popupClose);
+      break;
+    case 'option':
+      chrome.runtime.openOptionsPage().then(popupClose);
+      break;
+    case 'keybind':
+    case 'history':
+    case 'session_history':
+    case 'change_history':
+    case 'information':
+    case 'operate_settings':
+      chrome.tabs.query({ url: optionPage + '*' }, function(results) {
+        var url = optionPage + '?page=' + name;
+        if (results.length === 0) {
+          chrome.tabs.create({ url: url }, popupClose);
+        } else {
+          chrome.tabs.update(results[0].tabId, { url: url }, popupClose);
+        }
+      });
       break;
     default:
-      chrome.runtime.sendMessage({ event: name });
+      chrome.runtime.sendMessage({ event: name }, popupClose);
       break;
     }
-    window.close();
   }
 
   function initButtons()

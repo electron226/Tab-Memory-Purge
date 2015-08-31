@@ -1302,7 +1302,17 @@
         resolve();
       });
     }())
-    .then(changeMenu(defaultMenu))
+    .then(function() {
+      return new Promise(function(resolve, reject) {
+        var args = getQueryString(document);
+        var menu = (args === void 0 ||
+                    args === null ||
+                    !args.hasOwnProperty('page')) ? defaultMenu : args.page;
+        changeMenu(menu)
+        .then(resolve)
+        .catch(reject);
+      });
+    })
     .then(initSectionBarEvent(document))
     .then(loadTranslation(document, translationPath))
     .then(operateOption.load(document))
