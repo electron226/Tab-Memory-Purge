@@ -228,42 +228,42 @@
     return this.result;
   };//}}}
 
-  // function WhenVersionUpOptionFix()//{{{
-  // {
-  //   return new Promise(function(resolve, reject) {
-  //     chrome.storage.local.get(function(items) {
-  //       if (chrome.runtime.lastError) {
-  //         reject(chrome.runtime.lastError);
-  //         return;
-  //       }
+  function WhenVersionUpOptionFix()//{{{
+  {
+    return new Promise(function(resolve, reject) {
+      chrome.storage.local.get(function(items) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+          return;
+        }
 
-  //       var writeObject = {};
-  //       var keybind = items.keybind;
-  //       if (keybind) {
-  //         for (var key in keybind) {
-  //           if (keybind.hasOwnProperty(key)) {
-  //             writeObject['keybind_' + key] = keybind[key];
-  //           }
-  //         }
-  //       }
+        var writeObject = {};
+        var keybind = items.keybind;
+        if (keybind) {
+          for (var key in keybind) {
+            if (keybind.hasOwnProperty(key)) {
+              writeObject['keybind_' + key] = keybind[key];
+            }
+          }
+        }
 
-  //       chrome.storage.local.set(writeObject, function() {
-  //         if (chrome.runtime.lastError) {
-  //           reject(chrome.runtime.lastError);
-  //           return;
-  //         }
+        chrome.storage.local.set(writeObject, function() {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+          }
 
-  //         chrome.storage.local.remove('keybind', function() {
-  //           if (chrome.runtime.lastError) {
-  //             reject(chrome.runtime.lastError);
-  //             return;
-  //           }
-  //           resolve();
-  //         });
-  //       });
-  //     });
-  //   });
-  // }//}}}
+          chrome.storage.local.remove('keybind', function() {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+              return;
+            }
+            resolve();
+          });
+        });
+      });
+    });
+  }//}}}
 
   function processAfterMenuSelection()//{{{
   {
@@ -1324,6 +1324,7 @@
     })
     .then(initSectionBarEvent(document))
     .then(loadTranslation(document, translationPath))
+    .then(WhenVersionUpOptionFix)
     .then(operateOption.load(document))
     .then(initOptionElementEvent(document))
     .then(initButtonEvent(document))
