@@ -317,10 +317,19 @@
           reject(new Error("The Invalid menu name."));
           return;
         }
+        history.pushState(name,
+          document.title + ' ' + chrome.i18n.getMessage(name),
+          optionPage + '?page=' + name);
         resolve(name);
       });
     };
   }//}}}
+
+  window.addEventListener('popstate', function(e) {//{{{
+    if (e.state) {
+      menuToggle.show(e.state || defaultMenu);
+    }
+  }, true);//}}}
 
   //{{{ variables
   var defaultMenu = "normal";
