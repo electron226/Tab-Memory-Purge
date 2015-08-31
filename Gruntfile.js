@@ -175,6 +175,9 @@ module.exports = function(grunt) {
       },
     },
     jshint: {
+      options: {
+        jshintrc: '.jshintrc',
+      },
       check: {
         files: [{
           expand: true,
