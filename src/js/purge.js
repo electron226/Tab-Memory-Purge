@@ -188,7 +188,9 @@
 
           var ids = [];
           for (var key in ticked) {
-            ids.push(parseInt(key, 10));
+            if (ticked.hasOwnProperty(key)) {
+              ids.push(parseInt(key, 10));
+            }
           }
 
           ids.forEach(function(v) {
@@ -398,8 +400,9 @@
       db.getCursor({
         name: dbHistoryName,
         range: IDBKeyRange.upperBound(
-          new Date(now.getFullYear(), now.getMonth(), now.getDate() - length,
-                   23, 59, 59, 999).getTime()
+          new Date(
+            now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - length,
+            23, 59, 59, 999).getTime()
         ),
       })
       .then(function(histories) {
@@ -1725,7 +1728,9 @@
         });
       } else {
         for (var key in ticked) {
-          clearInterval(ticked.get(key));
+          if (ticked.hasOwnProperty(key)) {
+            clearInterval(ticked.get(key));
+          }
         }
         ticked.clear();
         lastProcess().then(resolve).catch(reject);
