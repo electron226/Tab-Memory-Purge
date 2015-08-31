@@ -281,7 +281,7 @@ module.exports = function(grunt) {
       // },
       js: {
         files: ['src/js/**/*.js'],
-        tasks: ['uglify'],
+        tasks: ['babel', 'uglify'],
       },
       manifest: {
         files: ['src/manifest_base.json'],
