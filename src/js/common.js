@@ -2,6 +2,16 @@
 (function(window) {
   "use strict";
 
+  /* for this script. */
+  function setObjectProperty(obj, name, value)
+  {
+    console.log('setObjectProperty in common.js', obj, name, value);
+    if (obj.hasOwnProperty(name)) {
+      throw new Error('Already contain to + obj', name, value);
+    }
+    obj[name] = value;
+  }
+
   /* Default Values. */
   var defaultValues = {
     'no_release': false,
@@ -31,22 +41,21 @@
         'youtube.com',
     'keybind_regex_insensitive': true,
   };
-  window.versionKey = window.versionKey || 'version';
+  setObjectProperty(window, 'versionKey', 'version');
   defaultValues[window.versionKey] = chrome.app.getDetails();
 
-  window.previousSessionTimeKey =
-    window.previousSessionTimeKey || 'previous_session_time';
+  setObjectProperty(window, 'previousSessionTimeKey', 'previous_session_time');
   defaultValues[window.previousSessionTimeKey] = null;
 
-  window.defaultValues = window.defaultValues || defaultValues;
+  setObjectProperty(window, 'defaultValues', defaultValues);
 
-  window.dbName             = window.dbName             || 'TMP_DB';
-  window.dbVersion          = window.dbVersion          || 2;
-  window.dbHistoryName      = window.dbHistoryName      || 'history';
-  window.dbDataURIName      = window.dbDataURIName      || 'dataURI';
-  window.dbPageInfoName     = window.dbPageInfoName     || 'pageInfo';
-  window.dbSessionName      = window.dbSessionName      || 'session';
-  window.dbSavedSessionName = window.dbSavedSessionName || 'savedSession';
+  setObjectProperty(window, 'dbName', 'TMP_DB');
+  setObjectProperty(window, 'dbVersion', 2);
+  setObjectProperty(window, 'dbHistoryName', 'history');
+  setObjectProperty(window, 'dbDataURIName', 'dataURI');
+  setObjectProperty(window, 'dbPageInfoName', 'pageInfo');
+  setObjectProperty(window, 'dbSessionName', 'session');
+  setObjectProperty(window, 'dbSavedSessionName', 'savedSession');
 
   var dbCreateStores = {};
   dbCreateStores[window.dbHistoryName] = {
@@ -91,30 +100,30 @@
       },
     },
   };
-  window.dbCreateStores = window.dbCreateStores || dbCreateStores;
+  setObjectProperty(window, 'dbCreateStores', dbCreateStores);
 
-  // The url of the release point.
-  window.blankUrl = chrome.runtime.getURL('blank.html');
-
-  window.extensionExcludeUrl =
+  var blankUrl = chrome.runtime.getURL('blank.html');
+  setObjectProperty(window, 'extensionExcludeUrl',
       '^chrome-*\\w*://\n' +
       '^view-source:\n' +
       '^file:///\n' +
-      '^' + blankUrl;
+      '^' + blankUrl
+  );
 
   // initTranslationsでキー名を使用するときに使う。
   // どのファイルを選択しても問題ない。
-  window.translationPath = chrome.runtime.getURL('_locales/ja/messages.json') ||
-                           chrome.runtime.getURL('_locales/en/messages.json');
+  setObjectProperty(window, 'translationPath',
+    chrome.runtime.getURL('_locales/ja/messages.json') ||
+    chrome.runtime.getURL('_locales/en/messages.json'));
   // file of get scroll position of tab.
-  window.getScrollPosScript = 'js/load_scripts/getScrollPosition.js';
+  setObjectProperty(window, 'getScrollPosScript', 'js/load_scripts/getScrollPosition.js');
 
   // a value which represents of the exclude list.
   var excludeValues = [
     'DISABLE_TIMER',     // 1
     'INVALID_EXCLUDE',   // 2
     'KEYBIND_EXCLUDE',   // 4
-    'NORMAL',    // 8
+    'NORMAL',            // 8
     'USE_EXCLUDE',       // 16
     'TEMP_EXCLUDE',      // 32
     'EXTENSION_EXCLUDE', // 64
@@ -125,29 +134,27 @@
 
   // the path of icons.
   // defined NORMAL etc... in common.js.
-  var icons = {};
-  var iconPartOfNamesAndNumbers = {
-    'icon_disable_timer'         : DISABLE_TIMER,
-    'icon_019'                   : NORMAL,
-    'icon_019_use_exclude'       : USE_EXCLUDE,
-    'icon_019_temp_exclude'      : TEMP_EXCLUDE,
-    'icon_019_extension_exclude' : EXTENSION_EXCLUDE,
-  };
+  var icons = new Map();
+  var iconNumbers = new Map();
+  iconNumbers.set('icon_disable_timer', DISABLE_TIMER);
+  iconNumbers.set('icon_019', NORMAL);
+  iconNumbers.set('icon_019_use_exclude', USE_EXCLUDE);
+  iconNumbers.set('icon_019_temp_exclude', TEMP_EXCLUDE);
+  iconNumbers.set('icon_019_extension_exclude', EXTENSION_EXCLUDE);
+
   var keybindIconSuffix = '_with_keybind';
-  for (var key in iconPartOfNamesAndNumbers) {
-    if (iconPartOfNamesAndNumbers.hasOwnProperty(key)) {
-      icons[iconPartOfNamesAndNumbers[key]] =
-          chrome.runtime.getURL('icon/' + key + '.png');
-      icons[iconPartOfNamesAndNumbers[key] | KEYBIND_EXCLUDE] =
-          chrome.runtime.getURL('icon/' + key + keybindIconSuffix + '.png');
-    }
+  var iter = iconNumbers.entries();
+  for (var i = iter.next(); !i.done; i = iter.next()) {
+    icons.set(i.value[1], chrome.runtime.getURL('icon/' + i.value[0] + '.png'));
+    icons.set(i.value[1] | KEYBIND_EXCLUDE,
+      chrome.runtime.getURL('icon/' + i.value[0] + keybindIconSuffix + '.png'));
   }
-  window.icons = window.icons || icons;
+  setObjectProperty(window, 'icons', icons);
 
-  window.optionPage = chrome.runtime.getURL('options.html');
-  window.changeHistory = chrome.runtime.getURL('History.txt');
-
-  window.UPDATE_CONFIRM_DIALOG    = 'TMP_UPDATE_CONFIRMATION_DIALOG';
-  window.RESTORE_PREVIOUS_SESSION = 'TMP_RESTORE_PREVIOUS_SESSION';
-  window.updateCheckTime          = 30 * 60 * 1000; // min * sec * Millisec.
+  setObjectProperty(window, 'blankUrl', blankUrl);
+  setObjectProperty(window, 'optionPage', chrome.runtime.getURL('options.html'));
+  setObjectProperty(window, 'changeHistory', chrome.runtime.getURL('History.txt'));
+  setObjectProperty(window, 'UPDATE_CONFIRM_DIALOG', 'TMP_UPDATE_CONFIRMATION_DIALOG');
+  setObjectProperty(window, 'RESTORE_PREVIOUS_SESSION', 'TMP_RESTORE_PREVIOUS_SESSION');
+  setObjectProperty(window, 'updateCheckTime', 30 * 60 * 1000); // min * sec * Millisec.
 })(this);

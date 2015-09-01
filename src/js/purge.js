@@ -975,7 +975,7 @@
     return new Promise(function(resolve, reject) {
       var changeIcon = disableTimer ? DISABLE_TIMER : checkExcludeList(tab.url);
       chrome.browserAction.setIcon(
-        { path: icons[changeIcon], tabId: tab.id }, function() {
+        { path: icons.get(changeIcon), tabId: tab.id }, function() {
           if (chrome.runtime.lastError) {
             console.error(chrome.runtime.lastError.message);
             reject();

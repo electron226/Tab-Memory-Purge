@@ -188,7 +188,7 @@ module.exports = function(grunt) {
     },
     babel: {
       options: {
-        sourceMap: true,
+        sourceMap: false,
         blacklist: [ 'strict' ],
       },
       build: {
@@ -204,7 +204,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        sourceMap: true,
+        sourceMap: false,
         compress: {
           drop_console: true,
         },

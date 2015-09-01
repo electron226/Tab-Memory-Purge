@@ -90,7 +90,7 @@
             url     : v.url,
             title   : page.title,
             host    : page.host,
-            dataURI : dataURIDict[page.host] || icons[NORMAL],
+            dataURI : dataURIDict[page.host] || icons.get(NORMAL),
           });
       });
 
@@ -354,26 +354,53 @@
     return format;
   }//}}}
 
-  function setObjectProperty(obj, name, value)//{{{
+  /**
+   * setObjectProperty
+   *
+   * @param {object} obj - add to object.
+   * @param {string or function} name - add to a name, or function.
+   *      If it nameless function is an error.
+   * @param {any} [value] - add any object to obj.
+   */
+  function setObjectProperty()//{{{
   {
+    console.log('setObjectProperty', arguments);
+    var args = Array.prototype.slice.call(arguments);
+    if (args.length < 2) {
+      throw new Error('setObjectProperty arguments is less.');
+    }
+
+    var obj = args[0];
+    var name = args[1];
+    var value = args[2];
+    if (toType(name) === 'function') {
+      if (name.name.length === 0) {
+        throw new Error('a nameless function.');
+      }
+      if (obj.hasOwnProperty(name.name)) {
+        throw new Error('Already had added to object.', obj, name.name);
+      }
+
+      obj[name.name] = name;
+      return;
+    }
+
     if (obj.hasOwnProperty(name)) {
       throw new Error('Already had added to object.', obj, name, value);
     }
-
     obj[name] = value;
   }//}}}
 
   //{{{ method.
-  setObjectProperty(window,
-    'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
-  setObjectProperty(window,
-    'getHistoryListFromIndexedDB', getHistoryListFromIndexedDB);
-  setObjectProperty(window, 'loadTranslation', loadTranslation);
-  setObjectProperty(window, 'getQueryString', getQueryString);
+  setObjectProperty(window, getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(window, getHistoryListFromIndexedDB);
+  setObjectProperty(window, loadTranslation);
+  setObjectProperty(window, getQueryString);
   setObjectProperty(window, 'getDataURI', closureGetDataURI(ajaxTimeout));
-  setObjectProperty(window, 'keyCheck', keyCheck);
-  setObjectProperty(window, 'generateKeyString', generateKeyString);
-  setObjectProperty(window, 'toType', toType);
-  setObjectProperty(window, 'formatDate', formatDate);
+  setObjectProperty(window, keyCheck);
+  setObjectProperty(window, generateKeyString);
+  setObjectProperty(window, toType);
+  setObjectProperty(window, formatDate);
+  setObjectProperty(window, setObjectProperty);
   //}}}
 })(window);
