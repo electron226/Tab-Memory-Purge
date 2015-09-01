@@ -10,7 +10,12 @@
   {
     console.log('closureAutoPurgeCheck');
 
-    // to call resolve function When result is false only.
+    /**
+     * call Function after isLackTheMemory function.
+     *
+     * @param {Boolean} result - a result of isLackTheMemory.
+     * @return {Promise} to call resolve if result is false only.
+     */
     function resolveAfterIsLackTheMemory(result)//{{{
     {
       console.log(
@@ -27,7 +32,7 @@
 
     /**
      * check run auto purge or not.
-     * @return {Promise} promiseが返る。
+     * @return {Promise} return an promise object.
      */
     function purgeCheck()//{{{
     {
@@ -84,6 +89,15 @@
 
     var locks = new Set();
 
+    /**
+     * exclusive process for function.
+     *
+     * @param {string} name - to add a name of Function.
+     * @param {function} callback -
+     *     Function that performs an exclusive processing.
+     * @param {Any} callbackArgs - pass arguments to Function.
+     * @return {promise} return promise.
+     */
     function exclusiveProcess()//{{{
     {
       console.log('exclusiveProcess', arguments);
