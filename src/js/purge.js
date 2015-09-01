@@ -39,13 +39,15 @@
       console.log('purgeCheck() in closureAutoPurgeCheck');
 
       return new Promise(function(resolve, reject) {
-        if (!myOptions) {
+        if (myOptions.size === 0) {
           console.error('myOptions is not loaded yet.');
           reject();
           return;
         }
 
-        isLackTheMemory(myOptions.remaiming_memory)
+        var remaiming_memory = myOptions.get('remaiming_memory');
+
+        isLackTheMemory(remaiming_memory)
         .then(function(result) {
           return new Promise(function(resolve2, reject2) {
             if (result === false) {
@@ -59,7 +61,7 @@
             var iter = ticked.entries();
             for (var i = iter.next(); !i.done; i = iter.next()) {
               tick(i.value[1])
-              .then(isLackTheMemory(myOptions.remaiming_memory))
+              .then(isLackTheMemory(remaiming_memory))
               .then(resolveAfterIsLackTheMemory)
               .catch(reject2);
             }
@@ -145,7 +147,7 @@
   }//}}}
 
   // my option settings.//{{{
-  var myOptions = null;
+  var myOptions = new Map();
 
   /**
    * set setInterval returned value.
@@ -246,7 +248,8 @@
 
     return new Promise(function(resolve, reject) {
       chrome.tabs.query({}, function(tabs) {
-        if (!myOptions) {
+        var maxOpeningTabs = myOptions.get('max_opening_tabs');
+        if (!maxOpeningTabs) {
           console.error('myOptions is not loaded yet.');
           reject();
           return;
@@ -256,7 +259,6 @@
           return !isReleasePage(v.url);
         });
 
-        var maxOpeningTabs      = myOptions.max_opening_tabs;
         var alreadyPurgedLength = tabs.length - t.length;
         var maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
         if (maxPurgeLength <= 0) {
@@ -319,13 +321,7 @@
   {
     console.log('initializeIntervalProcess', intervalTime);
 
-    return new Promise(function(resolve, reject) {
-      if (!myOptions) {
-        console.error('myOptions is not loaded yet.');
-        reject();
-        return;
-      }
-
+    return new Promise(function(resolve) {
       setInterval(function() {//{{{
         console.log('run callback funciton of setInterval.');
         if (db === void 0 || db === null) {
@@ -344,12 +340,12 @@
         }
 
         if (!disableTimer) {
-          if (myOptions.purging_all_tabs_except_active) {
+          if (myOptions.get('purging_all_tabs_except_active')) {
             exclusiveProcessForFunc(
               'purgingAllTabs', purgingAllTabsExceptForTheActiveTab);
           }
 
-          if (myOptions.enable_auto_purge) {
+          if (myOptions.get('enable_auto_purge')) {
             exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck);
           }
         }
@@ -397,7 +393,7 @@
     console.log('deleteOldSession');
 
     return new Promise(function(resolve, reject) {
-      if (!myOptions) {
+      if (myOptions.size === 0) {
         console.error('myOptions is not loaded yet.');
         reject();
         return;
@@ -409,7 +405,7 @@
       .then(function(histories) {
         return new Promise(function(resolve2) {
           // -1 is the current session.
-          var max_sessions = parseInt(myOptions.max_sessions, 10) - 1;
+          var max_sessions = parseInt(myOptions.get('max_sessions'), 10) - 1;
 
           var tempList = new Set();
           var dateList = [];
@@ -465,13 +461,13 @@
     console.log('deleteOldHistory');
 
     return new Promise(function(resolve, reject) {
-      if (!myOptions) {
+      if (myOptions.size === 0) {
         console.error('myOptions is not loaded yet.');
         reject();
         return;
       }
 
-      var length = parseInt(myOptions.max_history, 10);
+      var length = parseInt(myOptions.get('max_history'), 10);
 
       var now = new Date();
       db.getCursor({
@@ -905,19 +901,19 @@
           returnValue: EXTENSION_EXCLUDE,
         };
       case 'keybind':
-        if (myOptions) {
+        if (myOptions.size !== 0) {
           return {
-            list:        myOptions.keybind_exclude_url,
-            options:     myOptions.keybind_regex_insensitive ? 'i' : '',
+            list:        myOptions.get('keybind_exclude_url'),
+            options:     myOptions.get('keybind_regex_insensitive') ? 'i' : '',
             returnValue: KEYBIND_EXCLUDE,
           };
         }
         break;
       default:
-        if (myOptions) {
+        if (myOptions.size !== 0) {
           return {
-            list:        myOptions.exclude_url,
-            options:     myOptions.regex_insensitive ? 'i' : '',
+            list:        myOptions.get('exclude_url'),
+            options:     myOptions.get('regex_insensitive') ? 'i' : '',
             returnValue: USE_EXCLUDE,
           };
         }
@@ -1285,7 +1281,7 @@
     console.log('setTick');
 
     return new Promise(function(resolve, reject) {
-      if (!myOptions || toType(tabId) !== 'number') {
+      if (myOptions.size === 0 || toType(tabId) !== 'number') {
         console.error('myOptions is not loaded yet. or tabId is not number.');
         reject();
         return;
@@ -1307,7 +1303,7 @@
         var state = checkExcludeList(tab.url);
         if (state & NORMAL) { // 除外アドレスに含まれていない場合
           // 分(設定) * 秒数 * ミリ秒
-          var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
+          var timer = parseInt(myOptions.get('timer'), 10) * 60 * 1000;
 
           // Update.
           deleteTick(tabId);
@@ -1531,9 +1527,7 @@
       getInitAndLoadOptions()
       .then(function(options) {
         return new Promise(function(resolve2, reject2) {
-          var previousSessionTime = options[previousSessionTimeKey];
-          if (previousSessionTime !== void 0 &&
-              previousSessionTime !== null) {
+          if (options.get('previousSessionTimeKey')) {
             showDialogOfRestoreSessionBeforeUpdate()
             .then(resolve2)
             .catch(reject2);
@@ -1651,11 +1645,13 @@
           }
 
           // My options are initialized.
-          var options = items;
+          var options = new Map();
+          Object.keys(items).forEach(function(v) {
+            options.set(v, items[v]);
+          });
           for (key in defaultValues) {
-            if (defaultValues.hasOwnProperty(key) &&
-                !options.hasOwnProperty(key)) {
-              options[key] = defaultValues[key];
+            if (defaultValues.hasOwnProperty(key) && !options.has(key)) {
+              options.set(key, defaultValues[key]);
             }
           }
 
@@ -1762,7 +1758,7 @@
     .then(initializeAlreadyPurgedTabs)
     .then(deleteOldDatabase)
     .then(function() {
-      return initializeIntervalProcess(myOptions.interval_timing || 5);
+      return initializeIntervalProcess(myOptions.get('interval_timing') || 5);
     })
     .then(initializeIntervalUpdateCheck(updateCheckTime))
     .catch(function(e) {
@@ -1861,8 +1857,7 @@
   chrome.tabs.onActivated.addListener(function(activeInfo) {//{{{
     console.log('chrome.tabs.onActivated.', activeInfo);
     if (unloaded.hasOwnProperty(activeInfo.tabId) &&
-        myOptions &&
-        !myOptions.no_release) {
+        myOptions.get('no_release') === false) {
         unPurge(activeInfo.tabId)
         .then(onActivatedFunc(activeInfo.tabId))
         .catch(function(e) {
@@ -2132,7 +2127,8 @@
         if (buttonIndex === 0) {
           getInitAndLoadOptions()
           .then(function(options) {
-            return restoreSessionBeforeUpdate(options[previousSessionTimeKey]);
+            return restoreSessionBeforeUpdate(
+              options.get('previousSessionTimeKey'));
           })
           .then(deletePreviousSessionTime)
           .catch(function(e) {
