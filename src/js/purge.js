@@ -1,6 +1,64 @@
 ﻿(function() {
   "use strict";
 
+
+  /**
+   * return an exclusive process function for function.
+   *
+   * @return {Function} return a function.
+   */
+  function closureExclusiveProcessForFunction()//{{{
+  {
+    console.log('closureExclusiveProcessForFunction');
+
+    var locks = new Set();
+
+    function exclusiveProcess()//{{{
+    {
+      console.log('exclusiveProcess', arguments);
+
+      var args = Array.prototype.slice.call(arguments);
+      return new Promise(function(resolve, reject) {
+        if (args.length < 2) {
+          console.error('Number of arguments is not enough: ', args.length);
+          reject();
+          return;
+        }
+
+        var name = args[0];
+        var callback = args[1];
+        var callbackArgs = args.length > 2 ? args.slice(2) : void 0;
+
+        if (locks.has(name)) {
+          console.warn('Already running process of:', name);
+          resolve();
+          return;
+        }
+
+        if (toType(callback) !== 'function') {
+          console.error(
+            'Invalid arguments. callback is not function.', toType(callback));
+          reject();
+          return;
+        }
+
+        locks.add(name);
+
+        callback(callbackArgs)
+        .then(function() {
+          locks.delete(name);
+          resolve();
+        })
+        .catch(function(e) {
+          locks.delete(name);
+          reject(e);
+        });
+      });
+    }//}}}
+
+    return exclusiveProcess;
+  }//}}}
+
   // my option settings.//{{{
   var myOptions = null;
 
@@ -29,6 +87,9 @@
   var currentSessionTime = null;
   var currentIcon        = null;
   var disableTimer       = false;
+
+  /** @function */
+  var exclusiveProcessForFunc = closureExclusiveProcessForFunction();
   //}}}
 
   /**
@@ -238,32 +299,20 @@
           return;
         }
 
-        if (unloadedChange && !runWriteSession) {
-          console.log('update session history');
+        if (unloadedChange) {
           unloadedChange = false;
 
           // If this function was called the observe function of unloaded,
           // When user close multiple tabs, continuously call more than once.
           // Thus, the same session is added more than once.
           // So call at here.
-          runWriteSession = true;
-          writeSession(unloaded)
-          .then(function() {
-            runWriteSession = false;
-          }, function() {
-            runWriteSession = false;
-          });
+          exclusiveProcessForFunc('writeSession', writeSession, unloaded);
         }
 
         if (!disableTimer) {
-          if (myOptions.purging_all_tabs_except_active && !runPurgingAllTabs) {
-            runPurgingAllTabs = true;
-            purgingAllTabsExceptForTheActiveTab()
-            .then(function() {
-              runPurgingAllTabs = false;
-            }, function() {
-              runPurgingAllTabs = false;
-            });
+          if (myOptions.purging_all_tabs_except_active) {
+            exclusiveProcessForFunc(
+              'purgingAllTabs', purgingAllTabsExceptForTheActiveTab);
           }
 
           if (myOptions.enable_auto_purge && !runAutoPurgeCheck) {
