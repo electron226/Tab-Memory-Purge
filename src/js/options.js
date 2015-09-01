@@ -51,7 +51,7 @@
             } else {
               if (toType(value) !== 'string') { throw new Error(); }
 
-              el.value = trim(value);
+              el.value = value.trim();
               resolve();
             }
             break;

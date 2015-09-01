@@ -161,64 +161,60 @@
     return null;
   }//}}}
 
-  function cloneObject(obj) {//{{{
-    if (toType(obj) !== 'object') {
-      return obj;
-    }
-    var copy = obj.constructor();
-    for (var attr in obj) {
-      if (obj.hasOwnProperty(attr)) {
-        copy[attr] = obj[attr];
+  function closureGetDataURI(timeout)//{{{
+  {
+    function getDataType(buf)//{{{
+    {
+      if (buf[0] === 0xFF &&
+          buf[1] === 0xD8 &&
+          buf[buf.byteLength - 2] === 0xFF &&
+          buf[buf.byteLength - 1] === 0xD9) {
+        return 'image/jpeg';
+      } else if (buf[0] === 0x89 && buf[1] === 0x50 &&
+                 buf[2] === 0x4E && buf[3] === 0x47) {
+        return 'image/png';
+      } else if (buf[0] === 0x47 && buf[1] === 0x49 &&
+                 buf[2] === 0x46 && buf[3] === 0x38) {
+        return 'image/gif';
+      } else if (buf[0] === 0x42 && buf[1] === 0x4D) {
+        return 'image/bmp';
+      } else if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0x01) {
+        return 'image/x-icon';
+      } else {
+        return 'image/unknown';
       }
-    }
-    return copy;
-  }//}}}
+    }//}}}
 
-  function getDataType(buf) {//{{{
-    if (buf[0] === 0xFF && buf[1] === 0xD8 &&
-        buf[buf.byteLength - 2] === 0xFF && buf[buf.byteLength - 1] === 0xD9) {
-      return 'image/jpeg';
-    } else if (buf[0] === 0x89 && buf[1] === 0x50 &&
-               buf[2] === 0x4E && buf[3] === 0x47) {
-      return 'image/png';
-    } else if (buf[0] === 0x47 && buf[1] === 0x49 &&
-               buf[2] === 0x46 && buf[3] === 0x38) {
-      return 'image/gif';
-    } else if (buf[0] === 0x42 && buf[1] === 0x4D) {
-      return 'image/bmp';
-    } else if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0x01) {
-      return 'image/x-icon';
-    } else {
-      return 'image/unknown';
-    }
-  }//}}}
+    function getDataURI(url)//{{{
+    {
+      return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.ontimeout = function() {
+          console.error('timeout. url: ' + url);
+        };
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            var bytes = new Uint8Array(this.response);
+            var dataType = getDataType(bytes);
+            var binaryData = '';
+            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+              binaryData += String.fromCharCode(bytes[i]);
+            }
 
-  function getDataURI(url) {//{{{
-    return new Promise(function(resolve, reject) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', url, true);
-      xhr.responseType = 'arraybuffer';
-      xhr.ontimeout = function() {
-        console.error('timeout. url: ' + url);
-      };
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          var bytes = new Uint8Array(this.response);
-          var dataType = window.getDataType(bytes);
-          var binaryData = '';
-          for (var i = 0, len = bytes.byteLength; i < len; i++) {
-            binaryData += String.fromCharCode(bytes[i]);
+            resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
+          } else {
+            reject(new Error(xhr.statusText));
           }
+        };
+        xhr.onerror = reject;
+        xhr.timeout = timeout;
+        xhr.send();
+      });
+    }//}}}
 
-          resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
-        } else {
-          reject(new Error(xhr.statusText));
-        }
-      };
-      xhr.onerror = reject;
-      xhr.timeout = ajaxTimeout;
-      xhr.send();
-    });
+    return getDataURI;
   }//}}}
 
   /**
@@ -315,7 +311,7 @@
         break;
     }
 
-    return trim(output);
+    return output.trim();
   }//}}}
 
   /* base program.
@@ -337,7 +333,7 @@
    * @param  {String} [format] フォーマット
    * @return {String}          フォーマット済み日付
    */
-  function formatData(date, format)//{{{
+  function formatDate(date, format)//{{{
   {
     if (!format) {
       format = 'YYYY-MM-DD hh:mm:ss.SSS';
@@ -358,221 +354,26 @@
     return format;
   }//}}}
 
-  function trim(string)//{{{
+  function setObjectProperty(obj, name, value)//{{{
   {
-    if (toType(string) !== 'string') {
-      throw new Error('Argument error. used not string object.');
+    if (obj.hasOwnProperty(name)) {
+      throw new Error('Already had added to object.', obj, name, value);
     }
-    return string.replace(/(^\s+)|(\s+$)/g, '');
+
+    obj[name] = value;
   }//}}}
 
-  /**
-   * deepCompare
-   * http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
-   *
-   * @param {Any} x - an object compare to y.
-   * @param {Any} y - an object compare to x.
-   * @return {Boolean} true or false.
-   */
-  function deepCompare()//{{{
-  {
-    /*jshint forin: false*/
-    var i, l, leftChain, rightChain;
-
-    function compare2Objects (x, y) {
-      var p;
-
-      // remember that NaN === NaN returns false
-      // and isNaN(undefined) returns true
-      if (isNaN(x) && isNaN(y) &&
-          typeof x === 'number' && typeof y === 'number') {
-        return true;
-      }
-
-      // Compare primitives and functions.
-      // Check if both arguments link to the same object.
-      // Especially useful on step when comparing prototypes
-      if (x === y) {
-        return true;
-      }
-
-      // Works in case when functions are created in constructor.
-      // Comparing dates is a common scenario. Another built-ins?
-      // We can even handle functions passed across iframes
-      if ((typeof x === 'function' && typeof y === 'function') ||
-        (x instanceof Date && y instanceof Date) ||
-        (x instanceof RegExp && y instanceof RegExp) ||
-        (x instanceof String && y instanceof String) ||
-        (x instanceof Number && y instanceof Number)) {
-        return x.toString() === y.toString();
-      }
-
-      // At last checking prototypes as good a we can
-      if (!(x instanceof Object && y instanceof Object)) {
-        return false;
-      }
-
-      if (x.isPrototypeOf(y) || y.isPrototypeOf(x)) {
-        return false;
-      }
-
-      if (x.constructor !== y.constructor) {
-        return false;
-      }
-
-      if (x.prototype !== y.prototype) {
-        return false;
-      }
-
-      // Check for infinitive linking loops
-      if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
-        return false;
-      }
-
-      // Quick checking of one object beeing a subset of another.
-      // todo: cache the structure of arguments[0] for performance
-      for (p in y) {
-        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
-          return false;
-        }
-        else if (typeof y[p] !== typeof x[p]) {
-          return false;
-        }
-      }
-
-      for (p in x) {
-        if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
-          return false;
-        }
-        else if (typeof y[p] !== typeof x[p]) {
-          return false;
-        }
-
-        switch (typeof (x[p])) {
-          case 'object':
-          case 'function':
-            leftChain.push(x);
-            rightChain.push(y);
-
-            if (!compare2Objects (x[p], y[p])) {
-              return false;
-            }
-
-            leftChain.pop();
-            rightChain.pop();
-            break;
-          default:
-            if (x[p] !== y[p]) {
-              return false;
-            }
-            break;
-        }
-      }
-
-      return true;
-    }
-
-    if (arguments.length < 1) {
-      //Die silently? Don't know how to handle such case, please help...
-      return true;
-      // throw "Need two or more arguments to compare";
-    }
-
-    for (i = 1, l = arguments.length; i < l; i++) {
-      leftChain = []; //Todo: this can be cached
-      rightChain = [];
-
-      if (!compare2Objects(arguments[0], arguments[i])) {
-        return false;
-      }
-    }
-
-    return true;
-  }//}}}
-
-  function unique(array)//{{{
-  {
-    if (toType(array) !== 'array') {
-      throw new Error('Argument error. used not array object.');
-    }
-
-    var tempdict = {};
-    var ret = [];
-    for (var i = 0; i < array.length; i++) {
-      var val = array[i];
-      if (!tempdict.hasOwnProperty(val)) {
-        tempdict[val] = true;
-        ret.push(val);
-      }
-    }
-
-    return ret;
-  }//}}}
-
-  function arrayEqual(x1, x2)//{{{
-  {
-    if (x1.length !== x2.length) {
-      return false;
-    }
-
-    var i = 0, j = 0;
-    while (i < x1.length && j < x2.length) {
-      if (x1[i] !== x2[j]) {
-        return false;
-      }
-      i++;
-      j++;
-    }
-    return true;
-  }//}}}
-
-  // ブラウザの応答性は下がる(ビジーウェイト)
-  function sleep(T) //{{{
-  {
-    var d1 = new Date().getTime();
-    var d2 = new Date().getTime();
-    while (d2 < d1 + T) {
-      d2 = new Date().getTime();
-    }
-  }//}}}
-
-  function dictSize(dict)//{{{
-  {
-    /*jshint unused: false, forin: false*/
-    var c = 0;
-    for (var _ in dict) {
-      c++;
-    }
-    return c;
-  }//}}}
-
-  function equals(l, r)//{{{
-  {
-    if (toType(l) === toType(r)) {
-      throw new Error('Do not equal argument type.');
-    }
-
-    return window.deepCompare(l, r);
-  }//}}}
-
-  window.getListAfterJoinHistoryDataOnDB =
-    window.getListAfterJoinHistoryDataOnDB || getListAfterJoinHistoryDataOnDB;
-  window.getHistoryListFromIndexedDB =
-    window.getHistoryListFromIndexedDB || getHistoryListFromIndexedDB;
-  window.loadTranslation   = window.loadTranslation || loadTranslation;
-  window.getQueryString    = window.getQueryString || getQueryString;
-  window.cloneObject       = window.cloneObject || cloneObject;
-  window.getDataType       = window.getDataType || getDataType;
-  window.getDataURI        = window.getDataURI || getDataURI;
-  window.keyCheck          = window.keyCheck || keyCheck;
-  window.generateKeyString = window.generateKeyString || generateKeyString;
-  window.toType            = window.toType || toType;
-  window.formatDate        = window.formatDate || formatData;
-  window.trim              = window.trim || trim;
-  window.deepCompare       = window.deepCompare || deepCompare;
-  window.unique            = window.unique || unique;
-  window.arrayEqual        = window.arrayEqual || arrayEqual;
-  window.sleep             = window.sleep || sleep;
-  window.dictSize          = window.dictSize || dictSize;
-  window.equals            = window.equals || equals;
+  //{{{ method.
+  setObjectProperty(window,
+    'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(window,
+    'getHistoryListFromIndexedDB', getHistoryListFromIndexedDB);
+  setObjectProperty(window, 'loadTranslation', loadTranslation);
+  setObjectProperty(window, 'getQueryString', getQueryString);
+  setObjectProperty(window, 'getDataURI', closureGetDataURI(ajaxTimeout));
+  setObjectProperty(window, 'keyCheck', keyCheck);
+  setObjectProperty(window, 'generateKeyString', generateKeyString);
+  setObjectProperty(window, 'toType', toType);
+  setObjectProperty(window, 'formatDate', formatDate);
+  //}}}
 })(window);
