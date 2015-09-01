@@ -1,6 +1,77 @@
 ﻿(function() {
   "use strict";
 
+  /**
+   * return the function of autoPurgeCheck.
+   *
+   * @return {Function} return the function of autoPurgeCheck.
+   */
+  function closureAutoPurgeCheck()//{{{
+  {
+    console.log('closureAutoPurgeCheck');
+
+    // to call resolve function When result is false only.
+    function resolveAfterIsLackTheMemory(result)//{{{
+    {
+      console.log(
+        'resolveAfterIsLackTheMemory() in closureAutoPurgeCheck', result);
+
+      return new Promise(function(resolve) {
+        if (result === false) {
+          resolve();
+          return;
+        }
+        // doesn't call resolve.
+      });
+    }//}}}
+
+    /**
+     * check run auto purge or not.
+     * @return {Promise} promiseが返る。
+     */
+    function purgeCheck()//{{{
+    {
+      console.log('purgeCheck() in closureAutoPurgeCheck');
+
+      return new Promise(function(resolve, reject) {
+        if (!myOptions) {
+          console.error('myOptions is not loaded yet.');
+          reject();
+          return;
+        }
+
+        isLackTheMemory(myOptions.remaiming_memory)
+        .then(function(result) {
+          return new Promise(function(resolve2, reject2) {
+            if (result === false) {
+              resolve();
+              return;
+            }
+
+            /* for-of is slow. this writing is fastest.
+             * https://jsperf.com/es6-map-vs-object-properties/10
+             * */
+            var iter = ticked.entries();
+            for (var i = iter.next(); !i.done; i = iter.next()) {
+              tick(i.value[1])
+              .then(isLackTheMemory(myOptions.remaiming_memory))
+              .then(resolveAfterIsLackTheMemory)
+              .catch(reject2);
+            }
+
+            resolve2();
+          });
+        })
+        .then(resolve)
+        .catch(function(e) {
+          console.error(e);
+          reject();
+        });
+      });
+    }//}}}
+
+    return purgeCheck;
+  }//}}}
 
   /**
    * return an exclusive process function for function.
@@ -90,6 +161,8 @@
 
   /** @function */
   var exclusiveProcessForFunc = closureExclusiveProcessForFunction();
+  /** @function */
+  var autoPurgeCheck          = closureAutoPurgeCheck();
   //}}}
 
   /**
@@ -224,56 +297,6 @@
     });
   }//}}}
 
-  /**
-   * check run auto purge or not.
-   * @return {Promise} promiseが返る。
-   */
-  function autoPurgeCheck()//{{{
-  {
-    console.log('autoPurgeCheck');
-
-    return new Promise(function(resolve, reject) {
-      if (!myOptions) {
-        console.error('myOptions is not loaded yet.');
-        reject();
-        return;
-      }
-
-      isLackTheMemory(myOptions.remaiming_memory)
-      .then(function(result) {
-        return new Promise(function(resolve2, reject2) {
-          if (result === false) {
-            resolve();
-            return;
-          }
-
-          var ids = [];
-          for (var key in ticked) {
-            if (ticked.hasOwnProperty(key)) {
-              ids.push(parseInt(key, 10));
-            }
-          }
-
-          ids.forEach(function(v) {
-            tick(v)
-            .then(isLackTheMemory(myOptions.remaiming_memory))
-            .then(function(result) {
-              if (result === false) {
-                resolve2();
-              }
-            })
-            .catch(reject2);
-          });
-          resolve2();
-        });
-      })
-      .then(resolve)
-      .catch(function(e) {
-        console.error(e);
-        reject();
-      });
-    });
-  }//}}}
 
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
@@ -289,9 +312,6 @@
         return;
       }
 
-      var runWriteSession   = false;
-      var runPurgingAllTabs = false;
-      var runAutoPurgeCheck = false;
       setInterval(function() {//{{{
         console.log('run callback funciton of setInterval.');
         if (db === void 0 || db === null) {
@@ -315,14 +335,8 @@
               'purgingAllTabs', purgingAllTabsExceptForTheActiveTab);
           }
 
-          if (myOptions.enable_auto_purge && !runAutoPurgeCheck) {
-            runAutoPurgeCheck = true;
-            autoPurgeCheck()
-            .then(function() {
-              runAutoPurgeCheck = false;
-            }, function() {
-              runAutoPurgeCheck = false;
-            });
+          if (myOptions.enable_auto_purge) {
+            exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck);
           }
         }
       }, intervalTime * 1000);//}}}
