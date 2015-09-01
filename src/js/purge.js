@@ -149,10 +149,10 @@
   var tempScrollPositions = new Map();
 
   // the string that represents the temporary exclusion list
-  var tempRelease = [];
+  var tempRelease = new Set();
 
   // Before selecting the active tab, and the user has been selected tab.
-  var oldActiveIds = {};
+  var oldActiveIds = new Map() ;
 
   var db                 = null; // indexedDB.
   var currentSessionTime = null;
@@ -206,8 +206,8 @@
     console.log('loadScrollPosition', tabId);
 
     return new Promise(function(resolve, reject) {
-      var pos = tempScrollPositions.get(tabId);
-      if (pos) {
+      if (tempScrollPositions.has(tabId)) {
+        var pos = tempScrollPositions.get(tabId);
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + pos.x + ', ' + pos.y + ');' }, function() {
             if (chrome.runtime.lastError) {
@@ -247,7 +247,7 @@
         var maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
         if (maxPurgeLength <= 0) {
           console.log("The counts of open tabs are within set value.");
-          reject();
+          resolve();
           return;
         }
 
@@ -397,11 +397,11 @@
           // -1 is the current session.
           var max_sessions = parseInt(myOptions.max_sessions, 10) - 1;
 
-          var tempList = {};
+          var tempList = new Set();
           var dateList = [];
           histories.forEach(function(v) {
-            if (!tempList.hasOwnProperty(v.date)) {
-              tempList[v.date] = true;
+            if (!tempList.has(v.date)) {
+              tempList.add(v.date);
               dateList.push(v.date);
             }
           });
@@ -709,7 +709,6 @@
           delKeys = delKeys.map(function(v) {
             return v.date;
           });
-          console.log('delKeys', delKeys);
 
           return db.delete({ name: dbHistoryName, keys: delKeys });
         })
@@ -795,20 +794,18 @@
 
       var regex = new RegExp('^' + blankUrl, 'i');
       chrome.history.search({ text: '' }, function(histories) {
-        var deleteUrls = {};
+        var deleteUrls = new Set();
         histories.forEach(function(v) {
-          if (regex.test(v.url) && !deleteUrls.hasOwnProperty(v.url)) {
-            deleteUrls[v.url] = true;
+          if (regex.test(v.url)) {
+            deleteUrls.add(v.url);
           }
         });
 
         var p = [];
-        for (var url in deleteUrls) {
-          if (deleteUrls.hasOwnProperty(url)) {
-            p.push( deleteUrl(url) );
-          }
+        var iter = deleteUrls.entries();
+        for (var i = iter.next(); !i.done; i = iter.next()) {
+          p.push( deleteUrl(i.value[1]) );
         }
-
         Promise.all(p)
         .then(resolve)
         .catch(reject);
@@ -830,7 +827,7 @@
       chrome.tabs.getSelected(function(tab) {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError.message);
-          reject(chrome.runtime.lastError.message);
+          reject();
           return;
         }
         resolve(tab);
@@ -867,7 +864,7 @@
     var excludeArray = excludeObj.list.split('\n');
     for (var i = 0; i < excludeArray.length; i = (i + 1) | 0) {
       if (excludeArray[i] !== '') {
-        var re = new RegExp(trim(excludeArray[i]), excludeObj.options);
+        var re = new RegExp(excludeArray[i].trim(), excludeObj.options);
         if (re.test(url)) {
           return excludeObj.returnValue;
         }
@@ -889,15 +886,15 @@
     switch (target) {
       case 'extension':
         return {
-          list: extensionExcludeUrl,
-          options: 'i',
+          list:        extensionExcludeUrl,
+          options:     'i',
           returnValue: EXTENSION_EXCLUDE,
         };
       case 'keybind':
         if (myOptions) {
           return {
-            list: myOptions.keybind_exclude_url,
-            options: myOptions.keybind_regex_insensitive ? 'i' : '',
+            list:        myOptions.keybind_exclude_url,
+            options:     myOptions.keybind_regex_insensitive ? 'i' : '',
             returnValue: KEYBIND_EXCLUDE,
           };
         }
@@ -905,8 +902,8 @@
       default:
         if (myOptions) {
           return {
-            list: myOptions.exclude_url,
-            options: myOptions.regex_insensitive ? 'i' : '',
+            list:        myOptions.exclude_url,
+            options:     myOptions.regex_insensitive ? 'i' : '',
             returnValue: USE_EXCLUDE,
           };
         }
@@ -953,8 +950,7 @@
     }
 
     // Check to the temporary exclude list or don't match the exclude lists.
-    return ((tempRelease.indexOf(url) !== -1) ?
-              TEMP_EXCLUDE : NORMAL) | keybind;
+    return (tempRelease.has(url) ? TEMP_EXCLUDE : NORMAL) | keybind;
   }//}}}
 
   /**
@@ -1172,9 +1168,8 @@
 
     return new Promise(function(resolve, reject) {
       if (toType(tabId) !== 'number') {
-        var msg = "tabId is not number.";
-        console.error(msg);
-        reject(msg);
+        console.error("tabId is not number.");
+        reject();
         return;
       }
 
@@ -1276,20 +1271,14 @@
     console.log('setTick');
 
     return new Promise(function(resolve, reject) {
-      if (!myOptions) {
-        console.error('myOptions is not loaded yet.');
+      if (!myOptions || toType(tabId) !== 'number') {
+        console.error('myOptions is not loaded yet. or tabId is not number.');
         reject();
         return;
       }
 
       if (disableTimer) {
         resolve();
-        return;
-      }
-
-      if (toType(tabId) !== 'number') {
-        console.error("tabId is not number.");
-        reject();
         return;
       }
 
@@ -1307,8 +1296,11 @@
           var timer = parseInt(myOptions.timer, 10) * 60 * 1000;
 
           // Update.
-          ticked.delete(tabId);
-          ticked.set(tabId, setInterval(function() { tick(tabId); } , timer));
+          deleteTick(tabId);
+          var t = setInterval(function() {
+            tick(tabId);
+          }, timer);
+          ticked.set(tabId, t);
         } else { // include exclude list
           deleteTick(tabId);
         }
@@ -1317,6 +1309,31 @@
       });
     });
   }//}}}
+
+  function restoreTab(url)
+  {
+    return new Promise(function(resolve, reject) {
+      getPurgeURL(url)
+      .then(function(purgeurl) {
+        chrome.tabs.create(
+          { url: purgeurl, active: false }, function(tab) {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.message);
+              reject();
+              return;
+            }
+
+            var ret = new Map();
+            ret.set(tab.id, {
+              url            : url,
+              scrollPosition : { x : 0 , y : 0 },
+            });
+            resolve(ret);
+          }
+        );
+      });
+    });
+  }
 
   /**
   * 指定した辞書型の再帰処理し、タブを復元する。
@@ -1330,52 +1347,26 @@
    console.log('restore', sessions);
 
    return new Promise(function(resolve, reject) {
+     var i, j;
+     var tabId, iter;
      var p = [];
 
-     sessions.forEach(function(v) {
-       p.push(
-         new Promise(function(resolve2, reject2) {
-           getPurgeURL(v.url)
-           .then(function(purgeurl) {
-             return new Promise(function(resolve3, reject3) {
-               chrome.tabs.create(
-                 { url: purgeurl, active: false }, function(tab) {
-                   if (chrome.runtime.lastError) {
-                     console.error(chrome.runtime.lastError.message);
-                     reject3(chrome.runtime.lastError);
-                     return;
-                   }
-
-                   var unloadedObj = {};
-                   unloadedObj[tab.id] = {
-                     url            : v.url,
-                     scrollPosition : { x : 0 , y : 0 },
-                   };
-                   resolve3(unloadedObj);
-                 }
-               );
-             });
-           })
-           .then(resolve2)
-           .catch(reject2);
-         })
-       );
-     });
+     for (i = 0; i < sessions.length; i = (i + 1) | 0) {
+       p.push( restoreTab(sessions[i].url) );
+     }
 
      Promise.all(p).then(function(results) {
-       results.forEach(function(v) {
-         var tabId;
-         for (var key in v) {
-           if (!v.hasOwnProperty(key)) {
-             continue;
-           }
-
-           tabId = parseInt(key, 10);
+       for (i = 0; i < results.length; i = (i + 1) | 0) {
+         iter = results[i].entries();
+         for (j = iter.next(); !j.done; j = iter.next()) {
+           tabId = j.value[0];
            if (!unloaded.hasOwnProperty(tabId)) {
-             unloaded[tabId] = v[key];
+             unloaded[tabId] = j.value[1];
+           } else {
+             console.error('same tabId is found in unloaded object.');
            }
          }
-       });
+       }
        resolve();
      })
      .catch(function(e) {
@@ -1389,13 +1380,12 @@
   {
     console.log('switchTempRelease', url);
 
-    var index = tempRelease.indexOf(url);
-    if (index === -1) {
-      // push url in tempRelease.
-      tempRelease.push(url);
-    } else {
+    if (tempRelease.has(url)) {
       // remove url in tempRelease.
-      tempRelease.splice(index, 1);
+      tempRelease.delete(url);
+    } else {
+      // push url in tempRelease.
+      tempRelease.add(url);
     }
   }//}}}
 
@@ -1407,9 +1397,14 @@
   {
     console.log('tempReleaseToggle', tab);
 
-    switchTempRelease(tab.url);
-    setTick(tab.id);
-    reloadBrowserIcon(tab);
+    return new Promise(function(resolve, reject) {
+      switchTempRelease(tab.url);
+
+      setTick(tab.id)
+      .then(reloadBrowserIcon(tab))
+      .then(resolve)
+      .catch(reject);
+    });
   }//}}}
 
   /**
@@ -1473,7 +1468,8 @@
   function restoreSessionBeforeUpdate(previousSessionTime)//{{{
   {
     return new Promise(function(resolve, reject) {
-      if (previousSessionTime === undefined || previousSessionTime === null) {
+      if (previousSessionTime === void 0 ||
+          previousSessionTime === null) {
         console.error("previousSessionTime is undefined or null");
         reject();
         return;
@@ -1501,6 +1497,7 @@
             .catch(reject2);
             return;
           }
+
           resolve2();
         });
       })
@@ -1673,6 +1670,27 @@
   {
     console.log('initializeAlreadyPurgedTabs');
 
+    function toAdd(current)
+    {
+      return new Promise(function(resolve, reject) {
+        var result = checkExcludeList(current.url);
+        if (result ^ (NORMAL & INVALID_EXCLUDE)) {
+          if (isReleasePage(current.url)) {
+            unloaded[current.id] = {
+              url            : getParameterByName(current.url, 'url'),
+              scrollPosition : { x: 0 , y: 0 },
+            };
+          }
+
+          setTick(current.id)
+          .then(resolve)
+          .catch(reject);
+        } else {
+          resolve();
+        }
+      });
+    }
+
     return new Promise(function(resolve, reject) {
       chrome.tabs.query({}, function(tabs) {
         if (chrome.runtime.lastError) {
@@ -1681,32 +1699,15 @@
           return;
         }
 
-        function toAdd(current)
-        {
-          if (isReleasePage(current.url)) {
-            unloaded[current.id] = {
-              url            : getParameterByName(current.url, 'url'),
-              scrollPosition : { x: 0 , y: 0 },
-            };
-          }
-          setTick(current.id);
-        }
-
         // If already purging tab, be adding the object of purging tab.
         var p = [];
-        tabs.forEach(function(v) {
-          p.push(
-            new Promise(function(resolve2) {
-              var result = checkExcludeList(v.url);
-              if (result ^ (NORMAL & INVALID_EXCLUDE)) {
-                toAdd(v);
-              }
-              resolve2();
-            })
-          );
-        });
+        for (var i = 0; i < tabs.length; i = (i + 1) | 0) {
+          p.push( toAdd(tabs[i]) );
+        }
 
-        Promise.all(p).then(resolve).catch(reject);
+        Promise.all(p)
+        .then(resolve)
+        .catch(reject);
       });
     });
   }//}}}
@@ -1789,10 +1790,9 @@
           lastProcess().then(resolve).catch(reject);
         });
       } else {
-        for (var key in ticked) {
-          if (ticked.hasOwnProperty(key)) {
-            clearInterval(ticked.get(key));
-          }
+        var iter = ticked.entries();
+        for (var i = iter.next(); !i.done; i = iter.next()) {
+          clearInterval(i.value[1]);
         }
         ticked.clear();
         lastProcess().then(resolve).catch(reject);
@@ -1818,16 +1818,16 @@
           return;
         }
 
-        // アイコンの状態を変更
-        reloadBrowserIcon(tab);
-
         // 前にアクティブにされていたタブのアンロード時間を更新
-        if (oldActiveIds[tab.windowId]) {
-          setTick(oldActiveIds[tab.windowId]);
+        if (oldActiveIds.has(tab.WindowId)) {
+          setTick(oldActiveIds.get(tab.windowId));
         }
-        oldActiveIds[tab.windowId] = tabId;
+        oldActiveIds.set(tab.windowId, tabId);
 
-        resolve();
+        // アイコンの状態を変更
+        reloadBrowserIcon(tab)
+        .then(resolve)
+        .catch(reject);
       });
     });
   }//}}}
@@ -1899,7 +1899,7 @@
 
   chrome.windows.onRemoved.addListener(function(windowId) {//{{{
     console.log('chrome.windows.onRemoved.', windowId);
-    delete oldActiveIds[windowId];
+    oldActiveIds.delete(windowId);
   });//}}}
 
   chrome.runtime.onMessage.addListener(//{{{
@@ -1925,12 +1925,7 @@
           break;
         case 'switch_not_release':
           getCurrentTab()
-          .then(function(tab) {
-            return new Promise(function(resolve) {
-              tempReleaseToggle(tab);
-              resolve();
-            });
-          })
+          .then(tempReleaseToggle)
           .catch(function(e) {
             console.error(e);
           });
@@ -1986,9 +1981,9 @@
           getCurrentTab()
           .then(function(tab) {
             return new Promise(function(resolve, reject) {
-              var index = tempRelease.indexOf(tab.url);
-              if (index === -1) {
-                tempRelease.push(tab.url);
+              if (!tempRelease.has(tab.url)) {
+                tempRelease.add(tab.url);
+
                 setTick(tab.id)
                 .then(reloadBrowserIcon(tab))
                 .then(resolve)
@@ -2067,15 +2062,18 @@
 
     return new Promise(function(resolve) {
       chrome.runtime.requestUpdateCheck(function(status, version) {
-        if (status === 'update_available') {
+        switch (status) {
+        case 'update_available':
           console.log('update is avaliable now.');
           resolve(version);
           return;
-        } else if (status === 'no_update') {
+        case 'no_update':
           console.log('no update found.');
-        } else if (status === 'throttled') {
+          break;
+        case 'throttled':
           console.log('Has been occurring many request update checks. ' +
               'You need to back off the updating request.');
+          break;
         }
 
         resolve(null);
@@ -2139,18 +2137,16 @@
       chrome.notifications.create(
         RESTORE_PREVIOUS_SESSION,
         {
-          type: 'basic',
-          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
-          title: 'Restore the session before update.',
+          type:    'basic',
+          title:   'Restore the session before update.',
           message: 'Do want to restore the session before update?',
+          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
           buttons: [
             { title: 'Restore' },
             { title: 'No' },
           ],
         },
-        function() {
-          resolve();
-        }
+        resolve
       );
     });
   }//}}}
@@ -2160,18 +2156,16 @@
       chrome.notifications.create(
         UPDATE_CONFIRM_DIALOG,
         {
-          type: 'basic',
-          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
-          title: 'Update is available.',
+          type:    'basic',
+          title:   'Update is available.',
           message: 'New version is available now.',
+          iconUrl: chrome.runtime.getURL('../icon/icon_128.png'),
           buttons: [
             { title: 'Update' },
             { title: 'Later' },
           ],
         },
-        function() {
-          resolve();
-        }
+        resolve
       );
     });
   }//}}}
