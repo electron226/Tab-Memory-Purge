@@ -77,18 +77,17 @@ ul {
 }
 
 .ellipsis_over {
-    display: table;
-
     width: 99%;
     margin: auto 7px;
 
-    table-layout: fixed;
+    display: flex;
+    flex-direction: column;
 }
 
 .ellipsis_inner {
-    overflow: hidden;
+    flex-wrap: nowrap;
 
-    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 
