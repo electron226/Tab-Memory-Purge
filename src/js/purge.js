@@ -474,7 +474,7 @@
         name: dbHistoryName,
         range: IDBKeyRange.upperBound(
           new Date(
-            now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - length,
+            now.getFullYear(), now.getMonth(), now.getDate() - length,
             23, 59, 59, 999).getTime()
         ),
       })
@@ -610,7 +610,8 @@
     console.log('writeSession', unloaded);
 
     return new Promise(function(resolve, reject) {
-      var nowTime = Date.now();
+      var date = new Date();
+      var nowTime = date.getTime();
 
       // currentSessionTimeの処理
       (function() {
@@ -702,9 +703,9 @@
         writeSet.add(tab.url);
 
         var now   = new Date();
-        var year  = now.getUTCFullYear();
-        var month = now.getUTCMonth();
-        var day   = now.getUTCDay();
+        var year  = now.getFullYear();
+        var month = now.getMonth();
+        var day   = now.getDate();
         var begin = new Date(year, month, day, 0, 0, 0, 0);
 
         db.getCursor({
@@ -712,9 +713,11 @@
           range: IDBKeyRange.lowerBound(begin.getTime()),
         })
         .then(function(histories) {
+          console.debug(histories);
           var delKeys = histories.filter(function(v) {
             return v.url === tab.url;
           });
+          console.log(delKeys);
 
           delKeys = delKeys.map(function(v) {
             return v.date;

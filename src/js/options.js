@@ -592,7 +592,7 @@
 
         var itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
         itemRemove.addEventListener('click', removeHistoryItem, true);
-        // item.date is a number after using getTime or Date.now() already.
+        // item.date is a number after using getTime already.
         itemRemove.setAttribute('name', addItem.date);
 
         var itemDate = historyItem.querySelector(selectorHistoryItemDate);
@@ -644,9 +644,9 @@
       indexName : 'date',
     })
     .then(function(histories) {
-      var newTime = Date.now();
+      var date = new Date();
       var newSessions = histories.map(function(v) {
-        return { date: newTime, url: v.url };
+        return { date: date.getTime(), url: v.url };
       });
       return db.put({
         name: dbSavedSessionName,
@@ -757,7 +757,7 @@
 
         var itemRemove = historyItem.querySelector(selectorSessionItemDelete);
         itemRemove.addEventListener('click', deleteSessionItem, true);
-        // item.date is a number after using getTime or Date.now() already.
+        // item.date is a number after using getTime already.
         itemRemove.setAttribute('name', addItem.date);
         itemRemove.setAttribute(attrNameOfSessionItemId, addItem.id);
 
