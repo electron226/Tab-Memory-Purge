@@ -453,16 +453,26 @@
     });
   }//}}}
 
+  function hasStringOfAttributeOfElement(element, attrName, addStr)//{{{
+  {
+    var re = new RegExp('(^|\\s+)' + addStr, '');
+    return re.test(element.getAttribute(attrName));
+  }//}}}
+
   function addStringToAttributeOfElement(element, attrName, addStr)//{{{
   {
-    element.setAttribute(
-      attrName, element.getAttribute(attrName) + ' ' + addStr);
+    var oldAttribute = element.getAttribute(attrName);
+    if (!hasStringOfAttributeOfElement(element, attrName, addStr)) {
+      element.setAttribute(attrName, oldAttribute + ' ' + addStr);
+      return true;
+    }
+    return false;
   }//}}}
 
   function removeStringFromAttributeOfElement(//{{{
     element, attrName, removeStr, replaceStr)
   {
-    var re = new RegExp('\\s*' + removeStr, 'ig');
+    var re = new RegExp('(^|\\s+)' + removeStr, 'ig');
     element.setAttribute(
       attrName, element.getAttribute(attrName).replace(re, replaceStr || ''));
   }//}}}
@@ -1042,20 +1052,34 @@
 
   function showSpecificHistoryItem(event)//{{{
   {
-    var regex = new RegExp(event.target.value.trim(), 'g');
-    var item, section, historyItem;
-    var itemTitles = document.querySelectorAll(
-      selectorHistoryItemTitle + ':not(.' + prototypeClassName + ')');
-    for (var i = 0; i < itemTitles.length; i = (i + 1) | 0) {
-      item = itemTitles[i];
-      section = item.parentNode.parentNode.parentNode;
-      historyItem = section.querySelector(selectorHistoryItemUrl);
-      if (regex.test(item.textContent) || regex.test(historyItem.href)) {
-        removeStringFromAttributeOfElement(
-          section, 'class', elementDoesNotClassName);
+    var i, j, f, count;
+    var item, sec, historyItem, itemTitles;
+
+    var regex = new RegExp(event.target.value.trim(), 'ig');
+    var field = document.querySelectorAll(
+      selectorHistoryDate + ':not(.' + prototypeClassName + ')');
+    for (i = 0; i < field.length; i = (i + 1) | 0) {
+      f = field[i];
+      itemTitles = f.querySelectorAll(selectorHistoryItemTitle);
+
+      count = 0;
+      for (j = 0; j < itemTitles.length; j = (j + 1) | 0) {
+        item = itemTitles[j];
+        sec = item.parentNode.parentNode.parentNode;
+        historyItem = sec.querySelector(selectorHistoryItemUrl);
+        if (regex.test(item.textContent) || regex.test(historyItem.href)) {
+          removeStringFromAttributeOfElement(
+            sec, 'class', elementDoesNotClassName);
+        } else {
+          addStringToAttributeOfElement(sec, 'class', elementDoesNotClassName);
+          count = (count + 1) | 0;
+        }
+      }
+
+      if (count === itemTitles.length) {
+        addStringToAttributeOfElement(f, 'class', elementDoesNotClassName);
       } else {
-        addStringToAttributeOfElement(
-          section, 'class', elementDoesNotClassName);
+        removeStringFromAttributeOfElement(f, 'class', elementDoesNotClassName);
       }
     }
   }//}}}
