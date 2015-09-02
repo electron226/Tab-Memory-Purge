@@ -146,17 +146,19 @@
 
       var dontShowMenu =
         document.querySelectorAll(selector + ':not(#' + idName + ')');
-      for (var i = 0, len = dontShowMenu.length; i < len; i++) {
-        el    = dontShowMenu[i];
+      var i = 0;
+      while (i < dontShowMenu.length) {
+        el = dontShowMenu[i];
         style = el.getAttribute('style');
         if (style === null) {
           el.setAttribute('style', 'display: none;');
-          continue;
+        } else {
+          oldStyle = style.replace(ShowMenuSelection.toggleSectionRegex, '');
+          newStyle = 'display: none;';
+          el.setAttribute('style', oldStyle + newStyle);
         }
 
-        oldStyle = style.replace(ShowMenuSelection.toggleSectionRegex, '');
-        newStyle = 'display: none;';
-        el.setAttribute('style', oldStyle + newStyle);
+        ++i;
       }
     };
   };
@@ -433,8 +435,10 @@
     }
 
     var newObj = obj;
-    for (var i = 0; i < deleteKeys.length; i = (i + 1) | 0) {
+    var i = 0;
+    while (i < deleteKeys.length) {
       delete newObj[ deleteKeys[i] ];
+      ++i;
     }
 
     return newObj;
@@ -612,8 +616,10 @@
       get: function() {
         var a = [];
         var l = historyItemList.childNodes;
-        for (var j = 0; j < l.length; j = (j + 1) | 0) {
+        var j = 0;
+        while (j < l.length) {
           a.push(l[j]);
+          ++j;
         }
         return a;
       },
@@ -624,12 +630,14 @@
   {
     var data;
     var ret = {};
-    for (var i = 0; i < sessions.length; i = (i + 1) | 0) {
+    var i = 0;
+    while (i < sessions.length) {
       data = sessions[i];
       if (!ret.hasOwnProperty(data.date)) {
         ret[data.date] = [];
       }
       ret[data.date].push(data);
+      ++i;
     }
     return ret;
   }//}}}
@@ -775,8 +783,10 @@
       get: function() {
         var a = [];
         var l = historyItemList.childNodes;
-        for (var j = 0; j < l.length; j = (j + 1) | 0) {
+        var j = 0;
+        while (j < l.length) {
           a.push(l[j]);
+          ++j;
         }
         return a;
       },
@@ -815,13 +825,14 @@
 
         var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
 
-        var s, i, j, v2, key, sKeys,
+        var s, i, j, z, v2, key, sKeys,
             sessionHistory, sessionDate,
             sessionSave, sessionDelete, sessionRestore,
             addSessionHistoryItem;
         
-        savedSessions.forEach(function(v) {//{{{
-          s = getDictSplitEachSessionDate(v.data);
+        i = 0;
+        while (i < savedSessions.length) {
+          s = getDictSplitEachSessionDate(savedSessions[i].data);
 
           sKeys = [];
           for (key in s) {
@@ -829,8 +840,10 @@
               sKeys.unshift(key);
             }
           }
-          for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
-            key = sKeys[i];
+
+          j = 0;
+          while (j < sKeys.length) {
+            key = sKeys[j];
 
             sessionHistory = prototypeSavedSessionHistory.cloneNode(true);
             sessionHistory.setAttribute('name', parseInt(key));
@@ -851,26 +864,33 @@
               selectorAddSavedSessionHistoryItemLocation);
 
             cSIL.clear();
-            for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
-              v2 = s[key][j];
+            for (z = s[key].length - 1; z >= 0; z = (z - 1) | 0) {
+              v2 = s[key][z];
               cSIL.set(v2);
             }
 
             var list = cSIL.get();
-            for (j = 0; j < list.length; j = (j + 1) | 0) {
-              addSessionHistoryItem.appendChild(list[j]);
+            z = 0;
+            while (z < list.length) {
+              addSessionHistoryItem.appendChild(list[z]);
+              ++z;
             }
 
             addSavedList.appendChild(sessionHistory);
+
+            ++j;
           }
-        });//}}}
+
+          ++i;
+        }
 
         //{{{
         chrome.storage.local.get(previousSessionTimeKey, function(items) {
           var currentTime = items[previousSessionTimeKey];
 
-          sessions.forEach(function(v) {
-            s = getDictSplitEachSessionDate(v.data);
+          i = 0;
+          while (i < sessions.length) {
+            s = getDictSplitEachSessionDate(sessions[i].data);
 
             sKeys = [];
             for (key in s) {
@@ -878,9 +898,11 @@
                 sKeys.unshift(key);
               }
             }
-            for (i = 0; i < sKeys.length; i = (i + 1) | 0) {
-              key = sKeys[i];
 
+            j = 0;
+            while (j < sKeys.length) {
+              key = sKeys[j];
+              
               sessionHistory = prototypeSessionHistory.cloneNode(true);
               sessionHistory.setAttribute('name', parseInt(key));
 
@@ -909,19 +931,25 @@
                 selectorAddSessionHistoryItemLocation);
 
               cSIL.clear();
-              for (j = s[key].length - 1; j >= 0; j = (j - 1) | 0) {
-                v2 = s[key][j];
+              for (z = s[key].length - 1; z >= 0; z = (z - 1) | 0) {
+                v2 = s[key][z];
                 cSIL.set(v2);
               }
 
               var list = cSIL.get();
-              for (j = 0; j < list.length; j = (j + 1) | 0) {
-                addSessionHistoryItem.appendChild(list[j]);
+              z = 0;
+              while (z < list.length) {
+                addSessionHistoryItem.appendChild(list[z]);
+                ++z;
               }
 
               addList.appendChild(sessionHistory);
+
+              ++j;
             }
-          });
+
+            ++i;
+          }
         });
         //}}}
 
@@ -998,8 +1026,10 @@
           itemList = historyDateItemList.get();
 
           historyItemList = hDate.querySelector(selectorOfLocationWhereAddItem);
-          for (z = 0; z < itemList.length; z = (z + 1) | 0) {
+          z = 0;
+          while (z < itemList.length) {
             historyItemList.appendChild(itemList[z]);
+            ++z;
           }
 
           historyDateList.appendChild(hDate);
@@ -1038,7 +1068,8 @@
     var historyDateList = document.querySelectorAll(
       selectorHistoryDate + ':not(.' + prototypeClassName + ')');
     var item, date;
-    for (var i = 0; i < historyDateList.length; i = (i + 1) | 0) {
+    var i = 0;
+    while (i < historyDateList.length) {
       item = historyDateList[i];
       date = new Date(parseInt(item.name, 10));
       if (value.length === 0 || date.getTime() === searchDate.getTime()) {
@@ -1047,6 +1078,8 @@
       } else {
         addStringToAttributeOfElement(item, 'class', elementDoesNotClassName);
       }
+
+      ++i;
     }
   }//}}}
 
@@ -1058,12 +1091,15 @@
     var regex = new RegExp(event.target.value.trim(), 'ig');
     var field = document.querySelectorAll(
       selectorHistoryDate + ':not(.' + prototypeClassName + ')');
-    for (i = 0; i < field.length; i = (i + 1) | 0) {
+
+    i = 0;
+    while (i < field.length) {
       f = field[i];
       itemTitles = f.querySelectorAll(selectorHistoryItemTitle);
 
       count = 0;
-      for (j = 0; j < itemTitles.length; j = (j + 1) | 0) {
+      j = 0;
+      while (j < itemTitles.length) {
         item = itemTitles[j];
         sec = item.parentNode.parentNode.parentNode;
         historyItem = sec.querySelector(selectorHistoryItemUrl);
@@ -1074,6 +1110,8 @@
           addStringToAttributeOfElement(sec, 'class', elementDoesNotClassName);
           count = (count + 1) | 0;
         }
+
+        ++j;
       }
 
       if (count === itemTitles.length) {
@@ -1081,6 +1119,8 @@
       } else {
         removeStringFromAttributeOfElement(f, 'class', elementDoesNotClassName);
       }
+
+      ++i;
     }
   }//}}}
 
@@ -1122,8 +1162,10 @@
     return new Promise(function(resolve, reject) {
       try {
         var e = d.querySelectorAll(buttonSelector);
-        for (var i = 0; i < e.length; i = (i + 1) | 0) {
+        var i = 0;
+        while (i < e.length) {
           e[i].addEventListener('click', sectionButtonClicked, true);
+          ++i;
         }
         resolve();
       } catch (err) {
@@ -1172,14 +1214,18 @@
       var i, els;
 
       els = d.querySelectorAll("input");
-      for (i = 0; i < els.length; i = (i + 1) | 0) {
+      i = 0;
+      while (i < els.length) {
         els[i].addEventListener('keyup', updateOptionValueToStorage, true);
         els[i].addEventListener('change', updateOptionValueToStorage, true);
+        ++i;
       }
 
       els = d.querySelectorAll("textarea");
-      for (i = 0; i < els.length; i = (i + 1) | 0) {
+      i = 0;
+      while (i < els.length) {
         els[i].addEventListener('keyup', updateOptionValueToStorage, true);
+        ++i;
       }
       resolve();
     });
@@ -1191,7 +1237,8 @@
 
     var options = document.querySelectorAll(selectorKeybindOption);
     var keyJson, keyString;
-    for (var i = 0; i < options.length; i = (i + 1) | 0) {
+    var i = 0;
+    while (i < options.length) {
       keyJson   = options[i].querySelector(selectorKeybindValue);
       keyString = options[i].querySelector(selectorShowingKeybind);
       try {
@@ -1205,6 +1252,8 @@
       } catch (e) {
         console.warn(e, keyJson.value);
       }
+
+      ++i;
     }
   }//}}}
 
@@ -1321,8 +1370,10 @@
   {
     return new Promise(function(resolve) {
       var els = d.querySelectorAll('button');
-      for (var i = 0; i < els.length; i = (i + 1) | 0) {
+      var i = 0;
+      while (i < els.length) {
         els[i].addEventListener('click', buttonClicked, true);
+        ++i;
       }
       resolve();
     });

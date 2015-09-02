@@ -20,12 +20,15 @@
           var el = document.evaluate(
             '//*[@translation]', document, null, 7, null);
           var item, textName;
-          for (var i = 0; i < el.snapshotLength; i++) {
+          var i = 0;
+          while (i < el.snapshotLength) {
             item = el.snapshotItem(i);
             textName = item.getAttribute('translation');
             if (t.hasOwnProperty(textName)) {
               item.textContent = chrome.i18n.getMessage(textName);
             }
+
+            ++i;
           }
           resolve(true);
         } else {
@@ -143,16 +146,22 @@
       // 引数ごとに分割
       var parameters = query.split('&');
       var result = {};
-      for (var i = 0; i < parameters.length; i = (i + 1) | 0) {
-        var element = parameters[i].split('=');
+      var i = 0;
+      var element, paramName, paramValue;
+      while (i < parameters.length) {
+        element = parameters[i].split('=');
         if (element[0] === '' ||
-            element[1] === undefined || element[1] === null) {
+            element[1] === undefined ||
+            element[1] === null) {
+          ++i;
           continue;
         }
 
-        var paramName = element[0];
-        var paramValue = decodeURIComponent(element[1]);
+        paramName = element[0];
+        paramValue = decodeURIComponent(element[1]);
         result[paramName] = paramValue;
+
+        ++i;
       }
 
       return result;
@@ -199,8 +208,10 @@
             var bytes = new Uint8Array(this.response);
             var dataType = getDataType(bytes);
             var binaryData = '';
-            for (var i = 0, len = bytes.byteLength; i < len; i++) {
+            var i = 0;
+            while (i < bytes.byteLength) {
               binaryData += String.fromCharCode(bytes[i]);
+              ++i;
             }
 
             resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
@@ -347,8 +358,10 @@
     if (format.match(/S/g)) {
       var milliSeconds = ('00' + date.getMilliseconds()).slice(-3);
       var length = format.match(/S/g).length;
-      for (var i = 0; i < length; i++) {
+      var i = 0;
+      while (i < length) {
         format = format.replace(/S/, milliSeconds.substring(i, i + 1));
+        ++i;
       }
     }
     return format;

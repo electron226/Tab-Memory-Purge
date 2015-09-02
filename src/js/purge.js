@@ -271,14 +271,18 @@
           return !v.active && (checkExcludeList(v.url) & NORMAL) !== 0;
         });
 
-        for (var i = 0; i < t.length; i = (i + 1) | 0) {
+        var p = [];
+        var i = 0;
+        while (i < t.length) {
           if (maxPurgeLength-- <= 0) {
             break;
           }
-          purge(t[i].id);
+
+          p.push( purge(t[i].id) );
+          ++i;
         }
 
-        resolve();
+        Promise.all(p).then(resolve).catch(reject);
       });
     });
   }//}}}
@@ -875,13 +879,15 @@
     console.log('checkMatchUrlString', url, excludeObj);
 
     var excludeArray = excludeObj.list.split('\n');
-    for (var i = 0; i < excludeArray.length; i = (i + 1) | 0) {
+    var i = 0;
+    while (i < excludeArray.length) {
       if (excludeArray[i] !== '') {
         var re = new RegExp(excludeArray[i].trim(), excludeObj.options);
         if (re.test(url)) {
           return excludeObj.returnValue;
         }
       }
+      ++i;
     }
     return null;
   }//}}}
@@ -1364,12 +1370,15 @@
      var tabId, iter;
      var p = [];
 
-     for (i = 0; i < sessions.length; i = (i + 1) | 0) {
+     i = 0;
+     while (i < sessions.length) {
        p.push( restoreTab(sessions[i].url) );
+       ++i;
      }
 
      Promise.all(p).then(function(results) {
-       for (i = 0; i < results.length; i = (i + 1) | 0) {
+       i = 0;
+       while (i < results.length) {
          iter = results[i].entries();
          for (j = iter.next(); !j.done; j = iter.next()) {
            tabId = j.value[0];
@@ -1379,6 +1388,7 @@
              console.error('same tabId is found in unloaded object.');
            }
          }
+         ++i;
        }
        resolve();
      })
@@ -1714,8 +1724,10 @@
 
         // If already purging tab, be adding the object of purging tab.
         var p = [];
-        for (var i = 0; i < tabs.length; i = (i + 1) | 0) {
+        var i = 0;
+        while (i < tabs.length) {
           p.push( toAdd(tabs[i]) );
+          ++i;
         }
 
         Promise.all(p)
