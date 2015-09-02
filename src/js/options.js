@@ -385,17 +385,13 @@
   var selectorSavedSessionHistory                = '.savedSessionHistory';
   var selectorSessionHistory                     = '.sessionHistory';
 
-  var selectorAddSavedSessionHistoryItemLocation =
-      '.savedSessionHistoryItemList';
   var selectorAddSessionHistoryItemLocation = '.sessionHistoryItemList';
 
   // var selectorSessionHistoryItem            = '.sessionHistoryItem';
 
-  // var selectorSavedSessionInfo              = '.savedSessionInfo';
   // var selectorSessionInfo                   = '.sessionInfo';
   // var selectorSavedSessionTitle             = '.savedSessionTitle';
   // var selectorSessionTitle                  = '.sessionTitle';
-  var selectorSavedSessionDate    = '.savedSessionDate';
   var selectorSessionDate         = '.sessionDate';
   var selectorSessionDelete       = '.sessionDelete';
   var selectorSessionSave         = '.sessionSave';
@@ -626,22 +622,6 @@
     };
   }//}}}
 
-  function getDictSplitEachSessionDate(sessions)//{{{
-  {
-    var data;
-    var ret = {};
-    var i = 0;
-    while (i < sessions.length) {
-      data = sessions[i];
-      if (!ret.hasOwnProperty(data.date)) {
-        ret[data.date] = [];
-      }
-      ret[data.date].push(data);
-      ++i;
-    }
-    return ret;
-  }//}}}
-
   function saveSession(event)//{{{
   {
     var t = event.target.parentNode.parentNode.parentNode;
@@ -754,46 +734,180 @@
     });
   }//}}}
 
-  function createSessionItemList(prototypeSelector)//{{{
+
+  /**
+   * closureCreateSessionDateItemList
+   *
+   * @param {object} prototypeSelector - to create the selector of fieldset.
+   * @param {number} [currentTime] - The most recent session time.
+   * @return {function} it is function
+   *     that return a element node of create session date list.
+   */
+  function closureCreateSessionDateItemList(prototypeSelector, currentTime)//{{{
   {
-    var historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
-    var historyItemList = document.createElement('div');
+    var proto = getPrototypeAndRemoveTag(prototypeSelector);
+    if (currentTime !== void 0 &&
+        currentTime !== null &&
+        toType(currentTime) !== 'number') {
+      throw new Error('currentTime is not number.');
+    }
 
-    return {
-      set: function(addItem) {
-        var historyItem = historyItemPrototype.cloneNode(true);
+    function createSessionItemList(prototypeSelector)//{{{
+    {
+      var listProto = getPrototypeAndRemoveTag(prototypeSelector);
+      var list = document.createElement('div');
 
-        var itemRemove = historyItem.querySelector(selectorSessionItemDelete);
-        itemRemove.addEventListener('click', deleteSessionItem, true);
-        // item.date is a number after using getTime already.
-        itemRemove.setAttribute('name', addItem.date);
-        itemRemove.setAttribute(attrNameOfSessionItemId, addItem.id);
+      return {
+        set: function(addItem) {
+          var item = listProto.cloneNode(true);
 
-        var itemHref = historyItem.querySelector(selectorSessionItemUrl);
-        itemHref.href = addItem.url;
+          var remove = item.querySelector(selectorSessionItemDelete);
+          if (remove) {
+            remove.addEventListener('click', deleteSessionItem, true);
+            // item.date is a number after using getTime already.
+            remove.setAttribute('name', addItem.date);
+            remove.setAttribute(attrNameOfSessionItemId, addItem.id);
+          }
 
-        var ItemIcon = historyItem.querySelector(selectorSessionItemIcon);
-        ItemIcon.src = addItem.dataURI;
+          var url = item.querySelector(selectorSessionItemUrl);
+          if (url) {
+            url.href = addItem.url;
+          }
 
-        var itemTitle = historyItem.querySelector(selectorSessionItemTitle);
-        itemTitle.textContent = addItem.title;
+          var icon = item.querySelector(selectorSessionItemIcon);
+          if (icon) {
+            icon.src = addItem.dataURI;
+          }
 
-        historyItemList.appendChild(historyItem);
-      },
-      get: function() {
-        var a = [];
-        var l = historyItemList.childNodes;
-        var j = 0;
-        while (j < l.length) {
-          a.push(l[j]);
+          var title = item.querySelector(selectorSessionItemTitle);
+          if (title) {
+            title.textContent = addItem.title;
+          }
+
+          list.appendChild(item);
+        },
+        get: function() {
+          var a = [];
+          var l = list.childNodes;
+          var j = 0;
+          while (j < l.length) {
+            a.push(l[j]);
+            ++j;
+          }
+          return a;
+        },
+        clear: function() {
+          list = document.createElement('div');
+        },
+      };
+    }//}}}
+
+    var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
+
+    function createSessionDate(s, time)//{{{
+    {
+      if (toType(time) !== 'number') {
+        throw new Error('time is not number.');
+      }
+
+      var sessionHistory = proto.cloneNode(true);
+      sessionHistory.setAttribute('name', time);
+
+      var sessionDate = sessionHistory.querySelector(selectorSessionDate);
+      if (sessionDate) {
+        if (currentTime !== void 0 &&
+            currentTime !== undefined &&
+            parseInt(currentTime) === parseInt(time)) {
+          sessionDate.textContent = 'Current Session';
+        } else {
+          sessionDate.textContent = formatDate(
+            new Date(time), 'YYYY/MM/DD hh:mm:ss');
+        }
+      }
+
+      var sessionSave = sessionHistory.querySelector(selectorSessionSave);
+      if (sessionSave) {
+        sessionSave.addEventListener('click', saveSession);
+      }
+
+      var sessionDelete = sessionHistory.querySelector(selectorSessionDelete);
+      if (sessionDelete) {
+        sessionDelete.addEventListener('click', deleteSession);
+      }
+
+      var sessionRestore = sessionHistory.querySelector(selectorSessionRestore);
+      if (sessionRestore) {
+        sessionRestore.addEventListener('click', restoreSession);
+      }
+
+      var addSessionHistoryItem = sessionHistory.querySelector(
+        selectorAddSessionHistoryItemLocation);
+
+      var z, v2;
+      cSIL.clear();
+      for (z = s[time].length - 1; z >= 0; z = (z - 1) | 0) {
+        v2 = s[time][z];
+        cSIL.set(v2);
+      }
+
+      var list = cSIL.get();
+      z = 0;
+      while (z < list.length) {
+        addSessionHistoryItem.appendChild(list[z]);
+        ++z;
+      }
+
+      return sessionHistory;
+    }//}}}
+
+    function getDictSplitEachSessionDate(sessions)//{{{
+    {
+      var data;
+      var ret = {};
+      var i = 0;
+      while (i < sessions.length) {
+        data = sessions[i];
+        if (!ret.hasOwnProperty(data.date)) {
+          ret[data.date] = [];
+        }
+        ret[data.date].push(data);
+        ++i;
+      }
+      return ret;
+    }//}}}
+
+    function createSessionDateItemList(sessions)//{{{
+    {
+      var list = document.createElement('div');
+
+      var s, i, j;
+      var key, sKeys;
+      var sessionDate;
+
+      i = 0;
+      while (i < sessions.length) {
+        s = getDictSplitEachSessionDate(sessions[i].data);
+
+        sKeys = [];
+        for (key in s) {
+          if (s.hasOwnProperty(key)) {
+            sKeys.unshift(key);
+          }
+        }
+
+        j = 0;
+        while (j < sKeys.length) {
+          sessionDate = createSessionDate(s, parseInt(sKeys[j]));
+          list.appendChild(sessionDate);
           ++j;
         }
-        return a;
-      },
-      clear: function() {
-        historyItemList = document.createElement('div');
-      },
-    };
+        ++i;
+      }
+
+      return list.childNodes;
+    }//}}}
+
+    return createSessionDateItemList;
   }//}}}
 
   function showAllSessionHistory()//{{{
@@ -816,144 +930,34 @@
           addList.removeChild(addList.firstChild);
         }
 
-        var prototypeSavedSessionHistory =
-          getPrototypeAndRemoveTag(prototypeSelectorOfSavedSessionHistory);
-        var prototypeSessionHistory =
-          getPrototypeAndRemoveTag(prototypeSelectorOfSessionHistory);
         // var prototypeSessionHistoryItem =
         //   getPrototypeAndRemoveTag(prototypeSelectorOfSessionHistoryItem);
 
-        var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
-
-        var s, i, j, z, v2, key, sKeys,
-            sessionHistory, sessionDate,
-            sessionSave, sessionDelete, sessionRestore,
-            addSessionHistoryItem;
-        
-        i = 0;
-        while (i < savedSessions.length) {
-          s = getDictSplitEachSessionDate(savedSessions[i].data);
-
-          sKeys = [];
-          for (key in s) {
-            if (s.hasOwnProperty(key)) {
-              sKeys.unshift(key);
-            }
-          }
-
-          j = 0;
-          while (j < sKeys.length) {
-            key = sKeys[j];
-
-            sessionHistory = prototypeSavedSessionHistory.cloneNode(true);
-            sessionHistory.setAttribute('name', parseInt(key));
-
-            sessionDate = sessionHistory.querySelector(
-              selectorSavedSessionDate);
-            sessionDate.textContent = formatDate(
-              new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
-
-            sessionDelete = sessionHistory.querySelector(selectorSessionDelete);
-            sessionDelete.addEventListener('click', deleteSession);
-
-            sessionRestore =
-              sessionHistory.querySelector(selectorSessionRestore);
-            sessionRestore.addEventListener('click', restoreSession);
-
-            addSessionHistoryItem = sessionHistory.querySelector(
-              selectorAddSavedSessionHistoryItemLocation);
-
-            cSIL.clear();
-            for (z = s[key].length - 1; z >= 0; z = (z - 1) | 0) {
-              v2 = s[key][z];
-              cSIL.set(v2);
-            }
-
-            var list = cSIL.get();
-            z = 0;
-            while (z < list.length) {
-              addSessionHistoryItem.appendChild(list[z]);
-              ++z;
-            }
-
-            addSavedList.appendChild(sessionHistory);
-
-            ++j;
-          }
-
-          ++i;
+        var createSavedSessionDate = closureCreateSessionDateItemList(
+          prototypeSelectorOfSavedSessionHistory);
+        var list = createSavedSessionDate(savedSessions);
+        var i = 0;
+        while (i < list.length) {
+          addSavedList.appendChild(list[i]);
+          i++;
         }
 
         //{{{
         chrome.storage.local.get(previousSessionTimeKey, function(items) {
           var currentTime = items[previousSessionTimeKey];
+          var createSessionDate = closureCreateSessionDateItemList(
+            prototypeSelectorOfSessionHistory, currentTime);
 
+          list = createSessionDate(sessions);
           i = 0;
-          while (i < sessions.length) {
-            s = getDictSplitEachSessionDate(sessions[i].data);
-
-            sKeys = [];
-            for (key in s) {
-              if (s.hasOwnProperty(key)) {
-                sKeys.unshift(key);
-              }
-            }
-
-            j = 0;
-            while (j < sKeys.length) {
-              key = sKeys[j];
-              
-              sessionHistory = prototypeSessionHistory.cloneNode(true);
-              sessionHistory.setAttribute('name', parseInt(key));
-
-              sessionDate = sessionHistory.querySelector(selectorSessionDate);
-              if (currentTime !== void 0 &&
-                  currentTime !== undefined &&
-                  parseInt(currentTime) === parseInt(key)) {
-                sessionDate.textContent = 'Current Session';
-              } else {
-                sessionDate.textContent = formatDate(
-                  new Date(parseInt(key)), 'YYYY/MM/DD hh:mm:ss');
-              }
-
-              sessionSave = sessionHistory.querySelector(selectorSessionSave);
-              sessionSave.addEventListener('click', saveSession);
-
-              sessionDelete =
-                sessionHistory.querySelector(selectorSessionDelete);
-              sessionDelete.addEventListener('click', deleteSession);
-
-              sessionRestore =
-                sessionHistory.querySelector(selectorSessionRestore);
-              sessionRestore.addEventListener('click', restoreSession);
-
-              addSessionHistoryItem = sessionHistory.querySelector(
-                selectorAddSessionHistoryItemLocation);
-
-              cSIL.clear();
-              for (z = s[key].length - 1; z >= 0; z = (z - 1) | 0) {
-                v2 = s[key][z];
-                cSIL.set(v2);
-              }
-
-              var list = cSIL.get();
-              z = 0;
-              while (z < list.length) {
-                addSessionHistoryItem.appendChild(list[z]);
-                ++z;
-              }
-
-              addList.appendChild(sessionHistory);
-
-              ++j;
-            }
-
-            ++i;
+          while (i < list.length) {
+            addList.appendChild(list[i]);
+            i++;
           }
+
+          resolve();
         });
         //}}}
-
-        resolve();
       })
       .catch(reject);
     });
