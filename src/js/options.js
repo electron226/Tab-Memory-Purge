@@ -610,14 +610,7 @@
         historyItemList.appendChild(historyItem);
       },
       get: function() {
-        var a = [];
-        var l = historyItemList.childNodes;
-        var j = 0;
-        while (j < l.length) {
-          a.push(l[j]);
-          ++j;
-        }
-        return a;
+        return Array.prototype.slice.call(historyItemList.childNodes);
       },
     };
   }//}}}
@@ -787,14 +780,7 @@
           list.appendChild(item);
         },
         get: function() {
-          var a = [];
-          var l = list.childNodes;
-          var j = 0;
-          while (j < l.length) {
-            a.push(l[j]);
-            ++j;
-          }
-          return a;
+          return Array.prototype.slice.call(list.childNodes);
         },
         clear: function() {
           list = document.createElement('div');
@@ -843,11 +829,11 @@
       var addSessionHistoryItem = sessionHistory.querySelector(
         selectorAddSessionHistoryItemLocation);
 
-      var z, v2;
       cSIL.clear();
-      for (z = s[time].length - 1; z >= 0; z = (z - 1) | 0) {
-        v2 = s[time][z];
-        cSIL.set(v2);
+      var z = 0;
+      while (z < s[time].length) {
+        cSIL.set(s[time][z]);
+        ++z;
       }
 
       var list = cSIL.get();
@@ -880,31 +866,24 @@
     {
       var list = document.createElement('div');
 
-      var s, i, j;
-      var key, sKeys;
+      var s, i;
+      var key;
       var sessionDate;
 
       i = 0;
       while (i < sessions.length) {
         s = getDictSplitEachSessionDate(sessions[i].data);
 
-        sKeys = [];
         for (key in s) {
           if (s.hasOwnProperty(key)) {
-            sKeys.unshift(key);
+            sessionDate = createSessionDate(s, parseInt(key));
+            list.appendChild(sessionDate);
           }
-        }
-
-        j = 0;
-        while (j < sKeys.length) {
-          sessionDate = createSessionDate(s, parseInt(sKeys[j]));
-          list.appendChild(sessionDate);
-          ++j;
         }
         ++i;
       }
 
-      return list.childNodes;
+      return Array.prototype.slice.call(list.childNodes);
     }//}}}
 
     return createSessionDateItemList;
@@ -915,8 +894,8 @@
     return new Promise(function(resolve, reject) {
       getAllSessionHistory()
       .then(function(results) {
-        var savedSessions = results[0].reverse();
-        var sessions      = results[1].reverse();
+        var savedSessions = results[0];
+        var sessions      = results[1];
 
         var pElm = document.querySelector(selectorSessionHistorySection);
 
@@ -1024,8 +1003,10 @@
           hDate = historyDate(data);
           autocompleteDateList(data.date);
 
-          for (j = (data.data.length - 1) | 0; 0 <= j; j = (j - 1) | 0) {
+          j = 0;
+          while (j < data.data.length) {
             historyDateItemList.set(data.data[j]);
+            j++;
           }
           itemList = historyDateItemList.get();
 
