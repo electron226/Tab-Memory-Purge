@@ -131,7 +131,7 @@
 
         locks.add(name);
 
-        callback(callbackArgs)
+        callback.apply(null, callbackArgs)
         .then(function() {
           locks.delete(name);
           resolve();
