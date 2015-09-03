@@ -1334,7 +1334,6 @@
   }//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
-    console.log('test');
     (() => {
       return new Promise(resolve => {
         db = new Database(dbName, dbVersion);
