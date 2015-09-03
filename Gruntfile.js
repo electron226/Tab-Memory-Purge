@@ -251,6 +251,14 @@ module.exports = function(grunt) {
         assetDirs: ['dist', 'dist/css', 'dist/js', 'css', 'js'],
       },
     },
+    'json-minify': {
+      manifest: {
+        files: 'dist/manifest.json'
+      },
+      translation: {
+        files: 'dist/_locales/**/*.json'
+      }
+    },
     watch: {
       // options: {
       //   livereload: 60000,
@@ -261,7 +269,7 @@ module.exports = function(grunt) {
           'icon/**/*',
           'History.txt',
         ],
-        tasks: ['copy:dist'],
+        tasks: ['copy:dist', 'json-minify:translation'],
       },
       commons: {
         files: ['src/js/common.js', 'src/js/common_func.js'],
@@ -285,7 +293,7 @@ module.exports = function(grunt) {
       },
       manifest: {
         files: ['src/manifest_base.json'],
-        tasks: ['replace:debug'],
+        tasks: ['replace:debug', 'json-minify:manifest'],
       },
     },
   });
@@ -295,6 +303,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-csscomb');
   grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-autoprefixer');
+  grunt.loadNpmTasks('grunt-json-minify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-compress');
@@ -329,6 +338,7 @@ module.exports = function(grunt) {
     'uglify:build',
     'usemin',
     'htmlmin',
+    'json-minify',
     'clean:tmp',
   ]);
   grunt.registerTask('package', [
