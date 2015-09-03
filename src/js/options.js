@@ -1201,6 +1201,7 @@
         if (keyJson.value === '{}' ||
             keyJson.value === null ||
             keyJson.value === void 0) {
+            ++i;
             continue;
         }
 
