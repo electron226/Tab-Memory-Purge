@@ -10,7 +10,7 @@
     return this.call(d, name, value, 'set');
   };
   OperateOptionValue.prototype.call = function(d, name, value, type) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       if (type === void 0 || type === null) {
         type = 'get';
       }
@@ -77,9 +77,9 @@
   OperateOptionValue.prototype.load = function(d, loadOptions) {
     var $this = this;
 
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       $this.export()
-      .then(function(options) {
+      .then(options => {
         if (toType(loadOptions) === 'object' && loadOptions) {
           options = loadOptions;
         }
@@ -97,8 +97,8 @@
     });
   };
   OperateOptionValue.prototype.export = function() {
-    return new Promise(function(resolve) {
-      chrome.storage.local.get(function(items) {
+    return new Promise(resolve => {
+      chrome.storage.local.get(items => {
         var r = {};
         for (var key in defaultValues) {
           if (defaultValues.hasOwnProperty(key)) {
@@ -112,11 +112,9 @@
   };
   OperateOptionValue.prototype.import = function(d, importOptions) {
     var $this = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       $this.load(d, importOptions)
-      .then(function() {
-        resolve(importOptions);
-      })
+      .then(() => resolve(importOptions))
       .catch(reject);
     });
   };
@@ -182,7 +180,7 @@
   ShowMenuSelection.prototype.show = function(name) {
     var $this = this;
 
-    return new Promise(function(resolve) {
+    return new Promise((resolve) => {
       var showMenuArea, selectMenuButton;
 
       showMenuArea     = $this.showMenu($this.menuSelector);
@@ -232,8 +230,8 @@
 
   function WhenVersionUpOptionFix()//{{{
   {
-    return new Promise(function(resolve, reject) {
-      chrome.storage.local.get(function(items) {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(items => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
           return;
@@ -249,13 +247,13 @@
           }
         }
 
-        chrome.storage.local.set(writeObject, function() {
+        chrome.storage.local.set(writeObject, () => {
           if (chrome.runtime.lastError) {
             reject(chrome.runtime.lastError);
             return;
           }
 
-          chrome.storage.local.remove('keybind', function() {
+          chrome.storage.local.remove('keybind', () => {
             if (chrome.runtime.lastError) {
               reject(chrome.runtime.lastError);
               return;
@@ -274,7 +272,7 @@
     var keybindTick = null;
 
     return function(name) {
-      return new Promise(function(resolve, reject) {
+      return new Promise((resolve, reject) => {
         if (keybindTick) {
           console.log('keybindTick is cleared.');
           clearInterval(keybindTick);
@@ -285,35 +283,22 @@
         case 'normal':
           break;
         case 'keybind':
-          keybindTick = setInterval(function() {
-            showAllKeybindString();
-          }, 1000);
+          keybindTick = setInterval(() => showAllKeybindString(), 1000);
           break;
         case 'information':
           break;
         case 'history':
-          setTimeout(function() {
-            showAllHistory()
-            .catch(function(e) {
-              console.error(e);
-            });
-          }, 1000);
+          setTimeout(() => showAllHistory().catch(e => console.error(e)), 1000);
           break;
         case 'session_history':
-          setTimeout(function() {
-            showAllSessionHistory()
-            .catch(function(e) {
-              console.error(e);
-            });
-          }, 1000);
+          setTimeout(
+            () => showAllSessionHistory().catch(e => console.error(e)), 1000);
           break;
         case 'change_history':
           break;
         case 'operate_settings':
           showOptionValuesToOperateSettingsPage()
-          .catch(function(e) {
-            console.error(e);
-          });
+          .catch(e => console.error(e));
           break;
         default:
           reject(new Error("The Invalid menu name."));
@@ -327,7 +312,7 @@
     };
   }//}}}
 
-  window.addEventListener('popstate', function(e) {//{{{
+  window.addEventListener('popstate', e => {//{{{
     if (e.state) {
       menuToggle.show(e.state || defaultMenu);
     }
@@ -442,9 +427,9 @@
 
   function showOptionValuesToOperateSettingsPage()//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       operateOption.export()
-      .then(function(options) {
+      .then(options => {
         var newOptions = deleteKeyItemFromObject(options, excludeKeyNames);
         var e = document.querySelector(selectorExportLocation);
         e.value = JSON.stringify(newOptions, null, '    ');
@@ -479,7 +464,7 @@
 
   function removeHistoryDate(event)//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       var date = new Date(parseInt(event.target.getAttribute('name'), 10));
       var begin = new Date(
         date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
@@ -489,17 +474,15 @@
         name: dbHistoryName,
         range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
       })
-      .then(function(histories) {
-        var delKeys = histories.map(function(v) {
-          return v.date;
-        });
+      .then(histories => {
+        var delKeys = histories.map(v => v.date);
         return db.delete({
           name: dbHistoryName,
           keys: delKeys,
         });
       })
-      .then(function(ret) {
-        return new Promise(function(resolve) {
+      .then(ret => {
+        return new Promise(resolve => {
           var historyDateLegend = event.target.parentNode;
           var historyDateField  = historyDateLegend.parentNode;
           var historyList       = historyDateField.parentNode;
@@ -509,7 +492,7 @@
         });
       })
       .then(resolve)
-      .catch(function(e) {
+      .catch(e => {
         console.error(e);
         reject(e);
       });
@@ -518,13 +501,13 @@
 
   function removeHistoryItem(event)//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       db.delete({
         name: dbHistoryName,
         keys: parseInt(event.target.getAttribute('name'), 10),
       })
-      .then(function(ret) {
-        return new Promise(function(resolve) {
+      .then(ret => {
+        return new Promise(resolve => {
           var historyItem     = event.target.parentNode;
           var historyItemList = historyItem.parentNode;
           historyItemList.removeChild(historyItem);
@@ -533,7 +516,7 @@
         });
       })
       .then(resolve)
-      .catch(function(e) {
+      .catch(e => {
         console.error(e);
         reject(e);
       });
@@ -624,9 +607,9 @@
       range     : IDBKeyRange.only(date),
       indexName : 'date',
     })
-    .then(function(histories) {
+    .then(histories => {
       var date = new Date();
-      var newSessions = histories.map(function(v) {
+      var newSessions = histories.map(v => {
         return { date: date.getTime(), url: v.url };
       });
       return db.put({
@@ -635,9 +618,7 @@
       });
     })
     .then(showAllSessionHistory)
-    .catch(function(e) {
-      console.error(e);
-    });
+    .catch(e => console.error(e));
   }//}}}
 
   function deleteSession(event)//{{{
@@ -661,10 +642,8 @@
       range: IDBKeyRange.only(date),
       indexName: 'date',
     })
-    .then(function(sessions) {
-      var delKeys = sessions.map(function(v) {
-        return v.id;
-      });
+    .then(sessions => {
+      var delKeys = sessions.map(v => v.id);
 
       return db.delete({
         name: dbName,
@@ -672,9 +651,7 @@
       });
     })
     .then(showAllSessionHistory)
-    .catch(function(e) {
-      console.error(e);
-    });
+    .catch(e => console.error(e));
   }//}}}
 
   function restoreSession(event)//{{{
@@ -698,12 +675,10 @@
       range     : IDBKeyRange.only(date),
       indexName : 'date',
     })
-    .then(function(histories) {
+    .then(histories => {
       chrome.runtime.sendMessage({ event: 'restore', session: histories });
     })
-    .catch(function(e) {
-      console.error(e);
-    });
+    .catch(e => console.error(e));
   }//}}}
 
   function deleteSessionItem(event)//{{{
@@ -722,9 +697,7 @@
       keys: id,
     })
     .then(showAllSessionHistory)
-    .catch(function(e) {
-      console.error(e);
-    });
+    .catch(e => console.error(e));
   }//}}}
 
 
@@ -891,9 +864,9 @@
 
   function showAllSessionHistory()//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       getAllSessionHistory()
-      .then(function(results) {
+      .then(results => {
         var savedSessions = results[0];
         var sessions      = results[1];
 
@@ -922,7 +895,7 @@
         }
 
         //{{{
-        chrome.storage.local.get(previousSessionTimeKey, function(items) {
+        chrome.storage.local.get(previousSessionTimeKey, items => {
           var currentTime = items[previousSessionTimeKey];
           var createSessionDate = closureCreateSessionDateItemList(
             prototypeSelectorOfSessionHistory, currentTime);
@@ -944,7 +917,7 @@
 
   function getAllSessionHistory()//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       if (db === void 0 || db === null) {
         reject(new Error("IndexedDB doesn't initialize yet."));
         return;
@@ -956,7 +929,7 @@
       p.push( db.getAll({ name: dbPageInfoName }) );
       p.push( db.getAll({ name: dbDataURIName }) );
       Promise.all(p)
-      .then(function(results) {
+      .then(results => {
         var savedSessions = results[0];
         var sessions      = results[1];
         var pageInfos     = results[2];
@@ -979,9 +952,9 @@
 
   function showAllHistory()//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       getAllHistory()
-      .then(function(historyArray) {
+      .then(historyArray => {
         var autocompleteDateList =
           addAutocompleteDateList(selectorSearchHistoryDateList);
 
@@ -1028,7 +1001,7 @@
 
   function getAllHistory()//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       if (db === void 0 || db === null) {
         reject(new Error("IndexedDB doesn't initialize yet."));
         return;
@@ -1111,7 +1084,7 @@
 
   function initHistoryEvent(d)//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       var searchDate = d.querySelector(selectorSearchHistoryDate);
       searchDate.addEventListener('change', showSpecificHistoryDate, true);
 
@@ -1124,7 +1097,7 @@
 
   function changeMenu(name)//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       menuToggle.show(name)
       .then(afterMenuSelection)
       .then(resolve)
@@ -1144,7 +1117,7 @@
 
   function initSectionBarEvent(d)//{{{
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       try {
         var e = d.querySelectorAll(buttonSelector);
         var i = 0;
@@ -1161,7 +1134,7 @@
 
   function applyNewOptionToExtensionProcess()//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       console.log("apply new option to this extension's process.");
       chrome.runtime.sendMessage({ event: 'reload_option_value' });
       resolve();
@@ -1177,10 +1150,10 @@
 
     var writeObj = {};
     operateOption.get(document, name)
-    .then(function(item) {
-      return new Promise(function(resolve) {
+    .then(item => {
+      return new Promise(resolve => {
         writeObj[name] = item;
-        chrome.storage.local.set(writeObj, function() {
+        chrome.storage.local.set(writeObj, () => {
           console.log(
             'have wrote the data. name: ' + name + ', value: ' + item);
           resolve();
@@ -1188,14 +1161,12 @@
       });
     })
     .then(applyNewOptionToExtensionProcess)
-    .catch(function(mes) {
-      console.error(mes);
-    });
+    .catch(mes => console.error(mes));
   }//}}}
 
   function initOptionElementEvent(d)//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       var i, els;
 
       els = d.querySelectorAll("input");
@@ -1275,7 +1246,7 @@
 
   function initKeybindEvent(d)//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       d.addEventListener('keyup', keyupEvent, true);
       resolve();
     });
@@ -1338,22 +1309,19 @@
 
       value = deleteKeyItemFromObject(value, excludeKeyNames);
       operateOption.import(document, value)
-      .then(function(writeOptions) {
-        return new Promise(function(resolve) {
-          chrome.storage.local.set(writeOptions, resolve);
-        });
+      .then(writeOptions => {
+        return new Promise(
+          resolve => chrome.storage.local.set(writeOptions, resolve));
       })
       .then(showOptionValuesToOperateSettingsPage)
-      .catch(function(e) {
-        console.error(e);
-      });
+      .catch(e => console.error(e));
       break;
     }
   }//}}}
 
   function initButtonEvent(d)//{{{
   {
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       var els = d.querySelectorAll('button');
       var i = 0;
       while (i < els.length) {
@@ -1364,16 +1332,17 @@
     });
   }//}}}
 
-  document.addEventListener('DOMContentLoaded', function() {//{{{
-    (function() {
-      return new Promise(function(resolve) {
+  document.addEventListener('DOMContentLoaded', () => {//{{{
+    console.log('test');
+    (() => {
+      return new Promise(resolve => {
         db = new Database(dbName, dbVersion);
         db.open(dbCreateStores);
         resolve();
       });
     }())
-    .then(function() {
-      return new Promise(function(resolve, reject) {
+    .then(() => {
+      return new Promise((resolve, reject) => {
         var args = getQueryString(document);
         var menu = (args === void 0 ||
                     args === null ||
@@ -1391,8 +1360,6 @@
     .then(initButtonEvent(document))
     .then(initKeybindEvent(document))
     .then(initHistoryEvent(document))
-    .catch(function(e) {
-      console.error(e);
-    });
+    .catch(e => console.error(e));
   }, true);//}}}
 }(this, this.document));
