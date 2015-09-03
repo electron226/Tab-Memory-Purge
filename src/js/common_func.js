@@ -405,15 +405,18 @@
   }//}}}
 
   //{{{ method.
-  setObjectProperty(window, getListAfterJoinHistoryDataOnDB);
-  setObjectProperty(window, getHistoryListFromIndexedDB);
-  setObjectProperty(window, loadTranslation);
-  setObjectProperty(window, getQueryString);
+  // If you want to minify js file, you must set function name.
+  setObjectProperty(
+    window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(
+    window, 'getHistoryListFromIndexedDB', getHistoryListFromIndexedDB);
+  setObjectProperty(window, 'loadTranslation', loadTranslation);
+  setObjectProperty(window, 'getQueryString', getQueryString);
   setObjectProperty(window, 'getDataURI', closureGetDataURI(ajaxTimeout));
-  setObjectProperty(window, keyCheck);
-  setObjectProperty(window, generateKeyString);
-  setObjectProperty(window, toType);
-  setObjectProperty(window, formatDate);
-  setObjectProperty(window, setObjectProperty);
+  setObjectProperty(window, 'keyCheck', keyCheck);
+  setObjectProperty(window, 'generateKeyString', generateKeyString);
+  setObjectProperty(window, 'toType', toType);
+  setObjectProperty(window, 'formatDate', formatDate);
+  setObjectProperty(window, 'setObjectProperty', setObjectProperty);
   //}}}
 })(window);
