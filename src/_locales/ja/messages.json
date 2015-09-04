@@ -203,6 +203,10 @@
     "message": "現在のセッションや自動開放処理のチェック間隔",
     "description": "the item of the options."
   },
+  "new_tab_opens_with_purged_tab": {
+    "message": "新しいタブは解放済みの状態で開く",
+    "description": "the item of the options."
+  },
 
 
   "specification": {

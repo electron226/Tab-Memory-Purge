@@ -30,6 +30,7 @@
     'purging_all_tabs_except_active': false,
     'max_opening_tabs': 5,
     'interval_timing': 5,
+    'new_tab_opens_with_purged_tab': false,
 
     'keybind_release': JSON.stringify({}),
     'keybind_switch_not_release': JSON.stringify({}),

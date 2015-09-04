@@ -70,12 +70,13 @@
     .then(pageInfo => {
       return new Promise((resolve, reject) => {
         if (pageInfo === void 0 || pageInfo === null) {
-          reject('pageInfo is invalid value.');
-          return;
+          document.title = document.querySelector('#url').textContent;
+          document.querySelector('#titlePlace')
+            .setAttribute('style', 'display: none');
+        } else {
+          document.title = pageInfo.title;
+          document.querySelector('#title').textContent = pageInfo.title;
         }
-
-        document.title = pageInfo.title;
-        document.querySelector('#title').textContent = pageInfo.title;
 
         return db.get({
           name : dbDataURIName,

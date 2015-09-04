@@ -175,11 +175,42 @@
   var currentIcon        = null;
   var disableTimer       = false;
 
+  var createdTabId = new Set();
+
   /** @function */
   var exclusiveProcessForFunc = closureExclusiveProcessForFunction();
   /** @function */
   var autoPurgeCheck          = closureAutoPurgeCheck();
   //}}}
+
+  function redirectPurgedTabWhenCreateNewTab(details)
+  {
+    if (details.type === 'main_frame') {
+      var tabId = details.tabId;
+      var url = details.url;
+      if (createdTabId.has(tabId)) {
+        createdTabId.delete(tabId);
+        if (checkExcludeList(url) & NORMAL) {
+          unloaded[tabId] = {
+            url            : url,
+            scrollPosition : { x : 0 , y : 0 },
+          };
+
+          return { redirectUrl: getPurgeURL(url) };
+        }
+      }
+    }
+    return {};
+  }
+
+    chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
+      console.log('webRequest.onHeadersReceived', details);
+      if (myOptions.get('new_tab_opens_with_purged_tab')) {
+        return redirectPurgedTabWhenCreateNewTab(details);
+      }
+    },
+    { urls: ["<all_urls>"] },
+    ["blocking"]);//}}}
 
   /**
    * The dict object contains the information
@@ -1843,6 +1874,7 @@
 
   chrome.tabs.onCreated.addListener(tab => {//{{{
     console.log('chrome.tabs.onCreated.', tab);
+    createdTabId.add(tab.id);
     setTick(tab.id);
   });//}}}
 
