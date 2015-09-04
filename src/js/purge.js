@@ -1019,11 +1019,9 @@
   {
     console.log('getPurgeURL', url);
 
-    return new Promise(resolve => {
-      var page = blankUrl;
-      var args = '&url=' + encodeURIComponent(url);
-      resolve(encodeURI(page) + '?' + encodeURIComponent(args));
-    });
+    var page = blankUrl;
+    var args = '&url=' + encodeURIComponent(url);
+    return encodeURI(page) + '?' + encodeURIComponent(args);
   }//}}}
 
   /**
@@ -1103,7 +1101,6 @@
           }
 
           var p2 = [];
-          p2.push( getPurgeURL(tab.url) );
           p2.push( writeHistory(tab) );
           p2.push(
             new Promise(resolve3 => {
@@ -1112,9 +1109,9 @@
           );
 
           Promise.all(p2)
-          .then(results2 => {
+          .then(() => {
             return new Promise((resolve3, reject3) => {
-              var url = results2[0];
+              var url = getPurgeURL(tab.url);
 
               chrome.tabs.executeScript(tabId, {
                 code: 'window.location.replace("' + url + '");' }, () => {
@@ -1299,25 +1296,22 @@
   function restoreTab(url)
   {
     return new Promise((resolve, reject) => {
-      getPurgeURL(url)
-      .then(purgeurl => {
-        chrome.tabs.create(
-          { url: purgeurl, active: false }, tab => {
-            if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.message);
-              reject();
-              return;
-            }
-
-            var ret = new Map();
-            ret.set(tab.id, {
-              url            : url,
-              scrollPosition : { x : 0 , y : 0 },
-            });
-            resolve(ret);
+      chrome.tabs.create(
+        { url: getPurgeURL(url), active: false }, tab => {
+          if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError.message);
+            reject();
+            return;
           }
-        );
-      });
+
+          var ret = new Map();
+          ret.set(tab.id, {
+            url            : url,
+            scrollPosition : { x : 0 , y : 0 },
+          });
+          resolve(ret);
+        }
+      );
     });
   }
 
