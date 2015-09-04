@@ -3,14 +3,17 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     initButtons()
-    .then(updatePurgeOrRestoreButton)
-    .then(updateNotReleaseButton)
     .then(loadTranslation(document, translationPath))
     .catch(function(e) {
       console.error(
         "Doesn't initialize the translation correctly.\n error: %s", e);
     });
   }, true);
+
+  window.addEventListener('load', () => {
+    updatePurgeOrRestoreButton()
+    .then(updateNotReleaseButton);
+  });
 
   function updatePurgeOrRestoreButton()
   {
