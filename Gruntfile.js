@@ -281,7 +281,7 @@ module.exports = function(grunt) {
       },
       sass: {
         files: ['src/sass/**/*.scss'],
-        tasks: ['sass', 'csscomb', 'cssmin'],
+        tasks: ['sass', 'autoprefixer:prefix', 'csscomb', 'cssmin'],
       },
       // css: {
       //   files: ['src/css/**/*.css'],
