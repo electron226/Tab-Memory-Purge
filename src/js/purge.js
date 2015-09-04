@@ -389,6 +389,16 @@
     });
   }//}}}
 
+  chrome.idle.onStateChanged.addListener(newState => {//{{{
+    console.log('idle.onStateChanged', newState);
+
+    switch (newState) {
+    case 'idle':
+      exclusiveProcessForFunc('deleteOldDatabase', deleteOldDatabase);
+      break;
+    }
+  });//}}}
+
   function deleteOldSession()//{{{
   {
     console.log('deleteOldSession');
@@ -1723,7 +1733,6 @@
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
-    .then(deleteOldDatabase)
     .then(() => {
       return initializeIntervalProcess(myOptions.get('interval_timing') || 5);
     })
