@@ -4,7 +4,7 @@
 
   var db = null;
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{
       switch (message.event) {
         case 'location_replace':
           var url = document.getElementById('url');
@@ -17,7 +17,7 @@
           break;
       }
     }
-  );
+  );//}}}
 
   function navigateToPageBeforePurged()//{{{
   {
@@ -27,8 +27,6 @@
     }
   }//}}}
 
-  document.addEventListener('click', navigateToPageBeforePurged, true);
-
   var F5Key = generateKeyString({
     ctrl    : false,
     alt     : false,
@@ -36,6 +34,8 @@
     meta    : false,
     keyCode : 116,
   });
+
+  document.addEventListener('click', navigateToPageBeforePurged, true);
 
   document.addEventListener('keydown', function(e) {//{{{
     if (F5Key === generateKeyString(keyCheck(e))) {

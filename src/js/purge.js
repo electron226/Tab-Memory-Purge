@@ -183,7 +183,13 @@
   var autoPurgeCheck          = closureAutoPurgeCheck();
   //}}}
 
-  function redirectPurgedTabWhenCreateNewTab(details)
+  /**
+   * redirectPurgedTabWhenCreateNewTab
+   *
+   * @param {object} details - A object to get from a function of webRequest.
+   * @return {object} return object for webRequest.
+   */
+  function redirectPurgedTabWhenCreateNewTab(details)//{{{
   {
     if (details.type === 'main_frame') {
       var tabId = details.tabId;
@@ -201,16 +207,16 @@
       }
     }
     return {};
-  }
+  }//}}}
 
-    chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
-      console.log('webRequest.onHeadersReceived', details);
-      if (myOptions.get('new_tab_opens_with_purged_tab')) {
-        return redirectPurgedTabWhenCreateNewTab(details);
-      }
-    },
-    { urls: ["<all_urls>"] },
-    ["blocking"]);//}}}
+  chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
+    console.log('webRequest.onHeadersReceived', details);
+    if (myOptions.get('new_tab_opens_with_purged_tab')) {
+      return redirectPurgedTabWhenCreateNewTab(details);
+    }
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]);//}}}
 
   /**
    * The dict object contains the information
@@ -344,7 +350,6 @@
       });
     });
   }//}}}
-
 
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
@@ -1334,7 +1339,7 @@
     });
   }//}}}
 
-  function restoreTab(url)
+  function restoreTab(url)//{{{
   {
     return new Promise((resolve, reject) => {
       chrome.tabs.create(
@@ -1354,7 +1359,7 @@
         }
       );
     });
-  }
+  }//}}}
 
   /**
   * 指定した辞書型の再帰処理し、タブを復元する。
