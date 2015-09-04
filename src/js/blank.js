@@ -4,8 +4,7 @@
 
   var db = null;
 
-  chrome.runtime.onMessage.addListener(
-    function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       switch (message.event) {
         case 'location_replace':
           var url = document.getElementById('url');
@@ -20,13 +19,13 @@
     }
   );
 
-  function navigateToPageBeforePurged()
+  function navigateToPageBeforePurged()//{{{
   {
     var args = getQueryString(document);
     if (args.url) {
       window.location.replace(args.url);
     }
-  }
+  }//}}}
 
   document.addEventListener('click', navigateToPageBeforePurged, true);
 
@@ -38,18 +37,18 @@
     keyCode : 116,
   });
 
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function(e) {//{{{
     if (F5Key === generateKeyString(keyCheck(e))) {
       navigateToPageBeforePurged();
     }
-  }, true);
+  }, true);//}}}
 
-  document.addEventListener('DOMContentLoaded', function() {
-    (function() {
+  document.addEventListener('DOMContentLoaded', () => {//{{{
+    (() => {
       db = new Database(dbName, dbVersion);
       return db.open(dbCreateStores);
     })()
-    .then(function() {
+    .then(() => {
       var args = getQueryString(document);
 
       var span = document.querySelector('#url');
@@ -68,25 +67,37 @@
         key  : args.url,
       });
     })
-    .then(function(pageInfo) {
-      document.title = pageInfo.title;
-      document.querySelector('#title').textContent = pageInfo.title;
+    .then(pageInfo => {
+      return new Promise((resolve, reject) => {
+        if (pageInfo === void 0 || pageInfo === null) {
+          reject('pageInfo is invalid value.');
+          return;
+        }
 
-      return db.get({
-        name : dbDataURIName,
-        key  : pageInfo.host,
+        document.title = pageInfo.title;
+        document.querySelector('#title').textContent = pageInfo.title;
+
+        return db.get({
+          name : dbDataURIName,
+          key  : pageInfo.host,
+        })
+        .then(resolve)
+        .catch(reject);
       });
     })
-    .then(function(dataURIInfo) {
-      return new Promise(function(resolve) {
-        var head = document.querySelector('head');
-        var link = document.createElement('link');
-        link.rel  = 'icon';
-        link.href = decodeURIComponent(dataURIInfo.dataURI);
-        head.appendChild(link);
+    .then(dataURIInfo => {
+      return new Promise(resolve => {
+        if (dataURIInfo === void 0 || dataURIInfo === null) {
+          var head = document.querySelector('head');
+          var link = document.createElement('link');
+          link.rel  = 'icon';
+          link.href = decodeURIComponent(dataURIInfo.dataURI);
+          head.appendChild(link);
+        }
 
         resolve();
       });
-    });
-  });
+    })
+    .catch( e => console.error(e) );
+  });//}}}
 })(this, this.document);
