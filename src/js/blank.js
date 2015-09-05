@@ -49,22 +49,28 @@
       return db.open(dbCreateStores);
     })()
     .then(() => {
-      var args = getQueryString(document);
+      return new Promise((resolve, reject) => {
+        var args = getQueryString(document);
 
-      var span = document.querySelector('#url');
-      if (args.url) {
-        var url     = args.url;
-        var a       = document.createElement('a');
-        a.href      = url;
-        a.innerText = url;
-        span.appendChild(a);
-      } else {
-        span.innerHTML = 'None';
-      }
+        var span = document.querySelector('#url');
+        if (args.url) {
+          var url     = args.url;
+          var a       = document.createElement('a');
+          a.href      = url;
+          a.innerText = url;
+          span.appendChild(a);
+        } else {
+          span.innerHTML = 'None';
+          reject();
+          return;
+        }
 
-      return db.get({
-        name : dbPageInfoName,
-        key  : args.url,
+        db.get({
+          name : dbPageInfoName,
+          key  : args.url,
+        })
+        .then(resolve)
+        .catch(reject);
       });
     })
     .then(pageInfo => {
@@ -73,6 +79,8 @@
           document.title = document.querySelector('#url').textContent;
           document.querySelector('#titlePlace')
             .setAttribute('style', 'display: none');
+          reject();
+          return;
         } else {
           document.title = pageInfo.title;
           document.querySelector('#title').textContent = pageInfo.title;
