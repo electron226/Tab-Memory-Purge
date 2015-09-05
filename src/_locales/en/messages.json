@@ -47,10 +47,6 @@
     "message": "COPY",
     "description": "the copy button"
   },
-  "reload": {
-    "message": "RELOAD",
-    "description": "the reload button"
-  },
   "current_session": {
     "message": "Current Session",
     "description": "Current Session"
@@ -99,22 +95,6 @@
     "message": "Don't reload tabs automatiaclly",
     "description": "an option menu name in author"
   },
-  "explanation": {
-    "message": "Please keep in mind the following when using this extension:",
-    "description": "Description of the used Release Page"
-  },
-  "explanation_problem1": {
-    "message": "If this extension become invalid(When this extension is updated etc), the purged tabs will close.",
-    "description": "Explanation of the problem about 'the inside of expanded function'"
-  },
-  "explanation_problem2": {
-    "message": "You can't sync a purged tab use Google Sync with your other devices.",
-    "description": "Description of problem related to the specified 'in the extension' and use file"
-  },
-  "explanation_solution": {
-    "message": "Use the session history in order to restore the closed tabs.",
-    "description": "Solution to when occured about the problem in this extension"
-  },
   "remaiming_memory": {
     "message": "If remaining RAM is less than this, tabs purges automatically",
     "description": "another option in the options menu"
@@ -130,30 +110,6 @@
   "operateTitle": {
     "message": "Operate set value",
     "description": "an option title on the option page"
-  },
-  "operateSyncTitle": {
-    "message": "Chrome Sync",
-    "description": "an option title on the option page"
-  },
-  "getSettings": {
-    "message": "Get setting values",
-    "description": "an option title on the option page"
-  },
-  "save": {
-    "message": "Save",
-    "description": "Save Button"
-  },
-  "load": {
-    "message": "Load",
-    "description": "Load Button"
-  },
-  "init": {
-    "message": "Initialize",
-    "description": "Initialize Button"
-  },
-  "delete": {
-    "message": "Delete",
-    "description": "Delete"
   },
   "restore": {
     "message": "Restore",
@@ -186,14 +142,6 @@
   "keybind_exclude_url": {
     "message": "Exclude URLs on Keybinds (Regular expression and Partial Match)",
     "description": "Exclude URL on Keybinds"
-  },
-  "if_restore_session_message": {
-    "message": "Click here if you want to restore the closed tabs at the time of the update.",
-    "description": "The message of recommendation of the restore session."
-  },
-  "wantToOperateMessage": {
-    "message": "If you want to operate date, please, you are selecting the date.",
-    "description": "The message when a user doesn't select saved session."
   },
   "purging_all_tabs_except_active": {
     "message": "Than set value more have opened tabs are purged except active tabs",

@@ -1,10 +1,10 @@
 (function(window, document) {
   "use strict";
 
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', () => {
     initButtons()
     .then(loadTranslation(document, translationPath))
-    .catch(function(e) {
+    .catch(e => {
       console.error(
         "Doesn't initialize the translation correctly.\n error: %s", e);
     });
@@ -17,9 +17,9 @@
 
   function updatePurgeOrRestoreButton()
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(
-        { event: 'current_icon' }, function(iconValue) {
+        { event: 'current_icon' }, iconValue => {
           if (chrome.runtime.lastError) {
             reject(chrome.runtime.lastError.messsage);
             return;
@@ -49,9 +49,9 @@
 
   function updateNotReleaseButton()
   {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(
-        { event: 'current_icon' }, function(iconValue) {
+        { event: 'current_icon' }, iconValue => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.messsage);
           return;
@@ -127,7 +127,7 @@
     case 'change_history':
     case 'information':
     case 'operate_settings':
-      chrome.tabs.query({ url: optionPage + '*' }, function(results) {
+      chrome.tabs.query({ url: optionPage + '*' }, results => {
         var url = optionPage + '?page=' + name;
         if (results.length === 0) {
           chrome.tabs.create({ url: url }, popupClose);

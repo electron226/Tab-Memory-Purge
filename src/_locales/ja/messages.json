@@ -47,10 +47,6 @@
     "message": "コピー",
     "description": "コピーボタン"
   },
-  "reload": {
-    "message": "更新",
-    "description": "更新ボタン"
-  },
   "current_session": {
     "message": "現在のセッション",
     "description": "現在のセッション"
@@ -99,22 +95,6 @@
     "message": "解放したタブのアクティブ時にリロードを行わない。",
     "description": "オプションの項目名"
   },
-  "explanation": {
-    "message": "このオプションを使用する場合、下記の点に注意が必要です。",
-    "description": "「解放に使うページを指定」項目に関する注意点"
-  },
-  "explanation_problem1": {
-    "message": "拡張機能が無効になった時(アップデート時など)、解放されたタブが閉じてしまいます。",
-    "description": "拡張機能内に関する問題点の説明"
-  },
-  "explanation_problem2": {
-    "message": "他のデバイスとGoogle Syncを利用して解放タブの同期はできません。",
-    "description": "拡張機能内と指定ファイルに関する問題点の説明"
-  },
-  "explanation_solution": {
-    "message": "もし、閉じられてしまった場合は左の「セッション履歴」から復元することができます。",
-    "description": "拡張機能内に関する問題の発生時の解決策"
-  },
   "remaiming_memory": {
     "message": "これよりも残りのメモリが少ない場合、自動的にタブの解放処理を行う",
     "description": "オプションのその他の項目の設定"
@@ -130,34 +110,6 @@
   "operateTitle": {
     "message": "設定値の操作",
     "description": "オプションの項目"
-  },
-  "operateSyncTitle": {
-    "message": "Chrome Sync",
-    "description": "オプションの項目"
-  },
-  "getSettings": {
-    "message": "設定値取得",
-    "description": "オプションの項目"
-  },
-  "save": {
-    "message": "保存",
-    "description": "保存ボタン"
-  },
-  "load": {
-    "message": "読み込み",
-    "description": "読み込みボタン"
-  },
-  "init": {
-    "message": "初期化",
-    "description": "初期化ボタン"
-  },
-  "default": {
-    "message": "デフォルト",
-    "description": "デフォルト"
-  },
-  "delete": {
-    "message": "削除",
-    "description": "削除"
   },
   "restore": {
     "message": "復元",
@@ -186,14 +138,6 @@
   "keybind_exclude_url": {
     "message": "キーバインドを除外するアドレス(正規表現、部分一致)",
     "description": "キーバインドを除外するアドレス"
-  },
-  "if_restore_session_message": {
-    "message": "アップデート時に閉じられたタブを復元する場合はこちら。",
-    "description": "セッションの復元を推奨するメッセージ"
-  },
-  "wantToOperateMessage": {
-    "message": "保存したセッションを操作したい場合、対象のデータを選択してください。",
-    "description": "保存されたセッションが選択されていないときのメッセージ"
   },
   "purging_all_tabs_except_active": {
     "message": "設定値を超えたアクティブタブ以外のタブを解放",
