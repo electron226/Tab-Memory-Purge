@@ -1488,7 +1488,7 @@
     console.log('Extension Installed.');
 
     return new Promise(resolve => {
-      chrome.runtime.openOptionsPage().then(resolve);
+      chrome.runtime.openOptionsPage(resolve);
     });
   }//}}}
 

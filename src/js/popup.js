@@ -119,7 +119,7 @@
       chrome.runtime.sendMessage({ event: 'excludeDialogMenu' }, popupClose);
       break;
     case 'option':
-      chrome.runtime.openOptionsPage().then(popupClose);
+      chrome.tabs.create({ url: optionPage }, popupClose);
       break;
     case 'keybind':
     case 'history':
