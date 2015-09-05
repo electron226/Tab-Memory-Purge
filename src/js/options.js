@@ -554,7 +554,9 @@
       historyDate.setAttribute('name', addData.date.getTime());
 
       var dateTitle = historyDate.querySelector(selectorDateTitle);
-      dateTitle.textContent = formatDate(addData.date, 'YYYY/MM/DD');
+      var lang = chrome.i18n.getUILanguage();
+      var formatType = (lang === 'ja') ? 'YYYY/MM/DD' : 'MM/DD/YYYY';
+      dateTitle.textContent = formatDate(addData.date, formatType);
 
       var dateRemove = historyDate.querySelector(selectorDateDelete);
       dateRemove.setAttribute('name', addData.date.getTime());
@@ -779,8 +781,10 @@
             parseInt(currentTime) === parseInt(time)) {
           sessionDate.textContent = 'Current Session';
         } else {
+          var lang = chrome.i18n.getUILanguage();
+          var formatType = (lang === 'ja') ? 'YYYY/MM/DD' : 'MM/DD/YYYY';
           sessionDate.textContent = formatDate(
-            new Date(time), 'YYYY/MM/DD hh:mm:ss');
+            new Date(time), formatType + ' ' + 'hh:mm:ss');
         }
       }
 
