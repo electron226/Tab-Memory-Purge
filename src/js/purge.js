@@ -211,7 +211,7 @@
   }//}}}
 
   chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
-    console.log('webRequest.onHeadersReceived', details);
+    console.log('webRequest.onBeforeRequest', details);
     if (myOptions.get('new_tab_opens_with_purged_tab')) {
       if (currentTabId !== details.tabId) {
         return redirectPurgedTabWhenCreateNewTab(details);
