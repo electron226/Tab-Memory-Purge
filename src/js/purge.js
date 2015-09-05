@@ -173,6 +173,7 @@
   var db                 = null; // indexedDB.
   var currentSessionTime = null;
   var currentIcon        = null;
+  var currentTabId       = null; // webRequest only.
   var disableTimer       = false;
 
   var createdTabId = new Set();
@@ -212,7 +213,9 @@
   chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
     console.log('webRequest.onHeadersReceived', details);
     if (myOptions.get('new_tab_opens_with_purged_tab')) {
-      return redirectPurgedTabWhenCreateNewTab(details);
+      if (currentTabId !== details.tabId) {
+        return redirectPurgedTabWhenCreateNewTab(details);
+      }
     }
   },
   { urls: ["<all_urls>"] },
@@ -1866,6 +1869,7 @@
 
   chrome.tabs.onActivated.addListener(activeInfo => {//{{{
     console.log('chrome.tabs.onActivated.', activeInfo);
+    currentTabId = activeInfo.tabId;
     if (unloaded.hasOwnProperty(activeInfo.tabId) &&
         myOptions.get('no_release') === false) {
         unPurge(activeInfo.tabId)
