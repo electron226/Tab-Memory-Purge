@@ -248,7 +248,7 @@
     "description": "The menu item on the right click popup menu."
   },
   "add_current_tab_exclude_list": {
-    "message": "Add the url of the current tab to the exclusion lists.",
+    "message": "Add the current tab to the exclusion lists.",
     "description": "The menu item on the right click popup menu."
   },
 
