@@ -380,5 +380,10 @@
     return deferred.promise;
   };
 
+  Database.prototype.isOpened = function() {
+    console.log('called isOpened function of Database class.');
+    return (this.db !== null) ? true : false;
+  };
+
   window.Database = window.Database || Database;
 })(window);
