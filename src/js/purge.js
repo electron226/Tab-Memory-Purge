@@ -40,8 +40,7 @@
 
       return new Promise((resolve, reject) => {
         if (myOptions.size === 0) {
-          console.error('myOptions is not loaded yet.');
-          reject();
+          reject(new Error('myOptions is not loaded yet.'));
           return;
         }
 
@@ -49,31 +48,24 @@
 
         isLackTheMemory(remaiming_memory)
         .then(result => {
-          return new Promise((resolve2, reject2) => {
-            if (result === false) {
-              resolve();
-              return;
-            }
+          if (result === false) {
+            resolve();
+            return;
+          }
 
-            /* for-of is slow. this writing is fastest.
-             * https://jsperf.com/es6-map-vs-object-properties/10
-             * */
-            var iter = ticked.entries();
-            for (var i = iter.next(); !i.done; i = iter.next()) {
-              tick(i.value[1])
-              .then(isLackTheMemory(remaiming_memory))
-              .then(resolveAfterIsLackTheMemory)
-              .catch(reject2);
-            }
-
-            resolve2();
-          });
+          /* for-of is slow. this writing is fastest.
+           * https://jsperf.com/es6-map-vs-object-properties/10
+           * */
+          var iter = ticked.entries();
+          for (var i = iter.next(); !i.done; i = iter.next()) {
+            tick(i.value[1])
+            .then(isLackTheMemory(remaiming_memory))
+            .then(resolveAfterIsLackTheMemory)
+            .catch(reject);
+          }
         })
         .then(resolve)
-        .catch(e => {
-          console.error(e);
-          reject();
-        });
+        .catch(reject);
       });
     }//}}}
 
@@ -103,12 +95,12 @@
     function exclusiveProcess()//{{{
     {
       console.log('exclusiveProcess', arguments);
-
       var args = Array.prototype.slice.call(arguments);
+
       return new Promise((resolve, reject) => {
         if (args.length < 2) {
-          console.error('Number of arguments is not enough: ', args.length);
-          reject();
+          reject(
+            new Error('Number of arguments is not enough: ' + args.length));
           return;
         }
 
@@ -123,14 +115,13 @@
         }
 
         if (toType(callback) !== 'function') {
-          console.error(
-            'Invalid arguments. callback is not function.', toType(callback));
-          reject();
+          reject(new Error(
+            'Invalid arguments. callback is not function: ' +
+            toType(callback)));
           return;
         }
 
         locks.add(name);
-
         callback.apply(null, callbackArgs)
         .then(() => {
           locks.delete(name);
@@ -210,17 +201,6 @@
     return {};
   }//}}}
 
-  chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
-    console.log('webRequest.onBeforeRequest', details);
-    if (myOptions.get('new_tab_opens_with_purged_tab')) {
-      if (currentTabId !== details.tabId) {
-        return redirectPurgedTabWhenCreateNewTab(details);
-      }
-    }
-  },
-  { urls: ["<all_urls>"] },
-  ["blocking"]);//}}}
-
   /**
    * The dict object contains the information
    * on the tab that ran the purging memory.
@@ -248,7 +228,7 @@
         case 'delete':
           unloadedCount--;
           tempScrollPositions.set(tabId, v.oldValue.scrollPosition);
-          setTick(tabId);
+          setTick(tabId).catch(e => console.error(e));
           break;
       }
     });
@@ -267,8 +247,7 @@
         chrome.tabs.executeScript(
           tabId, { code: 'scroll(' + pos.x + ', ' + pos.y + ');' }, () => {
             if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.message);
-              reject();
+              reject(chrome.runtime.lastError);
               return;
             }
 
@@ -290,8 +269,7 @@
       chrome.tabs.query({}, tabs => {
         var maxOpeningTabs = myOptions.get('max_opening_tabs');
         if (!maxOpeningTabs) {
-          console.error('myOptions is not loaded yet.');
-          reject();
+          reject(new Error('myOptions is not loaded yet.'));
           return;
         }
 
@@ -338,8 +316,7 @@
     return new Promise((resolve, reject) => {
       chrome.system.memory.getInfo(info => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
 
@@ -361,11 +338,11 @@
   {
     console.log('initializeIntervalProcess', intervalTime);
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       setInterval(() => {//{{{
         console.log('run callback funciton of setInterval.');
         if (db === void 0 || db === null) {
-          console.error('IndexedDB is not initialized yet.');
+          reject(new Error('IndexedDB is not initialized yet.'));
           return;
         }
 
@@ -376,17 +353,20 @@
           // When user close multiple tabs, continuously call more than once.
           // Thus, the same session is added more than once.
           // So call at here.
-          exclusiveProcessForFunc('writeSession', writeSession, unloaded);
+          exclusiveProcessForFunc('writeSession', writeSession, unloaded)
+          .catch(e => console.error(e));
         }
 
         if (!disableTimer) {
           if (myOptions.get('purging_all_tabs_except_active')) {
             exclusiveProcessForFunc(
-              'purgingAllTabs', purgingAllTabsExceptForTheActiveTab);
+              'purgingAllTabs', purgingAllTabsExceptForTheActiveTab)
+            .catch(e => console.error(e));
           }
 
           if (myOptions.get('enable_auto_purge')) {
-            exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck);
+            exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck)
+            .catch(e => console.error(e));
           }
         }
       }, intervalTime * 1000);//}}}
@@ -403,7 +383,7 @@
     if (result) {
       return result[1];
     } else {
-      console.error("Don't get hostname.");
+      console.error("Don't get hostname.", url);
       return null;
     }
   }//}}}
@@ -421,22 +401,9 @@
       .then(deleteNotUsePageInfo)
       .then(deleteNotUseDataURI)
       .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject();
-      });
+      .catch(reject);
     });
   }//}}}
-
-  chrome.idle.onStateChanged.addListener(newState => {//{{{
-    console.log('idle.onStateChanged', newState);
-
-    switch (newState) {
-    case 'idle':
-      exclusiveProcessForFunc('deleteOldDatabase', deleteOldDatabase);
-      break;
-    }
-  });//}}}
 
   function deleteOldSession()//{{{
   {
@@ -444,8 +411,7 @@
 
     return new Promise((resolve, reject) => {
       if (myOptions.size === 0) {
-        console.error('myOptions is not loaded yet.');
-        reject();
+        reject(new Error('myOptions is not loaded yet.'));
         return;
       }
 
@@ -453,49 +419,41 @@
         name: dbSessionName,
       })
       .then(histories => {
-        return new Promise(resolve2 => {
-          // -1 is the current session.
-          var max_sessions = parseInt(myOptions.get('max_sessions'), 10) - 1;
+        // -1 is the current session.
+        var max_sessions = parseInt(myOptions.get('max_sessions'), 10) - 1;
 
-          var tempList = new Set();
-          var dateList = [];
-          histories.forEach(v => {
-            if (!tempList.has(v.date)) {
-              tempList.add(v.date);
-              dateList.push(v.date);
-            }
-          });
-
-          if (dateList.length < max_sessions) {
-            resolve2(null);
-            return;
+        var tempList = new Set();
+        var dateList = [];
+        histories.forEach(v => {
+          if (!tempList.has(v.date)) {
+            tempList.add(v.date);
+            dateList.push(v.date);
           }
-
-          resolve2(dateList.slice(0, dateList.length - max_sessions));
         });
+
+        if (dateList.length < max_sessions) {
+          return null;
+        }
+
+        return dateList.slice(0, dateList.length - max_sessions);
       })
       .then(dateList => {
-        return new Promise((resolve2, reject2) => {
-          if (dateList === null || dateList.length === 0) {
-            resolve2();
-            return;
-          }
+        if (dateList === null || dateList.length === 0) {
+          return;
+        }
 
-          var range = (dateList.length === 1) ?
-                      IDBKeyRange.only(dateList[0]) :
-                      IDBKeyRange.bound(
-                        dateList[0], dateList[dateList.length - 1]);
-          db.getCursor({
-            name: dbSessionName,
-            range: range,
-            indexName: 'date',
-          })
-          .then(sessions => {
-            var delKeys = sessions.map(v => v.id);
-            return db.delete({ name: dbSessionName, keys: delKeys });
-          })
-          .then(resolve2)
-          .catch(reject2);
+        var range = (dateList.length === 1) ?
+                    IDBKeyRange.only(dateList[0]) :
+                    IDBKeyRange.bound(
+                      dateList[0], dateList[dateList.length - 1]);
+        return db.getCursor({
+          name: dbSessionName,
+          range: range,
+          indexName: 'date',
+        })
+        .then(sessions => {
+          var delKeys = sessions.map(v => v.id);
+          return db.delete({ name: dbSessionName, keys: delKeys });
         });
       })
       .then(resolve)
@@ -509,13 +467,11 @@
 
     return new Promise((resolve, reject) => {
       if (myOptions.size === 0) {
-        console.error('myOptions is not loaded yet.');
-        reject();
+        reject(new Error('myOptions is not loaded yet.'));
         return;
       }
 
       var length = parseInt(myOptions.get('max_history'), 10);
-
       var now = new Date();
       db.getCursor({
         name: dbHistoryName,
@@ -547,12 +503,11 @@
 
       Promise.all(p)
       .then(results => {
-        return new Promise((resolve2, reject2) => {
+        return new Promise(() => {
           function check(array, target)
           {
             return new Promise((resolve3, reject3) => {
               var result = array.some(v => (v.url === target.url));
-
               if (result) {
                 reject3();
               } else {
@@ -582,16 +537,11 @@
             );
           });
 
-          Promise.all(p2).then(results2 => {
+          return Promise.all(p2).then(results2 => {
             var delKeys = results2.filter(v => (v !== null));
             return db.delete({ name: dbPageInfoName, keys: delKeys });
-          })
-          .then(resolve2)
-          .catch(reject2);
+          });
         });
-      }, e => {
-        console.error(e);
-        reject();
       })
       .then(resolve)
       .catch(reject);
@@ -609,30 +559,23 @@
 
       Promise.all(p)
       .then(results => {
-        return new Promise((resolve2, reject2) => {
-          var dataURIs = results[0];
-          var pageInfos = results[1];
+        var dataURIs = results[0];
+        var pageInfos = results[1];
 
-          var p2 = [];
-          dataURIs.forEach(v => {
-            p2.push(
-              new Promise(resolve3 => {
-                var result = pageInfos.some(v2 => (v2.host === v.host));
-                resolve3(result ? null : v.host);
-              })
-            );
-          });
-
-          Promise.all(p2).then(results2 => {
-            var delKeys = results2.filter(v => (v !== null));
-            return db.delete({ name: dbDataURIName, keys: delKeys });
-          })
-          .then(resolve2)
-          .catch(reject2);
+        var p2 = [];
+        dataURIs.forEach(v => {
+          p2.push(
+            new Promise(resolve3 => {
+              var result = pageInfos.some(v2 => (v2.host === v.host));
+              resolve3(result ? null : v.host);
+            })
+          );
         });
-      }, e => {
-        console.error(e);
-        reject();
+
+        return Promise.all(p2).then(results2 => {
+          var delKeys = results2.filter(v => (v !== null));
+          return db.delete({ name: dbDataURIName, keys: delKeys });
+        });
       })
       .then(resolve)
       .catch(reject);
@@ -669,50 +612,35 @@
             resolve2();
           }
         });
-      })()
-      .then(() => {
-        return new Promise((resolve2, reject2) => {
-          var sessionWrites = [];
-          for (var tabId in unloaded) {
-            if (unloaded.hasOwnProperty(tabId)) {
-              var item = unloaded[tabId];
-              if (item.url) {
-                // session
-                sessionWrites.push({ date: nowTime, url: item.url });
-              } else {
-                console.error("Don't find url.", item.url);
-                reject2();
-              }
+      })().then(() => {
+        var sessionWrites = [];
+        for (var tabId in unloaded) {
+          if (unloaded.hasOwnProperty(tabId)) {
+            var item = unloaded[tabId];
+            if (item.url) {
+              // session
+              sessionWrites.push({ date: nowTime, url: item.url });
+            } else {
+              reject(new Error("Don't find url: " + item.url));
             }
           }
+        }
 
-          db.add({ name: dbSessionName, data: sessionWrites })
-          .then(resolve2)
-          .catch(reject2);
-        });
+        return db.add({ name: dbSessionName, data: sessionWrites });
       })
       .then(() => {
-        return new Promise((resolve2, reject2) => {
-          currentSessionTime = nowTime;
+        currentSessionTime = nowTime;
 
-          var write = {};
-          write[previousSessionTimeKey] = nowTime;
-          chrome.storage.local.set(write, () => {
-            if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.message);
-              reject2();
-              return;
-            }
-
-            resolve2();
-          });
+        var write = {};
+        write[previousSessionTimeKey] = nowTime;
+        chrome.storage.local.set(write, () => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          }
         });
       })
       .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject();
-      });
+      .catch(reject);
     });
   }//}}}
 
@@ -759,57 +687,50 @@
           });
         })
         .then(() => {
-          return new Promise(resolve2 => {
-            var host = getHostName(tab.url);
-            var p = [];
+          var host = getHostName(tab.url);
+          var p = [];
 
-            // pageInfo
-            p.push(
-              db.add({
-                name: dbPageInfoName,
-                data: {
-                  url: tab.url,
-                  title: tab.title || 'Unknown',
-                  host: host,
-                },
-              })
-            );
-            // dataURI.
-            p.push(
-              new Promise((resolve3, reject3) => {
-                if (tab.favIconUrl) {
-                  getDataURI(tab.favIconUrl)
-                  .then(iconDataURI => {
-                    return db.add({
-                      name: dbDataURIName,
-                      data: {
-                        host: host,
-                        dataURI: iconDataURI,
-                      }
-                    });
-                  })
-                  .then(resolve3)
-                  .catch(reject3);
-                } else {
-                  console.log("Don't find favIconUrl.");
-                  resolve3();
-                }
-              })
-            );
-            // If Promise was error, it is transaction error.
-            // When its error was shown, to occur in the key already exist.
-            // Therefore, I call the resolve function.
-            Promise.all(p).then(resolve2, resolve2);
-          });
+          // pageInfo
+          p.push(
+            db.add({
+              name: dbPageInfoName,
+              data: {
+                url: tab.url,
+                title: tab.title || 'Unknown',
+                host: host,
+              },
+            })
+          );
+          // dataURI.
+          p.push(
+            new Promise((resolve3, reject3) => {
+              if (tab.favIconUrl) {
+                getDataURI(tab.favIconUrl)
+                .then(iconDataURI => {
+                  return db.add({
+                    name: dbDataURIName,
+                    data: {
+                      host: host,
+                      dataURI: iconDataURI,
+                    }
+                  });
+                })
+                .then(resolve3)
+                .catch(reject3);
+              } else {
+                console.log("Don't find favIconUrl.");
+                resolve3();
+              }
+            })
+          );
+          // If Promise was error, it is transaction error.
+          // When its error was shown, to occur in the key already exist.
+          // Therefore, I call the resolve function.
+          return Promise.all(p);
         })
-        .then(() => {
-          writeSet.delete(tab.url);
-          resolve();
-        })
-        .catch(e => {
-          console.error(e);
-          reject();
-        });
+        .then(() => writeSet.delete(tab.url))
+        .then(resolve)
+        .catch(reject);
       });
     }//}}}
 
@@ -841,9 +762,8 @@
         for (var i = iter.next(); !i.done; i = iter.next()) {
           p.push( deleteUrl(i.value[1]) );
         }
-        Promise.all(p)
-        .then(resolve)
-        .catch(reject);
+
+        Promise.all(p).then(resolve).catch(reject);
       });
     });
   }//}}}
@@ -861,8 +781,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.getSelected(tab => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
         resolve(tab);
@@ -1004,8 +923,7 @@
       chrome.browserAction.setIcon(
         { path: icons.get(changeIcon), tabId: tab.id }, () => {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.message);
-            reject();
+            reject(chrome.runtime.lastError);
             return;
           }
           currentIcon = changeIcon;
@@ -1024,8 +942,7 @@
             title += "The url of this tab is included" +
                     " exclude list of in this extension.";
           } else {
-            console.error('Invalid state. ' + changeIcon);
-            reject();
+            reject(new Error('Invalid state. ' + changeIcon));
             return;
           }
 
@@ -1084,14 +1001,12 @@
 
     return new Promise((resolve, reject) => {
       if (toType(tabId) !== 'number') {
-        console.error("tabId is not number.");
-        reject();
+        reject(new Error("tabId is not number."));
         return;
       }
 
       if (unloaded.hasOwnProperty(tabId)) {
-        console.log('Already purging. "' + tabId + '"');
-        reject();
+        reject(new Error('Already purging. "' + tabId + '"'));
         return;
       }
 
@@ -1100,8 +1015,7 @@
         new Promise((resolve2, reject2) => {
           chrome.tabs.get(tabId, (tab) => {
             if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.message);
-              reject2();
+              reject2(chrome.runtime.lastError);
               return;
             }
             resolve2(tab);
@@ -1114,8 +1028,7 @@
           chrome.tabs.executeScript(
             tabId, { file: getScrollPosScript }, scrollPosition => {
               if (chrome.runtime.lastError) {
-                console.error(chrome.runtime.lastError.message);
-                reject2();
+                reject2(chrome.runtime.lastError);
                 return;
               }
               resolve2(scrollPosition);
@@ -1124,70 +1037,56 @@
         })
       );
 
-      Promise.all(p)
-      .then(results => {
-        return new Promise((resolve2, reject2) => {
-          var tab            = results[0];
-          var scrollPosition = results[1];
+      return Promise.all(p).then(results => {
+        var tab            = results[0];
+        var scrollPosition = results[1];
 
-          if (tab.status !== 'complete') {
-            console.error(
-              "The target tab has not been completed loading yet.", tab);
-            reject2();
-            return;
-          }
+        if (tab.status !== 'complete') {
+          throw new Error(
+            "The target tab has not been completed loading yet: " + tab);
+        }
 
-          var state = checkExcludeList(tab.url);
-          if (state & EXTENSION_EXCLUDE) {
-            console.warn('The tabId have been included the exclusion list' +
-                 ' of extension.', tabId);
-            reject2();
-            return;
-          } else if (state & INVALID_EXCLUDE) {
-            console.error("Don't get the url of the tab.", tabId);
-            reject2();
-            return;
-          }
+        var state = checkExcludeList(tab.url);
+        if (state & EXTENSION_EXCLUDE) {
+          throw new Error(
+            'The tabId have been included the exclusion list of extension: ' +
+            tabId);
+        } else if (state & INVALID_EXCLUDE) {
+          throw new Error("Don't get the url of the tab: " + tabId);
+        }
 
-          var p2 = [];
-          p2.push( writeHistory(tab) );
-          p2.push(
-            new Promise(resolve3 => {
-              chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve3);
-            })
-          );
+        var p2 = [];
+        p2.push( writeHistory(tab) );
+        p2.push(
+          new Promise(resolve3 => {
+            chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve3);
+          })
+        );
 
-          Promise.all(p2)
-          .then(() => {
-            return new Promise((resolve3, reject3) => {
-              var url = getPurgeURL(tab.url);
+        return Promise.all(p2).then(() => {
+          return new Promise((resolve3, reject3) => {
+            var url = getPurgeURL(tab.url);
 
-              chrome.tabs.executeScript(tabId, {
-                code: 'window.location.replace("' + url + '");' }, () => {
-                  if (chrome.runtime.lastError) {
-                    console.error(chrome.runtime.lastError.message);
-                    reject3();
-                    return;
-                  }
-                  resolve3();
+            chrome.tabs.executeScript(tabId, {
+              code: 'window.location.replace("' + url + '");' }, () => {
+                if (chrome.runtime.lastError) {
+                  reject3(chrome.runtime.lastError);
+                  return;
                 }
-              );
-            });
-          })
-          .then(() => {
-            unloaded[tabId] = {
-              url            : tab.url,
-              scrollPosition : scrollPosition[0] || { x : 0 , y : 0 },
-            };
+                resolve3();
+              }
+            );
+          });
+        })
+        .then(() => {
+          unloaded[tabId] = {
+            url            : tab.url,
+            scrollPosition : scrollPosition[0] || { x : 0 , y : 0 },
+          };
 
-            return deleteAllPurgedTabUrlFromHistory();
-          })
-          .then(resolve2)
-          .catch(reject2);
+          return deleteAllPurgedTabUrlFromHistory();
         });
-      })
-      .then(resolve)
-      .catch(reject);
+      });
     });
   }//}}}
 
@@ -1202,8 +1101,7 @@
 
     return new Promise((resolve, reject) => {
       if (toType(tabId) !== 'number') {
-        console.error("tabId is not number.");
-        reject();
+        reject(new Error("tabId is not number."));
         return;
       }
 
@@ -1232,8 +1130,7 @@
 
     return new Promise((resolve, reject) => {
       if (toType(tabId) !== 'number') {
-        console.error("tabId is not number.");
-        reject();
+        reject(new Error("tabId is not number."));
         return;
       }
 
@@ -1256,16 +1153,14 @@
 
     return new Promise((resolve, reject) => {
       if (toType(tabId) !== 'number' || unloaded.hasOwnProperty(tabId)) {
-        console.error(
-          "tabId isn't number or added to unloaded already. " + tabId);
-        reject();
+        reject(new Error(
+          "tabId isn't number or added to unloaded already: " + tabId));
         return;
       }
 
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          console.log('tick function is skipped.', tabId);
-          reject();
+          reject(new Error('tick function is skipped:' + tabId));
           return;
         }
 
@@ -1306,8 +1201,8 @@
 
     return new Promise((resolve, reject) => {
       if (myOptions.size === 0 || toType(tabId) !== 'number') {
-        console.error('myOptions is not loaded yet. or tabId is not number.');
-        reject();
+        reject(
+          new Error('myOptions is not loaded yet. or tabId is not number.'));
         return;
       }
 
@@ -1348,8 +1243,7 @@
       chrome.tabs.create(
         { url: getPurgeURL(url), active: false }, tab => {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.message);
-            reject();
+            reject(chrome.runtime.lastError);
             return;
           }
 
@@ -1400,12 +1294,9 @@
          }
          ++i;
        }
-       resolve();
      })
-     .catch(e => {
-       console.error(e);
-       reject();
-     });
+     .then(resolve)
+     .catch(reject);
    });
   }//}}}
 
@@ -1455,8 +1346,7 @@
       // 現在のタブの左右の未解放のタブを選択する
       chrome.windows.get(tab.windowId, { populate: true }, win => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
 
@@ -1583,8 +1473,7 @@
       var currVersion = getVersion();
       chrome.storage.local.get(versionKey, storages => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
 
@@ -1610,8 +1499,7 @@
       // delete old current session time.
       chrome.storage.local.remove(previousSessionTimeKey, () => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
         resolve();
@@ -1636,8 +1524,7 @@
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(null, items => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
         var key;
@@ -1653,8 +1540,7 @@
 
         chrome.storage.local.remove(removeKeys, () => {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.message);
-            reject();
+            reject(chrome.runtime.lastError);
             return;
           }
 
@@ -1704,9 +1590,7 @@
             };
           }
 
-          setTick(current.id)
-          .then(resolve)
-          .catch(reject);
+          setTick(current.id).then(resolve).catch(reject);
         } else {
           resolve();
         }
@@ -1716,8 +1600,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, tabs => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
 
@@ -1729,9 +1612,7 @@
           ++i;
         }
 
-        Promise.all(p)
-        .then(resolve)
-        .catch(reject);
+        Promise.all(p).then(resolve).catch(reject);
       });
     });
   }//}}}
@@ -1745,15 +1626,10 @@
     }
 
     return new Promise((resolve, reject) => {
-      if (db !== null) {
-        db.close()
-        .then(dbOpen)
-        .then(resolve)
-        .catch(reject);
+      if (db === void 0 || db === null) {
+        dbOpen().then(resolve).catch(reject);
       } else {
-        dbOpen()
-        .then(resolve)
-        .catch(reject);
+        db.close().then(dbOpen).then(resolve).catch(reject);
       }
     });
   }//}}}
@@ -1786,10 +1662,7 @@
       disableTimer = disableTimer ? false : true;
 
       return new Promise((resolve, reject) => {
-        getCurrentTab()
-        .then(reloadBrowserIcon)
-        .then(resolve)
-        .catch(reject);
+        getCurrentTab().then(reloadBrowserIcon).then(resolve).catch(reject);
       });
     }
 
@@ -1797,8 +1670,7 @@
       if (disableTimer) {
         chrome.tabs.query({}, tabs => {
           if (chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError.message);
-            reject();
+            reject(chrome.runtime.lastError);
             return;
           }
 
@@ -1834,8 +1706,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          reject();
+          reject(chrome.runtime.lastError);
           return;
         }
 
@@ -1846,9 +1717,7 @@
         oldActiveIds.set(tab.windowId, tabId);
 
         // アイコンの状態を変更
-        reloadBrowserIcon(tab)
-        .then(resolve)
-        .catch(reject);
+        reloadBrowserIcon(tab).then(resolve).catch(reject);
       });
     });
   }//}}}
@@ -1864,195 +1733,6 @@
       .catch(reject);
     });
   }//}}}
-
-  chrome.tabs.onActivated.addListener(activeInfo => {//{{{
-    console.log('chrome.tabs.onActivated.', activeInfo);
-    currentTabId = activeInfo.tabId;
-    if (unloaded.hasOwnProperty(activeInfo.tabId) &&
-        myOptions.get('no_release') === false) {
-        unPurge(activeInfo.tabId)
-        .then(onActivatedFunc(activeInfo.tabId))
-        .catch(e => console.error(e));
-    } else {
-      onActivatedFunc(activeInfo.tabId)
-      .catch(e => console.error(e));
-    }
-  });//}}}
-
-  chrome.tabs.onCreated.addListener(tab => {//{{{
-    console.log('chrome.tabs.onCreated.', tab);
-    createdTabId.add(tab.id);
-    setTick(tab.id);
-  });//}}}
-
-  chrome.tabs.onRemoved.addListener(tabId => {//{{{
-    console.log('chrome.tabs.onRemoved.', tabId);
-    delete unloaded[tabId];
-  });//}}}
-
-  chrome.tabs.onAttached.addListener(tabId => {//{{{
-    console.log('chrome.tabs.onAttached.', tabId);
-    setTick(tabId);
-  });//}}}
-
-  chrome.tabs.onDetached.addListener(tabId => {//{{{
-    console.log('chrome.tabs.onDetached.', tabId);
-    delete unloaded[tabId];
-  });//}}}
-
-  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {//{{{
-    if (changeInfo.status === 'loading') {
-      console.log('chrome.tabs.onUpdated. loading.', tabId, changeInfo, tab);
-
-      if (!isReleasePage(tab.url) && unloaded.hasOwnProperty(tabId)) {
-        delete unloaded[tabId];
-      }
-    } else {
-      console.log('chrome.tabs.onUpdated. complete.', tabId, changeInfo, tab);
-
-      loadScrollPosition(tabId)
-      .then(reloadBrowserIcon(tab));
-    }
-  });//}}}
-
-  chrome.windows.onRemoved.addListener(windowId => {//{{{
-    console.log('chrome.windows.onRemoved.', windowId);
-    oldActiveIds.delete(windowId);
-  });//}}}
-
-  chrome.runtime.onMessage.addListener(//{{{
-    (message, sender, sendResponse) => {
-      console.log('chrome.runtime.onMessage.', message, sender);
-      switch (message.event) {
-        case 'initialize':
-          initialize();
-          break;
-        case 'release':
-          getCurrentTab()
-          .then(tab => {
-            return new Promise((resolve, reject) => {
-              purgeToggle(tab.id).then(
-                () => searchUnloadedTabNearPosition(tab),
-                reject)
-              .then(resolve, reject);
-            });
-          })
-          .catch(e => console.error(e));
-          break;
-        case 'switch_not_release':
-          getCurrentTab()
-          .then(tempReleaseToggle)
-          .catch(e => console.error(e));
-          break;
-        case 'all_purge':
-        case 'all_purge_without_exclude_list':
-          chrome.tabs.query({}, results => {
-            if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError.message);
-              return;
-            }
-
-            var t = results.filter(v => {
-              var state = checkExcludeList(v.url);
-              var retState = (message.event === 'all_purge') ?
-                             (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
-                             NORMAL & state;
-              return !unloaded.hasOwnProperty(v.id) && retState !== 0;
-            });
-            if (t.length === 0) {
-              return;
-            }
-            results = t;
-
-            var p = [];
-            results.forEach(v => p.push(purge(v.id)));
-
-            Promise.all(p)
-            .then(() => {
-              return new Promise((resolve, reject) => {
-                getCurrentTab()
-                .then(searchUnloadedTabNearPosition)
-                .then(resolve)
-                .catch(reject);
-              });
-            })
-            .catch(e => console.error(e));
-          });
-          break;
-        case 'all_unpurge':
-          // 解放されている全てのタブを解放解除
-          for (var key in unloaded) {
-            if (unloaded.hasOwnProperty(key)) {
-              unPurge(parseInt(key, 10));
-            }
-          }
-          break;
-        case 'add_to_temp_exclude_list':
-          getCurrentTab()
-          .then(tab => {
-            return new Promise((resolve, reject) => {
-              if (!tempRelease.has(tab.url)) {
-                tempRelease.add(tab.url);
-
-                setTick(tab.id)
-                .then(reloadBrowserIcon(tab))
-                .then(resolve)
-                .catch(reject);
-              } else {
-                resolve();
-              }
-            });
-          })
-          .catch(e => console.error(e));
-          break;
-        case 'reload_option_value':
-          updateOptionValues();
-          break;
-        case 'load_options_and_reload_current_tab':
-          getCurrentTab()
-          .then(tab => {
-            updateOptionValues()
-            .then(setTick(tab.id))
-            .then(reloadBrowserIcon(tab))
-            .catch(e => console.error(e));
-          })
-          .catch(e => console.error(e));
-          break;
-        case 'restore':
-          restore(message.session)
-          .then(() => {
-            return new Promise(resolve => {
-              console.log('restore is completed.');
-              resolve();
-            });
-          })
-          .catch(e => console.error(e));
-          break;
-        case 'current_icon':
-          sendResponse(currentIcon);
-          break;
-        case 'keybind_check_exclude_list':
-          var state = checkExcludeList(message.location.href);
-          sendResponse(state ^
-            (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
-          break;
-        case 'switchTimerState':
-          switchDisableTimerState()
-          .catch(e => console.error(e));
-          break;
-        case 'excludeDialogMenu':
-          getCurrentTab()
-          .then(tab => {
-            return new Promise(resolve => {
-              chrome.tabs.sendMessage(
-                tab.id, { event: 'showExcludeDialog' }, resolve);
-            });
-          })
-          .catch(e => console.error(e));
-          break;
-      }
-    }
-  );//}}}
 
   function updateCheck()//{{{
   {
@@ -2088,41 +1768,6 @@
       resolve();
     });
   }//}}}
-
-  chrome.runtime.onUpdateAvailable.addListener(details => {//{{{
-    console.log("runtime.onUpdateAvailable", details);
-    showUpdateConfirmationDialog();
-  });//}}}
-
-  chrome.notifications.onButtonClicked.addListener(//{{{
-    (notificationId, buttonIndex) => {
-      console.log(
-        'nortifications.onButtonClicked', notificationId, buttonIndex);
-
-      switch (notificationId) {
-      case UPDATE_CONFIRM_DIALOG:
-        if (buttonIndex === 0) {
-          writeSession(unloaded)
-          .then(
-            // reload the extension, and update the extension.
-            () => chrome.runtime.reload())
-          .catch(e => console.error(e));
-        }
-        break;
-      case RESTORE_PREVIOUS_SESSION:
-        if (buttonIndex === 0) {
-          getInitAndLoadOptions()
-          .then(options =>
-              restoreSessionBeforeUpdate(options.get(previousSessionTimeKey)))
-          .then(deletePreviousSessionTime)
-          .catch(e => console.error(e));
-        } else {
-          deletePreviousSessionTime();
-        }
-        break;
-      }
-    }
-  );//}}}
 
   function showDialogOfRestoreSessionBeforeUpdate() {//{{{
     return new Promise(resolve => {
@@ -2161,6 +1806,236 @@
       );
     });
   }//}}}
+
+  chrome.idle.onStateChanged.addListener(newState => {//{{{
+    console.log('idle.onStateChanged', newState);
+
+    switch (newState) {
+    case 'idle':
+      exclusiveProcessForFunc('deleteOldDatabase', deleteOldDatabase)
+      .catch(e => console.error(e));
+      break;
+    }
+  });//}}}
+
+  chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
+    console.log('webRequest.onBeforeRequest', details);
+    if (myOptions.get('new_tab_opens_with_purged_tab')) {
+      if (currentTabId !== details.tabId) {
+        return redirectPurgedTabWhenCreateNewTab(details);
+      }
+    }
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]);//}}}
+
+  chrome.tabs.onActivated.addListener(activeInfo => {//{{{
+    console.log('chrome.tabs.onActivated.', activeInfo);
+    currentTabId = activeInfo.tabId;
+    if (unloaded.hasOwnProperty(activeInfo.tabId) &&
+        myOptions.get('no_release') === false) {
+        unPurge(activeInfo.tabId)
+        .then(onActivatedFunc(activeInfo.tabId))
+        .catch(e => console.error(e));
+    } else {
+      onActivatedFunc(activeInfo.tabId)
+      .catch(e => console.error(e));
+    }
+  });//}}}
+
+  chrome.tabs.onCreated.addListener(tab => {//{{{
+    console.log('chrome.tabs.onCreated.', tab);
+    createdTabId.add(tab.id);
+    setTick(tab.id)
+    .catch(e => console.error(e));
+  });//}}}
+
+  chrome.tabs.onRemoved.addListener(tabId => {//{{{
+    console.log('chrome.tabs.onRemoved.', tabId);
+    delete unloaded[tabId];
+  });//}}}
+
+  chrome.tabs.onAttached.addListener(tabId => {//{{{
+    console.log('chrome.tabs.onAttached.', tabId);
+    setTick(tabId)
+    .catch(e => console.error(e));
+  });//}}}
+
+  chrome.tabs.onDetached.addListener(tabId => {//{{{
+    console.log('chrome.tabs.onDetached.', tabId);
+    delete unloaded[tabId];
+  });//}}}
+
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {//{{{
+    if (changeInfo.status === 'loading') {
+      console.log('chrome.tabs.onUpdated. loading.', tabId, changeInfo, tab);
+
+      if (!isReleasePage(tab.url) && unloaded.hasOwnProperty(tabId)) {
+        delete unloaded[tabId];
+      }
+    } else {
+      console.log('chrome.tabs.onUpdated. complete.', tabId, changeInfo, tab);
+
+      loadScrollPosition(tabId)
+      .then(reloadBrowserIcon(tab))
+      .catch(e => console.error(e));
+    }
+  });//}}}
+
+  chrome.windows.onRemoved.addListener(windowId => {//{{{
+    console.log('chrome.windows.onRemoved.', windowId);
+    oldActiveIds.delete(windowId);
+  });//}}}
+
+  chrome.runtime.onMessage.addListener(//{{{
+    (message, sender, sendResponse) => {
+      console.log('chrome.runtime.onMessage.', message, sender);
+      switch (message.event) {
+        case 'initialize':
+          initialize();
+          break;
+        case 'release':
+          getCurrentTab()
+          .then(tab => {
+            return purgeToggle(tab.id).then(searchUnloadedTabNearPosition(tab));
+          })
+          .catch(e => console.error(e));
+          break;
+        case 'switch_not_release':
+          getCurrentTab()
+          .then(tempReleaseToggle)
+          .catch(e => console.error(e));
+          break;
+        case 'all_purge':
+        case 'all_purge_without_exclude_list':
+          chrome.tabs.query({}, results => {
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.message);
+              return;
+            }
+
+            var t = results.filter(v => {
+              var state = checkExcludeList(v.url);
+              var retState = (message.event === 'all_purge') ?
+                             (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
+                             NORMAL & state;
+              return !unloaded.hasOwnProperty(v.id) && retState !== 0;
+            });
+            if (t.length === 0) {
+              return;
+            }
+            results = t;
+
+            var p = [];
+            results.forEach(v => p.push(purge(v.id)));
+
+            Promise.all(p)
+            .then(getCurrentTab)
+            .then(searchUnloadedTabNearPosition)
+            .catch(e => console.error(e));
+          });
+          break;
+        case 'all_unpurge':
+          // 解放されている全てのタブを解放解除
+          for (var key in unloaded) {
+            if (unloaded.hasOwnProperty(key)) {
+              unPurge(parseInt(key, 10))
+              .catch(e => console.error(e));
+            }
+          }
+          break;
+        case 'add_to_temp_exclude_list':
+          getCurrentTab()
+          .then(tab => {
+            if (!tempRelease.has(tab.url)) {
+              tempRelease.add(tab.url);
+
+              return setTick(tab.id).then(reloadBrowserIcon(tab));
+            } else {
+              return;
+            }
+          })
+          .catch(e => console.error(e));
+          break;
+        case 'reload_option_value':
+          updateOptionValues()
+          .catch(e => console.error(e));
+          break;
+        case 'load_options_and_reload_current_tab':
+          getCurrentTab()
+          .then(tab => {
+            return updateOptionValues()
+                  .then(setTick(tab.id))
+                  .then(reloadBrowserIcon(tab));
+          })
+          .catch(e => console.error(e));
+          break;
+        case 'restore':
+          restore(message.session)
+          .then(() => console.log('restore is completed.'))
+          .catch(e => console.error(e));
+          break;
+        case 'current_icon':
+          sendResponse(currentIcon);
+          break;
+        case 'keybind_check_exclude_list':
+          var state = checkExcludeList(message.location.href);
+          sendResponse(state ^
+            (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
+          break;
+        case 'switchTimerState':
+          switchDisableTimerState()
+          .catch(e => console.error(e));
+          break;
+        case 'excludeDialogMenu':
+          getCurrentTab()
+          .then(tab => {
+            return new Promise(resolve => {
+              chrome.tabs.sendMessage(
+                tab.id, { event: 'showExcludeDialog' }, resolve);
+            });
+          })
+          .catch(e => console.error(e));
+          break;
+      }
+    }
+  );//}}}
+
+  chrome.runtime.onUpdateAvailable.addListener(details => {//{{{
+    console.log("runtime.onUpdateAvailable", details);
+    showUpdateConfirmationDialog()
+    .catch(e => console.error(e));
+  });//}}}
+
+  chrome.notifications.onButtonClicked.addListener(//{{{
+    (notificationId, buttonIndex) => {
+      console.log(
+        'nortifications.onButtonClicked', notificationId, buttonIndex);
+
+      switch (notificationId) {
+      case UPDATE_CONFIRM_DIALOG:
+        if (buttonIndex === 0) {
+          writeSession(unloaded)
+          // reload the extension, and update the extension.
+          .then(() => chrome.runtime.reload())
+          .catch(e => console.error(e));
+        }
+        break;
+      case RESTORE_PREVIOUS_SESSION:
+        if (buttonIndex === 0) {
+          getInitAndLoadOptions()
+          .then(options =>
+              restoreSessionBeforeUpdate(options.get(previousSessionTimeKey)))
+          .then(deletePreviousSessionTime)
+          .catch(e => console.error(e));
+        } else {
+          deletePreviousSessionTime()
+          .catch(e => console.error(e));
+        }
+        break;
+      }
+    }
+  );//}}}
 
   initialize();
 })();

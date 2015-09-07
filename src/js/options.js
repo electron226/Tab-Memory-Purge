@@ -361,10 +361,12 @@
           break;
         case 'session_history':
           if (db.isOpened()) {
-            showAllSessionHistory().catch(e => console.error(e));
+            showAllSessionHistory()
+            .catch(e => console.error(e));
           } else {
-            setTimeout(
-              () => showAllSessionHistory().catch(e => console.error(e)), 1000);
+            setTimeout(() =>
+              showAllSessionHistory()
+              .catch(e => console.error(e)), 1000);
           }
           break;
         case 'change_history':
@@ -453,67 +455,6 @@
     if (value) {
       element.setAttribute(attrName, value.replace(re, replaceStr || ''));
     }
-  }//}}}
-
-  function removeHistoryDate(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
-      var begin = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-      var end = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
-      db.getCursor({
-        name: dbHistoryName,
-        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
-      })
-      .then(histories => {
-        var delKeys = histories.map(v => v.date);
-        return db.delete({
-          name: dbHistoryName,
-          keys: delKeys,
-        });
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyDateLegend = event.target.parentNode;
-          var historyDateField  = historyDateLegend.parentNode;
-          var historyList       = historyDateField.parentNode;
-          historyList.removeChild(historyDateField);
-
-          resolve(ret);
-        });
-      })
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
-    });
-  }//}}}
-
-  function removeHistoryItem(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      db.delete({
-        name: dbHistoryName,
-        keys: parseInt(event.target.getAttribute('name'), 10),
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyItem     = event.target.parentNode;
-          var historyItemList = historyItem.parentNode;
-          historyItemList.removeChild(historyItem);
-
-          resolve(ret);
-        });
-      })
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
-    });
   }//}}}
 
   function getPrototypeAndRemoveTag(selector) {//{{{
@@ -669,29 +610,27 @@
 
     Promise.all(p)
     .then(results => {
-      return new Promise((resolve, reject) => {
-        var sessions = [];
-        i = 0;
-        while (i < results.length) {
-          sessions = sessions.concat(results[i]);
-          ++i;
-        }
-        var delKeys = sessions.map(v => v.id);
+      var sessions = [];
+      i = 0;
+      while (i < results.length) {
+        sessions = sessions.concat(results[i]);
+        ++i;
+      }
+      var delKeys = sessions.map(v => v.id);
 
-        var p2 = [];
-        i = 0;
-        while (i < dbNames.length) {
-          p2.push(
-            db.delete({
-              name: dbNames[i],
-              keys: delKeys,
-            })
-          );
-          ++i;
-        }
+      var p2 = [];
+      i = 0;
+      while (i < dbNames.length) {
+        p2.push(
+          db.delete({
+            name: dbNames[i],
+            keys: delKeys,
+          })
+        );
+        ++i;
+      }
 
-        Promise.all(p2).then(resolve, reject);
-      });
+      return Promise.all(p2);
     })
     .then(showAllSessionHistory)
     .catch(e => console.error(e));
@@ -1027,6 +966,7 @@
       p.push( db.getAll({ name: dbSessionName }) );
       p.push( db.getAll({ name: dbPageInfoName }) );
       p.push( db.getAll({ name: dbDataURIName }) );
+
       Promise.all(p)
       .then(results => {
         var savedSessions = results[0];
@@ -1041,10 +981,10 @@
         p.push(
           getListAfterJoinHistoryDataOnDB([sessions, pageInfos, dataURIs])
         );
-        Promise.all(p)
-        .then(resolve)
-        .catch(reject);
+
+        return Promise.all(p);
       })
+      .then(resolve)
       .catch(reject);
     });
   }//}}}
@@ -1061,9 +1001,7 @@
 
         var historyDateList =
           document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
-        while (historyDateList.firstChild) {
-          historyDateList.removeChild(historyDateList.firstChild);
-        }
+        clearItemInElement(historyDateList);
 
         var historyDate =
           createHistoryDate(prototypeSelectorOfHistoryDate);
@@ -1114,6 +1052,67 @@
       getHistoryListFromIndexedDB(db, dbHistoryName)
       .then(resolve)
       .catch(reject);
+    });
+  }//}}}
+
+  function removeHistoryDate(event)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
+      var begin = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+      var end = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+      db.getCursor({
+        name: dbHistoryName,
+        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
+      })
+      .then(histories => {
+        var delKeys = histories.map(v => v.date);
+        return db.delete({
+          name: dbHistoryName,
+          keys: delKeys,
+        });
+      })
+      .then(ret => {
+        return new Promise(resolve => {
+          var historyDateLegend = event.target.parentNode;
+          var historyDateField  = historyDateLegend.parentNode;
+          var historyList       = historyDateField.parentNode;
+          historyList.removeChild(historyDateField);
+
+          resolve(ret);
+        });
+      })
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeHistoryItem(event)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      db.delete({
+        name: dbHistoryName,
+        keys: parseInt(event.target.getAttribute('name'), 10),
+      })
+      .then(ret => {
+        return new Promise(resolve => {
+          var historyItem     = event.target.parentNode;
+          var historyItemList = historyItem.parentNode;
+          historyItemList.removeChild(historyItem);
+
+          resolve(ret);
+        });
+      })
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
     });
   }//}}}
 
@@ -1446,15 +1445,11 @@
       });
     }())
     .then(() => {
-      return new Promise((resolve, reject) => {
-        var args = getQueryString(document);
-        var menu = (args === void 0 ||
-                    args === null ||
-                    !args.hasOwnProperty('page')) ? defaultMenu : args.page;
-        changeMenu(menu)
-        .then(resolve)
-        .catch(reject);
-      });
+      var args = getQueryString(document);
+      var menu = (args === void 0 ||
+                  args === null ||
+                  !args.hasOwnProperty('page')) ? defaultMenu : args.page;
+      return changeMenu(menu);
     })
     .then(initSectionBarEvent(document))
     .then(loadTranslation(document, translationPath))
