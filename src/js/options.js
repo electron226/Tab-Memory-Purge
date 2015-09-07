@@ -922,6 +922,7 @@
     {
       var i, s, key;
       var list = [];
+      var items;
 
       createSessionDate.clear();
       i = 0;
@@ -931,7 +932,8 @@
         for (key in s) {
           if (s.hasOwnProperty(key)) {
             createSessionDate.add(parseInt(key));
-            list = list.concat(createSessionDateListItem(s[parseInt(key)]));
+            items = createSessionDateListItem(s[parseInt(key)]).reverse();
+            list = list.concat(items);
           }
         }
         ++i;
@@ -1044,6 +1046,8 @@
     return new Promise((resolve, reject) => {
       getAllHistory()
       .then(historyArray => {
+        historyArray = historyArray.reverse();
+
         var autocompleteDateList =
           addAutocompleteDateList(selectorSearchHistoryDateList);
 
@@ -1060,7 +1064,8 @@
 
         var hDate, historyItemList, itemList;
         var data, i, j, z;
-        for (i = (historyArray.length - 1) | 0; 0 <= i; i = (i - 1) | 0) {
+        i = 0;
+        while (i < historyArray.length) {
           data = historyArray[i];
           hDate = historyDate(data);
           autocompleteDateList(data.date);
@@ -1070,7 +1075,7 @@
             historyDateItemList.set(data.data[j]);
             j++;
           }
-          itemList = historyDateItemList.get();
+          itemList = historyDateItemList.get().reverse();
 
           historyItemList = hDate.querySelector(selectorOfLocationWhereAddItem);
           z = 0;
@@ -1080,6 +1085,8 @@
           }
 
           historyDateList.appendChild(hDate);
+
+          ++i;
         }
 
         resolve();

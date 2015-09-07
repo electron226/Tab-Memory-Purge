@@ -123,8 +123,8 @@ ul {
     width: 99%;
     margin: auto 7px;
 
-    display: flex;
-    flex-direction: column-reverse;
+    display: table;
+    table-layout: fixed;
 }
 
 .session_ellipsis_over {
@@ -133,7 +133,7 @@ ul {
 }
 
 .ellipsis_inner {
-    flex-wrap:     nowrap;
+    white-space:   nowrap;
     overflow:      hidden;
     text-overflow: ellipsis;
 }
