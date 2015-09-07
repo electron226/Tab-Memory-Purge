@@ -1,6 +1,77 @@
 ﻿(function(window, document) {
   'use strict';
 
+  //{{{ variables
+  var defaultMenu = "normal";
+
+  var db = null; // indexedDB
+
+  var classNameOfCopyButton  = 'copy';
+  var classNameOfApplyButton = 'apply';
+
+  var keybindClassNameOfSetButton   = 'keybind_set';
+  var keybindClassNameOfClearButton = 'keybind_clear';
+  var selectorKeybindOption         = '.keyOption';
+  var selectorShowingKeybind        = '.pressKey';
+  var selectorKeybindValue          = '.keybindValue';
+
+  var menuSelector           = '.sectionMenu';
+  var buttonSelector         = '.sectionButton';
+  var sectionButtonClassName = buttonSelector.substring(1);
+
+  var classNameWhenSelect     = 'select';
+  var elementDoesNotClassName = 'doNotShow';
+  var prototypeClassName      = 'prototype';
+
+  var selectorHistoryDate                       = '.historyDate';
+  var selectorHistoryItem                       = '.historyItem';
+  var selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
+  var selectorOfLocationWhereAddItem            = '.historyItemList';
+  var selectorDateTitle                         = '.historyDateTitle';
+  var selectorDateDelete                        = '.historyDateDelete';
+  var selectorHistoryItemDelete                 = '.historyItemDelete';
+  var selectorHistoryItemDate                   = '.historyItemDate';
+  var selectorHistoryItemUrl                   = '.historyItemUrl';
+  var selectorHistoryItemIcon                   = '.historyItemIcon';
+  var selectorHistoryItemTitle                  = '.historyItemTitle';
+  var selectorSearchHistoryDate                 = '#searchHistoryDate';
+  var selectorSearchHistoryItem                 = '#searchHistoryItem';
+  var selectorSearchHistoryDateList             = '#historyDateList';
+  var prototypeSelectorOfHistoryDate =
+    selectorHistoryDate + '.' + prototypeClassName;
+  var prototypeSelectorOfHistoryItem =
+    selectorHistoryItem + '.' + prototypeClassName;
+
+  var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
+  var addSavedSessionDateListIdName =
+    selectorAddSavedSessionDateListLocation.slice(1);
+  var selectorAddSessionDateListLocation = '#sessionDateList';
+  var selectorAddSessionListLocation     = '#sessionList';
+  var selectorSavedSessionHistory        = '.savedSessionHistory';
+  var selectorSessionHistory             = '.sessionHistory';
+  var selectorDateList                   = '#dateList';
+  var selectorSessionTitle               = '#sessionTitle';
+  var selectorSessionSave                = '#sessionSave';
+  var selectorSessionDelete              = '#sessionDelete';
+  var selectorSessionRestore             = '#sessionRestore';
+  var selectorSessionItem                = '.sessionItem';
+  var selectorSessionItemDelete          = '.sessionItemDelete';
+  var selectorSessionItemUrl             = '.sessionItemUrl';
+  var selectorSessionItemIcon            = '.sessionItemIcon';
+  var selectorSessionItemTitle           = '.sessionItemTitle';
+  var attrNameOfSessionItemId            = 'sessionItemId';
+
+  var prototypeSelectorOfSessionItem =
+    selectorSessionItem + '.' + prototypeClassName;
+
+  var selectorExportLocation = '#export';
+  var selectorImportLocation = '#import';
+
+  var excludeKeyNames = [];
+  excludeKeyNames.push(versionKey);
+  excludeKeyNames.push(previousSessionTimeKey);
+//}}}
+
   var OperateOptionValue = function() {//{{{
   };
   OperateOptionValue.prototype.get = function(d, name) {
@@ -269,30 +340,31 @@
   {
     console.log('processAfterMenuSelection');
 
-    var keybindTick = null;
-
     return function(name) {
       return new Promise((resolve, reject) => {
-        if (keybindTick) {
-          console.log('keybindTick is cleared.');
-          clearInterval(keybindTick);
-          keybindTick = null;
-        }
-
         switch (name) {
         case 'normal':
           break;
         case 'keybind':
-          keybindTick = setInterval(() => showAllKeybindString(), 1000);
+          showAllKeybindString();
           break;
         case 'information':
           break;
         case 'history':
-          setTimeout(() => showAllHistory().catch(e => console.error(e)), 1000);
+          if (db.isOpened()) {
+            showAllHistory().catch(e => console.error(e));
+          } else {
+            setTimeout(
+              () => showAllHistory().catch(e => console.error(e)), 1000);
+          }
           break;
         case 'session_history':
-          setTimeout(
-            () => showAllSessionHistory().catch(e => console.error(e)), 1000);
+          if (db.isOpened()) {
+            showAllSessionHistory().catch(e => console.error(e));
+          } else {
+            setTimeout(
+              () => showAllSessionHistory().catch(e => console.error(e)), 1000);
+          }
           break;
         case 'change_history':
           break;
@@ -318,83 +390,13 @@
     }
   }, true);//}}}
 
-  //{{{ variables
-  var defaultMenu = "normal";
-
-  var db = null; // indexedDB
-
-  var classNameOfCopyButton = 'copy';
-  var classNameOfApplyButton = 'apply';
-
-  var keybindClassNameOfSetButton   = 'keybind_set';
-  var keybindClassNameOfClearButton = 'keybind_clear';
-  var selectorKeybindOption         = '.keyOption';
-  var selectorShowingKeybind        = '.pressKey';
-  var selectorKeybindValue          = '.keybindValue';
-
-  var menuSelector           = '.sectionMenu';
-  var buttonSelector         = '.sectionButton';
-  var sectionButtonClassName = buttonSelector.substring(1);
-
-  var classNameWhenSelect = 'select';
-
+  //{{{ A variable of a function of using closure.
   var operateOption = new OperateOptionValue();
   var keybindTrace  = new KeyTrace();
   var menuToggle    = new ShowMenuSelection(
     { menu: menuSelector, button: buttonSelector }, classNameWhenSelect);
   var afterMenuSelection = processAfterMenuSelection();
-
-  var elementDoesNotClassName = 'doNotShow';
-  var prototypeClassName      = 'prototype';
-
-  var selectorHistoryDate                       = '.historyDate';
-  var selectorHistoryItem                       = '.historyItem';
-  var selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
-  var selectorOfLocationWhereAddItem            = '.historyItemList';
-  var selectorDateTitle                         = '.historyDateTitle';
-  var selectorDateDelete                        = '.historyDateDelete';
-  var selectorHistoryItemDelete                 = '.historyItemDelete';
-  var selectorHistoryItemDate                   = '.historyItemDate';
-  var selectorHistoryItemUrl                   = '.historyItemUrl';
-  var selectorHistoryItemIcon                   = '.historyItemIcon';
-  var selectorHistoryItemTitle                  = '.historyItemTitle';
-  var selectorSearchHistoryDate                 = '#searchHistoryDate';
-  var selectorSearchHistoryItem                 = '#searchHistoryItem';
-  var selectorSearchHistoryDateList             = '#historyDateList';
-  var prototypeSelectorOfHistoryDate =
-    selectorHistoryDate + '.' + prototypeClassName;
-  var prototypeSelectorOfHistoryItem =
-    selectorHistoryItem + '.' + prototypeClassName;
-
-  var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
-  var addSavedSessionDateListIdName =
-    selectorAddSavedSessionDateListLocation.slice(1);
-  var selectorAddSessionDateListLocation = '#sessionDateList';
-  var selectorAddSessionListLocation     = '#sessionList';
-  var selectorSavedSessionHistory        = '.savedSessionHistory';
-  var selectorSessionHistory             = '.sessionHistory';
-  var selectorDateList                   = '#dateList';
-  var selectorSessionTitle               = '#sessionTitle';
-  var selectorSessionSave                = '#sessionSave';
-  var selectorSessionDelete              = '#sessionDelete';
-  var selectorSessionRestore             = '#sessionRestore';
-  var selectorSessionItem                = '.sessionItem';
-  var selectorSessionItemDelete          = '.sessionItemDelete';
-  var selectorSessionItemUrl             = '.sessionItemUrl';
-  var selectorSessionItemIcon            = '.sessionItemIcon';
-  var selectorSessionItemTitle           = '.sessionItemTitle';
-  var attrNameOfSessionItemId            = 'sessionItemId';
-
-  var prototypeSelectorOfSessionItem =
-    selectorSessionItem + '.' + prototypeClassName;
-
-  var selectorExportLocation = '#export';
-  var selectorImportLocation = '#import';
-
-  var excludeKeyNames = [];
-  excludeKeyNames.push(versionKey);
-  excludeKeyNames.push(previousSessionTimeKey);
-//}}}
+  //}}}
 
   function deleteKeyItemFromObject(obj, deleteKeys)//{{{
   {
@@ -1452,6 +1454,7 @@
     .then(loadTranslation(document, translationPath))
     .then(WhenVersionUpOptionFix)
     .then(operateOption.load(document))
+    .then(showAllKeybindString)
     .then(initOptionElementEvent(document))
     .then(initButtonEvent(document))
     .then(initKeybindEvent(document))
