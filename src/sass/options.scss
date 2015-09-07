@@ -63,6 +63,49 @@ ul {
     margin: 0 auto;
 }
 
+.dateListNav {
+    display: flex;
+    align-items: stretch;
+}
+
+.dateList {
+    width: 25%;
+}
+
+.dateListStyle {
+    display:        flex;
+    flex-direction: column-reverse;
+    align-items:    flex-start;
+
+    li {
+        padding: 1em;
+        box-shadow: 0 0 1px 0 $fontColor;
+        background-color: $sectionButtonSelectColor;
+    }
+    li:hover, li:active, li.select {
+        background-color: $sectionButtonColor;
+    }
+}
+
+.dateListMenu {
+    width:          75%;
+    display:        flex;
+    flex-direction: column;
+    align-items:    stretch;
+}
+
+.controlBar {
+    padding: 10px;
+    display: flex;
+    background-color: $sectionButtonSelectColor;
+
+    margin-bottom: 1em;
+}
+
+.control {
+    margin-left: auto;
+}
+
 .historyField {
     @extend .border0;
 
@@ -84,36 +127,32 @@ ul {
     flex-direction: column-reverse;
 }
 
-.ellipsis_inner {
-    flex-wrap: nowrap;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sessionHistoryItemList {
+.session_ellipsis_over {
     @extend .ellipsis_over;
+    margin: 0;
 }
 
-.sessionItem {
-    @extend .ellipsis_inner;
+.ellipsis_inner {
+    flex-wrap:     nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
 }
 
 input, textarea {
     border: thin solid $InputBorderColor;
 }
 
-nav {
+.mainNav {
     font-size: 0;
-    margin: 0;
-    padding: 0;
+    margin:    0;
+    padding:   0;
     list-style-type: none;
-    text-align: center;
+    text-align:      center;
 
     li {
-        font-size: 14px;
-        display: inline-block;
-        width: 14%;
+        font-size:  14px;
+        display:    inline-block;
+        width:      14%;
         text-align: center;
     }
 }

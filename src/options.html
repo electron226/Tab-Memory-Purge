@@ -11,7 +11,7 @@
     <header>
     </header>
 
-    <nav>
+    <nav class="mainNav"><!--{{{-->
       <ul>
         <li>
           <button name="normal" class="sectionButton" translation="option"></button>
@@ -35,10 +35,10 @@
           <button name="operate_settings" class="sectionButton" translation="operate_settings"></button>
         </li>
       </ul>
-    </nav>
+    </nav><!--}}}-->
 
     <article>
-      <section id="normal" class="sectionMenu">
+      <section id="normal" class="sectionMenu"><!--{{{-->
         <ul>
           <li>
             <span translation="setTimerTitle"></span>
@@ -80,9 +80,9 @@
             <div style="clear: left;"></div>
           </li>
         </ul>
-      </section>
+      </section><!--}}}-->
 
-      <section id="keybind" class="sectionMenu">
+      <section id="keybind" class="sectionMenu"><!--{{{-->
         <ul>
           <li class="keybind_release keyOption">
             <span translation="release" class="keybindTitle"></span>
@@ -132,9 +132,9 @@
             <div style="clear: left;"></div>
           </li>
         </ul>
-      </section>
+      </section><!--}}}-->
 
-      <section id="history" class="sectionMenu">
+      <section id="history" class="sectionMenu"><!--{{{-->
         <div class="searchHistory">
           <input type="date" id="searchHistoryDate" class="historyStyle border0" list="historyDateList" style="width: 15%;">
           <datalist id="historyDateList">
@@ -166,56 +166,33 @@
             </a>
           </span>
         </section>
-      </section>
+      </section><!--}}}-->
 
-      <section id="session_history" class="sectionMenu">
-        <!-- show area -->
-        <article>
-          <section class="savedSessionHistoryList ellipsis_over"></section>
-          <section class="sessionHistoryList ellipsis_over"></section>
-        </article>
-
-        <!-- savedSession prototype -->
-        <fieldset class="savedSessionHistory prototype ellipsis_inner">
-          <legend class="sessionInfo historyStyle">
+      <section id="session_history" class="sectionMenu"><!--{{{-->
+        <nav class="dateListNav">
+          <div id="dateList">
+            <ul id="sessionDateList" class="dateListStyle"></ul>
             <div>
-              <!-- <span class="savedSessionTitle"></span> -->
-              <span class="sessionDate"></span>
-              <img src="../icon/close.svg" alt="close button" class="sessionDelete pageIcon">
-              <img src="../icon/material design/svg/upload119.svg" alt="restore button" class="sessionRestore pageIcon">
+              <hr>
+              <div style="text-align: center;">Saved Sessions</div>
+              <ul id="savedSessionDateList" class="dateListStyle"></ul>
             </div>
-          </legend>
-
-          <article class="sessionHistoryItemList ellipsis_over"></article>
-        </fieldset>
-
-        <!-- session prototype -->
-        <fieldset class="sessionHistory prototype ellipsis_inner historyField">
-          <legend class="sessionInfo historyStyle">
-            <div>
-              <span class="sessionDate"></span>
-              <img src="../icon/close.svg" alt="save button" class="sessionSave pageIcon saveIcon">
-              <img src="../icon/close.svg" alt="close button" class="sessionDelete pageIcon">
-              <img src="../icon/material design/svg/upload119.svg" alt="restore button" class="sessionRestore pageIcon">
-            </div>
-          </legend>
-
-          <article class="sessionHistoryItemList ellipsis_over"></article>
-        </fieldset>
-
-        <!-- sessionHistoryItem prototype -->
-        <!-- This not use yet. -->
-        <!-- <section class="sessionHistoryItem prototype ellipsis_inner"> -->
-        <!--   <div> -->
-        <!--     <span translate="window">Window&nbsp;</span> -->
-        <!--     <span class="windowNumber"></span> -->
-        <!--   </div> -->
-
-        <!--   <section class="sessionItemList ellipsis_over"></section> -->
-        <!-- </section> -->
+          </div>
+          <div class="dateListMenu">
+            <section class="controlBar">
+              <span id="sessionTitle">sessionTitle</span>
+              <div class="control">
+                <img src="../icon/close.svg" alt="save button" id="sessionSave" class="pageIcon saveIcon">
+                <img src="../icon/close.svg" alt="close button" id="sessionDelete" class="pageIcon">
+                <img src="../icon/material design/svg/upload119.svg" alt="restore button" id="sessionRestore" class="pageIcon">
+              </div>
+            </section>
+            <section id="sessionList" class="session_ellipsis_over">Session item list</section>
+          </div>
+        </nav>
 
         <!-- sessionItem prototype -->
-        <section class="sessionItem prototype ellipsis_inner historyStyle">
+        <section class="sessionItem prototype ellipsis_inner historyStyle doNotShow">
           <img src="../icon/close.svg" alt="close button" class="sessionItemDelete pageIcon">
           <span>
             <a href="#" target="_blank" class="sessionItemUrl">
@@ -224,13 +201,13 @@
             </a>
           </span>
         </section>
-      </section>
+      </section><!--}}}-->
 
-      <section id="change_history" class="sectionMenu">
+      <section id="change_history" class="sectionMenu"><!--{{{-->
         <iframe src="History.txt" sandbox="allow-same-origin" class="changeHistoryFrame"></iframe>
-      </section>
+      </section><!--}}}-->
 
-      <section id="information" class="sectionMenu">
+      <section id="information" class="sectionMenu"><!--{{{-->
         <div class="inWidthOfSection">
           <section>
             <h3><span translation="specification"></span></h3>
@@ -273,9 +250,9 @@
             <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
           </section>
         </div>
-      </section>
+      </section><!--}}}-->
 
-      <section id="operate_settings" class="sectionMenu">
+      <section id="operate_settings" class="sectionMenu"><!--{{{-->
         <ul class="importAndExport">
           <li>
             <div>
@@ -292,7 +269,7 @@
             <textarea id="import"></textarea>
           </li>
         </ul>
-      </section>
+      </section><!--}}}-->
     </article>
 
     <footer>
