@@ -1497,35 +1497,37 @@
     return new Promise((resolve, reject) => {
       if (previousSessionTime === void 0 ||
           previousSessionTime === null) {
-        console.error("previousSessionTime is undefined or null");
-        reject();
+        reject(new Error("previousSessionTime is undefined or null"));
         return;
       }
 
       getHistoryListFromIndexedDB(db, dbSessionName)
       .then(sessions => {
-        return new Promise((resolve2, reject2) => {
-          if (sessions.length === 0) {
-            resolve2();
-            return;
-          }
+        if (sessions.length === 0) {
+          return;
+        }
 
-          var restoreSession = sessions.filter(
-            v => (previousSessionTime === v.date));
-
-          if (restoreSession.length > 0) {
-            if (restoreSession.length > 1) {
-             console.warn('the length of restoreSession is greater than 1.');
+        var restoreSessions = [];
+        var i = 0, j = 0;
+        var item, data;
+        while (i < sessions.length) {
+          item = sessions[i];
+          j = 0;
+          while (j < item.data.length) {
+            data = item.data[j];
+            if (previousSessionTime === data.date) {
+              restoreSessions.push({ url: data.url });
             }
-
-            restore(restoreSession[0].data)
-            .then(resolve2)
-            .catch(reject2);
-            return;
+            ++j;
           }
+          ++i;
+        }
 
-          resolve2();
-        });
+        if (restoreSessions.length > 0) {
+          return restore(restoreSessions);
+        }
+
+        return;
       })
       .then(resolve)
       .catch(reject);
@@ -1542,15 +1544,11 @@
     return new Promise((resolve, reject) => {
       getInitAndLoadOptions()
       .then(options => {
-        return new Promise((resolve2, reject2) => {
-          if (options.get('previousSessionTimeKey')) {
-            showDialogOfRestoreSessionBeforeUpdate()
-            .then(resolve2)
-            .catch(reject2);
-          } else {
-            resolve2();
-          }
-        });
+        if (options.get(previousSessionTimeKey)) {
+          return showDialogOfRestoreSessionBeforeUpdate();
+        } else {
+          return;
+        }
       })
       .then(resolve)
       .catch(reject);
@@ -2115,7 +2113,7 @@
         if (buttonIndex === 0) {
           getInitAndLoadOptions()
           .then(options =>
-              restoreSessionBeforeUpdate(options.get('previousSessionTimeKey')))
+              restoreSessionBeforeUpdate(options.get(previousSessionTimeKey)))
           .then(deletePreviousSessionTime)
           .catch(e => console.error(e));
         } else {
