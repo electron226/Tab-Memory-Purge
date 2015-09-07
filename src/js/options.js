@@ -42,6 +42,7 @@
   var prototypeSelectorOfHistoryItem =
     selectorHistoryItem + '.' + prototypeClassName;
 
+  var selectorDateListNav                     = '.dateListNav';
   var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
   var addSavedSessionDateListIdName =
     selectorAddSavedSessionDateListLocation.slice(1);
@@ -1000,6 +1001,11 @@
           });
           cSDL(sessions);
 
+          if (savedSessions.length !== 0 && sessions.length !== 0) {
+            var dateListNav = document.querySelector(selectorDateListNav);
+            removeStringFromAttributeOfElement(
+              dateListNav, 'style', 'display: none;');
+          }
           resolve();
         });
         //}}}
