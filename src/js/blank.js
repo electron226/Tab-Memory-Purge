@@ -97,8 +97,20 @@
           document.title = document.querySelector(selectorUrl).textContent;
           document.querySelector(selectorTitlePlace)
             .setAttribute('style', 'display: none');
-          reject();
-          return;
+          (() => {
+            var name = 'get_title_when_does_not_title';
+            chrome.storage.local.get(name, items => {
+              if (items.hasOwnProperty(name) &&
+                  items[name] === true &&
+                  maxRecorsiveCount >= 0) {
+                console.log('MaxRecorsiveCount is ', maxRecorsiveCount);
+                --maxRecorsiveCount;
+                getDataOfBeforeToPurge();
+              } else {
+                reject(new Error("Doesn't get a title of a purged tab."));
+              }
+            });
+          })();
         } else {
           document.title = pageInfo.title;
           document.querySelector(selectorTitle).textContent = pageInfo.title;

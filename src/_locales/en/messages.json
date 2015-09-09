@@ -155,6 +155,10 @@
     "message": "New tab opens with purged tab.",
     "description": "the item of the options."
   },
+  "get_title_when_does_not_title": {
+    "message": "If the title wasn't able to get in a purged tab, Extension takes the title from the previous page to be purged.",
+    "description": "the item of the options."
+  },
 
 
   "specification": {
