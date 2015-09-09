@@ -1037,29 +1037,29 @@
         })
       );
 
-      return Promise.all(p).then(results => {
+      Promise.all(p).then(results => {
         var tab            = results[0];
         var scrollPosition = results[1];
 
         if (tab.status !== 'complete') {
-          throw new Error(
-            "The target tab has not been completed loading yet: " + tab);
+          reject(new Error(
+            "The target tab has not been completed loading yet: " + tab));
         }
 
         var state = checkExcludeList(tab.url);
         if (state & EXTENSION_EXCLUDE) {
-          throw new Error(
+          reject(new Error(
             'The tabId have been included the exclusion list of extension: ' +
-            tabId);
+            tabId));
         } else if (state & INVALID_EXCLUDE) {
-          throw new Error("Don't get the url of the tab: " + tabId);
+          reject(new Error("Don't get the url of the tab: " + tabId));
         }
 
         var p2 = [];
         p2.push( writeHistory(tab) );
         p2.push(
-          new Promise(resolve3 => {
-            chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve3);
+          new Promise(resolve2 => {
+            chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve2);
           })
         );
 
@@ -1086,7 +1086,9 @@
 
           return deleteAllPurgedTabUrlFromHistory();
         });
-      });
+      })
+      .then(resolve)
+      .catch(reject);
     });
   }//}}}
 
