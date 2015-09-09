@@ -37,6 +37,7 @@
     "IDBCursor":        true,
     "IDBIndex":         true,
     
+    "ajax":                            true,
     "loadTranslation":                 true,
     "getListAfterJoinHistoryDataOnDB": true,
     "getHistoryListFromIndexedDB":     true,

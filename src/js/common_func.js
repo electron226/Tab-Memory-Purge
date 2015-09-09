@@ -4,19 +4,96 @@
 (function(window) {
   "use strict";
 
-  var ajaxTimeout = 60 * 1000;
-
-  function loadTranslation(document, path) //{{{
+  /**
+   * ajax
+   *
+   * Function for use Ajax process with XMLHttpRequest.
+   *
+   * @param {object} obj - The options for Ajax.
+   * @param {string} obj.url - You want to get the url.
+   * @param {boolean} [obj.async] - Do you want to use async process?.
+   * @param {string} [obj.user] -
+   *     The user name to use for authentication purposes.
+   * @param {string} [obj.password] -
+   *     The password to use for authentication purposes.
+   * @param {number} [timeout] - The time to occur timeout. to set seconds time.
+   * @param {string} [mimeType] - You want to set mimeType.
+   * @param {array of string} [headers] - You want to set the array of header.
+   *     [ headerName, headerValue ]
+   * @param {(ArrayBufferView|Blob|Document|DomString?FormData)}
+   *     [data] - You want to send the data.
+   * @param {string} [responseType] - You want to get a response type.
+   *     You are able to select from among the following:
+   *         "" - default
+   *         "arraybuffer" - ArrayBuffer
+   *         "blob" - Blob
+   *         "document" - Document
+   *         "text" - String
+   *         "json" - json object.
+   * @param {function} [readyStateChange] -
+   *     Call the function when each time the state change is changed.
+   * @return {promise} a promise object.
+   */
+  function ajax(obj)//{{{
   {
+    var method           = obj.method || 'GET';
+    var url              = obj.url;
+    var async            = obj.async || true;
+    var user             = obj.user || '';
+    var password         = obj.password || '';
+    var timeout          = (obj.timeout || 60) * 1000;
+    var mimeType         = obj.mimeType;
+    var headers          = obj.headers;
+    var data             = obj.data || null;
+    var responseType     = obj.responseType;
+    var readyStateChange = obj.readyStateChange;
+
     return new Promise(function(resolve, reject) {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', path, true);
+
+      xhr.open(method, url, async, user, password);
+      xhr.timeout = timeout;
+      if (headers !== void 0 && headers !== null) {
+        if (headers.length !== 2) {
+          reject(
+            new Error('headers is not array type, or array size is not 2.'));
+          return;
+        }
+        xhr.setRequestHeader.apply(null, headers);
+      }
+      if (readyStateChange !== void 0 && readyStateChange !== null) {
+        xhr.onreadystatechange = readyStateChange;
+      }
+      if (mimeType !== void 0 && mimeType !== null) {
+        xhr.overrideMimeType(mimeType);
+      }
+      if (responseType !== void 0 && responseType !== null) {
+        xhr.responseType = responseType;
+      }
+
       xhr.ontimeout = function() {
-        console.error('timeout. path: ' + path);
+        reject(new Error('timeout: ' + obj));
       };
       xhr.onload = function() {
-        if (xhr.status === 200) {
-          var t = JSON.parse(this.response);
+        resolve({
+          status:   xhr.status,
+          response: this.response,
+          xhr:      xhr,
+        });
+      };
+      xhr.onerror = function(e) {
+        reject(new Error(e));
+      };
+      xhr.send(data);
+    });
+  }//}}}
+
+  function loadTranslation(document, url) //{{{
+  {
+    return new Promise((resolve, reject) => {
+      ajax({ url: url }).then(ret => {
+        if (ret.status === 200) {
+          var t = JSON.parse(ret.response);
           var el = document.evaluate(
             '//*[@translation]', document, null, 7, null);
           var item, textName;
@@ -30,14 +107,12 @@
 
             ++i;
           }
-          resolve(true);
+          resolve();
         } else {
-          reject(new Error(xhr.statusText));
+          reject(new Error(ret.xhr.statusText));
         }
-      };
-      xhr.onerror = reject;
-      xhr.timeout = ajaxTimeout;
-      xhr.send();
+      })
+      .catch(reject);
     });
   }//}}}
 
@@ -170,7 +245,7 @@
     return null;
   }//}}}
 
-  function closureGetDataURI(timeout)//{{{
+  function closureGetDataURI()//{{{
   {
     function getDataType(buf)//{{{
     {
@@ -197,15 +272,12 @@
     function getDataURI(url)//{{{
     {
       return new Promise(function(resolve, reject) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.responseType = 'arraybuffer';
-        xhr.ontimeout = function() {
-          console.error('timeout. url: ' + url);
-        };
-        xhr.onload = function() {
-          if (xhr.status === 200) {
-            var bytes = new Uint8Array(this.response);
+        ajax({
+          url: url,
+          responseType: 'arraybuffer',
+        }).then(ret => {
+          if (ret.status === 200) {
+            var bytes = new Uint8Array(ret.response);
             var dataType = getDataType(bytes);
             var binaryData = '';
             var i = 0;
@@ -216,12 +288,9 @@
 
             resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
           } else {
-            reject(new Error(xhr.statusText));
+            reject(new Error(ret.xhr.statusText));
           }
-        };
-        xhr.onerror = reject;
-        xhr.timeout = timeout;
-        xhr.send();
+        }).catch(reject);
       });
     }//}}}
 
@@ -406,13 +475,15 @@
 
   //{{{ method.
   // If you want to minify js file, you must set function name.
+  setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(window, 'getHostName', getHostName);
   setObjectProperty(
     window, 'getHistoryListFromIndexedDB', getHistoryListFromIndexedDB);
   setObjectProperty(window, 'loadTranslation', loadTranslation);
   setObjectProperty(window, 'getQueryString', getQueryString);
-  setObjectProperty(window, 'getDataURI', closureGetDataURI(ajaxTimeout));
+  setObjectProperty(window, 'getDataURI', closureGetDataURI());
   setObjectProperty(window, 'keyCheck', keyCheck);
   setObjectProperty(window, 'generateKeyString', generateKeyString);
   setObjectProperty(window, 'toType', toType);
