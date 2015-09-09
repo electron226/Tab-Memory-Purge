@@ -375,19 +375,6 @@
     });
   }//}}}
   
-  function getHostName(url)//{{{
-  {
-    console.log('getHostName', url);
-
-    var result = /\/\/([\w-.~]*)\//i.exec(url);
-    if (result) {
-      return result[1];
-    } else {
-      console.error("Don't get hostname.", url);
-      return null;
-    }
-  }//}}}
-
   function deleteOldDatabase()//{{{
   {
     console.log('deleteOldDatabase');

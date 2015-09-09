@@ -39,6 +39,7 @@
     
     "ajax":                            true,
     "loadTranslation":                 true,
+    "getHostName":                     true,
     "getListAfterJoinHistoryDataOnDB": true,
     "getHistoryListFromIndexedDB":     true,
     "getQueryString":                  true,
