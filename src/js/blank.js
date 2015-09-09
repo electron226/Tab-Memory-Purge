@@ -64,7 +64,7 @@
             });
           }
         }
-        loadPurgedTabInfo();
+        return loadPurgedTabInfo();
       }
     });
   }//}}}
@@ -76,6 +76,9 @@
         var args = getQueryString(document);
 
         var span = document.querySelector(selectorUrl);
+        while (span.firstChild) {
+          span.removeChild(span.firstChild);
+        }
         if (args.url) {
           var url     = args.url;
           var a       = document.createElement('a');
