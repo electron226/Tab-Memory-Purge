@@ -491,16 +491,16 @@
   setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
-  setObjectProperty(window, 'getHostName', getHostName);
+  setObjectProperty(window, 'getHostName',       getHostName);
   setObjectProperty(
-    window, 'getHistoryListFromIndexedDB', getHistoryListFromIndexedDB);
-  setObjectProperty(window, 'loadTranslation', loadTranslation);
-  setObjectProperty(window, 'getQueryString', getQueryString);
-  setObjectProperty(window, 'getDataURI', closureGetDataURI());
-  setObjectProperty(window, 'keyCheck', keyCheck);
+    window, 'getHistoryListFromIndexedDB',       getHistoryListFromIndexedDB);
+  setObjectProperty(window, 'loadTranslation',   loadTranslation);
+  setObjectProperty(window, 'getQueryString',    getQueryString);
+  setObjectProperty(window, 'getDataURI',        closureGetDataURI());
+  setObjectProperty(window, 'keyCheck',          keyCheck);
   setObjectProperty(window, 'generateKeyString', generateKeyString);
-  setObjectProperty(window, 'toType', toType);
-  setObjectProperty(window, 'formatDate', formatDate);
+  setObjectProperty(window, 'toType',            toType);
+  setObjectProperty(window, 'formatDate',        formatDate);
   setObjectProperty(window, 'setObjectProperty', setObjectProperty);
   //}}}
 })(window);

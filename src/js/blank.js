@@ -85,6 +85,7 @@
         } else {
           span.innerHTML = 'None';
           reject(new Error("Doesn't get a purged url."));
+          return;
         }
 
         return db.get({

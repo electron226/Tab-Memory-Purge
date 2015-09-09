@@ -124,10 +124,12 @@
         locks.add(name);
         callback.apply(null, callbackArgs)
         .then(() => {
+          console.log('exclusiveProcess has resolve:', name);
           locks.delete(name);
           resolve();
         })
         .catch(e => {
+          console.log('exclusiveProcess has reject:', name);
           locks.delete(name);
           reject(e);
         });
@@ -189,6 +191,10 @@
       if (createdTabId.has(tabId)) {
         createdTabId.delete(tabId);
         if (checkExcludeList(url) & NORMAL) {
+          if (unloaded.hasOwnProperty(tabId)) {
+            throw new Error("TabId has already existed into unloaded." + tabId);
+          }
+
           unloaded[tabId] = {
             url            : url,
             scrollPosition : { x : 0 , y : 0 },
@@ -283,8 +289,8 @@
           return;
         }
 
-        t = t.filter(v =>
-          !v.active && (checkExcludeList(v.url) & NORMAL) !== 0);
+        t = t.filter(
+          v => !v.active && (checkExcludeList(v.url) & NORMAL) !== 0);
 
         var p = [];
         var i = 0;
