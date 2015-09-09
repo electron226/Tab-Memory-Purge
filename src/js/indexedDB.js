@@ -13,16 +13,13 @@
   Database.prototype.open = function(createProperties) {
     console.log('called open function of Database class.', createProperties);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var req = indexedDB.open($this.databaseName, $this.version);
       req.onupgradeneeded = function(e) {
         console.log('be running onupgradeneeded.');
 
-        e.target.transaction.onerror = function(e) {
-          console.error(e);
-          deferred.reject();
-        };
+        e.target.transaction.onerror = reject;
 
         var db = e.target.result;
 
@@ -53,21 +50,17 @@
       };
       req.onsuccess = function(e) {
         $this.db = e.target.result;
-        deferred.resolve(e);
+        resolve(e);
       };
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      req.onerror = reject;
+    });
   };
 
   Database.prototype.addOrPut = function(args, type) {
     console.log('called addOrPut function of Database class.', args);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       if (type === void 0 || type === null) {
         type = 'add';
       }
@@ -82,32 +75,28 @@
           console.error(error.name);
         }
       };
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
       var p = [];
-      data.forEach(function(v) {
+      var i = 0;
+      while (i < data.length) {
         p.push(
-          new Promise(function(resolve, reject) {
-            var req;
-            if (type === 'add') {
-              req = store.add(v);
-            } else {
-              req = store.put(v);
-            }
+          new Promise((resolve, reject) => {
+            var req = (type === 'add') ?
+                      store.add(data[i]) : store.put(data[i]);
             req.onsuccess = resolve;
-            req.onerror = reject;
+            req.onerror   = reject;
           })
         );
-      });
+        ++i;
+      }
 
-      Promise.all(p).then(deferred.resolve, function(e) {
-        console.error(e.target.error.message);
-        deferred.reject();
-      });
-    }, 0, this);
-    return deferred.promise;
+      Promise.all(p)
+      .then(resolve)
+      .catch(e => reject(e.target.error));
+    });
   };
 
   Database.prototype.add = function(args) {
@@ -123,15 +112,15 @@
   Database.prototype.get = function(args) {
     console.log('called get function of Database class.', args);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var storeName = args.name;
       var key       = args.key;
       var indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
-      tx.oncomplete = deferred.resolve;
-      tx.onerror    = deferred.reject;
+      var tx        = $this.db.transaction(storeName, 'readonly');
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
       var req;
@@ -145,25 +134,21 @@
       }
 
       req.onsuccess = function() {
-        deferred.resolve(this.result);
+        resolve(this.result);
       };
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      req.onerror = reject;
+    });
   };
 
   Database.prototype.getAll = function(args) {
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var storeName = args.name;
       var indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      var tx        = $this.db.transaction(storeName, 'readonly');
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
       var req;
@@ -183,15 +168,11 @@
           results.push(cursor.value);
           cursor.continue();
         } else {
-          deferred.resolve(results);
+          resolve(results);
         }
       };
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      req.onerror = reject;
+    });
   };
 
   // http://www.htmlhifive.com/conts/web/view/library/indexed-db-overview#H890765704EF653D65F973059308B58345408
@@ -202,16 +183,16 @@
   Database.prototype.getCursor = function(args) {
     console.log('called getCursor function of Database class.', args);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var storeName = args.name;
-      var range = args.range;
+      var range     = args.range;
       var direction = args.direction;
       var indexName = args.indexName;
 
-      var tx = $this.db.transaction(storeName, 'readonly');
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      var tx        = $this.db.transaction(storeName, 'readonly');
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
       var req;
@@ -231,26 +212,22 @@
           results.push(cursor.value);
           cursor.continue();
         } else {
-          deferred.resolve(results);
+          resolve(results);
         }
       };
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      req.onerror = reject;
+    });
   };
 
   Database.prototype.update = function(args) {
     console.log('called update function of Database class.', args);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var storeName = args.name;
-      var range = args.range;
+      var range     = args.range;
       var indexName = args.indexName;
-      var update = args.update;
+      var update    = args.update;
 
       var tx = $this.db.transaction(storeName, 'readwrite');
       tx.onabort = function(e) {
@@ -259,8 +236,8 @@
           console.error(error.name);
         }
       };
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
       var req;
@@ -277,107 +254,89 @@
         var cursor = this.result;
         if (cursor) {
           var data = cursor.value;
-
           for (var key in data) {
             if (data.hasOwnProperty(key) && update.hasOwnProperty(key)) {
               data[key] = update[key];
             }
           }
-
           cursor.update(data);
           cursor.continue();
         } else {
-          deferred.resolve();
+          resolve();
         }
       };
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      req.onerror = reject;
+    });
   };
 
   Database.prototype.delete = function(args) {
     console.log('called delete function of Database class.', args);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve, reject) => {
       var storeName = args.name;
       var keys = (toType(args.keys) !== 'array') ? [ args.keys ] : args.keys;
 
-      var tx = $this.db.transaction(storeName, 'readwrite');
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+      var tx        = $this.db.transaction(storeName, 'readwrite');
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
       var store = tx.objectStore(storeName);
 
       var p = [];
-      keys.forEach(function(v) {
+      var i = 0;
+      while (i < keys.length) {
         p.push(
-          new Promise(function(resolve, reject) {
-            var del = store.delete(v);
+          new Promise((resolve, reject) => {
+            var del       = store.delete(keys[i]);
             del.onsuccess = resolve;
-            del.onerror = reject;
+            del.onerror   = reject;
           })
         );
-      });
+        ++i;
+      }
 
-      Promise.all(p).then(deferred.resolve, function(e) {
-        console.error(e.target.error.message);
-        deferred.reject();
-      });
-    }, 0, this);
-    return deferred.promise;
+      Promise.all(p).then(resolve, e => reject(e.target.error));
+    });
   };
 
   Database.prototype.clear = function(storeName) {
     console.log('called clear function of Database class.', storeName);
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
-      var tx = $this.db.transaction(storeName, 'readwrite');
-      tx.oncomplete = deferred.resolve;
-      tx.onerror = deferred.reject;
+    var $this = this;
+    return new Promise((resolve, reject) => {
+      var tx        = $this.db.transaction(storeName, 'readwrite');
+      tx.oncomplete = resolve;
+      tx.onerror    = reject;
 
-      var store = tx.objectStore(storeName);
-      var cl = store.clear();
-
-      cl.onsuccess = deferred.resolve;
-      cl.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+      var store    = tx.objectStore(storeName);
+      var cl       = store.clear();
+      cl.onsuccess = resolve;
+      cl.onerror   = reject;
+    });
   };
 
   Database.prototype.deleteDatabase = function() {
     console.log('called deleteAll function of Database class.');
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
-      var req = indexedDB.deleteDatabase($this.databaseName);
-      req.onsuccess = deferred.resolve;
-      req.onerror = function(e) {
-        console.error(e);
-        deferred.reject();
-      };
-    }, 0, this);
-    return deferred.promise;
+    var $this = this;
+    return new Promise((resolve, reject) => {
+      var req       = indexedDB.deleteDatabase($this.databaseName);
+      req.onsuccess = resolve;
+      req.onerror   = reject;
+    });
   };
 
   Database.prototype.close = function() {
     console.log('called close function of Database class.');
 
-    var deferred = Promise.defer();
-    setTimeout(function($this) {
+    var $this = this;
+    return new Promise((resolve) => {
       if ($this.db !== null) {
         $this.db.close();
       }
-      deferred.resolve();
-    }, 0, this);
-    return deferred.promise;
+      resolve();
+    });
   };
 
   Database.prototype.isOpened = function() {
@@ -385,5 +344,5 @@
     return (this.db !== null) ? true : false;
   };
 
-  window.Database = window.Database || Database;
-})(window);
+  setObjectProperty(window, 'Database', Database);
+})(this);
