@@ -735,25 +735,24 @@
   function deleteAllPurgedTabUrlFromHistory()//{{{
   {
     return new Promise((resolve, reject) => {
-      function deleteUrl(url)
-      {
-        return new Promise(
-          resolve => chrome.history.deleteUrl({ url: url }, resolve));
-      }
-
       var regex = new RegExp('^' + blankUrl, 'i');
       chrome.history.search({ text: '' }, histories => {
         var deleteUrls = new Set();
-        histories.forEach(v => {
-          if (regex.test(v.url)) {
-            deleteUrls.add(v.url);
+        var i = 0;
+        var url;
+        while (i < histories.length) {
+          url = histories[i].url;
+          if (regex.test(url)) {
+            deleteUrls.add(url);
           }
-        });
+          ++i;
+        }
 
         var p = [];
         var iter = deleteUrls.entries();
-        for (var i = iter.next(); !i.done; i = iter.next()) {
-          p.push( deleteUrl(i.value[1]) );
+        for (i = iter.next(); !i.done; i = iter.next()) {
+          p.push(new Promise(
+            resolve => chrome.history.deleteUrl({ url: i.value[1] }, resolve)));
         }
 
         Promise.all(p).then(resolve).catch(reject);
@@ -1077,7 +1076,9 @@
             scrollPosition : scrollPosition[0] || { x : 0 , y : 0 },
           };
 
-          return deleteAllPurgedTabUrlFromHistory();
+          return exclusiveProcessForFunc(
+            'deleteAllPurgedTabUrlFromHistory',
+            deleteAllPurgedTabUrlFromHistory);
         });
       })
       .then(resolve)
@@ -1808,6 +1809,8 @@
     switch (newState) {
     case 'idle':
       exclusiveProcessForFunc('deleteOldDatabase', deleteOldDatabase)
+      .then(exclusiveProcessForFunc(
+        'deleteAllPurgedTabUrlFromHistory', deleteAllPurgedTabUrlFromHistory))
       .catch(e => console.error(e));
       break;
     }
