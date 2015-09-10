@@ -2,7 +2,7 @@
 (function(window, document) {
   "use strict";
 
-  function getKeyBinds()
+  function getKeyBinds()//{{{
   {
     return new Promise(function(resolve, reject) {
       chrome.storage.local.get(null, function(items) {
@@ -32,9 +32,9 @@
         resolve(keys);
       });
     });
-  }
+  }//}}}
 
-  document.addEventListener('keyup', function(e) {
+  document.addEventListener('keyup', function(e) {//{{{
     var currentFocus = document.activeElement;
     var activeElementName = currentFocus.tagName.toLowerCase();
     if (activeElementName === 'input' || activeElementName === 'textarea') {
@@ -64,7 +64,7 @@
         }
       }
     );
-  });
+  });//}}}
 
   console.log('Loading keybinds of Tab Memory Purge.');
 })(this, this.document);
