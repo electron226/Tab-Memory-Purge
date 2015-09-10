@@ -280,5 +280,10 @@
   "cancel": {
     "message": "キャンセル",
     "description": "コンテンツスクリプトの除外ダイアログ内のボタン"
+  },
+
+  "regex_insensitive": {
+    "message": "大文字・小文字を区別しない",
+    "description": "オプションの例外リストのオプション"
   }
 }

@@ -284,5 +284,10 @@
   "cancel": {
     "message": "Cancel",
     "description": "the button in the exclusion dialog of content scripts."
+  },
+
+  "regex_insensitive": {
+    "message": "It is not case-sensitive.",
+    "description": "the option of the exclusion list in the option page."
   }
 }
