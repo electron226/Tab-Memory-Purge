@@ -3,53 +3,81 @@
   "use strict";
 
   /* for this script. */
-  function setObjectProperty(obj, name, value)
+  function setObjectProperty(obj, name, value)//{{{
   {
     console.log('setObjectProperty in common.js', obj, name, value);
     if (obj.hasOwnProperty(name)) {
       throw new Error('Already contain to + obj', name, value);
     }
     obj[name] = value;
-  }
+  }//}}}
 
-  /* Default Values. */
-  var defaultValues = {
-    'no_release': false,
-    'timer': 20,
-    'exclude_url':
-        '^https://\n' +
-        '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
-        'localhost\n' +
-        'nicovideo.jp\n' +
-        'youtube.com',
-    'regex_insensitive': true,
-    'enable_auto_purge': true,
-    'remaiming_memory': 500,
-    'max_history': 7,
-    'max_sessions': 10,
-    'purging_all_tabs_except_active': false,
-    'max_opening_tabs': 5,
-    'interval_timing': 5,
-    'new_tab_opens_with_purged_tab': false,
-    'get_title_when_does_not_title': false,
-
-    'keybind_release': JSON.stringify({}),
-    'keybind_switch_not_release': JSON.stringify({}),
-    'keybind_all_purge': JSON.stringify({}),
-    'keybind_all_purge_without_exclude_list': JSON.stringify({}),
-    'keybind_all_unpurge': JSON.stringify({}),
-    'keybind_exclude_url':
-        'nicovideo.jp\n' +
-        'youtube.com',
-    'keybind_regex_insensitive': true,
-  };
   setObjectProperty(window, 'versionKey', 'version');
-  defaultValues[window.versionKey] = chrome.app.getDetails();
-
   setObjectProperty(window, 'previousSessionTimeKey', 'previous_session_time');
-  defaultValues[window.previousSessionTimeKey] = null;
 
-  setObjectProperty(window, 'defaultValues', defaultValues);
+  function closureExtensionOption()//{{{
+  {
+    /*jshint -W069*/
+    var config = new Map();
+    config.set('no_release', false);
+    config.set('timer', 20);
+    config.set('exclude_url',
+      '^https://\n' +
+      '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
+      'localhost\n' +
+      'nicovideo.jp\n' +
+      'youtube.com'
+    );
+    config.set('regex_insensitive', true);
+    config.set('enable_auto_purge', true);
+    config.set('remaiming_memory', 500);
+    config.set('max_history', 7);
+    config.set('max_sessions', 10);
+    config.set('purging_all_tabs_except_active', false);
+    config.set('max_opening_tabs', 5);
+    config.set('interval_timing', 5);
+    config.set('new_tab_opens_with_purged_tab', false);
+    config.set('get_title_when_does_not_title', false);
+
+    config.set('keybind_release', JSON.stringify({}));
+    config.set('keybind_switch_not_release', JSON.stringify({}));
+    config.set('keybind_all_purge', JSON.stringify({}));
+    config.set('keybind_all_purge_without_exclude_list', JSON.stringify({}));
+    config.set('keybind_all_unpurge', JSON.stringify({}));
+    config.set('keybind_exclude_url',
+      'nicovideo.jp\n' +
+      'youtube.com');
+    config.set('keybind_regex_insensitive', true);
+    config.set(window['versionKey'], chrome.app.getDetails());
+    config.set(window['previousSessionTimeKey'], null);
+
+    return {
+      get: function(key) { return config.get(key); },
+      replace: function(key, value) {
+        if (config.has(key)) {
+          config.set(key, value);
+        }
+        throw new Error("Doesn't exist key: " + key);
+      },
+      forEach: function(callback, thisArgs) {
+        if (toType(callback) !== 'function') {
+          throw new Error("callback isn't function");
+        }
+        var iter = config.entries();
+        var i = iter.next();
+        while (!i.done) {
+          callback.call(thisArgs, i.value[1], i.value[0], config);
+          i = iter.next();
+        }
+      },
+      has:     function(key) { return config.has(key); },
+      entries: function()    { return config.entries(); },
+      keys:    function()    { return config.keys(); },
+      values:  function()    { return config.values(); },
+    };
+  }//}}}
+
+  setObjectProperty(window, 'defaultValues', closureExtensionOption());
 
   setObjectProperty(window, 'dbName', 'TMP_DB');
   setObjectProperty(window, 'dbVersion', 2);

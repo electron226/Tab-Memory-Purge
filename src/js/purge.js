@@ -1527,7 +1527,7 @@
         // All remove invalid options. but exclude version.
         var removeKeys = [];
         for (key in items) {
-          if (items.hasOwnProperty(key) && !defaultValues.hasOwnProperty(key)) {
+          if (items.hasOwnProperty(key) && !defaultValues.has(key)) {
             removeKeys.push(key);
             delete items[key];
           }
@@ -1542,11 +1542,11 @@
           // My options are initialized.
           var options = new Map();
           Object.keys(items).forEach(v => options.set(v, items[v]));
-          for (key in defaultValues) {
-            if (defaultValues.hasOwnProperty(key) && !options.has(key)) {
-              options.set(key, defaultValues[key]);
+          defaultValues.forEach(function(v, key) {
+            if (!options.has(key)) {
+              options.set(key, v);
             }
-          }
+          });
 
           resolve(options);
         });

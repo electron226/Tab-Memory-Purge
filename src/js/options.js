@@ -152,15 +152,27 @@
     return new Promise((resolve, reject) => {
       $this.export()
       .then(options => {
-        if (toType(loadOptions) === 'object' && loadOptions) {
+        switch (toType(loadOptions)) {
+        case 'map':
           options = loadOptions;
+          break;
+        case 'object':
+          var newMap = new Map();
+          for (var key in loadOptions) {
+            if (loadOptions.hasOwnProperty(key)) {
+              newMap.set(key, loadOptions[key]);
+            }
+          }
+          options = newMap;
+          break;
         }
 
         var p = [];
-        for (var key in options) {
-          if (options.hasOwnProperty(key)) {
-            p.push($this.set(d, key, options[key]));
-          }
+        var iter = options.entries();
+        var i = iter.next();
+        while (!i.done) {
+          p.push( $this.set(d, i.value[0], i.value[1]) );
+          i = iter.next();
         }
 
         Promise.all(p).then(resolve, reject);
@@ -171,13 +183,10 @@
   OperateOptionValue.prototype.export = function() {
     return new Promise(resolve => {
       chrome.storage.local.get(items => {
-        var r = {};
-        for (var key in defaultValues) {
-          if (defaultValues.hasOwnProperty(key)) {
-            r[key] = items.hasOwnProperty(key) ?
-                     items[key] : defaultValues[key];
-          }
-        }
+        var r = new Map();
+        defaultValues.forEach((v, key) => {
+          r.set(key, items.hasOwnProperty(key) ? items[key] : v);
+        });
         resolve(r);
       });
     });
@@ -422,7 +431,14 @@
     return new Promise(resolve => {
       operateOption.export()
       .then(options => {
-        var newOptions = deleteKeyItemFromObject(options, excludeKeyNames);
+        var obj = {};
+        var iter = options.entries();
+        var i = iter.next();
+        while (!i.done) {
+          obj[ i.value[0] ] = i.value[1];
+          i = iter.next();
+        }
+        var newOptions = deleteKeyItemFromObject(obj, excludeKeyNames);
         var e = document.querySelector(selectorExportLocation);
         e.value = JSON.stringify(newOptions, null, '    ');
         resolve();

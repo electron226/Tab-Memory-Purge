@@ -22,7 +22,7 @@
                 continue;
               }
 
-              keys[keyName] = items[keyName] || defaultValues[keyName];
+              keys[keyName] = items[keyName] || defaultValues.get(keyName);
             } catch (e) {
               continue;
             }
