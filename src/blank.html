@@ -4,25 +4,16 @@
     <meta charset="UTF-8">
     <meta name=viewport content="width=device-width, initial-scale=1">
     <title>blank page</title>
-    <style>
-        body {
-            font-size: 16px; font-size: 1rem;
-            font-family: "Meiryo", "メイリオ", "ＭＳ Ｐゴシック",
-            "Osaka-Mono", "Monospace", "Helvetica", "Arial", sans-serif;
-        }
-        ul#page_info {
-          list-style-type: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/blank.css" type="text/css">
 </head>
 
 <body>
     <p>Tab Memory Purge</p>
-    <ul id="page_info">
-        <li id="titlePlace">title&nbsp;:&nbsp;<span id="title"></span></li>
-        <li>url&nbsp;&nbsp;&nbsp;:&nbsp;<span id="url"></span></li>
-    </ul>
-    <div>If you are clicked on this page, this page is jumped to the page of the url.</div>
+    <div id="page_info" class="ellipsis_over">
+        <div id="title" class="ellipsis_inner"></div>
+        <div id="url" class="ellipsis_inner"></div>
+    </div>
+    <div style="margin-top: 1rem;">If you are clicked on this page, this page is jumped to the page of the url.</div>
     <!-- build:js js/commons.min.js -->
     <script src="js/common.js"></script>
     <script src="js/common_func.js"></script>

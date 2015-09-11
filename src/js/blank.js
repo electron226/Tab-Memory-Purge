@@ -7,9 +7,8 @@
 
   var maxRecorsiveCount = 3;
 
-  const selectorUrl        = '#url';
-  const selectorTitlePlace = '#titlePlace';
-  const selectorTitle      = '#title';
+  const eUrl   = document.querySelector('#url');
+  const eTitle = document.querySelector('#title');
 
   const F5Key = generateKeyString({
     ctrl    : false,
@@ -30,14 +29,14 @@
 
   function getDataOfBeforeToPurge()//{{{
   {
-    var url = document.querySelector(selectorUrl).textContent;
+    var url = eUrl.textContent;
     return ajax({ url: url, responseType: 'document' }).then(ret => {
       if (ret.status === 200) {
         var newTitle = ret.response.title;
         if (newTitle) {
           document.title = newTitle;
-          document.querySelector(selectorTitle).textContent = newTitle;
-          document.querySelector(selectorTitlePlace).removeAttribute('style');
+          eTitle.textContent = newTitle;
+          eTitle.removeAttribute('style');
 
           var favicon = ret.response.querySelector('link[rel="shortcut icon"]');
           var host = getHostName(url);
@@ -75,7 +74,7 @@
       (() => {
         var args = getQueryString(document);
 
-        var span = document.querySelector(selectorUrl);
+        var span = eUrl;
         while (span.firstChild) {
           span.removeChild(span.firstChild);
         }
@@ -98,9 +97,8 @@
       })()
       .then(pageInfo => {
         if (pageInfo === void 0 || pageInfo === null) {
-          document.title = document.querySelector(selectorUrl).textContent;
-          document.querySelector(selectorTitlePlace)
-            .setAttribute('style', 'display: none');
+          document.title = eUrl.textContent;
+          eTitle.setAttribute('style', 'display: none');
           (() => {
             var name = 'get_title_when_does_not_title';
             chrome.storage.local.get(name, items => {
@@ -117,7 +115,7 @@
           })();
         } else {
           document.title = pageInfo.title;
-          document.querySelector(selectorTitle).textContent = pageInfo.title;
+          eTitle.textContent = pageInfo.title;
         }
 
         return db.get({

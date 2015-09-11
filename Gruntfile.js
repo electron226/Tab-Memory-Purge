@@ -160,6 +160,7 @@ module.exports = function(grunt) {
         files: {
           'src/css/options.css': ['src/css/options.css'],
           'src/css/popup.css': ['src/css/popup.css'],
+          'src/css/blank.css': ['src/css/blank.css'],
         },
       },
     },
