@@ -1348,7 +1348,7 @@
 
         var tabs = win.tabs.filter(v =>
           !unloaded.hasOwnProperty(v.id) && !isReleasePage(v.url));
-        var t = tabs.filter(v => (v.index >= tab.index));
+        var t = tabs.filter(v => (v.index > tab.index));
         var tLength = 0;
         if (t.length === 0) {
           t = tabs.filter(v => (v.index < tab.index));
@@ -1895,8 +1895,10 @@
         case 'release':
           getCurrentTab()
           .then(tab => {
-            return purgeToggle(tab.id).then(searchUnloadedTabNearPosition(tab));
+            purgeToggle(tab.id);
+            return tab;
           })
+          .then(searchUnloadedTabNearPosition)
           .catch(e => console.error(e));
           break;
         case 'switch_not_release':
