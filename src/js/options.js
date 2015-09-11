@@ -43,6 +43,7 @@
     selectorHistoryItem + '.' + prototypeClassName;
 
   var selectorDateListNav                     = '.dateListNav';
+  var selectorSavedSessionDateTitleText = '#savedSessionDateTitle';
   var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
   var addSavedSessionDateListIdName =
     selectorAddSavedSessionDateListLocation.slice(1);
@@ -50,7 +51,7 @@
   var selectorAddSessionListLocation     = '#sessionList';
   var selectorSavedSessionHistory        = '.savedSessionHistory';
   var selectorSessionHistory             = '.sessionHistory';
-  var selectorDateList                   = '#dateList';
+  var selectorDateList                   = '.dateList';
   var selectorSessionTitle               = '#sessionTitle';
   var selectorSessionSave                = '#sessionSave';
   var selectorSessionDelete              = '#sessionDelete';
@@ -779,12 +780,12 @@
 
     function closureCreateSessionDate()//{{{
     {
-      var ul = document.createElement('ul');
-      var li = document.createElement('li');
+      var df = document.createDocumentFragment();
+      var div = document.createElement('div');
 
       return {
         add: function(time) {
-          var l = li.cloneNode(true);
+          var l = div.cloneNode(true);
           var text;
           if (currentTime !== void 0 && currentTime !== undefined &&
               parseInt(currentTime) === parseInt(time)) {
@@ -796,13 +797,13 @@
           l.setAttribute('name', time);
           l.textContent = text;
           l.addEventListener('click', onClicked, true);
-          ul.appendChild(l);
+          df.appendChild(l);
         },
         get: function() {
-          return Array.prototype.slice.call(ul.childNodes);
+          return Array.prototype.slice.call(df.childNodes);
         },
         clear: function() {
-          li = document.createElement('li');
+          div = document.createElement('div');
         },
       };
     }//}}}
@@ -812,7 +813,7 @@
     function createSessionItemList(prototypeSelector)//{{{
     {
       var listProto = getPrototypeAndRemoveTag(prototypeSelector);
-      var list = document.createElement('div');
+      var list = document.createDocumentFragment();
 
       return {
         add: function(addItem) {
@@ -943,6 +944,16 @@
           itemList: sessionList,
         });
         cSSDL(savedSessions);
+
+        var savedTitleText =
+          document.querySelector(selectorSavedSessionDateTitleText);
+        if (savedSessions.length === 0) {
+          addStringToAttributeOfElement(
+            savedTitleText, 'class', elementDoesNotClassName);
+        } else {
+          removeStringFromAttributeOfElement(
+            savedTitleText, 'class', elementDoesNotClassName);
+        }
 
         //{{{
         chrome.storage.local.get(previousSessionTimeKey, items => {
