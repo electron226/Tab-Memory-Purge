@@ -2,6 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tab Memory Purge Options</title>
     <!-- build:css css/options.min.css -->
     <link rel="stylesheet" href="css/options.css" type="text/css">
@@ -12,29 +13,13 @@
     </header>
 
     <nav class="mainNav"><!--{{{-->
-      <ul>
-        <li>
-          <button name="normal" class="sectionButton" translation="option"></button>
-        </li>
-        <li>
-          <button name="keybind" class="sectionButton" translation="keybind"></button>
-        </li>
-        <li>
-          <button name="history" class="sectionButton" translation="history"></button>
-        </li>
-        <li>
-          <button name="session_history" class="sectionButton" translation="session_history"></button>
-        </li>
-        <li>
-          <button name="change_history" class="sectionButton" translation="change_history"></button>
-        </li>
-        <li>
-          <button name="information" class="sectionButton" translation="information"></button>
-        </li>
-        <li>
-          <button name="operate_settings" class="sectionButton" translation="operate_settings"></button>
-        </li>
-      </ul>
+      <button name="normal" class="sectionButton" translation="option"></button>
+      <button name="keybind" class="sectionButton" translation="keybind"></button>
+      <button name="history" class="sectionButton" translation="history"></button>
+      <button name="session_history" class="sectionButton" translation="session_history"></button>
+      <button name="change_history" class="sectionButton" translation="change_history"></button>
+      <button name="information" class="sectionButton" translation="information"></button>
+      <button name="operate_settings" class="sectionButton" translation="operate_settings"></button>
     </nav><!--}}}-->
 
     <article>
@@ -139,10 +124,10 @@
 
       <section id="history" class="sectionMenu"><!--{{{-->
         <div class="searchHistory">
-          <input type="date" id="searchHistoryDate" class="historyStyle border0" list="historyDateList" style="width: 15%;">
+          <input type="date" id="searchHistoryDate" class="historyStyle border0" list="historyDateList">
           <datalist id="historyDateList">
           </datalist>
-          <input type="search" id="searchHistoryItem" class="historyStyle border0" style="width: 80%;" placeholder="You are able to input the title or the url.">
+          <input type="search" id="searchHistoryItem" class="historyStyle border0" placeholder="You are able to input the title or the url.">
         </div>
 
         <!-- the element of the class of historyDate add here. -->
@@ -174,6 +159,9 @@
       <section id="session_history" class="sectionMenu"><!--{{{-->
         <nav class="dateListNav" style="display: none;">
           <div class="dateList">
+            <div id="sessionDateList" class="dateListStyle"></div>
+            <div id="savedSessionDateTitle">Saved Sessions</div>
+            <div id="savedSessionDateList" class="dateListStyle"></div>
           </div>
           <div class="dateListMenu">
             <section class="controlBar">
@@ -184,7 +172,7 @@
                 <img src="../icon/material design/svg/upload119.svg" alt="restore button" id="sessionRestore" class="pageIcon">
               </div>
             </section>
-            <section id="sessionList" class="session_ellipsis_over"></section>
+            <section id="sessionList" class="ellipsis_over"></section>
           </div>
         </nav>
 
@@ -205,67 +193,65 @@
       </section><!--}}}-->
 
       <section id="information" class="sectionMenu"><!--{{{-->
-        <div class="inWidthOfSection">
-          <section>
-            <h3><span translation="specification"></span></h3>
-            <ul style="list-style-type: disc">
-              <li><span translation="spec1"></span></li>
-              <li><span translation="spec2"></span></li>
-              <li><span translation="spec3"></span></li>
-              <li>
-                <div translation="spec4"></div>
-                <ul>
-                  <li><img src="../icon/icon_019.png">&nbsp;<span translation="spec_icon"></span></li>
-                  <li><img src="../icon/icon_019_with_keybind.png">&nbsp;<span translation="spec_icon_with_keybind"></span></li>
-                  <li><img src="../icon/icon_019_use_exclude.png">&nbsp;<span translation="spec_icon_use"></span></li>
-                  <li><img src="../icon/icon_019_use_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li>
-                  <li><img src="../icon/icon_019_extension_exclude.png">&nbsp;<span translation="spec_icon_extension"></span></li>
-                  <li><img src="../icon/icon_019_extension_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li>
-                  <li><img src="../icon/icon_019_temp_exclude.png">&nbsp;<span translation="spec_icon_temp"></span></li>
-                  <li><img src="../icon/icon_019_temp_exclude_with_keybind.png">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li>
-                </ul>
-              </li>
-              <li><span translation="spec5"></span></li>
-            </ul>
-          </section>
+        <section>
+          <h3><span translation="specification"></span></h3>
+          <ul style="list-style-type: disc">
+            <li><span translation="spec1"></span></li>
+            <li><span translation="spec2"></span></li>
+            <li><span translation="spec3"></span></li>
+            <li>
+              <div translation="spec4"></div>
+              <ul>
+                <li><img src="../icon/icon_019.png" class="browserActionIcon">&nbsp;<span translation="spec_icon"></span></li>
+                <li><img src="../icon/icon_019_with_keybind.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_with_keybind"></span></li>
+                <li><img src="../icon/icon_019_use_exclude.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_use"></span></li>
+                <li><img src="../icon/icon_019_use_exclude_with_keybind.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li>
+                <li><img src="../icon/icon_019_extension_exclude.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_extension"></span></li>
+                <li><img src="../icon/icon_019_extension_exclude_with_keybind.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li>
+                <li><img src="../icon/icon_019_temp_exclude.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_temp"></span></li>
+                <li><img src="../icon/icon_019_temp_exclude_with_keybind.png" class="browserActionIcon">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li>
+              </ul>
+            </li>
+            <li><span translation="spec5"></span></li>
+          </ul>
+        </section>
 
-          <section>
-            <h3><span translation="warning"></span></h3>
-            <div><span translation="warn1"></span></div>
-          </section>
+        <section>
+          <h3><span translation="warning"></span></h3>
+          <div><span translation="warn1"></span></div>
+        </section>
 
-          <section>
-            <h3><span translation="feedback"></span></h3>
-            <div><span translation="feedback_explanation"></span></div>
-            <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span translation="feedback_send"></span></a></div>
-          </section>
+        <section>
+          <h3><span translation="feedback"></span></h3>
+          <div><span translation="feedback_explanation"></span></div>
+          <div><a href="https://chrome.google.com/webstore/support/aclmceilickagfkaddbiedcnccdkfafa" target="_blank"><span translation="feedback_send"></span></a></div>
+        </section>
 
-          <section>
-            <h3><span translation="infomation_other"></span></h3>
-            <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div>
+        <section>
+          <h3><span translation="infomation_other"></span></h3>
+          <div><a href="https://github.com/electron226/Tab-Memory-Purge" target="_blank"><span translation="source_code"></span></a></div>
 
-            <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
-          </section>
-        </div>
+          <div>Icons made by <a href="http://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+        </section>
       </section><!--}}}-->
 
       <section id="operate_settings" class="sectionMenu"><!--{{{-->
-        <ul class="importAndExport">
-          <li>
+        <div class="importAndExport">
+          <div>
             <div>
               <span translation="export"></span>
               <button class="copy" name="export" translation="copy"></button>
             </div>
             <textarea id="export"></textarea>
-          </li>
-          <li>
+          </div>
+          <div>
             <div>
               <span translation="import"></span>
               <button class="apply" name="import" translation="apply"></button>
             </div>
             <textarea id="import"></textarea>
-          </li>
-        </ul>
+          </div>
+        </div>
       </section><!--}}}-->
     </article>
 

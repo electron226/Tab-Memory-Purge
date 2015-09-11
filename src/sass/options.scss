@@ -4,187 +4,15 @@ $fontColor:                #212121;
 $sectionButtonColor:       #03a9f4;
 $sectionButtonSelectColor: #b3e5fc;
 $InputBorderColor:         #727272;
+$mainFieldWidth:           95vw;
 
-.border0 {
-    border: 0;
+@mixin textColorAndShadow($r, $g, $b) {
+    color:       rgba($r, $g, $b, 1);
+    text-shadow: 0 0 1px rgba($r, $g, $b, .1);
 }
 
-body, input, textarea, button {
-    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
-    font-size: $fontSize;
-
-    color: $fontColor;
-}
-
-ul {
-    margin: 0 1em;
-    padding: 0;
-
-    list-style: none;
-}
-
-.sectionButton {
-    @extend .border0;
-
-    width: 100%;
-    padding: 1em 0;
-
-    background-color: $sectionButtonColor;
-}
-
-.sectionButton:hover, .sectionButton.select {
-    background-color: $sectionButtonSelectColor;
-}
-
-.sectionMenu {
-    width: 98%;
+%blockCentering {
     margin: 0 auto;
-    padding: 1em 0;
-
-    background-color: #fff;
-    box-shadow: 0 3px 3px 0 gray;
-}
-
-.inWidthOfSection {
-    width: 95%;
-    margin: 0 1em;
-}
-
-.doNotShow {
-    display: none;
-}
-
-.prototype {
-    @extend .doNotShow;
-}
-
-.searchHistory {
-    width: 95%;
-    margin: 0 auto;
-}
-
-.dateListNav {
-    display: flex;
-    align-items: stretch;
-}
-
-.dateList {
-    width: 25%;
-}
-
-.dateListStyle {
-    display:        flex;
-    flex-direction: column-reverse;
-    align-items:    flex-start;
-
-    li {
-        padding: 1em;
-        box-shadow: 0 0 1px 0 $fontColor;
-        background-color: $sectionButtonSelectColor;
-    }
-    li:hover, li:active, li.select {
-        background-color: $sectionButtonColor;
-    }
-}
-
-.dateListMenu {
-    width:          75%;
-    display:        flex;
-    flex-direction: column;
-    align-items:    stretch;
-}
-
-.controlBar {
-    padding: 10px;
-    display: flex;
-    background-color: $sectionButtonSelectColor;
-
-    margin-bottom: 1em;
-}
-
-.control {
-    margin-left: auto;
-}
-
-.historyField {
-    @extend .border0;
-
-    margin: 1em 8px 0;
-}
-
-.historyStyle {
-    margin-bottom: 0.5em;
-    padding: 0.3em;
-
-    box-shadow: 0 0 1px 0 $fontColor;
-}
-
-.ellipsis_over {
-    width: 99%;
-    margin: auto 7px;
-
-    display: table;
-    table-layout: fixed;
-}
-
-.session_ellipsis_over {
-    @extend .ellipsis_over;
-    margin: 0;
-}
-
-.ellipsis_inner {
-    white-space:   nowrap;
-    overflow:      hidden;
-    text-overflow: ellipsis;
-}
-
-input, textarea {
-    border: thin solid $InputBorderColor;
-}
-
-.mainNav {
-    font-size: 0;
-    margin:    0;
-    padding:   0;
-    list-style-type: none;
-    text-align:      center;
-
-    li {
-        font-size:  14px;
-        display:    inline-block;
-        width:      14%;
-        text-align: center;
-    }
-}
-
-.sectionMenu {
-    li {
-        margin: 0.5em;
-    }
-}
-
-.keybindTitle {
-    display: inline-block;
-    width: 300px;
-}
-
-.importAndExport {
-    ul {
-        font-size: 0;
-    }
-
-    li {
-        font-size: 14px;
-        display: inline-block;
-        width: 45%;
-        height: 30em;
-    }
-
-    textarea {
-        width: 100%;
-        height: 100%;
-        margin-top: 0.5em;
-    }
 }
 
 .saveIcon {
@@ -197,6 +25,233 @@ input, textarea {
 
     width: $iconSize;
     height: $iconSize;
+}
+
+.browserActionIcon {
+    width: 19px;
+    height: 19px;
+}
+
+.border0 {
+    border: 0;
+}
+
+.doNotShow {
+    display: none;
+}
+
+.prototype {
+    @extend .doNotShow;
+}
+
+body, button, input, textarea {
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-size: $fontSize;
+
+    font-smoothing:         antialiased;
+
+    @include textColorAndShadow(33, 33, 33); // is $fontColor.
+}
+
+a {
+    &:link {
+        @include textColorAndShadow(0, 0, 255);
+    }
+
+    &:visited {
+        @include textColorAndShadow(128, 0, 128);
+    }
+
+    &:hover, &:active {
+        @include textColorAndShadow(255, 0, 0);
+    }
+}
+
+ul {
+    margin: 0 1em;
+    padding: 0;
+
+    list-style: none;
+}
+
+input, textarea {
+    border: thin solid $InputBorderColor;
+}
+
+.mainNav {
+    @extend %blockCentering;
+
+    display:        flex;
+    flex-direction: row;
+    width:          $mainFieldWidth;
+
+    box-sizing: border-box;
+
+    button {
+        width: 100%;
+    }
+}
+
+.sectionButton {
+    @extend .border0;
+
+    padding: 1em 0;
+
+    background-color: $sectionButtonColor;
+
+    &:hover, &.select {
+        background-color: $sectionButtonSelectColor;
+        font-weight: bold;
+    }
+}
+
+
+.sectionMenu {
+    @extend %blockCentering;
+
+    width:   $mainFieldWidth;
+    padding: 1em 0;
+
+    background-color: #fff;
+    box-shadow: 0 3px 3px 0 gray;
+    box-sizing: border-box;
+
+    li {
+        margin: 0.5em;
+    }
+}
+
+.keyOption {
+    display: flex;
+}
+
+.keybindTitle {
+    width: 300px;
+}
+
+$dateListWidth: 15%;
+
+.dateListNav {
+    display:        flex;
+    flex-direction: row;
+    margin:         auto 1em;
+    box-sizing:     border-box;
+
+    > div {
+        margin: 0 1em;
+    }
+}
+
+.dateList {
+    width:          $dateListWidth;
+    display:        flex;
+    flex-direction: column;
+    box-sizing:     border-box;
+    text-align:     center;
+}
+
+.dateListStyle {
+    display:        flex;
+    flex-direction: column-reverse;
+    align-items:    stretch;
+
+    div {
+        padding: 1em;
+        box-shadow: 0 0 1px 0 $fontColor;
+        background-color: $sectionButtonSelectColor;
+
+        &:hover, &:active, &.select {
+            background-color: $sectionButtonColor;
+            font-weight: bold;
+        }
+    }
+}
+
+.dateListMenu {
+    width:          100% - $dateListWidth;
+    display:        flex;
+    flex-direction: column;
+
+    section {
+        border-bottom: 1em;
+    }
+}
+
+.controlBar {
+    display: flex;
+    padding: 10px;
+    background-color: $sectionButtonSelectColor;
+    box-sizing: border-box;
+}
+
+.control {
+    margin-left: auto;
+}
+
+.searchHistory {
+    display: flex;
+    justify-content: center;
+}
+
+#searchHistoryDate {
+    width: 10em;
+}
+
+#searchHistoryItem {
+    width: 60%;
+}
+
+#information section {
+    margin: 0 0 0.5em 1em;
+}
+
+.historyField {
+    @extend .border0;
+
+    margin: 1em;
+}
+
+.historyStyle {
+    margin-bottom: 0.5em;
+    padding: 0.3em;
+
+    box-shadow: 0 0 1px 0 $fontColor;
+}
+
+.ellipsis_over {
+    width:        100%;
+    display:      table;
+    table-layout: fixed;
+}
+
+.ellipsis_inner {
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.importAndExport {
+    display:     flex;
+    align-items: stretch;
+    margin:      0 1em;
+
+    * {
+        box-sizing: border-box;
+    }
+    
+    > div {
+        @extend %blockCentering;
+
+        width:          49%;
+        display:        flex;
+        flex-direction: column;
+    }
+    
+    textarea {
+        width:      100%;
+        height:     50vh;
+        margin-top: 0.5em;
+    }
 }
 
 .changeHistoryFrame {
