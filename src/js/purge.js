@@ -94,7 +94,7 @@
      */
     function exclusiveProcess()//{{{
     {
-      console.log('exclusiveProcess', arguments);
+      console.log('exclusiveProcess', Array.prototype.slice.call(arguments));
       var args = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
@@ -312,8 +312,8 @@
    * This function will check memory capacity.
    * If the memory is shortage, return true.
    *
-   * @param criteria_memory_size criteria memory size(MByte).
-   * @return {Promise} promiseが返る。
+   * @param {number} criteria_memory_size - criteria memory size(MByte).
+   * @return {promise} promiseが返る。
    */
   function isLackTheMemory(criteria_memory_size)//{{{
   {
@@ -577,7 +577,7 @@
 
   function writeSession(unloaded)//{{{
   {
-    console.log('writeSession', unloaded);
+    console.log('writeSession', Object.assign({}, unloaded));
 
     return new Promise((resolve, reject) => {
       var date = new Date();
@@ -642,7 +642,7 @@
 
     function writeHistory(tab)//{{{
     {
-      console.log('writeHistory', tab);
+      console.log('writeHistory', Object.assign({}, tab));
 
       return new Promise((resolve, reject) => {
         if (writeSet.has(tab.url)) {
@@ -805,7 +805,7 @@
   */
   function checkMatchUrlString(url, excludeObj)//{{{
   {
-    console.log('checkMatchUrlString', url, excludeObj);
+    console.log('checkMatchUrlString', url, Object.assign({}, excludeObj));
 
     var excludeArray = excludeObj.list.split('\n');
     var i = 0;
@@ -908,7 +908,7 @@
    */
   function reloadBrowserIcon(tab)//{{{
   {
-    console.log('reloadBrowserIcon', tab);
+    console.log('reloadBrowserIcon', Object.assign({}, tab));
 
     return new Promise((resolve, reject) => {
       var changeIcon = disableTimer ? DISABLE_TIMER : checkExcludeList(tab.url);
@@ -1263,7 +1263,7 @@
   */
   function restore(sessions)//{{{
   {
-   console.log('restore', sessions);
+  console.log('restore', Array.prototype.slice.call(sessions));
 
    return new Promise((resolve, reject) => {
      var i, j;
@@ -1315,7 +1315,7 @@
   */
   function tempReleaseToggle(tab)//{{{
   {
-    console.log('tempReleaseToggle', tab);
+    console.log('tempReleaseToggle', Object.assign({}, tab));
 
     return new Promise((resolve, reject) => {
       switchTempRelease(tab.url);
@@ -1336,7 +1336,7 @@
   */
   function searchUnloadedTabNearPosition(tab)//{{{
   {
-    console.log('searchUnloadedTabNearPosition', tab);
+    console.log('searchUnloadedTabNearPosition', Object.assign({}, tab));
 
     return new Promise((resolve, reject) => {
       // 現在のタブの左右の未解放のタブを選択する
@@ -1557,7 +1557,7 @@
 
   function initializeUseOptions(options)//{{{
   {
-    console.log('initializeUseOptions');
+    console.log('initializeUseOptions', new Map(options));
 
     return new Promise(resolve => {
       myOptions = options;
