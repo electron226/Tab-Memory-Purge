@@ -719,7 +719,9 @@
           // If Promise was error, it is transaction error.
           // When its error was shown, to occur in the key already exist.
           // Therefore, I call the resolve function.
-          return Promise.all(p);
+          return new Promise(resolve => {
+            Promise.all(p).then(resolve).catch(resolve);
+          });
         })
         .then(() => writeSet.delete(tab.url))
         .then(resolve)
