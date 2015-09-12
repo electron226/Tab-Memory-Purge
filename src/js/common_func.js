@@ -310,6 +310,33 @@
     return getDataURI;
   }//}}}
 
+  function hasStringOfAttributeOfElement(element, attrName, addStr)//{{{
+  {
+    var re = new RegExp('(^|\\s+)' + addStr, '');
+    return re.test(element.getAttribute(attrName));
+  }//}}}
+
+  function addStringToAttributeOfElement(element, attrName, addStr)//{{{
+  {
+    if (!hasStringOfAttributeOfElement(element, attrName, addStr)) {
+      var oldAttribute = element.getAttribute(attrName);
+      element.setAttribute(
+        attrName, (oldAttribute ? oldAttribute + ' ' : '') + addStr);
+      return true;
+    }
+    return false;
+  }//}}}
+
+  function removeStringFromAttributeOfElement(//{{{
+    element, attrName, removeStr, replaceStr)
+  {
+    var re = new RegExp('(^|\\s+)' + removeStr, 'ig');
+    var value = element.getAttribute(attrName);
+    if (value) {
+      element.setAttribute(attrName, value.replace(re, replaceStr || ''));
+    }
+  }//}}}
+
   /**
    * keyCheck
    * return key information object.
@@ -497,6 +524,12 @@
   setObjectProperty(window, 'loadTranslation',   loadTranslation);
   setObjectProperty(window, 'getQueryString',    getQueryString);
   setObjectProperty(window, 'getDataURI',        closureGetDataURI());
+  setObjectProperty(window, 'hasStringOfAttributeOfElement',
+                    hasStringOfAttributeOfElement);
+  setObjectProperty(window, 'addStringToAttributeOfElement',
+                    addStringToAttributeOfElement);
+  setObjectProperty(window, 'removeStringFromAttributeOfElement',
+                    removeStringFromAttributeOfElement);
   setObjectProperty(window, 'keyCheck',          keyCheck);
   setObjectProperty(window, 'generateKeyString', generateKeyString);
   setObjectProperty(window, 'toType',            toType);

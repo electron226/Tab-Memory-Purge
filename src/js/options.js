@@ -451,33 +451,6 @@
     });
   }//}}}
 
-  function hasStringOfAttributeOfElement(element, attrName, addStr)//{{{
-  {
-    var re = new RegExp('(^|\\s+)' + addStr, '');
-    return re.test(element.getAttribute(attrName));
-  }//}}}
-
-  function addStringToAttributeOfElement(element, attrName, addStr)//{{{
-  {
-    if (!hasStringOfAttributeOfElement(element, attrName, addStr)) {
-      var oldAttribute = element.getAttribute(attrName);
-      element.setAttribute(
-        attrName, (oldAttribute ? oldAttribute + ' ' : '') + addStr);
-      return true;
-    }
-    return false;
-  }//}}}
-
-  function removeStringFromAttributeOfElement(//{{{
-    element, attrName, removeStr, replaceStr)
-  {
-    var re = new RegExp('(^|\\s+)' + removeStr, 'ig');
-    var value = element.getAttribute(attrName);
-    if (value) {
-      element.setAttribute(attrName, value.replace(re, replaceStr || ''));
-    }
-  }//}}}
-
   function getPrototypeAndRemoveTag(selector) {//{{{
     var proto = document.querySelector(selector).cloneNode(true);
     removeStringFromAttributeOfElement(proto, 'class', prototypeClassName);
