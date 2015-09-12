@@ -1,0 +1,54 @@
+$default-font-size:  14px;
+$default-icon-size:  16px;
+$default-text-color: #212121;
+
+@mixin setWidthAndHeight($width, $height: $width) {
+    width: $width;
+    height: $height;
+}
+
+@mixin iconSize {
+    @include setWidthAndHeight($default-icon-size);
+}
+
+@mixin textColorAndShadow($rgb) {
+    color:       rgba($rgb, 1);
+    text-shadow: 0 0 1px rgba($rgb, .1);
+}
+
+@mixin textStyleLikeAdobe($rgb) {
+    @include textColorAndShadow($rgb);
+
+    font-smoothing: antialiased;
+}
+
+@mixin blockCentering {
+    margin: 0 auto;
+}
+
+@mixin border0 {
+    border: 0;
+}
+
+@mixin notShow {
+    display: none;
+}
+
+@mixin ellipsis_over($width: 100%) {
+    width:        $width;
+    display:      table;
+    table-layout: fixed;
+}
+
+@mixin ellipsis_inner {
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+body, input, textarea, button {
+    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
+    font-size: $default-font-size;
+
+    @include textStyleLikeAdobe($default-text-color);
+}

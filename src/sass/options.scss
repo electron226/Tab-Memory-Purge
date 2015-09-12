@@ -1,69 +1,48 @@
-$iconSize:                 16px;
-$fontSize:                 14px;
-$fontColor:                #212121;
-$sectionButtonColor:       #03a9f4;
-$sectionButtonSelectColor: #b3e5fc;
-$InputBorderColor:         #727272;
-$mainFieldWidth:           95vw;
+@import "import/common.scss";
 
-@mixin textColorAndShadow($r, $g, $b) {
-    color:       rgba($r, $g, $b, 1);
-    text-shadow: 0 0 1px rgba($r, $g, $b, .1);
-}
-
-%blockCentering {
-    margin: 0 auto;
-}
+$primary-color:       #2196F3;
+$light-primary-color: #BBDEFB;
+$input-border-color:  #727272;
+$main-field-width:    95vw;
 
 .saveIcon {
     transform: rotate(45deg);
 }
 
 .pageIcon {
-    position: relative;
-    top: 3px;
+    @include iconSize;
 
-    width: $iconSize;
-    height: $iconSize;
+    position: relative;
+    top:      3px;
 }
 
 .browserActionIcon {
-    width: 19px;
-    height: 19px;
+    @include setWidthAndHeight(19px);
 }
 
 .border0 {
-    border: 0;
+    @include border0;
 }
 
 .doNotShow {
-    display: none;
+    @include notShow;
 }
 
 .prototype {
-    @extend .doNotShow;
-}
-
-body, button, input, textarea {
-    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
-    font-size: $fontSize;
-
-    font-smoothing:         antialiased;
-
-    @include textColorAndShadow(33, 33, 33); // is $fontColor.
+    @include notShow;
 }
 
 a {
     &:link {
-        @include textColorAndShadow(0, 0, 255);
+        @include textColorAndShadow(rgb(0, 0, 255));
     }
 
     &:visited {
-        @include textColorAndShadow(128, 0, 128);
+        @include textColorAndShadow(rgb(128, 0, 128));
     }
 
     &:hover, &:active {
-        @include textColorAndShadow(255, 0, 0);
+        @include textColorAndShadow(rgb(255, 0, 0));
     }
 }
 
@@ -75,17 +54,16 @@ ul {
 }
 
 input, textarea {
-    border: thin solid $InputBorderColor;
+    border: thin solid $input-border-color;
 }
 
 .mainNav {
-    @extend %blockCentering;
+    @include blockCentering;
 
     display:        flex;
     flex-direction: row;
-    width:          $mainFieldWidth;
-
-    box-sizing: border-box;
+    width:          $main-field-width;
+    box-sizing:     border-box;
 
     button {
         width: 100%;
@@ -95,26 +73,25 @@ input, textarea {
 .sectionButton {
     @extend .border0;
 
-    padding: 1em 0;
-
-    background-color: $sectionButtonColor;
+    padding:          1em 0;
+    background-color: $primary-color;
 
     &:hover, &.select {
-        background-color: $sectionButtonSelectColor;
-        font-weight: bold;
+        background-color: $light-primary-color;
+        font-weight:      bold;
     }
 }
 
 
 .sectionMenu {
-    @extend %blockCentering;
+    @include blockCentering;
 
-    width:   $mainFieldWidth;
+    width:   $main-field-width;
     padding: 1em 0;
 
     background-color: #fff;
-    box-shadow: 0 3px 3px 0 gray;
-    box-sizing: border-box;
+    box-shadow:       0 3px 3px 0 $input-border-color;
+    box-sizing:       border-box;
 
     li {
         margin: 0.5em;
@@ -156,13 +133,13 @@ $dateListWidth: 15%;
     align-items:    stretch;
 
     div {
-        padding: 1em;
-        box-shadow: 0 0 1px 0 $fontColor;
-        background-color: $sectionButtonSelectColor;
+        padding:          1em;
+        box-shadow:       0 0 1px 0 $default-text-color;
+        background-color: $light-primary-color;
 
         &:hover, &:active, &.select {
-            background-color: $sectionButtonColor;
-            font-weight: bold;
+            background-color: $primary-color;
+            font-weight:      bold;
         }
     }
 }
@@ -178,10 +155,10 @@ $dateListWidth: 15%;
 }
 
 .controlBar {
-    display: flex;
-    padding: 10px;
-    background-color: $sectionButtonSelectColor;
-    box-sizing: border-box;
+    display:          flex;
+    padding:          10px;
+    background-color: $light-primary-color;
+    box-sizing:       border-box;
 }
 
 .control {
@@ -206,28 +183,24 @@ $dateListWidth: 15%;
 }
 
 .historyField {
-    @extend .border0;
+    @include border0;
 
     margin: 1em;
 }
 
 .historyStyle {
     margin-bottom: 0.5em;
-    padding: 0.3em;
+    padding:       0.3em;
 
-    box-shadow: 0 0 1px 0 $fontColor;
+    box-shadow: 0 0 1px 0 $default-text-color;
 }
 
 .ellipsis_over {
-    width:        100%;
-    display:      table;
-    table-layout: fixed;
+    @include ellipsis_over;
 }
 
 .ellipsis_inner {
-    white-space:   nowrap;
-    overflow:      hidden;
-    text-overflow: ellipsis;
+    @include ellipsis_inner;
 }
 
 .importAndExport {
@@ -240,7 +213,7 @@ $dateListWidth: 15%;
     }
     
     > div {
-        @extend %blockCentering;
+        @include blockCentering;
 
         width:          49%;
         display:        flex;
@@ -255,8 +228,8 @@ $dateListWidth: 15%;
 }
 
 .changeHistoryFrame {
-    width: 98%;
+    width:      98%;
     min-height: 600px;
-    margin: 1em 8px 0;
-    padding: 1em 0;
+    margin:     1em 8px 0;
+    padding:    1em 0;
 }
