@@ -1,5 +1,46 @@
 @import "import/common.scss";
 
+$primary-color:       #03A9F4;
+$light-primary-color: #BBDEFB;
+
+@each $prefix in 16 {
+    .icon#{$prefix} {
+        @include setWidthAndHeight(#{$prefix}px);
+    }
+}
+
+body {
+    @include blockCentering;
+
+    font-size: 16px;
+    text-align: center;
+
+    width: 60vw;
+}
+
+#page_info {
+    margin-top: 3vh;
+    box-sizing: border-box;
+}
+
+#titlePlace {
+    background-color: $primary-color;
+    font-size:        1.2rem;
+    font-weight:      bold;
+    padding:          0.2rem;
+    box-sizing:       border-box;
+}
+
+#url {
+    background-color: $light-primary-color;
+    padding:          0.2rem;
+    box-sizing:       border-box;
+}
+
+#message {
+    margin-top: 1rem;
+}
+
 .ellipsis_over {
     @include ellipsis_over;
 }

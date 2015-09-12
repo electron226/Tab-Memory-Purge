@@ -7,8 +7,9 @@
 
   var maxRecorsiveCount = 3;
 
-  const eUrl   = document.querySelector('#url');
+  const eIcon = document.querySelector('#favicon');
   const eTitle = document.querySelector('#title');
+  const eUrl   = document.querySelector('#url');
 
   const F5Key = generateKeyString({
     ctrl    : false,
@@ -130,6 +131,9 @@
           link.rel  = 'shortcut icon';
           link.href = decodeURIComponent(dataURIInfo.dataURI);
           head.appendChild(link);
+
+          eIcon.src = dataURIInfo.dataURI;
+          removeStringFromAttributeOfElement(eIcon, 'class', 'notShow');
         }
       })
       .then(resolve)
