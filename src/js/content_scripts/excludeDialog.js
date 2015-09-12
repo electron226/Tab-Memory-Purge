@@ -33,13 +33,33 @@
   var hosts = getHosts();
   var paths = getPathNames();
 
+  function initTextStyle(element)//{{{
+  {
+    element.style.fontFamily = '"Meiryo UI", "Meiryo", "ＭＳ Ｐゴシック", ' +
+                              '"Osaka-Mono", "Monospace", "Helvetica", ' +
+                              '"Arial", sans-serif';
+    element.style.fontSize   = '12px';
+    textStyleLikeAdobe(element);
+  }//}}}
+
+  function textStyleLikeAdobe(element)//{{{
+  {
+    element.style.color      = 'rgba(#212121, 1)';
+    element.style.textshadow = '0 0 1px rgba(#212121, .1)';
+    element.style.fontSmoothing = 'antialiased';
+  }//}}}
+
   // デザイン
   // http://www.cssdesk.com/PLetB
   var br = document.createElement('br');
   var div    = document.createElement('div');
+  initTextStyle(div);
   var span   = document.createElement('span');
+  initTextStyle(span);
   var button = document.createElement('button');
+  initTextStyle(button);
   var input  = document.createElement('input');
+  initTextStyle(input);
   input.type           = 'range';
   input.style.position = "relative";
   input.style.top      = "0.4rem";
@@ -48,10 +68,6 @@
   function createParentElement()//{{{
   {
     var p = div.cloneNode();
-    p.style.fontFamily = '"Meiryo", "メイリオ", "ＭＳ Ｐゴシック", ' +
-                              '"Osaka-Mono", "Monospace", "Helvetica", ' +
-                              '"Arial", sans-serif';
-    p.style.fontSize   = '12px';
     p.style.position   = 'fixed';
     p.style.background = "rgba(245, 245, 245, 1.0)";
     p.style.boxShadow  = "5px 5px 20px -2px gray";
