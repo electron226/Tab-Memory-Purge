@@ -158,9 +158,11 @@
     'TEMP_EXCLUDE',      // 32
     'EXTENSION_EXCLUDE', // 64
   ];
-  excludeValues.forEach(function(v, i) {
-    window[v] = window[v] || 1 << i;
-  });
+  var i = 0;
+  while (i < excludeValues.length) {
+    setObjectProperty(window, excludeValues[i], 1 << i);
+    ++i;
+  }
 
   // the path of icons.
   // defined NORMAL etc... in common.js.
@@ -174,7 +176,7 @@
 
   var keybindIconSuffix = '_with_keybind';
   var iter = iconNumbers.entries();
-  for (var i = iter.next(); !i.done; i = iter.next()) {
+  for (i = iter.next(); !i.done; i = iter.next()) {
     icons.set(i.value[1], chrome.runtime.getURL('icon/' + i.value[0] + '.png'));
     icons.set(i.value[1] | KEYBIND_EXCLUDE,
       chrome.runtime.getURL('icon/' + i.value[0] + keybindIconSuffix + '.png'));
