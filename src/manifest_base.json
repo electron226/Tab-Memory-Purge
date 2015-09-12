@@ -6,11 +6,15 @@
     "default_locale"   : "en",
     "incognito"        : "split",
     "icons" : {
+      "16"  : "icon/icon_016.png",
       "48"  : "icon/icon_048.png",
       "128" : "icon/icon_128.png"
     },
     "browser_action" : {
-      "default_icon"  : "icon/icon_019.png",
+      "icons" : {
+        "19": "icon/icon_019.png",
+        "38": "icon/icon_038.png"
+      },
       "default_title" : "__MSG_extName__",
       "default_popup" : "popup.html"
     },
