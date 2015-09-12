@@ -1,14 +1,9 @@
 $default-font-size:  14px;
-$default-icon-size:  16px;
 $default-text-color: #212121;
 
 @mixin setWidthAndHeight($width, $height: $width) {
     width: $width;
     height: $height;
-}
-
-@mixin iconSize {
-    @include setWidthAndHeight($default-icon-size);
 }
 
 @mixin textColorAndShadow($rgb) {

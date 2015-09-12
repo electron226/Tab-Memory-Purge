@@ -5,19 +5,17 @@ $light-primary-color: #BBDEFB;
 $input-border-color:  #727272;
 $main-field-width:    95vw;
 
+@each $prefix in 16, 19, 24 {
+    .icon#{$prefix} {
+        @include setWidthAndHeight(#{$prefix}px);
+
+        position: relative;
+        top:      3px;
+    }
+}
+
 .saveIcon {
     transform: rotate(45deg);
-}
-
-.pageIcon {
-    @include iconSize;
-
-    position: relative;
-    top:      3px;
-}
-
-.browserActionIcon {
-    @include setWidthAndHeight(19px);
 }
 
 .border0 {
@@ -54,7 +52,8 @@ ul {
 }
 
 input, textarea {
-    border: thin solid $input-border-color;
+    border:     thin solid $input-border-color;
+    box-sizing: border-box;
 }
 
 .mainNav {
@@ -166,8 +165,9 @@ $dateListWidth: 15%;
 }
 
 .searchHistory {
-    display: flex;
+    display:         flex;
     justify-content: center;
+    flex-basis:      auto;
 }
 
 #searchHistoryDate {
