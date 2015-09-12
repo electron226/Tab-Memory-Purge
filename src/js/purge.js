@@ -1964,11 +1964,12 @@
           .catch(e => console.error(e));
           break;
         case 'load_options_and_reload_current_tab':
-          getCurrentTab()
-          .then(tab => {
-            return updateOptionValues()
-                  .then(setTick(tab.id))
-                  .then(reloadBrowserIcon(tab));
+          var p = [];
+          p.push( getCurrentTab() );
+          p.push( updateOptionValues() );
+          Promise.all(p).then(results => {
+            var tab = results[0];
+            setTick(tab.id).then(reloadBrowserIcon(tab));
           })
           .catch(e => console.error(e));
           break;
