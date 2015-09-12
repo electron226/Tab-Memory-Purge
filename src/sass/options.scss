@@ -30,6 +30,10 @@ $main-field-width:    95vw;
     @include notShow;
 }
 
+.showBlock {
+    display: block;
+}
+
 a {
     &:link {
         @include textColorAndShadow(rgb(0, 0, 255));
@@ -107,7 +111,7 @@ input, textarea {
 
 $dateListWidth: 15%;
 
-.dateListNav {
+#dateListNav {
     display:        flex;
     flex-direction: row;
     margin:         auto 1rem;

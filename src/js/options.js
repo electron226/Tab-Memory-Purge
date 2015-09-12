@@ -21,6 +21,7 @@
 
   var classNameWhenSelect     = 'select';
   var elementDoesNotClassName = 'doNotShow';
+  var elementShowBlockClassName = 'showBlock';
   var prototypeClassName      = 'prototype';
 
   var selectorHistoryDate                       = '.historyDate';
@@ -34,9 +35,9 @@
   var selectorHistoryItemUrl                   = '.historyItemUrl';
   var selectorHistoryItemIcon                   = '.historyItemIcon';
   var selectorHistoryItemTitle                  = '.historyItemTitle';
-  var selectorSearchHistoryDate                 = '#searchHistoryDate';
-  var selectorSearchHistoryItem                 = '#searchHistoryItem';
-  var selectorSearchHistoryDateList             = '#historyDateList';
+  var searchHistoryDate     = document.querySelector('#searchHistoryDate');
+  var searchHistoryItem     = document.querySelector('#searchHistoryItem');
+  var searchHistoryDateList = document.querySelector('#historyDateList');
   var prototypeSelectorOfHistoryDate =
     selectorHistoryDate + '.' + prototypeClassName;
   var prototypeSelectorOfHistoryItem =
@@ -44,32 +45,35 @@
 
   var eChangeHistoryField = document.querySelector('#change_history div');
 
-  var selectorDateListNav                     = '.dateListNav';
-  var selectorSavedSessionDateTitleText = '#savedSessionDateTitle';
-  var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
+  var dateListNav = document.querySelector('#dateListNav');
+  var sessionNotFound = document.querySelector('#sessionNotFound');
+  var savedSessionDateTitleText =
+    document.querySelector('#savedSessionDateTitle');
+  var addSavedSessionDateListLocation =
+    document.querySelector('#savedSessionDateList');
   var addSavedSessionDateListIdName =
-    selectorAddSavedSessionDateListLocation.slice(1);
-  var selectorAddSessionDateListLocation = '#sessionDateList';
-  var selectorAddSessionListLocation     = '#sessionList';
-  var selectorSavedSessionHistory        = '.savedSessionHistory';
-  var selectorSessionHistory             = '.sessionHistory';
-  var selectorDateList                   = '.dateList';
-  var selectorSessionTitle               = '#sessionTitle';
-  var selectorSessionSave                = '#sessionSave';
-  var selectorSessionDelete              = '#sessionDelete';
-  var selectorSessionRestore             = '#sessionRestore';
-  var selectorSessionItem                = '.sessionItem';
-  var selectorSessionItemDelete          = '.sessionItemDelete';
-  var selectorSessionItemUrl             = '.sessionItemUrl';
-  var selectorSessionItemIcon            = '.sessionItemIcon';
-  var selectorSessionItemTitle           = '.sessionItemTitle';
-  var attrNameOfSessionItemId            = 'sessionItemId';
+    addSavedSessionDateListLocation.id.slice(1);
+  var addSessionDateListLocation = document.querySelector('#sessionDateList');
+  var addSessionListLocation     = document.querySelector('#sessionList');
+  var selectorSavedSessionHistory = '.savedSessionHistory';
+  var selectorSessionHistory      = '.sessionHistory';
+  var selectorDateList            = '.dateList';
+  var sessionTitle                = document.querySelector('#sessionTitle');
+  var sessionSave                 = document.querySelector('#sessionSave');
+  var sessionDelete               = document.querySelector('#sessionDelete');
+  var sessionRestore              = document.querySelector('#sessionRestore');
+  var selectorSessionItem         = '.sessionItem';
+  var selectorSessionItemDelete   = '.sessionItemDelete';
+  var selectorSessionItemUrl      = '.sessionItemUrl';
+  var selectorSessionItemIcon     = '.sessionItemIcon';
+  var selectorSessionItemTitle    = '.sessionItemTitle';
+  var attrNameOfSessionItemId     = 'sessionItemId';
 
   var prototypeSelectorOfSessionItem =
     selectorSessionItem + '.' + prototypeClassName;
 
-  var selectorExportLocation = '#export';
-  var selectorImportLocation = '#import';
+  var exportLocation = document.querySelector('#export');
+  var importLocation = document.querySelector('#import');
 
   var excludeKeyNames = [];
   excludeKeyNames.push(versionKey);
@@ -213,33 +217,20 @@
   };
   ShowMenuSelection.prototype.showMenu = function(selector) {
     return function(idName) {
-      var oldStyle, newStyle;
       var showMenu = document.querySelector(selector + '#' + idName + '');
-
-      var el    = showMenu;
-      var style = el.getAttribute('style');
-      if (style === null) {
-        el.setAttribute('style', 'display: block;');
-      } else {
-        oldStyle = style.replace(ShowMenuSelection.toggleSectionRegex, '');
-        newStyle = 'display: block;';
-        el.setAttribute('style', oldStyle + newStyle);
-      }
-
       var dontShowMenu =
         document.querySelectorAll(selector + ':not(#' + idName + ')');
+
+      removeStringFromAttributeOfElement(
+        showMenu, 'class', elementDoesNotClassName);
+      addStringToAttributeOfElement(
+        showMenu, 'class', elementShowBlockClassName);
       var i = 0;
       while (i < dontShowMenu.length) {
-        el = dontShowMenu[i];
-        style = el.getAttribute('style');
-        if (style === null) {
-          el.setAttribute('style', 'display: none;');
-        } else {
-          oldStyle = style.replace(ShowMenuSelection.toggleSectionRegex, '');
-          newStyle = 'display: none;';
-          el.setAttribute('style', oldStyle + newStyle);
-        }
-
+        removeStringFromAttributeOfElement(
+          dontShowMenu[i], 'class', elementShowBlockClassName);
+        addStringToAttributeOfElement(
+          dontShowMenu[i], 'class', elementDoesNotClassName);
         ++i;
       }
     };
@@ -251,14 +242,12 @@
       var o = document.querySelector(
         selector + '.' + $this.className_when_select);
       if (o !== null) {
-        o.setAttribute('class',
-          o.getAttribute('class').replace(
-            $this.className_when_select, '').trim() );
+        removeStringFromAttributeOfElement(
+          o, 'class', $this.className_when_select);
       }
 
       var n = document.querySelector(selector + '[name = "' + name + '"]');
-      n.setAttribute('class',
-        n.getAttribute('class') + ' ' + $this.className_when_select);
+      addStringToAttributeOfElement(n, 'class', $this.className_when_select);
     };
   };
   ShowMenuSelection.prototype.show = function(name) {
@@ -444,8 +433,7 @@
           i = iter.next();
         }
         var newOptions = deleteKeyItemFromObject(obj, excludeKeyNames);
-        var e = document.querySelector(selectorExportLocation);
-        e.value = JSON.stringify(newOptions, null, '    ');
+        exportLocation.value = JSON.stringify(newOptions, null, '    ');
         resolve();
       });
     });
@@ -457,9 +445,9 @@
     return proto;
   }//}}}
 
-  function addAutocompleteDateList(selector)//{{{
+  function addAutocompleteDateList(element)//{{{
   {
-    var autocompleteList = document.querySelector(selector);
+    var autocompleteList = element;
     var optionElement = document.createElement('option');
 
     while (autocompleteList.firstChild) {
@@ -554,8 +542,7 @@
 
   function saveSession()//{{{
   {
-    var sessionList = document.querySelector(selectorAddSessionListLocation);
-    var showList = sessionList.querySelectorAll(
+    var showList = addSessionListLocation.querySelectorAll(
       'section:not(.' + elementDoesNotClassName + ')');
     if (showList.length === 0) {
       return;
@@ -585,7 +572,6 @@
 
   function deleteSession()//{{{
   {
-    var sessionTitle = document.querySelector(selectorSessionTitle);
     var date = parseInt(sessionTitle.getAttribute('name'));
     var dbNames = [ dbSessionName, dbSavedSessionName ];
 
@@ -632,8 +618,7 @@
 
   function restoreSession()//{{{
   {
-    var sessionList = document.querySelector(selectorAddSessionListLocation);
-    var showList = sessionList.querySelectorAll(
+    var showList = addSessionListLocation.querySelectorAll(
       'section:not(.' + elementDoesNotClassName + ')');
     if (showList.length === 0) {
       return;
@@ -725,15 +710,14 @@
       }
 
       // If clicking date is saved sesssion, add button is not show.
-      var saveBtn = document.querySelector(selectorSessionSave);
       var list = event.target.parentNode;
       var listName = list.getAttribute('id');
       if (listName === addSavedSessionDateListIdName) {
         addStringToAttributeOfElement(
-          saveBtn, 'class', elementDoesNotClassName);
+          sessionSave, 'class', elementDoesNotClassName);
       } else {
         removeStringFromAttributeOfElement(
-          saveBtn, 'class', elementDoesNotClassName);
+          sessionSave, 'class', elementDoesNotClassName);
       }
 
       // a button of session date is changed by state.
@@ -741,7 +725,6 @@
       var selectDates = dateList.querySelector('[name="' + name + '"]');
       addStringToAttributeOfElement(selectDates, 'class', classNameWhenSelect);
 
-      var sessionTitle = document.querySelector(selectorSessionTitle);
       sessionTitle.setAttribute('name', name);
       sessionTitle.textContent = selectDates.textContent;
 
@@ -893,11 +876,8 @@
   function showAllSessionHistory()//{{{
   {
     return new Promise((resolve, reject) => {
-      var sessionSave = document.querySelector(selectorSessionSave);
       sessionSave.addEventListener('click', saveSession, true);
-      var sessionDelete = document.querySelector(selectorSessionDelete);
       sessionDelete.addEventListener('click', deleteSession, true);
-      var sessionRestore = document.querySelector(selectorSessionRestore);
       sessionRestore.addEventListener('click', restoreSession, true);
 
       getAllSessionHistory()
@@ -905,31 +885,22 @@
         var savedSessions = results[0];
         var sessions      = results[1];
 
-        var savedSessionDateList =
-          document.querySelector(selectorAddSavedSessionDateListLocation);
-        var sessionDateList =
-          document.querySelector(selectorAddSessionDateListLocation);
-        var sessionList =
-          document.querySelector(selectorAddSessionListLocation);
-        clearItemInElement(savedSessionDateList);
-        clearItemInElement(sessionDateList);
-        clearItemInElement(sessionList);
+        clearItemInElement(addSavedSessionDateListLocation);
+        clearItemInElement(addSessionDateListLocation);
+        clearItemInElement(addSessionListLocation);
 
-        // new
-        var cSSDL = closureCreateSessionDateList({
-          dateList: savedSessionDateList,
-          itemList: sessionList,
-        });
-        cSSDL(savedSessions);
-
-        var savedTitleText =
-          document.querySelector(selectorSavedSessionDateTitleText);
         if (savedSessions.length === 0) {
           addStringToAttributeOfElement(
-            savedTitleText, 'class', elementDoesNotClassName);
+            savedSessionDateTitleText, 'class', elementDoesNotClassName);
         } else {
           removeStringFromAttributeOfElement(
-            savedTitleText, 'class', elementDoesNotClassName);
+            savedSessionDateTitleText, 'class', elementDoesNotClassName);
+
+          var cSSDL = closureCreateSessionDateList({
+            dateList: addSavedSessionDateListLocation,
+            itemList: addSessionListLocation,
+          });
+          cSSDL(savedSessions);
         }
 
         //{{{
@@ -938,16 +909,22 @@
 
           // new
           var cSDL = closureCreateSessionDateList({
-            dateList: sessionDateList,
-            itemList: sessionList,
+            dateList: addSessionDateListLocation,
+            itemList: addSessionListLocation,
             currentTime: currentTime,
           });
           cSDL(sessions);
 
           if (savedSessions.length > 0 || sessions.length > 0) {
-            var dateListNav = document.querySelector(selectorDateListNav);
+            addStringToAttributeOfElement(
+              sessionNotFound, 'class', elementDoesNotClassName);
             removeStringFromAttributeOfElement(
-              dateListNav, 'class', elementDoesNotClassName);
+              dateListNav, 'style', 'display: none;');
+          } else {
+            removeStringFromAttributeOfElement(
+              sessionNotFound, 'class', elementDoesNotClassName);
+            addStringToAttributeOfElement(
+              dateListNav, 'style', 'display: none;');
           }
           resolve();
         });
@@ -1001,14 +978,13 @@
         historyArray = historyArray.reverse();
 
         var autocompleteDateList =
-          addAutocompleteDateList(selectorSearchHistoryDateList);
+          addAutocompleteDateList(searchHistoryDateList);
 
         var historyDateList =
           document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
         clearItemInElement(historyDateList);
 
-        var historyDate =
-          createHistoryDate(prototypeSelectorOfHistoryDate);
+        var historyDate = createHistoryDate(prototypeSelectorOfHistoryDate);
         var historyDateItemList =
           createHistoryDateItemList(prototypeSelectorOfHistoryItem);
 
@@ -1200,15 +1176,13 @@
     });
   }//}}}
 
-  function initHistoryEvent(d)//{{{
+  function initHistoryEvent()//{{{
   {
     return new Promise(resolve => {
-      var searchDate = d.querySelector(selectorSearchHistoryDate);
-      searchDate.addEventListener('change', showSpecificHistoryDate, true);
-
-      var searchItem = d.querySelector(selectorSearchHistoryItem);
-      searchItem.addEventListener('keyup', showSpecificHistoryItem, true);
-
+      searchHistoryDate.addEventListener(
+        'change', showSpecificHistoryDate, true);
+      searchHistoryItem.addEventListener(
+        'keyup', showSpecificHistoryItem, true);
       resolve();
     });
   }//}}}
@@ -1403,10 +1377,9 @@
       el.dispatchEvent(newEvent);
       break;
     case classNameOfCopyButton:
-      el = document.querySelector(selectorExportLocation);
-      el.select();
+      exportLocation.select();
       var result = document.execCommand('copy');
-      var msg = result ? 'successed' : 'failured';
+      var msg    = result ? 'successed' : 'failured';
       console.log('have copied the string of import area. it is ' + msg + '.');
 
       window.getSelection().removeAllRanges();
@@ -1414,9 +1387,8 @@
     case classNameOfApplyButton:
       var value;
 
-      el = document.querySelector(selectorImportLocation);
       try {
-        value = JSON.parse(el.value.trim());
+        value = JSON.parse(importLocation.value.trim());
       } catch (e) {
         if (e instanceof SyntaxError) {
           console.error("Invalid string. The string isn't json string.");

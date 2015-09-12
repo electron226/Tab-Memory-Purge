@@ -9,9 +9,6 @@
     <!-- endbuild -->
   </head>
   <body>
-    <header>
-    </header>
-
     <nav class="mainNav"><!--{{{-->
       <button name="normal" class="sectionButton" translation="option"></button>
       <button name="keybind" class="sectionButton" translation="keybind"></button>
@@ -156,7 +153,8 @@
       </section><!--}}}-->
 
       <section id="session_history" class="sectionMenu"><!--{{{-->
-        <nav class="dateListNav doNotShow">
+        <div id="sessionNotFound" class="doNotShow">The sessions is not found.</div>
+        <nav id="dateListNav" style="display: none;">
           <div class="dateList">
             <div id="sessionDateList" class="dateListStyle"></div>
             <div id="savedSessionDateTitle">Saved Sessions</div>
@@ -253,9 +251,6 @@
         </div>
       </section><!--}}}-->
     </article>
-
-    <footer>
-    </footer>
 
     <!-- build:js js/commons.min.js -->
     <script src="js/common.js"></script>
