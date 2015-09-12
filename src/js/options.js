@@ -42,6 +42,8 @@
   var prototypeSelectorOfHistoryItem =
     selectorHistoryItem + '.' + prototypeClassName;
 
+  var eChangeHistoryField = document.querySelector('#change_history div');
+
   var selectorDateListNav                     = '.dateListNav';
   var selectorSavedSessionDateTitleText = '#savedSessionDateTitle';
   var selectorAddSavedSessionDateListLocation = '#savedSessionDateList';
@@ -380,6 +382,8 @@
           }
           break;
         case 'change_history':
+          showChangeHistory()
+          .catch(e => console.error(e));
           break;
         case 'operate_settings':
           showOptionValuesToOperateSettingsPage()
@@ -1210,6 +1214,17 @@
 
       ++i;
     }
+  }//}}}
+
+  function showChangeHistory()//{{{
+  {
+    return new Promise(resolve => {
+      ajax({ url: changeHistory, responseType: 'text' })
+      .then(result => {
+        eChangeHistoryField.innerHTML = result.response;
+        resolve();
+      });
+    });
   }//}}}
 
   function initHistoryEvent(d)//{{{

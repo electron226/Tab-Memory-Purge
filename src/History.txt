@@ -1,101 +1,100 @@
 2015/01/11 ver 2.3.7
-Added: When the extension restores the purge tabs, restore the previous form data of purged tab. (Issues #44)
-Changed: I will change that display a date format in the change history of the option page when locale is Japanese or English.
-Fixed: Do work the tabs in secret window.
+Added:	When the extension restores the purge tabs, restore the previous form data of purged tab. (Issues #44)
+Changed:	I will change that display a date format in the change history of the option page when locale is Japanese or English.
+Fixed:	Do work the tabs in secret window.
 
 2014/12/20 ver 2.3.6
-Added: The user is able to set the check time for automatic purged processing and current session.
-Changed: When the tab to purge isn't loading complete, The user is able to purge after it's completed.
+Added:	The user is able to set the check time for automatic purged processing and current session.
+Changed:	When the tab to purge isn't loading complete, The user is able to purge after it's completed.
 
 2014/12/18 ver 2.3.4
-Added: Add the button to reload the session history and the history of each page of option page.
-Changed: After tab was purged, delete the purge url from the history of Google Chrome.
-Changed: The history and the session history are changed to use indexeDB from chrome.storage.
+Added:	Add the button to reload the session history and the history of each page of option page.
+Changed:	After tab was purged, delete the purge url from the history of Google Chrome.
+Changed:	The history and the session history are changed to use indexeDB from chrome.storage.
 
 2014/12/02 ver 2.3.3
-Fixed: After this extension is updated, Fix the bug that a user can't restore that added session history at the previous version.
+Fixed:	After this extension is updated, Fix the bug that a user can't restore that added session history at the previous version.
 
 2014/12/01 ver 2.3.2
-Delete:
-Delete "Author site" and "Assignment File" in "Specifies the page to be used for memory release.".
-Evidently, the tab doesn't seem release the memory.
-for example,
-"In the extension" -> Using the memory of purged tab is 22M(20M = Extension, 2M = purged tab).
-"Author size" -> The tab doesn't seem release the memory. therefore, I have deleted this option.
-"Assigment file" -> Only the first time, effective. This problem is cause the history of the tab. But this history can't delete. Therefore, I have deleted this option.
-Fixed: Fix the bug that can't delete the session item.
-Fixed: When the extension was initialized, fix the bug that already the opened purging tabs can't add to the variable of unloaded.
+Delete:	Delete "Author site" and "Assignment File" in "Specifies the page to be used for memory release.".
+		Evidently, the tab doesn't seem release the memory.
+		for example,
+			"In the extension" -> Using the memory of purged tab is 22M(20M = Extension, 2M = purged tab).
+			"Author size" -> The tab doesn't seem release the memory. therefore, I have deleted this option.
+			"Assigment file" -> Only the first time, effective. This problem is cause the history of the tab. But this history can't delete. Therefore, I have deleted this option.
+Fixed:	Fix the bug that can't delete the session item.
+Fixed:	When the extension was initialized, fix the bug that already the opened purging tabs can't add to the variable of unloaded.
 
 2014/11/29 ver 2.3.0
-Added: the exclude list for keybinds in the option page.
-Added: Add the description of merit if the user selects "in this extension".
-Added: Add the button to delete an item in the history and the session history and saved history session
-Added: Add new a warning statement. (in request #34).
-Added: The process that automatically saves current sessions. And save select session. (Issues #33)
-Added the function that purging all tabs except for the active tab. (in Issues #39 and #24)
-Added: Add the functionality that the url of a tab to exclude list easy. (in Issues #39)
-Added: the new icons on browserAction.
-Added: Add the functionality that disable the purging timer temporarily. (in Issues #39)
-Deleted: The unnecessary function because session history that have implemented.
-Changed: Recommend session history when this extension was updated and purge page is "in the extension".
-Changed: Default config.
-Changed: When a tab was purged, to use an icon url that has changed to Data URI Scheme. and blank_sample have updated for it.
-Changed: Display the date format for each locale in the option page.
-Fixed: Changed the cursor on the popup menu.
-Fixed: fix the bug that the items are deleted two items If the user selects the button to delete a history item.
-Fixed: the bug of the process that automatic select the tab that has not been purged after the user ran purge tabs.
-Fixed: When be initialized, fix the bug that doesn't set the timer correctly.
-Fixed: When than the current memory of set values less, fix the bug that doesn't automatic purge.
-Cleaned: Refactoring the codes.
+Added:	the exclude list for keybinds in the option page.
+Added:	Add the description of merit if the user selects "in this extension".
+Added:	Add the button to delete an item in the history and the session history and saved history session
+Added:	Add new a warning statement. (in request #34).
+Added:	The process that automatically saves current sessions. And save select session. (Issues #33)
+Added:	Added the function that purging all tabs except for the active tab. (in Issues #39 and #24)
+Added:	Add the functionality that the url of a tab to exclude list easy. (in Issues #39)
+Added:	the new icons on browserAction.
+Added:	Add the functionality that disable the purging timer temporarily. (in Issues #39)
+Deleted:	The unnecessary function because session history that have implemented.
+Changed:	Recommend session history when this extension was updated and purge page is "in the extension".
+Changed:	Default config.
+Changed:	When a tab was purged, to use an icon url that has changed to Data URI Scheme. and blank_sample have updated for it.
+Changed:	Display the date format for each locale in the option page.
+Fixed:	Changed the cursor on the popup menu.
+Fixed:	fix the bug that the items are deleted two items If the user selects the button to delete a history item.
+Fixed:	the bug of the process that automatic select the tab that has not been purged after the user ran purge tabs.
+Fixed:	When be initialized, fix the bug that doesn't set the timer correctly.
+Fixed:	When than the current memory of set values less, fix the bug that doesn't automatic purge.
+Cleaned:	Refactoring the codes.
 
 2014/11/15 ver 2.2.7
-Fixed: Can't release tab by hotkey (Issues #32)
-Fixed: When tab is purged, the counter is not work.
+Fixed:	Can't release tab by hotkey (Issues #32)
+Fixed:	When tab is purged, the counter is not work.
 
 2014/11/14 ver 2.2.6
-Fixed: the translation process bug.
+Fixed:	the translation process bug.
 
 2014/11/13 ver 2.2.5
-Fixed: the problem that not work that If the extension was updated, open the option page and display the changed history page.
+Fixed:	the problem that not work that If the extension was updated, open the option page and display the changed history page.
 
 2014/11/13 ver 2.2.4
-Fixed: the export and the import command in options page.
-Added: added the search box in history of option page.
-Changed: to change calendar for select the history date. old type had deleted.
-Fixed: the problem that not work the context menu.
+Fixed:	the export and the import command in options page.
+Added:	added the search box in history of option page.
+Changed:	to change calendar for select the history date. old type had deleted.
+Fixed:	the problem that not work the context menu.
 
 2014/11/13 ver 2.2.3
-Applied: Issues #29(Use AngularJS)
-Applied: Issues #28(I want to change the code to fit into async process)
-Changed: Changed the URL for to purge url from Google App Engine to Git Pages.
+Applied:	Issues #29(Use AngularJS)
+Applied:	Issues #28(I want to change the code to fit into async process)
+Changed:	Changed the URL for to purge url from Google App Engine to Git Pages.
 
 2014/10/25 ver 2.2.2
-Fixed: If the users open the option page from context menus, sometimes can't move a page after open it. (Issues #22)
-Fixed: If the users use export button is clicked, unnecessary options is deleted and output.
-Fixed: But also to unrelated pages at default exclude list. it's fixed.
+Fixed:	If the users open the option page from context menus, sometimes can't move a page after open it. (Issues #22)
+Fixed:	If the users use export button is clicked, unnecessary options is deleted and output.
+Fixed:	But also to unrelated pages at default exclude list. it's fixed.
 
 2014/10/24 ver 2.2.1
-Fixed: When this extension is updated, be opening the tab of option page, and show change history page.
+Fixed:	When this extension is updated, be opening the tab of option page, and show change history page.
 
 2014/10/23 ver 2.2.0
-Fixed: Be same history in the history list, be integrated. (Issues #21)
-Added: The history page will add the items of each date. (Issues #16)
-Added: Add the change history page on option page. (Issues #20)
-Added: Add the information page on option page.
+Fixed:	Be same history in the history list, be integrated. (Issues #21)
+Added:	The history page will add the items of each date. (Issues #16)
+Added:	Add the change history page on option page. (Issues #20)
+Added:	Add the information page on option page.
 
 2014/10/23 ver 2.1.0
-Added: Add a context menu. (Issues #19)
-Changed: the assignment options are deleted.
+Added:	Add a context menu. (Issues #19)
+Changed:	the assignment options are deleted.
 
 2014/10/22 ver 2.0.3
 The refactoring of the code.
 
 2014/10/20 ver 2.0.2
-Changed: Merge pull request #15(message.json of English is updated)
+Changed:	Merge pull request #15(message.json of English is updated)
 
 2014/10/19 ver 2.0.0
-Added: Added new page "History" and a option on the option page.
-Added: Added the option of chrome sync was added on the option page.
-Changed: Issues #12(This extension wants change page design.)
-Fixed: Issues #12(I select reload or not when using "In the extensions").
-Changed: Issues #10(The release page is reloaded when click on whole its page).
+Added:	Added new page "History" and a option on the option page.
+Added:	Added the option of chrome sync was added on the option page.
+Changed:	Issues #12(This extension wants change page design.)
+Fixed:	Issues #12(I select reload or not when using "In the extensions").
+Changed:	Issues #10(The release page is reloaded when click on whole its page).
