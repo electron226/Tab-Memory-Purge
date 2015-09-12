@@ -47,7 +47,7 @@ a {
 }
 
 ul {
-    margin: 0 1em;
+    margin: 0 1rem;
     padding: 0;
 
     list-style: none;
@@ -73,7 +73,7 @@ input, textarea {
 .sectionButton {
     @extend .border0;
 
-    padding:          1em 0;
+    padding:          1rem 0;
     background-color: $primary-color;
 
     &:hover, &.select {
@@ -87,14 +87,14 @@ input, textarea {
     @include blockCentering;
 
     width:   $main-field-width;
-    padding: 1em 0;
+    padding: 1rem 0;
 
     background-color: #fff;
     box-shadow:       0 3px 3px 0 $input-border-color;
     box-sizing:       border-box;
 
     li {
-        margin: 0.5em;
+        margin: 0.5rem;
     }
 }
 
@@ -111,11 +111,11 @@ $dateListWidth: 15%;
 .dateListNav {
     display:        flex;
     flex-direction: row;
-    margin:         auto 1em;
+    margin:         auto 1rem;
     box-sizing:     border-box;
 
     > div {
-        margin: 0 1em;
+        margin: 0 1rem;
     }
 }
 
@@ -130,10 +130,10 @@ $dateListWidth: 15%;
 .dateListStyle {
     display:        flex;
     flex-direction: column-reverse;
-    align-items:    stretch;
+    align-itrems:    stretch;
 
     div {
-        padding:          1em;
+        padding:          1rem;
         box-shadow:       0 0 1px 0 $default-text-color;
         background-color: $light-primary-color;
 
@@ -150,7 +150,7 @@ $dateListWidth: 15%;
     flex-direction: column;
 
     section {
-        border-bottom: 1em;
+        border-bottom: 1rem;
     }
 }
 
@@ -171,7 +171,7 @@ $dateListWidth: 15%;
 }
 
 #searchHistoryDate {
-    width: 10em;
+    width: 10rem;
 }
 
 #searchHistoryItem {
@@ -179,18 +179,18 @@ $dateListWidth: 15%;
 }
 
 #information section {
-    margin: 0 0 0.5em 1em;
+    margin: 0 0 0.5rem 1rem;
 }
 
 .historyField {
     @include border0;
 
-    margin: 1em;
+    margin: 1rem;
 }
 
 .historyStyle {
-    margin-bottom: 0.5em;
-    padding:       0.3em;
+    margin-bottom: 0.5rem;
+    padding:       0.3rem;
 
     box-shadow: 0 0 1px 0 $default-text-color;
 }
@@ -216,8 +216,8 @@ $dateListWidth: 15%;
 
 .importAndExport {
     display:     flex;
-    align-items: stretch;
-    margin:      0 1em;
+    align-itrems: stretch;
+    margin:      0 1rem;
 
     * {
         box-sizing: border-box;
