@@ -947,7 +947,7 @@
           if (savedSessions.length > 0 || sessions.length > 0) {
             var dateListNav = document.querySelector(selectorDateListNav);
             removeStringFromAttributeOfElement(
-              dateListNav, 'style', 'display: none;');
+              dateListNav, 'class', elementDoesNotClassName);
           }
           resolve();
         });

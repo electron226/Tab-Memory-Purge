@@ -126,14 +126,16 @@
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
+          var favicon = dataURIInfo.dataURI;
+
           var head = document.querySelector('head');
           var link = document.createElement('link');
           link.rel  = 'shortcut icon';
-          link.href = decodeURIComponent(dataURIInfo.dataURI);
+          link.href = decodeURIComponent(favicon);
           head.appendChild(link);
 
-          eIcon.src = dataURIInfo.dataURI;
-          removeStringFromAttributeOfElement(eIcon, 'class', 'notShow');
+          eIcon.src = favicon;
+          removeStringFromAttributeOfElement(eIcon, 'class', 'doNotShow');
         }
       })
       .then(resolve)
