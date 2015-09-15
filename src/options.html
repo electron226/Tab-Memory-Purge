@@ -21,109 +21,103 @@
 
     <article>
       <section id="normal" class="sectionMenu"><!--{{{-->
-        <ul>
-          <li>
-            <span translation="setTimerTitle"></span>
-            <input type="number" name="timer" style="width: 75px; text-align: right;" min="1">&nbsp;<span translation="minute"></span>
-          </li>
-          <li>
-            <label><span translation="max_history"></span></label>&nbsp;<input type="number" name="max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
-          </li>
-          <li>
-            <label><span translation="max_sessions"></span></label>&nbsp;<input type="number" name="max_sessions" style="width: 50px;" min="1">&nbsp;Sessions
-          </li>
-          <li>
-            <label><span translation="interval_timing"></span></label>&nbsp;<input type="number" name="interval_timing" style="width: 50px;" min="5">&nbsp;<span translation="second"></span>
-          </li>
-          <li>
-            <label>
-              <input type="checkbox" name="no_release"><span translation="no_release"></span>
-            </label>
-          </li>
-          <li>
-            <label><input type="checkbox" name="new_tab_opens_with_purged_tab"><span translation="new_tab_opens_with_purged_tab"></span></label>
-          </li>
-          <li>
-            <label><input type="checkbox" name="get_title_when_does_not_title"><span translation="get_title_when_does_not_title"></span></label>
-          </li>
-          <li>
-            <label><input type="checkbox" name="enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;<input type="number" name="remaiming_memory" style="width: 50px;" min="1">&nbsp;M
-          </li>
-          <li>
-            <label><input type="checkbox" name="purging_all_tabs_except_active"><span translation="purging_all_tabs_except_active"></span></label>&nbsp;<input type="number" name="max_opening_tabs" style="width: 50px;" min="1">&nbsp;Tabs
-          </li>
-          <li style="margin-top: 1em;">
-            <span translation="exclude_url"></span>
-            <!-- &nbsp;<button click="showRegexTool()"><span translation="regex_tool"></span></button> -->
-          </li>
-          <li>
-            <textarea name="exclude_url" rows="10" cols="80" style="float: left;"></textarea>
+        <div>
+          <span translation="setTimerTitle"></span>
+          <input type="number" name="timer" style="width: 75px; text-align: right;" min="1">&nbsp;<span translation="minute"></span>
+        </div>
+        <div>
+          <label><span translation="max_history"></span></label>&nbsp;<input type="number" name="max_history" style="width: 50px;" min="1" max="365">&nbsp;Days
+        </div>
+        <div>
+          <label><span translation="max_sessions"></span></label>&nbsp;<input type="number" name="max_sessions" style="width: 50px;" min="1">&nbsp;Sessions
+        </div>
+        <div>
+          <label><span translation="interval_timing"></span></label>&nbsp;<input type="number" name="interval_timing" style="width: 50px;" min="5">&nbsp;<span translation="second"></span>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" name="no_release"><span translation="no_release"></span>
+          </label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="new_tab_opens_with_purged_tab"><span translation="new_tab_opens_with_purged_tab"></span></label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="get_title_when_does_not_title"><span translation="get_title_when_does_not_title"></span></label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;<input type="number" name="remaiming_memory" style="width: 50px;" min="1">&nbsp;M
+        </div>
+        <div>
+          <label><input type="checkbox" name="purging_all_tabs_except_active"><span translation="purging_all_tabs_except_active"></span></label>&nbsp;<input type="number" name="max_opening_tabs" style="width: 50px;" min="1">&nbsp;Tabs
+        </div>
+        <div>
+          <div translation="exclude_url"></div>
+          <div>
+            <textarea name="exclude_url" style="float: left;"></textarea>
             <div>
               <div translation="option"></div>
               <label><input type="checkbox" name="regex_insensitive"><span translation="regex_insensitive"></span></label>
             </div>
             <div style="clear: left;"></div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </section><!--}}}-->
 
       <section id="keybind" class="sectionMenu"><!--{{{-->
-        <ul>
-          <li class="keybind_release keyOption">
-            <span translation="release" class="keybindTitle"></span>
-            <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_release" class="keybindValue doNotShow" disabled></input>
-            <input type="text" class="pressKey" disabled></input>
-            <button class="keybind_clear">CLEAR</button>
-          </li>
-          <li class="keybind_switch_not_release keyOption">
-            <span translation="switch_not_release" class="keybindTitle"></span>
-            <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_switch_not_release" class="keybindValue doNotShow" disabled></input>
-            <input type="text" class="pressKey" disabled></input>
-            <button class="keybind_clear">CLEAR</button>
-          </li>
-          <li class="keybind_all_purge keyOption">
-            <span translation="all_purge" class="keybindTitle"></span>
-            <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_purge" class="keybindValue doNotShow" disabled></input>
-            <input type="text" class="pressKey" disabled></input>
-            <button class="keybind_clear">CLEAR</button>
-          </li>
-          <li class="keybind_all_purge_without_exclude_list keyOption">
-            <span translation="all_purge_without_exclude_list" class="keybindTitle"></span>
-            <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_purge_without_exclude_list" class="keybindValue doNotShow" disabled></input>
-            <input type="text" class="pressKey" disabled></input>
-            <button class="keybind_clear">CLEAR</button>
-          </li>
-          <li class="keybind_all_unpurge keyOption">
-            <span translation="all_unpurge" class="keybindTitle"></span>
-            <button class="keybind_set">SET</button>
-            <input type="text" name="keybind_all_unpurge" class="keybindValue doNotShow" disabled></input>
-            <input type="text" class="pressKey" disabled></input>
-            <button class="keybind_clear">CLEAR</button>
-          </li>
-          <li style="margin-top: 1em;">
-            <span translation="keybind_exclude_url"></span>
-            <!-- &nbsp;<button onclick="showRegexTool()"><span translation="regex_tool"></span></button> -->
-          </li>
-          <li>
+        <div class="keybind_release keyOption">
+          <span translation="release" class="keybindTitle"></span>
+          <button class="keybind_set">SET</button>
+          <input type="text" name="keybind_release" class="keybindValue doNotShow" disabled></input>
+          <input type="text" class="pressKey" disabled></input>
+          <button class="keybind_clear">CLEAR</button>
+        </div>
+        <div class="keybind_switch_not_release keyOption">
+          <span translation="switch_not_release" class="keybindTitle"></span>
+          <button class="keybind_set">SET</button>
+          <input type="text" name="keybind_switch_not_release" class="keybindValue doNotShow" disabled></input>
+          <input type="text" class="pressKey" disabled></input>
+          <button class="keybind_clear">CLEAR</button>
+        </div>
+        <div class="keybind_all_purge keyOption">
+          <span translation="all_purge" class="keybindTitle"></span>
+          <button class="keybind_set">SET</button>
+          <input type="text" name="keybind_all_purge" class="keybindValue doNotShow" disabled></input>
+          <input type="text" class="pressKey" disabled></input>
+          <button class="keybind_clear">CLEAR</button>
+        </div>
+        <div class="keybind_all_purge_without_exclude_list keyOption">
+          <span translation="all_purge_without_exclude_list" class="keybindTitle"></span>
+          <button class="keybind_set">SET</button>
+          <input type="text" name="keybind_all_purge_without_exclude_list" class="keybindValue doNotShow" disabled></input>
+          <input type="text" class="pressKey" disabled></input>
+          <button class="keybind_clear">CLEAR</button>
+        </div>
+        <div class="keybind_all_unpurge keyOption">
+          <span translation="all_unpurge" class="keybindTitle"></span>
+          <button class="keybind_set">SET</button>
+          <input type="text" name="keybind_all_unpurge" class="keybindValue doNotShow" disabled></input>
+          <input type="text" class="pressKey" disabled></input>
+          <button class="keybind_clear">CLEAR</button>
+        </div>
+        <div class="keybindExcludeField">
+          <div translation="keybind_exclude_url"></div>
+          <div>
             <textarea name="keybind_exclude_url" rows="10" cols="80" style="float: left;"></textarea>
             <div>
               <div translation="option"></div>
               <input type="checkbox" name="keybind_regex_insensitive"><span translation="regex_insensitive"></span>
             </div>
             <div style="clear: left;"></div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </section><!--}}}-->
 
       <section id="history" class="sectionMenu"><!--{{{-->
         <div class="searchHistory">
-          <input type="date" id="searchHistoryDate" class="historyStyle border0" list="historyDateList">
+          <input type="date" id="searchHistoryDate" class="border-shadow" list="historyDateList">
           <datalist id="historyDateList"></datalist>
-          <input type="search" id="searchHistoryItem" class="historyStyle border0" placeholder="You are able to input the title or the url.">
+          <input type="search" id="searchHistoryItem" class="border-shadow" placeholder="You are able to input the title or the url.">
         </div>
 
         <!-- the element of the class of historyDate add here. -->
@@ -131,8 +125,9 @@
 
         <!-- This use into the article of the history of a section menu. -->
         <fieldset class="historyDate prototype historyField">
-          <legend class="historyStyle">
-            <span class="historyDateTitle">historyDateTitle</span><img src="../icon/close.svg" alt="close button" class="historyDateDelete icon16">
+          <legend>
+            <span class="historyDateTitle">historyDateTitle</span>
+            <img src="img/icons/close.svg" alt="close button" class="historyDateDelete icon16_rev">
           </legend>
 
           <!-- the element of the class of historyItem add here. -->
@@ -140,15 +135,13 @@
         </fieldset>
 
         <!-- This use into the article of the history item. -->
-        <section class="historyItem prototype historyStyle ellipsis_inner">
-          <img src="../icon/close.svg" alt="close button" class="historyItemDelete icon16">
+        <section class="historyItem prototype ellipsis doNotSHow">
+          <img src="img/icons/close.svg" alt="close button" class="historyItemDelete icon16_rev">
           <span class="historyItemDate">item date</span>
-          <span>
-            <a href="#" target="_blank" class="historyItemUrl">
-              <img src="" alt="page icon" class="historyItemIcon icon16">
-              <span class="historyItemTitle">item title</span>
-            </a>
-          </span>
+          <a href="#" target="_blank" class="historyItemUrl">
+            <img src="" alt="page icon" class="historyItemIcon icon16_rev">
+            <span class="historyItemTitle">item title</span>
+          </a>
         </section>
       </section><!--}}}-->
 
@@ -164,9 +157,9 @@
             <section class="controlBar">
               <span id="sessionTitle"></span>
               <div class="control">
-                <img src="../icon/close.svg" alt="save button" id="sessionSave" class="icon16 saveIcon">
-                <img src="../icon/close.svg" alt="close button" id="sessionDelete" class="icon16">
-                <img src="../icon/material design/svg/upload119.svg" alt="restore button" id="sessionRestore" class="icon16">
+                <img src="img/icons/close.svg" alt="save button" id="sessionSave" class="icon16_rev saveIcon">
+                <img src="img/icons/close.svg" alt="close button" id="sessionDelete" class="icon16_rev">
+                <img src="img/icons/material design/svg/upload119.svg" alt="restore button" id="sessionRestore" class="icon16_rev">
               </div>
             </section>
             <section id="sessionList" class="ellipsis_over"></section>
@@ -174,14 +167,12 @@
         </nav>
 
         <!-- sessionItem prototype -->
-        <section class="sessionItem prototype ellipsis_inner historyStyle doNotShow">
-          <img src="../icon/close.svg" alt="close button" class="sessionItemDelete icon16">
-          <span>
-            <a href="#" target="_blank" class="sessionItemUrl">
-              <img src="" alt="page icon" class="sessionItemIcon icon16">
-              <span class="sessionItemTitle">item title</span>
-            </a>
-          </span>
+        <section class="sessionItem prototype ellipsis doNotShow">
+          <img src="img/icons/close.svg" alt="close button" class="sessionItemDelete icon16_rev">
+          <a href="#" target="_blank" class="sessionItemUrl">
+            <img src="" alt="page icon" class="sessionItemIcon icon16_rev">
+            <span class="sessionItemTitle">item title</span>
+          </a>
         </section>
       </section><!--}}}-->
 
@@ -191,26 +182,22 @@
 
       <section id="information" class="sectionMenu"><!--{{{-->
         <section>
-          <h3><span translation="specification"></span></h3>
-          <ul style="list-style-type: disc">
-            <li><span translation="spec1"></span></li>
-            <li><span translation="spec2"></span></li>
-            <li><span translation="spec3"></span></li>
-            <li>
-              <div translation="spec4"></div>
-              <ul>
-                <li><img src="../icon/icon_019.png" class="icon19">&nbsp;<span translation="spec_icon"></span></li>
-                <li><img src="../icon/icon_019_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_with_keybind"></span></li>
-                <li><img src="../icon/icon_019_use_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_use"></span></li>
-                <li><img src="../icon/icon_019_use_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_use_with_keybind"></span></li>
-                <li><img src="../icon/icon_019_extension_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_extension"></span></li>
-                <li><img src="../icon/icon_019_extension_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></li>
-                <li><img src="../icon/icon_019_temp_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_temp"></span></li>
-                <li><img src="../icon/icon_019_temp_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></li>
-              </ul>
-            </li>
-            <li><span translation="spec5"></span></li>
-          </ul>
+          <h3 translation="specification"></h3>
+          <div translation="spec1"></div>
+          <div translation="spec2"></div>
+          <div translation="spec3"></div>
+          <div translation="spec4"></div>
+          <div style="margin-left: 2rem;">
+            <div class="align-baseline"><img src="img/icons/icon_019.png" class="icon19">&nbsp;<span translation="spec_icon"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_with_keybind"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_use_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_use"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_use_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_use_with_keybind"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_extension_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_extension"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_extension_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_extension_with_keybind"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_temp_exclude.png" class="icon19">&nbsp;<span translation="spec_icon_temp"></span></div>
+            <div class="align-baseline"><img src="img/icons/icon_019_temp_exclude_with_keybind.png" class="icon19">&nbsp;<span translation="spec_icon_temp_with_keybind"></span></div>
+          </div>
+          <div translation="spec5"></div>
         </section>
 
         <section>

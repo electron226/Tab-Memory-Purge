@@ -1969,7 +1969,8 @@
           p.push( updateOptionValues() );
           Promise.all(p).then(results => {
             var tab = results[0];
-            setTick(tab.id).then(reloadBrowserIcon(tab));
+            setTick(tab.id)
+            .then(reloadBrowserIcon(tab));
           })
           .catch(e => console.error(e));
           break;

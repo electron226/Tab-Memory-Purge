@@ -26,9 +26,11 @@ module.exports = function(grunt) {
         cwd: 'src/',
         src: [
           '_locales/**/*',
-          'icon/**/*',
-          '!icon/icon.svg',
+          'icons/**/*',
+          '!icons/icon.svg',
           'History.txt',
+          '!**/*.md',
+          '!**/*.pdf',
         ],
         dest: 'dist/',
         filter: 'isFile',
@@ -140,19 +142,32 @@ module.exports = function(grunt) {
         ],
       },
     },
-    sass: {
+    compass: {
+      debug: {
+        options: {
+          sassDir:                 'src/sass',
+          cssDir:                  'src/css',
+          // imagesDir:               'src/assets/img',
+          // javascriptsDir:          'src/js',
+          // generatedImagesDir:      'src/assets/img',
+          // httpGeneratedImagesPath: 'assets/img',
+          sourcemap:               true,
+          // relativeAssets:          true,
+        },
+      },
       build: {
-        // options: {
-        // },
-        files: [
-          {
-            expand: true,
-            cwd: 'src/sass/',
-            src: [ '*.scss', '!_*.scss' ],
-            dest: 'src/css',
-            ext: '.css',
-          },
-        ],
+        options: {
+          sassDir:                 'src/sass',
+          cssDir:                  'src/css',
+          // imagesDir:               'src/assets/img',
+          // javascriptsDir:          'src/js',
+          // generatedImagesDir:      'dist/img',
+          // httpGeneratedImagesPath: 'img',
+          noLineComments:          true,
+          outputStyle:             'compressed',
+          environment:             'production',
+          // relativeAssets:          true,
+        },
       },
     },
     csscomb: {
@@ -261,9 +276,6 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      // options: {
-      //   livereload: 60000,
-      // },
       other: {
         files: [
           '_locales/**/*',
@@ -282,12 +294,8 @@ module.exports = function(grunt) {
       },
       sass: {
         files: ['src/sass/**/*.scss'],
-        tasks: ['sass', 'autoprefixer:prefix', 'csscomb', 'cssmin'],
+        tasks: ['compass', 'autoprefixer:prefix', 'csscomb', 'cssmin'],
       },
-      // css: {
-      //   files: ['src/css/**/*.css'],
-      //   tasks: ['csscomb', 'cssmin'],
-      // },
       js: {
         files: ['src/js/**/*.js'],
         tasks: ['babel', 'uglify'],
@@ -303,10 +311,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-replace');
   grunt.loadNpmTasks('grunt-csscomb');
   grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-autoprefixer');
   grunt.loadNpmTasks('grunt-json-minify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
@@ -317,7 +325,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('debug', [
     'clean:debug',
-    'sass:build',
+    'compass:debug',
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:debug',
@@ -327,7 +335,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', [
     'clean:build',
     'copy',
-    'sass:build',
+    'compass:build',
     'autoprefixer:prefix',
     'csscomb:format',
     'replace:build',

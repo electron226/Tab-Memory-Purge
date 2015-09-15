@@ -177,9 +177,9 @@
   var keybindIconSuffix = '_with_keybind';
   var iter = iconNumbers.entries();
   for (i = iter.next(); !i.done; i = iter.next()) {
-    icons.set(i.value[1], chrome.runtime.getURL('icon/' + i.value[0] + '.png'));
+    icons.set(i.value[1], chrome.runtime.getURL('img/icons/' + i.value[0] + '.png'));
     icons.set(i.value[1] | KEYBIND_EXCLUDE,
-      chrome.runtime.getURL('icon/' + i.value[0] + keybindIconSuffix + '.png'));
+      chrome.runtime.getURL('img/icons/' + i.value[0] + keybindIconSuffix + '.png'));
   }
   setObjectProperty(window, 'icons', icons);
 

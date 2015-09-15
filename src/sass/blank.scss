@@ -1,7 +1,14 @@
-@import "common.scss";
+// compass.
+@import "compass/reset";
+@include global-reset;
 
-$primary-color:       #03A9F4;
-$light-primary-color: #BBDEFB;
+@import "compass/typography/vertical_rhythm";
+@import "compass/css3/box-sizing";
+@import "ellipsis.scss";
+
+// myfiles.
+@import "common.scss";
+@import "basecolors";
 
 @each $prefix in 16 {
     .icon#{$prefix} {
@@ -12,41 +19,36 @@ $light-primary-color: #BBDEFB;
 body {
     @include blockCentering;
 
-    font-size: 16px;
-    text-align: center;
+    // @include debug-vertical-alignment;
+    @include adjust-font-size-to(16px, 1);
 
+    text-align: center;
     width: 60vw;
 }
 
 #page_info {
-    margin-top: 3vh;
-    box-sizing: border-box;
+    @include rhythm-margins(3, 0);
+    @include box-sizing(border-box);
 }
 
 #titlePlace {
-    background-color: $primary-color;
-    font-size:        1.2rem;
+    @include adjust-font-size-to(18px, 1);
+    @include box-sizing(border-box);
+    background-color: $primary-color-in-blank;
     font-weight:      bold;
-    padding:          0.2rem;
-    box-sizing:       border-box;
 }
 
 #url {
     background-color: $light-primary-color;
-    padding:          0.2rem;
-    box-sizing:       border-box;
+    @include box-sizing(border-box);
 }
 
 #message {
-    margin-top: 1rem;
+    @include rhythm-margins(1, 0);
 }
 
 .ellipsis_over {
     @include ellipsis_over;
-}
-
-.ellipsis_inner {
-    @include ellipsis_inner;
 }
 
 .doNotShow {

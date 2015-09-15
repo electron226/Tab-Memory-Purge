@@ -1,78 +1,99 @@
+// compass.
+@import "compass/reset";
+@include global-reset;
+
+@import "compass/css3/flexbox";
+@import "compass/css3/box-sizing";
+@import "compass/css3/box-shadow";
+@import "compass/css3/transform";
+@import "compass/css3/transition";
+@import "compass/typography/vertical_rhythm";
+@import "compass/utilities/general/min";
+@import "compass/layout/stretching";
+
+// myOptions.
+@import "basecolors";
 @import "common.scss";
 
-$minWidth:         340px;
-$inWidth:          $minWidth - 20px;
-$box-shadow-color: #727272;
-
-%backgroundColorWhite {
-    background-color: #fff;
-}
+$font-size: 14px;
+$min-width: 22.8571rem; // the base of font is 14px;
 
 body {
-    min-width: $minWidth;
+    @include adjust-font-size-to($font-size, 1);
+    @include min-width($min-width);
 }
 
 nav, div {
-    transition: all 0.5s ease 0s;
+    @include single-transition(all, 0.5s, ease, 0s);
+}
+
+.menu {
+    @include display-flex;
+    @include flex-direction(row);
+    @include rhythm-margins(0.5);
+    @include box-sizing(border-box);
 }
 
 .mainMenu {
-    @extend %backgroundColorWhite;
+    // @include debug-vertical-alignment;
 
     position: relative;
     z-index:  2;
     top:      0;
     left:     0;
 
-    width: $inWidth;
+    width: $min-width;
 }
 
 .optionMenu {
-    @extend %backgroundColorWhite;
+    // @include debug-vertical-alignment;
 
     position: absolute;
     z-index:  1;
     top:      0;
-    left:     $minWidth + 10px;
+    left:     $min-width;
 
-    width:    $inWidth;
+    width:    $min-width;
 }
 
 .option_menu_show {
-    transform: translateX(-360px);
-}
-
-.icon {
-    @include setWidthAndHeight(16px);
-
-    position: relative;
-    top:      2px;
-    right:    7px;
+    @include translateX(-$min-width);
 }
 
 div {
     &.btn {
-        width:   $inWidth;
-        margin:  5px auto;
-        padding: 5px 10px;
+        @include box-sizing(border-box);
+
+        $offset-w: 0.5rem;
+
+        width:         $min-width - 1.1428rem;
+        margin-left:   $offset-w;
+        margin-right:  $offset-w;
+        padding-left:  $offset-w;
+        padding-right: $offset-w;
 
         cursor:     pointer;
         text-align: left;
 
         &:hover {
-            box-shadow: 0 1px 8px 1px $box-shadow-color;
+            @include single-box-shadow(0, 0, 3px, 1px, $box-shadow-color);
         }
 
         &:active {
-            box-shadow: 0 0 1px 1px $box-shadow-color inset;
+            @include single-box-shadow(0, 0, 1px, 1px, $box-shadow-color, inset);
+        }
+
+        img {
+            position: relative;
+            top: 3px;
         }
     }
 }
 
 hr {
-    margin: 6px 0;
+    @include rhythm-margins(0.5, 0.5);
 
-    color: #fff;
+    color: white;
     border: none;
-    border-top: solid 1px #000;
+    border-top: solid 1px black;
 }

@@ -19,9 +19,10 @@ Fixed:	After this extension is updated, Fix the bug that a user can't restore th
 Delete:	Delete "Author site" and "Assignment File" in "Specifies the page to be used for memory release.".
 		Evidently, the tab doesn't seem release the memory.
 		for example,
-			"In the extension" -> Using the memory of purged tab is 22M(20M = Extension, 2M = purged tab).
-			"Author size" -> The tab doesn't seem release the memory. therefore, I have deleted this option.
-			"Assigment file" -> Only the first time, effective. This problem is cause the history of the tab. But this history can't delete. Therefore, I have deleted this option.
+			"In the extension"	->	Using the memory of purged tab is 22M(20M = Extension, 2M = purged tab).
+			"Author size"		->	The tab doesn't seem release the memory. therefore, I have deleted this option.
+			"Assigment file"		->	Only the first time, effective. This problem is cause the history of the tab.
+								But this history can't delete. Therefore, I have deleted this option.
 Fixed:	Fix the bug that can't delete the session item.
 Fixed:	When the extension was initialized, fix the bug that already the opened purging tabs can't add to the variable of unloaded.
 

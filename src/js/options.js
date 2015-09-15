@@ -21,8 +21,8 @@
 
   var classNameWhenSelect     = 'select';
   var elementDoesNotClassName = 'doNotShow';
-  var elementShowBlockClassName = 'showBlock';
   var prototypeClassName      = 'prototype';
+  var styleDisplayNone        = 'display: none;';
 
   var selectorHistoryDate                       = '.historyDate';
   var selectorHistoryItem                       = '.historyItem';
@@ -221,16 +221,11 @@
       var dontShowMenu =
         document.querySelectorAll(selector + ':not(#' + idName + ')');
 
-      removeStringFromAttributeOfElement(
-        showMenu, 'class', elementDoesNotClassName);
-      addStringToAttributeOfElement(
-        showMenu, 'class', elementShowBlockClassName);
+      removeStringFromAttributeOfElement(showMenu, 'style', styleDisplayNone);
       var i = 0;
       while (i < dontShowMenu.length) {
-        removeStringFromAttributeOfElement(
-          dontShowMenu[i], 'class', elementShowBlockClassName);
         addStringToAttributeOfElement(
-          dontShowMenu[i], 'class', elementDoesNotClassName);
+          dontShowMenu[i], 'style', styleDisplayNone);
         ++i;
       }
     };
@@ -509,7 +504,7 @@
   function createHistoryDateItemList(prototypeSelector)//{{{
   {
     var historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
-    var historyItemList = document.createElement('div');
+    var historyItemList = document.createDocumentFragment();
 
     return  {
       set: function(addItem) {
@@ -809,7 +804,7 @@
           return Array.prototype.slice.call(list.childNodes);
         },
         clear: function() {
-          list = document.createElement('div');
+          list = document.createDocumentFragment();
         },
       };
     }//}}}
@@ -919,12 +914,12 @@
             addStringToAttributeOfElement(
               sessionNotFound, 'class', elementDoesNotClassName);
             removeStringFromAttributeOfElement(
-              dateListNav, 'style', 'display: none;');
+              dateListNav, 'style', styleDisplayNone);
           } else {
             removeStringFromAttributeOfElement(
               sessionNotFound, 'class', elementDoesNotClassName);
             addStringToAttributeOfElement(
-              dateListNav, 'style', 'display: none;');
+              dateListNav, 'style', styleDisplayNone);
           }
           resolve();
         });
@@ -1142,7 +1137,7 @@
       j = 0;
       while (j < itemTitles.length) {
         item = itemTitles[j];
-        sec = item.parentNode.parentNode.parentNode;
+        sec = item.parentNode.parentNode;
         historyItem = sec.querySelector(selectorHistoryItemUrl);
         if (regex.test(item.textContent) || regex.test(historyItem.href)) {
           removeStringFromAttributeOfElement(

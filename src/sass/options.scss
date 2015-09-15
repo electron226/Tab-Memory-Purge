@@ -1,21 +1,53 @@
+// compass.
+@import "compass/reset";
+@include global-reset;
+
+@import "compass/css3/flexbox";
+@import "compass/css3/box-shadow";
+@import "compass/css3/box-sizing";
+@import "compass/css3/transform";
+@import "compass/typography/vertical_rhythm";
+@import "compass/utilities/general/float";
+@import "ellipsis.scss";
+
+// myfiles.
+@import "basecolors";
 @import "common.scss";
 
-$primary-color:       #2196F3;
-$light-primary-color: #BBDEFB;
-$input-border-color:  #727272;
 $main-field-width:    95vw;
 
-@each $prefix in 16, 19, 24 {
-    .icon#{$prefix} {
-        @include setWidthAndHeight(#{$prefix}px);
+$base-font-size: 14px;
+$base-line-height: 24px;
+@include establish-baseline;
 
+body {
+    // @include debug-vertical-alignment;
+    background-color: lightgray;
+}
+
+h3 {
+    @include adjust-font-size-to(1.5rem, 2);
+}
+
+input, button {
+    @include rhythm-padding(0);
+}
+
+textarea {
+    width: 40rem;
+    height: $base-line-height * 10;
+}
+
+@each $prefix in icon16, icon19 {
+    .#{$prefix}_rev {
+        @extend .#{$prefix};
         position: relative;
         top:      3px;
     }
 }
 
 .saveIcon {
-    transform: rotate(45deg);
+    @include rotate(45deg);
 }
 
 .border0 {
@@ -30,43 +62,53 @@ $main-field-width:    95vw;
     @include notShow;
 }
 
-.showBlock {
-    display: block;
+.ellipsis_over {
+    @include ellipsis_over;
+}
+
+.border-shadow {
+    @include border0;
+    @include single-box-shadow(0, 0, 1px, 0, $default-text-color);
+    @include box-sizing(border-box);
+}
+
+.align-baseline {
+    @include flex-align-baseline;
 }
 
 a {
     &:link {
-        @include textColorAndShadow(rgb(0, 0, 255));
+        @include textStyleLikeAdobe(blue);
     }
 
     &:visited {
-        @include textColorAndShadow(rgb(128, 0, 128));
+        @include textStyleLikeAdobe(purple);
     }
 
     &:hover, &:active {
-        @include textColorAndShadow(rgb(255, 0, 0));
+        @include textStyleLikeAdobe(red);
     }
 }
 
 ul {
-    margin: 0 1rem;
-    padding: 0;
-
     list-style: none;
 }
 
 input, textarea {
-    border:     thin solid $input-border-color;
-    box-sizing: border-box;
+    @include box-sizing(border-box);
+
+    border: thin solid $input-border-color;
 }
 
 .mainNav {
     @include blockCentering;
 
-    display:        flex;
-    flex-direction: row;
-    width:          $main-field-width;
-    box-sizing:     border-box;
+    @include rhythm-margins(1, 0);
+
+    @include display-flex;
+    @include flex-direction(row);
+    @include box-sizing(border-box);
+    width: $main-field-width;
 
     button {
         width: 100%;
@@ -74,10 +116,11 @@ input, textarea {
 }
 
 .sectionButton {
-    @extend .border0;
+    @include border0;
 
-    padding:          1rem 0;
+    @include adjust-leading-to(2);
     background-color: $primary-color;
+    @include single-box-shadow(0, 1px, 3px, 0, $input-border-color);
 
     &:hover, &.select {
         background-color: $light-primary-color;
@@ -85,93 +128,39 @@ input, textarea {
     }
 }
 
-
 .sectionMenu {
+    // @include debug-vertical-alignment;
     @include blockCentering;
 
+    @include display-flex;
+    @include flex-direction(column);
+
+    @include single-box-shadow(0, 3px, 3px, 0, $input-border-color);
+    @include box-sizing(border-box);
+
     width:   $main-field-width;
-    padding: 1rem 0;
-
+    padding: 1rem;
+    @include rhythm-padding(1);
     background-color: #fff;
-    box-shadow:       0 3px 3px 0 $input-border-color;
-    box-sizing:       border-box;
-
-    li {
-        margin: 0.5rem;
-    }
 }
 
 .keyOption {
-    display: flex;
+    @include display-flex;
+    @include flex-direction(row);
 }
 
 .keybindTitle {
-    width: 300px;
+    width: 21rem;
 }
 
-$dateListWidth: 15%;
-
-#dateListNav {
-    display:        flex;
-    flex-direction: row;
-    margin:         auto 1rem;
-    box-sizing:     border-box;
-
-    > div {
-        margin: 0 1rem;
-    }
-}
-
-.dateList {
-    width:          $dateListWidth;
-    display:        flex;
-    flex-direction: column;
-    box-sizing:     border-box;
-    text-align:     center;
-}
-
-.dateListStyle {
-    display:        flex;
-    flex-direction: column-reverse;
-    align-itrems:    stretch;
-
-    div {
-        padding:          1rem;
-        box-shadow:       0 0 1px 0 $default-text-color;
-        background-color: $light-primary-color;
-
-        &:hover, &:active, &.select {
-            background-color: $primary-color;
-            font-weight:      bold;
-        }
-    }
-}
-
-.dateListMenu {
-    width:          100% - $dateListWidth;
-    display:        flex;
-    flex-direction: column;
-
-    section {
-        border-bottom: 1rem;
-    }
-}
-
-.controlBar {
-    display:          flex;
-    padding:          10px;
-    background-color: $light-primary-color;
-    box-sizing:       border-box;
-}
-
-.control {
-    margin-left: auto;
+.keybindExcludeField {
+    @include rhythm-margins(1, 0);
 }
 
 .searchHistory {
-    display:         flex;
-    justify-content: center;
-    flex-basis:      auto;
+    @include display-flex;
+    @include justify-content(center);
+    @include flex-basis(auto);
 }
 
 #searchHistoryDate {
@@ -182,62 +171,111 @@ $dateListWidth: 15%;
     width: 60%;
 }
 
-#information section {
-    margin: 0 0 0.5rem 1rem;
-}
-
 .historyField {
     @include border0;
+    @include rhythm-margins(1, 0);
 
-    margin: 1rem;
+    article {
+        padding: 0 1rem;
+        @include box-sizing(border-box);
+    }
 }
 
-.historyStyle {
-    margin-bottom: 0.5rem;
-    padding:       0.3rem;
+$dateListWidth: 15%;
 
-    box-shadow: 0 0 1px 0 $default-text-color;
+#dateListNav {
+    @include display-flex;
+    @include flex-direction(row);
+    @include box-sizing(border-box);
 }
 
-.ellipsis_over {
-    @include ellipsis_over;
+.dateList {
+    @include display-flex;
+    @include flex-direction(column);
+    @include box-sizing(border-box);
+
+    width:          $dateListWidth;
+    text-align:     center;
 }
 
-.ellipsis_inner {
-    @include ellipsis_inner;
+.dateListStyle {
+    @include display-flex;
+    @include flex-direction(column-reverse);
+    @include align-items(stretch);
+
+    div {
+        @extend .border-shadow;
+        background-color: $light-primary-color;
+
+        &:hover, &:active, &.select {
+            background-color: $primary-color;
+            font-weight:      bold;
+        }
+    }
+}
+
+.dateListMenu {
+    @include display-flex;
+    @include flex-direction(column);
+
+    width: 100% - $dateListWidth;
+    margin-left: 1rem;
+}
+
+.controlBar {
+    @extend .border-shadow;
+    @include display-flex;
+
+    background-color: $light-primary-color;
+}
+
+.control {
+    margin-left: auto;
 }
 
 #change_history {
-    padding:   1rem;
+    @include rhythm-padding(1);
 
     div {
-        font-size:   0.75rem;
+        @include adjust-font-size-to(12px, 1);
         height:      80vh;
         overflow:    auto;
         white-space: pre;
     }
 }
 
-.importAndExport {
-    display:     flex;
-    align-itrems: stretch;
-    margin:      0 1rem;
+#information {
+    section {
+        @include display-flex;
+        @include flex-direction(column);
+        @include rhythm-margins(0, 1);
 
-    * {
-        box-sizing: border-box;
+        &:last-child {
+            @include rhythm-margins(0, 0);
+        }
+
+        div {
+            margin-left: 2rem;
+        }
     }
+}
+
+.importAndExport {
+    @include display-flex;
+    @include rhythm-margins(0, 1);
+    @include box-sizing(border-box);
     
     > div {
         @include blockCentering;
 
+        @include display-flex;
+        @include flex-direction(column);
+
         width:          49%;
-        display:        flex;
-        flex-direction: column;
     }
     
     textarea {
-        width:      100%;
-        height:     50vh;
-        margin-top: 0.5rem;
+        width: 100%;
+        height: 50vh;
     }
 }

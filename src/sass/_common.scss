@@ -1,5 +1,15 @@
-$default-font-size:  14px;
-$default-text-color: #212121;
+// compass.
+@import "compass/css3/text-shadow";
+@import "compass/typography/vertical_rhythm";
+
+// myFiles.
+@import "basecolors";
+
+$base-font-size:       16px;
+$base-line-height:     24px;
+$rhythm-unit:          "rem";
+$rem-with-px-fallback: true;
+@include establish-baseline;
 
 @mixin setWidthAndHeight($width, $height: $width) {
     width: $width;
@@ -7,8 +17,9 @@ $default-text-color: #212121;
 }
 
 @mixin textColorAndShadow($rgb) {
-    color:       rgba($rgb, 1);
-    text-shadow: 0 0 1px rgba($rgb, .1);
+    @include single-text-shadow(0, 0, 1px, false, rgba($rgb, .1));
+
+    color: rgba($rgb, 1);
 }
 
 @mixin textStyleLikeAdobe($rgb) {
@@ -35,15 +46,20 @@ $default-text-color: #212121;
     table-layout: fixed;
 }
 
-@mixin ellipsis_inner {
-    white-space:   nowrap;
-    overflow:      hidden;
-    text-overflow: ellipsis;
+@mixin flex-align-baseline($lines: 0) {
+    @include display-flex;
+    @include flex-basis($base-line-height);
+    @include align-items(center);
+    @include rhythm-padding($lines);
 }
 
-body, input, textarea, button {
-    font-family: 'Meiryo UI', 'Meiryo', 'MS P Gothic', 'Osaka-Mono', 'Monospace', 'Helvetica', 'Arial', sans-serif;
-    font-size: $default-font-size;
+@each $prefix in 16, 19 {
+    .icon#{$prefix} {
+        @include setWidthAndHeight(#{$prefix}px);
+    }
+}
 
+html, body, input, textarea, button {
+    font-family: sans-serif;
     @include textStyleLikeAdobe($default-text-color);
 }
