@@ -1,6 +1,15 @@
 (function(window, document) {
   "use strict";
 
+  function getNumber(target) {//{{{
+    var result = target.match(/(\d+)/);
+    if (result === null) {
+      throw new Error("Doesn't get width and height.");
+    } else {
+      return parseInt(result[1], 10);
+    }
+  }//}}}
+
   function getPathNames()//{{{
   {
     var replacedPathName = window.location.pathname.replace(/(^\/|\/$)/g, '');
@@ -23,31 +32,32 @@
     }
   }//}}}
 
-  function close() {//{{{
-    parent.style.display = 'none';
+  function initTextStyle(element)//{{{
+  {
+    element.style.fontFamily = 'sans-serif';
+    element.style.fontSize   = styleBaseFontSize;
+    textStyleLikeAdobe(element);
   }//}}}
+
+  function textStyleLikeAdobe(element)//{{{
+  {
+    element.style.color      = styleFontColor;
+    element.style.textshadow = '0 0 1px rgba(' + styleFontColor + ', .1)';
+    element.style.fontSmoothing = 'antialiased';
+  }//}}}
+
+  // variable. //{{{
+  var styleBaseFontSize      = '12px';
+  var styleFontColor         = '#212121';
+  var stylePrimaryColor      = '#2196F3';
+  var styleLightPrimaryColor = '#BBDEFB';
+  var styleBorderColor       = '#727272';
 
   var hostname = window.location.hostname;
   var pathname = '/*';
 
   var hosts = getHosts();
   var paths = getPathNames();
-
-  function initTextStyle(element)//{{{
-  {
-    element.style.fontFamily = '"Meiryo UI", "Meiryo", "ＭＳ Ｐゴシック", ' +
-                              '"Osaka-Mono", "Monospace", "Helvetica", ' +
-                              '"Arial", sans-serif';
-    element.style.fontSize   = '12px';
-    textStyleLikeAdobe(element);
-  }//}}}
-
-  function textStyleLikeAdobe(element)//{{{
-  {
-    element.style.color      = 'rgba(#212121, 1)';
-    element.style.textshadow = '0 0 1px rgba(#212121, .1)';
-    element.style.fontSmoothing = 'antialiased';
-  }//}}}
 
   // デザイン
   // http://www.cssdesk.com/PLetB
@@ -62,53 +72,51 @@
   initTextStyle(input);
   input.type           = 'range';
   input.style.position = "relative";
-  input.style.top      = "0.4rem";
+  input.style.top      = "0.4em";
+  //}}}
 
   // parent
   function createParentElement()//{{{
   {
     var p = div.cloneNode();
     p.style.position   = 'fixed';
-    p.style.background = "rgba(245, 245, 245, 1.0)";
-    p.style.boxShadow  = "5px 5px 20px -2px gray";
-    p.style.width      = "500px";
-    p.style.height     = "380px";
+    p.style.background = styleLightPrimaryColor;
+    p.style.boxShadow  = "0px 1px 3px 0" + styleBorderColor;
+    p.style.width      = "42em";
+    p.style.height     = "32em";
     p.style.display    = 'none';
     p.style.zIndex     = '100';
 
-    function get(target) {
-      var result = target.match(/(\d+)/);
-      if (result === null) {
-        throw new Error("Doesn't get width and height.");
-      } else {
-        return parseInt(result[1], 10);
-      }
-    }
-
-    p.style.left = (window.innerWidth / 2.0) -
-                        (get(p.style.width) / 2.0) + 'px';
-    p.style.top  = (window.innerHeight / 2.0) -
-                       (get(p.style.height) / 2.0) + 'px';
+    p.style.left = (window.innerWidth -
+      getNumber(p.style.width) * getNumber(styleBaseFontSize)) / 2.0 + 'px';
+    p.style.top = (window.innerHeight -
+      getNumber(p.style.height) * getNumber(styleBaseFontSize)) / 2.0 + 'px';
 
     return p;
   }//}}}
 
   var parent = createParentElement();
 
+  function close() {//{{{
+    parent.style.display = 'none';
+  }//}}}
+
   // title
   function createTitleBar()//{{{
   {
     var titleBar = div.cloneNode();
-    titleBar.style.padding    = '6px 12px';
-    titleBar.style.background = 'rgba(200, 240, 240, 1.0)';
+    titleBar.style.padding    = '1em';
+    titleBar.style.fontWeight = 'bold';
+    titleBar.style.background = stylePrimaryColor;
 
     var title = span.cloneNode();
+    title.style.fontSize = '1.5em';
     title.textContent = "Tab Memory Purge";
     titleBar.appendChild(title);
 
     var titleBarButton = button.cloneNode();
     titleBarButton.style.position = 'absolute';
-    titleBarButton.style.right    = '12px';
+    titleBarButton.style.right    = '1em';
     titleBarButton.textContent    = "x";
     titleBarButton.onclick        = close;
     titleBar.appendChild(titleBarButton);
@@ -122,12 +130,12 @@
   function createExcludeDialog()//{{{
   {
     var insideExcludeDialog = div.cloneNode();
-    insideExcludeDialog.style.padding   = "12px 12px";
+    insideExcludeDialog.style.padding   = "1em";
     insideExcludeDialog.style.textAlign = "center";
 
     var url            = div.cloneNode();
-    url.style.fontSize = '1rem';
-    url.style.padding  = '26px 0';
+    url.style.fontSize = '1.5em';
+    url.style.padding  = '2em 0';
     url.textContent    = hostname + pathname;
 
     var mes1 = div.cloneNode();
@@ -147,7 +155,7 @@
 
     var ranges = div.cloneNode();
     var hostSpan           = span.cloneNode();
-    hostSpan.style.padding = "0 16px;";
+    hostSpan.style.padding = "0 1.5em;";
     hostSpan.textContent   = "Host:";
     var host   = input.cloneNode();
     host.min   = 0;
@@ -195,13 +203,13 @@
   // buttons
   var excludeDialogButtons = div.cloneNode();
   excludeDialogButtons.style.position  = "absolute";
-  excludeDialogButtons.style.right     = "12px";
-  excludeDialogButtons.style.bottom    = "12px";
+  excludeDialogButtons.style.right     = "1em";
+  excludeDialogButtons.style.bottom    = "1em";
   excludeDialogButtons.style.textAlign = "right";
 
   var excludeButtonTemplate = button.cloneNode();
-  excludeButtonTemplate.style.width  = '16rem';
-  excludeButtonTemplate.style.margin = '2px';
+  excludeButtonTemplate.style.width  = '16em';
+  excludeButtonTemplate.style.margin = '0.16em';
 
   function setAddUrlToExcludeList(storageName)//{{{
   {
