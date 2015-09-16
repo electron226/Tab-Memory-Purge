@@ -10,17 +10,12 @@
 @import "common.scss";
 @import "basecolors";
 
-@each $prefix in 16 {
-    .icon#{$prefix} {
-        @include setWidthAndHeight(#{$prefix}px);
-    }
-}
-
 body {
     @include blockCentering;
 
     // @include debug-vertical-alignment;
     @include adjust-font-size-to(16px, 1);
+    background-color: #eee;
 
     text-align: center;
     width: 60vw;
