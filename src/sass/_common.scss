@@ -11,11 +11,6 @@ $rhythm-unit:          "rem";
 $rem-with-px-fallback: true;
 @include establish-baseline;
 
-@mixin setWidthAndHeight($width, $height: $width) {
-    width: $width;
-    height: $height;
-}
-
 @mixin textColorAndShadow($rgb) {
     @include single-text-shadow(0, 0, 1px, false, rgba($rgb, .1));
 
@@ -55,7 +50,8 @@ $rem-with-px-fallback: true;
 
 @each $prefix in 16, 19 {
     .icon#{$prefix} {
-        @include setWidthAndHeight(#{$prefix}px);
+        width:  #{$prefix}px;
+        height: #{$prefix}px;
     }
 }
 
