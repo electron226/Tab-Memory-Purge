@@ -1420,6 +1420,41 @@
     });
   }//}}}
 
+  function whenVersionUpOptionFix()//{{{
+  {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(items => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+          return;
+        }
+
+        var writeObject = {};
+        var keybind = items.keybind;
+        if (keybind) {
+          Object.keys(keybind).forEach(key => {
+            writeObject['keybind_' + key] = keybind[key];
+          });
+        }
+
+        chrome.storage.local.set(writeObject, () => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+          }
+
+          chrome.storage.local.remove('keybind', () => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+              return;
+            }
+            resolve();
+          });
+        });
+      });
+    });
+  }//}}}
+
   /**
    * 拡張機能がアップデートされたときの処理
    */
@@ -1428,7 +1463,8 @@
     console.log('Extension Updated.');
 
     return new Promise((resolve, reject) => {
-      getInitAndLoadOptions()
+      whenVersionUpOptionFix()
+      .then(getInitAndLoadOptions)
       .then(options => {
         if (options.get(previousSessionTimeKey)) {
           return showDialogOfRestoreSessionBeforeUpdate();
