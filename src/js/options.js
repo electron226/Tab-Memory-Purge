@@ -49,10 +49,9 @@
   var sessionNotFound = document.querySelector('#sessionNotFound');
   var savedSessionDateTitleText =
     document.querySelector('#savedSessionDateTitle');
+  var addSavedSessionDateListIdName = 'savedSessionDateList';
   var addSavedSessionDateListLocation =
-    document.querySelector('#savedSessionDateList');
-  var addSavedSessionDateListIdName =
-    addSavedSessionDateListLocation.id.slice(1);
+    document.querySelector(`#${addSavedSessionDateListIdName}`);
   var addSessionDateListLocation = document.querySelector('#sessionDateList');
   var addSessionListLocation     = document.querySelector('#sessionList');
   var selectorSavedSessionHistory = '.savedSessionHistory';
