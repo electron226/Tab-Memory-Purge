@@ -962,10 +962,10 @@
   {
     console.log('getParameterByName', url, name);
 
-    var regex   = new RegExp("[\\?&]" + name + "       = ([^&#]*)");
+    var regex   = new RegExp(`[\\?&]${name}\s*=\s*([^&#]*)`);
     var results = regex.exec(decodeURIComponent(url));
     return results === null ?
-           "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+           "" : decodeURIComponent(results[1].replace(/\+/g, "%20"));
   }//}}}
 
   /**
@@ -980,7 +980,7 @@
     console.log('getPurgeURL', url);
 
     var page = blankUrl;
-    var args = '&url=' + encodeURIComponent(url);
+    var args = '&url=' + encodeURIComponent(url).replace(/%20/g, '+');
     return encodeURI(page) + '?' + encodeURIComponent(args);
   }//}}}
 
