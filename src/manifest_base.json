@@ -30,7 +30,7 @@
     ],
     "permissions" : [
       "tabs", "storage", "history", "system.memory", "contextMenus",
-      "notifications", "idle", "webRequest", "webRequestBlocking",
+      "notifications", "webRequest", "webRequestBlocking",
       "http://*/*", "https://*/*"
     ],
     "web_accessible_resources" : [

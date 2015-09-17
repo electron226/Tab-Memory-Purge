@@ -1678,6 +1678,8 @@
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
+    .then(deleteOldDatabase)
+    .then(deleteAllPurgedTabUrlFromHistory)
     .then(() => {
       return initializeIntervalProcess(myOptions.get('interval_timing') || 5);
     })
@@ -1838,19 +1840,6 @@
       );
     });
   }//}}}
-
-  chrome.idle.onStateChanged.addListener(newState => {//{{{
-    console.log('idle.onStateChanged', newState);
-
-    switch (newState) {
-    case 'idle':
-      exclusiveProcessForFunc('deleteOldDatabase', deleteOldDatabase)
-      .then(exclusiveProcessForFunc(
-        'deleteAllPurgedTabUrlFromHistory', deleteAllPurgedTabUrlFromHistory))
-      .catch(e => console.error(e));
-      break;
-    }
-  });//}}}
 
   chrome.webRequest.onBeforeRequest.addListener(details => {//{{{
     console.log('webRequest.onBeforeRequest', details);
