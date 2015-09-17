@@ -965,6 +965,16 @@
     });
   }//}}}
 
+  function showAutoCompleteDateList(histories)//{{{
+  {
+    var autocompleteDateList = addAutocompleteDateList(searchHistoryDateList);
+    var i = 0;
+    while (i < histories.length) {
+      autocompleteDateList(histories[i].date);
+      ++i;
+    }
+  }//}}}
+
   function showAllHistory()//{{{
   {
     return new Promise((resolve, reject) => {
@@ -972,8 +982,7 @@
       .then(historyArray => {
         historyArray = historyArray.reverse();
 
-        var autocompleteDateList =
-          addAutocompleteDateList(searchHistoryDateList);
+        showAutoCompleteDateList(historyArray);
 
         var historyDateList =
           document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
@@ -989,7 +998,6 @@
         while (i < historyArray.length) {
           data = historyArray[i];
           hDate = historyDate(data);
-          autocompleteDateList(data.date);
 
           j = 0;
           while (j < data.data.length) {
@@ -1059,6 +1067,8 @@
           resolve(ret);
         });
       })
+      .then(getAllHistory)
+      .then(showAutoCompleteDateList)
       .then(resolve)
       .catch(e => {
         console.error(e);
