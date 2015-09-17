@@ -189,7 +189,7 @@ $dateListWidth: 15%;
     @include box-sizing(border-box);
 }
 
-.dateList {
+#dateList {
     @include display-flex;
     @include flex-direction(column);
     @include box-sizing(border-box);

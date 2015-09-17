@@ -54,7 +54,7 @@
     document.querySelector(`#${addSavedSessionDateListIdName}`);
   var addSessionDateListLocation = document.querySelector('#sessionDateList');
   var addSessionListLocation     = document.querySelector('#sessionList');
-  var selectorDateList            = '.dateList';
+  var selectorDateList            = '#dateList';
   var sessionTitle                = document.querySelector('#sessionTitle');
   var sessionSave                 = document.querySelector('#sessionSave');
   var sessionDelete               = document.querySelector('#sessionDelete');
