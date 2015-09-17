@@ -477,7 +477,7 @@
 
       Promise.all(p)
       .then(results => {
-        return new Promise(() => {
+        return new Promise((resolve2, reject2) => {
           var pageInfos     = results[0];
           var histories     = results[1];
           var sessions      = results[2];
@@ -503,10 +503,12 @@
             ++i;
           }
 
-          return Promise.all(p2).then(results2 => {
+          Promise.all(p2).then(results2 => {
             var delKeys = results2.filter(v => (v !== null));
             return db.delete({ name: dbPageInfoName, keys: delKeys });
-          });
+          })
+          .then(resolve2)
+          .catch(reject2);
         });
       })
       .then(resolve)
@@ -712,6 +714,8 @@
 
   function deleteAllPurgedTabUrlFromHistory()//{{{
   {
+    console.log('deleteAllPurgedTabUrlFromHistory');
+
     return new Promise((resolve, reject) => {
       var regex = new RegExp('^' + blankUrl, 'i');
       chrome.history.search({ text: '' }, histories => {
@@ -1648,12 +1652,12 @@
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
-    .then(deleteOldDatabase)
-    .then(deleteAllPurgedTabUrlFromHistory)
     .then(() => {
       return initializeIntervalProcess(myOptions.get('interval_timing') || 5);
     })
     .then(initializeIntervalUpdateCheck(updateCheckTime))
+    .then(deleteOldDatabase)
+    .then(deleteAllPurgedTabUrlFromHistory)
     .catch(e => console.error(e || 'initialize error.'));
   }//}}}
 
