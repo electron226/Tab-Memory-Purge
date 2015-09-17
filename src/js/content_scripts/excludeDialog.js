@@ -49,7 +49,7 @@
   // variable. //{{{
   var styleBaseFontSize      = '12px';
   var styleFontColor         = '#212121';
-  var stylePrimaryColor      = '#2196F3';
+  var stylePrimaryColor      = '#03A9F4';
   var styleLightPrimaryColor = '#BBDEFB';
   var styleBorderColor       = '#727272';
 
