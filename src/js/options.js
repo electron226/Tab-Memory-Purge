@@ -54,8 +54,6 @@
     document.querySelector(`#${addSavedSessionDateListIdName}`);
   var addSessionDateListLocation = document.querySelector('#sessionDateList');
   var addSessionListLocation     = document.querySelector('#sessionList');
-  var selectorSavedSessionHistory = '.savedSessionHistory';
-  var selectorSessionHistory      = '.sessionHistory';
   var selectorDateList            = '.dateList';
   var sessionTitle                = document.querySelector('#sessionTitle');
   var sessionSave                 = document.querySelector('#sessionSave');
@@ -632,19 +630,13 @@
 
   function deleteSessionItem(event)//{{{
   {
-    var t = event.target.parentNode.parentNode.parentNode;
-    var className = t.getAttribute('class');
-    var dbName =
-      className.indexOf(selectorSessionHistory.substr(1)) !== -1 ?
-      dbSessionName :
-      className.indexOf(selectorSavedSessionHistory.substr(1)) !== -1 ?
-      dbSavedSessionName : null;
     var id = parseInt(event.target.getAttribute(attrNameOfSessionItemId), 10);
 
-    db.delete({
-      name: dbName,
-      keys: id,
-    })
+    var p = [];
+    p.push( db.delete({ name: dbSessionName, keys: id }) );
+    p.push( db.delete({ name: dbSavedSessionName, keys: id }) );
+
+    Promise.all(p)
     .then(showAllSessionHistory)
     .catch(e => console.error(e));
   }//}}}
