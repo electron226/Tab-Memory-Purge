@@ -1,12 +1,6 @@
 2015/xx/xx ver 2.4.0
 Something happend.
 
-Currently Developer confirmed the issues:
-	Bug:		When a purged tab is activated, all purged tabs are reloaded.
-	Remedy:	You are able to evade by to enable "Don't reload tabs automatically".
-		This issues is the bug of Google Chrome.
-		https://code.google.com/p/chromium/issues/detail?id=520303
-
 2015/01/11 ver 2.3.7
 Added:	When the extension restores the purge tabs, restore the previous form data of purged tab. (Issues #44)
 Changed:	I will change that display a date format in the change history of the option page when locale is Japanese or English.
