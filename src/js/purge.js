@@ -294,12 +294,10 @@
 
         var p = [];
         var i = 0;
-        while (i < t.length) {
-          if (maxPurgeLength-- <= 0) {
-            break;
-          }
-
-          p.push( purge(t[i].id) );
+        while (i < t.length && i < maxPurgeLength) {
+          p.push(
+            new Promise((res, rej) => purge(t[i].id).then(res).catch(rej))
+          );
           ++i;
         }
 
