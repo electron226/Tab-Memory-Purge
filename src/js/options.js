@@ -39,9 +39,9 @@
   var searchHistoryItem     = document.querySelector('#searchHistoryItem');
   var searchHistoryDateList = document.querySelector('#historyDateList');
   var prototypeSelectorOfHistoryDate =
-    selectorHistoryDate + '.' + prototypeClassName;
+    `${selectorHistoryDate}.${prototypeClassName}`;
   var prototypeSelectorOfHistoryItem =
-    selectorHistoryItem + '.' + prototypeClassName;
+    `${selectorHistoryItem}.${prototypeClassName}`;
 
   var eChangeHistoryField = document.querySelector('#change_history div');
 
@@ -64,10 +64,10 @@
   var selectorSessionItemUrl      = '.sessionItemUrl';
   var selectorSessionItemIcon     = '.sessionItemIcon';
   var selectorSessionItemTitle    = '.sessionItemTitle';
-  var attrNameOfSessionItemId     = 'sessionItemId';
+  var attrNameOfSessionItemId     = 'historyItemId';
 
   var prototypeSelectorOfSessionItem =
-    selectorSessionItem + '.' + prototypeClassName;
+    `${selectorSessionItem}.${prototypeClassName}`;
 
   var exportLocation = document.querySelector('#export');
   var importLocation = document.querySelector('#import');
@@ -85,65 +85,75 @@
   OperateOptionValue.prototype.set = function(d, name, value) {
     return this.call(d, name, value, 'set');
   };
+  OperateOptionValue.prototype.__call = function(obj) {
+    return new Promise((resolve, reject) => {
+      var el        = obj.element;
+      var value     = obj.value;
+      var type      = obj.type;
+      var property  = obj.property;
+      var valueType = obj.valueType;
+
+      var val = (type === 'get') ? el[property] : value;
+      if (toType(val) !== valueType) {
+        reject(new Error('${val} is not ${valueType} type.'));
+        return;
+      }
+
+      if (type === 'get') {
+        resolve(val);
+      } else {
+        el[property] = (toType(val) === 'string') ? val.trim() : val;
+        resolve();
+      }
+    });
+  };
   OperateOptionValue.prototype.call = function(d, name, value, type) {
+    var $this = this;
     return new Promise((resolve, reject) => {
       if (type === void 0 || type === null) {
         type = 'get';
       }
 
       var el = d.querySelector(
-        "input[name='" + name + "'], textarea[name='" + name + "']");
+        `input[name="${name}"], textarea[name="${name}"]`);
       if (el) {
         try {
+          var obj = {
+            element:   el,
+            value:     value,
+            type:      type,
+          };
           switch (el.type) {
-          case 'number':
-            if (type === 'get') {
-              resolve(parseInt(el.value));
-            } else {
-              if (toType(value) !== 'number') { throw new Error(); }
-
-              el.value = value;
-              resolve();
-            }
-            break;
           case 'checkbox':
-            if (type === 'get') {
-              if (toType(el.checked) !== 'boolean') { throw new Error(); }
-
-              resolve(el.checked);
-            } else {
-              if (toType(value) !== 'boolean') { throw new Error(); }
-
-              el.checked = value;
-              resolve();
-            }
+            obj = Object.assign(obj, {
+              property:  'checked',
+              valueType: 'boolean',
+            });
             break;
+          case 'number':
           case 'text':
           case 'textarea':
-            if (type === 'get') {
-              if (toType(el.value) !== 'string') { throw new Error(); }
-
-              resolve(el.value);
-            } else {
-              if (toType(value) !== 'string') { throw new Error(); }
-
-              el.value = value.trim();
-              resolve();
-            }
+            obj = Object.assign(obj, {
+              property:  'value',
+              valueType: (el.type === 'number') ? 'number' : 'string',
+            });
             break;
           default:
-            reject(new Error("Doesn't write the code of each element type." +
-              "name: [ " + name + " ], type : [ " + el.type + " ]"));
+            reject(new Error(
+              `Doesn't write the code of each element type.` +
+              ` name: ${name}, type: ${el.type}`));
             break;
           }
+
+          $this.__call(obj).then(resolve).catch(reject);
           return;
         } catch (e) {
-          reject(new Error("Value [ " + value + " ] is not [ " +
-                 el.type + " ] type. name: " + name));
+          reject(new Error(`(Value = ${value}) is not` +
+                           ` ${el.type} type. name: ${name}`));
           return;
         }
       }
-      console.warn("Doesn't find the elememt name: " + name);
+      console.warn("Doesn't find the elememt name.", name);
       resolve();
     });
   };
@@ -1350,7 +1360,10 @@
         value = JSON.parse(importLocation.value.trim());
       } catch (e) {
         if (e instanceof SyntaxError) {
-          console.error("Invalid string. The string isn't json string.");
+          var msg = "Invalid the json string. The value doesn't correct:\n" +
+                    e.message;
+          console.error(msg);
+          alert(msg);
         } else {
           console.error(e);
         }

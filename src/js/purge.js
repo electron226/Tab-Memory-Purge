@@ -11,26 +11,6 @@
     console.log('closureAutoPurgeCheck');
 
     /**
-     * call Function after isLackTheMemory function.
-     *
-     * @param {Boolean} result - a result of isLackTheMemory.
-     * @return {Promise} to call resolve if result is false only.
-     */
-    function resolveAfterIsLackTheMemory(result)//{{{
-    {
-      console.log(
-        'resolveAfterIsLackTheMemory() in closureAutoPurgeCheck', result);
-
-      return new Promise(resolve => {
-        if (result === false) {
-          resolve();
-          return;
-        }
-        // doesn't call resolve.
-      });
-    }//}}}
-
-    /**
      * check run auto purge or not.
      * @return {Promise} return an promise object.
      */
@@ -60,7 +40,7 @@
           for (var i = iter.next(); !i.done; i = iter.next()) {
             tick(i.value[0])
             .then(isLackTheMemory(remaiming_memory))
-            .then(resolveAfterIsLackTheMemory)
+            .then(result => (result === false) ? resolve() : () => {})
             .catch(reject);
           }
         })
@@ -104,8 +84,8 @@
           return;
         }
 
-        var name = args[0];
-        var callback = args[1];
+        var name         = args[0];
+        var callback     = args[1];
         var callbackArgs = args.length > 2 ? args.slice(2) : void 0;
 
         if (locks.has(name)) {
@@ -139,7 +119,7 @@
     return exclusiveProcess;
   }//}}}
 
-  // my option settings.//{{{
+  // variables.//{{{
   var myOptions = new Map();
 
   /**
@@ -251,7 +231,7 @@
       if (tempScrollPositions.has(tabId)) {
         var pos = tempScrollPositions.get(tabId);
         chrome.tabs.executeScript(
-          tabId, { code: 'scroll(' + pos.x + ', ' + pos.y + ');' }, () => {
+          tabId, { code: `scroll(${pos.x}, ${pos.y});` }, () => {
             if (chrome.runtime.lastError) {
               reject(chrome.runtime.lastError);
               return;
@@ -273,15 +253,14 @@
 
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, tabs => {
-        var maxOpeningTabs = myOptions.get('max_opening_tabs');
-        if (!maxOpeningTabs) {
+        if (myOptions.size === 0) {
           reject(new Error('myOptions is not loaded yet.'));
           return;
         }
 
         var t = tabs.filter(v => !isReleasePage(v.url));
-
         var alreadyPurgedLength = tabs.length - t.length;
+        var maxOpeningTabs = myOptions.get('max_opening_tabs');
         var maxPurgeLength = tabs.length - alreadyPurgedLength - maxOpeningTabs;
         if (maxPurgeLength <= 0) {
           console.log("The counts of open tabs are within set value.");
@@ -326,11 +305,7 @@
 
         var ratio = info.availableCapacity / Math.pow(1024.0, 2);
         console.log('availableCapacity(MByte):', ratio);
-        if (ratio < parseFloat(criteria_memory_size)) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+        resolve(ratio < parseFloat(criteria_memory_size));
       });
     });
   }//}}}
@@ -413,20 +388,16 @@
         // -1 is the current session.
         var max_sessions = parseInt(myOptions.get('max_sessions'), 10) - 1;
 
-        var tempList = new Set();
-        var dateList = [];
-        histories.forEach(v => {
-          if (!tempList.has(v.date)) {
-            tempList.add(v.date);
-            dateList.push(v.date);
-          }
-        });
-
-        if (dateList.length < max_sessions) {
-          return null;
+        var dateSet = new Set();
+        var i = 0;
+        while (i < histories.length) {
+          dateSet.add(histories[i].date);
+          ++i;
         }
 
-        return dateList.slice(0, dateList.length - max_sessions);
+        return (dateSet.size < max_sessions) ?
+                null :
+                Array.from(dateSet).slice(0, dateSet.size - max_sessions);
       })
       .then(dateList => {
         if (dateList === null || dateList.length === 0) {
@@ -438,8 +409,8 @@
                     IDBKeyRange.bound(
                       dateList[0], dateList[dateList.length - 1]);
         return db.getCursor({
-          name: dbSessionName,
-          range: range,
+          name:      dbSessionName,
+          range:     range,
           indexName: 'date',
         })
         .then(sessions => {
@@ -462,13 +433,13 @@
         return;
       }
 
-      var length = parseInt(myOptions.get('max_history'), 10);
+      var max_history = parseInt(myOptions.get('max_history'), 10);
       var now = new Date();
       db.getCursor({
         name: dbHistoryName,
         range: IDBKeyRange.upperBound(
           new Date(
-            now.getFullYear(), now.getMonth(), now.getDate() - length,
+            now.getFullYear(), now.getMonth(), now.getDate() - max_history,
             23, 59, 59, 999).getTime()
         ),
       })
@@ -486,6 +457,18 @@
     console.log('deleteNotUsePageInfo');
 
     return new Promise((resolve, reject) => {
+      function check(array, target)//{{{
+      {
+        return new Promise((resolve3, reject3) => {
+          var result = array.some(v => (v.url === target.url));
+          if (result) {
+            reject3();
+          } else {
+            resolve3();
+          }
+        });
+      }//}}}
+
       var p = [];
       p.push( db.getAll({ name: dbPageInfoName     } ) );
       p.push( db.getAll({ name: dbHistoryName      } ) );
@@ -495,25 +478,16 @@
       Promise.all(p)
       .then(results => {
         return new Promise(() => {
-          function check(array, target)
-          {
-            return new Promise((resolve3, reject3) => {
-              var result = array.some(v => (v.url === target.url));
-              if (result) {
-                reject3();
-              } else {
-                resolve3();
-              }
-            });
-          }
-
           var pageInfos     = results[0];
           var histories     = results[1];
           var sessions      = results[2];
           var savedSessions = results[3];
 
           var p2 = [];
-          pageInfos.forEach(v => {
+          var v;
+          var i = 0;
+          while (i < pageInfos.length) {
+            v = pageInfos[i];
             p2.push(
               new Promise(resolve3 => {
                 var p3 = [];
@@ -526,7 +500,8 @@
                 );
               })
             );
-          });
+            ++i;
+          }
 
           return Promise.all(p2).then(results2 => {
             var delKeys = results2.filter(v => (v !== null));
@@ -554,14 +529,18 @@
         var pageInfos = results[1];
 
         var p2 = [];
-        dataURIs.forEach(v => {
+        var v;
+        var i = 0;
+        while (i < dataURIs.length) {
+          v = dataURIs[i];
           p2.push(
             new Promise(resolve3 => {
               var result = pageInfos.some(v2 => (v2.host === v.host));
               resolve3(result ? null : v.host);
             })
           );
-        });
+          ++i;
+        }
 
         return Promise.all(p2).then(results2 => {
           var delKeys = results2.filter(v => (v !== null));
@@ -578,7 +557,7 @@
     console.log('writeSession', Object.assign({}, unloaded));
 
     return new Promise((resolve, reject) => {
-      var date = new Date();
+      var date    = new Date();
       var nowTime = date.getTime();
 
       // currentSessionTimeの処理
@@ -589,8 +568,8 @@
           if (currentSessionTime) {
             // previous current session is delete.
             db.getCursor({
-              name: dbSessionName,
-              range: IDBKeyRange.only(currentSessionTime),
+              name:      dbSessionName,
+              range:     IDBKeyRange.only(currentSessionTime),
               indexName: 'date',
             })
             .then(histories => {
@@ -605,17 +584,16 @@
         });
       })().then(() => {
         var sessionWrites = [];
-        for (var tabId in unloaded) {
-          if (unloaded.hasOwnProperty(tabId)) {
-            var item = unloaded[tabId];
-            if (item.url) {
-              // session
-              sessionWrites.push({ date: nowTime, url: item.url });
-            } else {
-              reject(new Error("Don't find url: " + item.url));
-            }
+        Object.keys(unloaded).forEach(tabId => {
+          var item = unloaded[tabId];
+          if (item !== void 0 && item !== null &&
+              item.url !== void 0 && item.url !== null &&
+              item.url.length > 0) {
+            sessionWrites.push({ date: nowTime, url: item.url });
+          } else {
+            console.error("Doesn't find url.", item);
           }
-        }
+        });
 
         return db.add({ name: dbSessionName, data: sessionWrites });
       })
@@ -645,8 +623,8 @@
       return new Promise((resolve, reject) => {
         if (writeSet.has(tab.url)) {
           console.warn(
-            'Be running to write the same URL of a history to Database' +
-            ' already.');
+            'Be running to write the same URL of a history to Database already.'
+          );
           resolve();
           return;
         }
@@ -659,12 +637,12 @@
         var begin = new Date(year, month, day, 0, 0, 0, 0);
 
         db.getCursor({
-          name: dbHistoryName,
+          name:  dbHistoryName,
           range: IDBKeyRange.lowerBound(begin.getTime()),
         })
         .then(histories => {
-          var delKeys = histories.filter(v => (v.url === tab.url));
-          delKeys = delKeys.map(v => v.date);
+          var delKeys = histories.filter(v => (v.url === tab.url))
+                                 .map(v => v.date);
           return db.delete({ name: dbHistoryName, keys: delKeys });
         })
         .then(() => {
@@ -673,7 +651,7 @@
             name: dbHistoryName,
             data: {
               date: now.getTime(),
-              url: tab.url,
+              url:  tab.url,
             },
           });
         })
@@ -686,9 +664,9 @@
             db.add({
               name: dbPageInfoName,
               data: {
-                url: tab.url,
+                url:   tab.url,
                 title: tab.title || 'Unknown',
-                host: host,
+                host:  host,
               },
             })
           );
@@ -697,19 +675,19 @@
             new Promise((resolve3, reject3) => {
               if (tab.favIconUrl) {
                 getDataURI(tab.favIconUrl)
-                .then(iconDataURI => {
+                .then(dataURI => {
                   return db.add({
                     name: dbDataURIName,
                     data: {
-                      host: host,
-                      dataURI: iconDataURI,
+                      host:    host,
+                      dataURI: dataURI,
                     }
                   });
                 })
                 .then(resolve3)
                 .catch(reject3);
               } else {
-                console.log("Don't find favIconUrl.");
+                console.warn("Don't find favIconUrl.", tab);
                 resolve3();
               }
             })
@@ -810,7 +788,7 @@
     var excludeArray = excludeObj.list.split('\n');
     var i = 0;
     while (i < excludeArray.length) {
-      if (excludeArray[i] !== '') {
+      if (excludeArray[i].length !== 0) {
         var re = new RegExp(excludeArray[i].trim(), excludeObj.options);
         if (re.test(url)) {
           return excludeObj.returnValue;
@@ -1036,6 +1014,7 @@
         if (tab.status !== 'complete') {
           reject(new Error(
             "The target tab has not been completed loading yet: " + tab));
+          return;
         }
 
         var state = checkExcludeList(tab.url);
@@ -1043,8 +1022,10 @@
           reject(new Error(
             'The tabId have been included the exclusion list of extension: ' +
             tabId));
+          return;
         } else if (state & INVALID_EXCLUDE) {
           reject(new Error("Don't get the url of the tab: " + tabId));
+          return;
         }
 
         var p2 = [];
@@ -1060,7 +1041,7 @@
             var url = getPurgeURL(tab.url);
 
             chrome.tabs.executeScript(tabId, {
-              code: 'window.location.replace("' + url + '");' }, () => {
+              code: `window.location.replace("${url}");` }, () => {
                 if (chrome.runtime.lastError) {
                   reject3(chrome.runtime.lastError);
                   return;
@@ -1130,11 +1111,9 @@
         return;
       }
 
-      if (unloaded.hasOwnProperty(tabId)) {
-        unPurge(tabId).then(resolve, reject);
-      } else {
-        purge(tabId).then(resolve, reject);
-      }
+      (() => unloaded.hasOwnProperty(tabId) ? unPurge(tabId) : purge(tabId))()
+      .then(resolve)
+      .catch(reject);
     });
   }//}}}
 
@@ -1160,13 +1139,9 @@
           return;
         }
 
-        // アクティブタブへの処理の場合、行わない
-        if (tab.active) {
-          // アクティブにしたタブのアンロード時間更新
-          setTick(tabId).then(resolve, reject);
-        } else {
-          purge(tabId).then(resolve, reject);
-        }
+        // If a tab is activated, updates unload time of a tab.
+        (() => tab.active ? setTick(tabId) : purge(tabId))()
+        .then(resolve).catch(reject);
       });
     });
   }//}}}
@@ -1300,13 +1275,9 @@
   {
     console.log('switchTempRelease', url);
 
-    if (tempRelease.has(url)) {
-      // remove url in tempRelease.
-      tempRelease.delete(url);
-    } else {
-      // push url in tempRelease.
-      tempRelease.add(url);
-    }
+    (() =>
+      tempRelease.has(url) ? tempRelease.delete(url) : tempRelease.add(url)
+    )();
   }//}}}
 
   /**
@@ -1383,7 +1354,7 @@
     return new Promise((resolve, reject) => {
       if (previousSessionTime === void 0 ||
           previousSessionTime === null) {
-        reject(new Error("previousSessionTime is undefined or null"));
+        reject(new Error("previousSessionTime is invalidation."));
         return;
       }
 
@@ -1559,16 +1530,15 @@
           reject(chrome.runtime.lastError);
           return;
         }
-        var key;
 
         // All remove invalid options. but exclude version.
         var removeKeys = [];
-        for (key in items) {
-          if (items.hasOwnProperty(key) && !defaultValues.has(key)) {
+        Object.keys(items).forEach(key => {
+          if (!defaultValues.has(key)) {
             removeKeys.push(key);
             delete items[key];
           }
-        }
+        });
 
         chrome.storage.local.remove(removeKeys, () => {
           if (chrome.runtime.lastError) {
@@ -1962,12 +1932,9 @@
           break;
         case 'all_unpurge':
           // 解放されている全てのタブを解放解除
-          for (var key in unloaded) {
-            if (unloaded.hasOwnProperty(key)) {
-              unPurge(parseInt(key, 10))
-              .catch(e => console.error(e));
-            }
-          }
+          Object.keys(unloaded).forEach(key => {
+            unPurge(parseInt(key, 10)).catch(e => console.error(e));
+          });
           break;
         case 'add_to_temp_exclude_list':
           getCurrentTab()
