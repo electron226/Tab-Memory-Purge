@@ -58,7 +58,7 @@
            * */
           var iter = ticked.entries();
           for (var i = iter.next(); !i.done; i = iter.next()) {
-            tick(i.value[1])
+            tick(i.value[0])
             .then(isLackTheMemory(remaiming_memory))
             .then(resolveAfterIsLackTheMemory)
             .catch(reject);
