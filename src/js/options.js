@@ -328,10 +328,12 @@
         case 'session_history':
           if (db.isOpened()) {
             showAllSessionHistory()
+            .then(selectCurrentSession)
             .catch(e => console.error(e));
           } else {
             setTimeout(() =>
               showAllSessionHistory()
+              .then(selectCurrentSession)
               .catch(e => console.error(e)), 1000);
           }
           break;
@@ -830,6 +832,30 @@
       node.removeChild(node.firstChild);
     }
     return node;
+  }//}}}
+
+  function selectCurrentSession()//{{{
+  {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(items => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError));
+          return;
+        }
+
+        var currentSessionTime = items[previousSessionTimeKey];
+        if (currentSessionTime === void 0 || currentSessionTime === null) {
+          resolve();
+          return;
+        }
+
+        var currentSessionItem = addSessionDateListLocation.querySelector(
+          `[name="${currentSessionTime}"]`);
+        if (currentSessionItem) {
+          currentSessionItem.click();
+        }
+      });
+    });
   }//}}}
 
   function showAllSessionHistory()//{{{
