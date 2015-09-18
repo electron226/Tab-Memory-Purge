@@ -114,6 +114,10 @@
               }
             });
           })();
+        } else if (pageInfo.title === 'Unknown') {
+            db.delete({ name: dbPageInfoName, keys: pageInfo.url })
+            .then(getDataOfBeforeToPurge)
+            .catch(reject);
         } else {
           document.title = pageInfo.title;
           eTitle.textContent = pageInfo.title;
