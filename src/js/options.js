@@ -21,27 +21,40 @@
 
   var classNameWhenSelect     = 'select';
   var elementDoesNotClassName = 'doNotShow';
-  var prototypeClassName      = 'prototype';
   var styleDisplayNone        = 'display: none;';
+  var deleteIconPath          = 'img/icons/close.svg';
 
-  var selectorHistoryDate                       = '.historyDate';
-  var selectorHistoryItem                       = '.historyItem';
-  var selectorOfLocationWhereAddHistoryDateItem = '#history .historyList';
-  var selectorOfLocationWhereAddItem            = '.historyItemList';
-  var selectorDateTitle                         = '.historyDateTitle';
-  var selectorDateDelete                        = '.historyDateDelete';
-  var selectorHistoryItemDelete                 = '.historyItemDelete';
-  var selectorHistoryItemDate                   = '.historyItemDate';
-  var selectorHistoryItemUrl                   = '.historyItemUrl';
-  var selectorHistoryItemIcon                   = '.historyItemIcon';
-  var selectorHistoryItemTitle                  = '.historyItemTitle';
+  var classNameOfHistoryItem    = 'historyItem';
+  var classNameOfHistoryDate    = 'historyDate';
+  var selectorHistoryItemDelete = '.itemDelete';
+  var selectorHistoryItemIcon   = '.itemIcon';
+  var selectorHistoryItemUrl    = '.itemUrl';
+  var selectorHistoryItemDate   = '.itemDate';
+  var selectorHistoryItemTitle  = '.itemTitle';
+  var selectorHistoryItemList   = '.itemList';
+  var attrNameOfDatabase        = 'database';
+  var attrNameOfItemId          = 'historyItemId';
+
+  var optionsForCreateHistoryDate = {
+    className:          classNameOfHistoryDate,
+    itemDelete:         selectorHistoryItemDelete.slice(1),
+    itemDate:           selectorHistoryItemDate.slice(1),
+    itemList:           selectorHistoryItemList.slice(1),
+  };
+  var optionsForCreateHistoryItem = {
+    attrNameOfDatabase: attrNameOfDatabase,
+    className:          classNameOfHistoryItem,
+    itemDelete:         selectorHistoryItemDelete.slice(1),
+    itemDate:           selectorHistoryItemDate.slice(1),
+    itemUrl:            selectorHistoryItemUrl.slice(1),
+    itemIcon:           selectorHistoryItemIcon.slice(1),
+    itemTitle:          selectorHistoryItemTitle.slice(1),
+  };
+
+  var selectorOfLocationWhereAddHistoryDate = '#historyList';
   var searchHistoryDate     = document.querySelector('#searchHistoryDate');
   var searchHistoryItem     = document.querySelector('#searchHistoryItem');
   var searchHistoryDateList = document.querySelector('#historyDateList');
-  var prototypeSelectorOfHistoryDate =
-    `${selectorHistoryDate}.${prototypeClassName}`;
-  var prototypeSelectorOfHistoryItem =
-    `${selectorHistoryItem}.${prototypeClassName}`;
 
   var eChangeHistoryField = document.querySelector('#change_history div');
 
@@ -52,22 +65,15 @@
   var addSavedSessionDateListIdName = 'savedSessionDateList';
   var addSavedSessionDateListLocation =
     document.querySelector(`#${addSavedSessionDateListIdName}`);
-  var addSessionDateListLocation = document.querySelector('#sessionDateList');
+  var idNameOfSessionDateList = 'sessionDateList';
+  var addSessionDateListLocation =
+    document.querySelector(`#${idNameOfSessionDateList}`);
   var addSessionListLocation     = document.querySelector('#sessionList');
   var selectorDateList            = '#dateList';
   var sessionTitle                = document.querySelector('#sessionTitle');
   var sessionSave                 = document.querySelector('#sessionSave');
   var sessionDelete               = document.querySelector('#sessionDelete');
   var sessionRestore              = document.querySelector('#sessionRestore');
-  var selectorSessionItem         = '.sessionItem';
-  var selectorSessionItemDelete   = '.sessionItemDelete';
-  var selectorSessionItemUrl      = '.sessionItemUrl';
-  var selectorSessionItemIcon     = '.sessionItemIcon';
-  var selectorSessionItemTitle    = '.sessionItemTitle';
-  var attrNameOfSessionItemId     = 'historyItemId';
-
-  var prototypeSelectorOfSessionItem =
-    `${selectorSessionItem}.${prototypeClassName}`;
 
   var exportLocation = document.querySelector('#export');
   var importLocation = document.querySelector('#import');
@@ -406,12 +412,6 @@
     });
   }//}}}
 
-  function getPrototypeAndRemoveTag(selector) {//{{{
-    var proto = document.querySelector(selector).cloneNode(true);
-    removeStringFromAttributeOfElement(proto, 'class', prototypeClassName);
-    return proto;
-  }//}}}
-
   function addAutocompleteDateList(element)//{{{
   {
     var autocompleteList = element;
@@ -451,62 +451,6 @@
     return formatDate(new Date(time), formatType);
   }//}}}
 
-  function createHistoryDate(prototypeSelector)//{{{
-  {
-    var historyDatePrototype = getPrototypeAndRemoveTag(prototypeSelector);
-
-    return function(addData) {
-      var historyDate = historyDatePrototype.cloneNode(true);
-      historyDate.setAttribute('name', addData.date.getTime());
-
-      var dateTitle = historyDate.querySelector(selectorDateTitle);
-      dateTitle.textContent = getFormatEachLanguages(addData.date, {
-        'ja':      'YYYY/MM/DD',
-        'default': 'MM/DD/YYYY',
-      });
-
-      var dateRemove = historyDate.querySelector(selectorDateDelete);
-      dateRemove.setAttribute('name', addData.date.getTime());
-      dateRemove.addEventListener('click', removeHistoryDate, true);
-
-      return historyDate;
-    };
-  }//}}}
-
-  function createHistoryDateItemList(prototypeSelector)//{{{
-  {
-    var historyItemPrototype = getPrototypeAndRemoveTag(prototypeSelector);
-    var historyItemList = document.createDocumentFragment();
-
-    return  {
-      set: function(addItem) {
-        var historyItem = historyItemPrototype.cloneNode(true);
-
-        var itemRemove = historyItem.querySelector(selectorHistoryItemDelete);
-        itemRemove.addEventListener('click', removeHistoryItem, true);
-        // item.date is a number after using getTime already.
-        itemRemove.setAttribute('name', addItem.date);
-
-        var itemDate = historyItem.querySelector(selectorHistoryItemDate);
-        itemDate.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
-
-        var itemHref = historyItem.querySelector(selectorHistoryItemUrl);
-        itemHref.href = addItem.url;
-
-        var ItemIcon = historyItem.querySelector(selectorHistoryItemIcon);
-        ItemIcon.src = addItem.dataURI;
-
-        var itemTitle = historyItem.querySelector(selectorHistoryItemTitle);
-        itemTitle.textContent = addItem.title;
-
-        historyItemList.appendChild(historyItem);
-      },
-      get: function() {
-        return Array.prototype.slice.call(historyItemList.childNodes);
-      },
-    };
-  }//}}}
-
   function saveSession()//{{{
   {
     var showList = addSessionListLocation.querySelectorAll(
@@ -519,13 +463,13 @@
     var urls = [];
     var i = 0;
     while (i < showList.length) {
-      a = showList[i].querySelector(selectorSessionItemUrl);
+      a = showList[i].querySelector(selectorHistoryItemUrl);
       urls.push(a.href);
       ++i;
     }
 
     var time = Date.now();
-    var newSessions = urls.map(v => {
+    var newSessions = urls.reverse().map(v => {
       return { date: time, url: v };
     });
 
@@ -595,7 +539,7 @@
     var restore = [];
     var i = 0;
     while (i < showList.length) {
-      a = showList[i].querySelector(selectorSessionItemUrl);
+      a = showList[i].querySelector(selectorHistoryItemUrl);
       restore.push({ url: a.href });
       ++i;
     }
@@ -603,24 +547,12 @@
     chrome.runtime.sendMessage({ event: 'restore', session: restore });
   }//}}}
 
-  function deleteSessionItem(event)//{{{
-  {
-    var id = parseInt(event.target.getAttribute(attrNameOfSessionItemId), 10);
-
-    var p = [];
-    p.push( db.delete({ name: dbSessionName, keys: id }) );
-    p.push( db.delete({ name: dbSavedSessionName, keys: id }) );
-
-    Promise.all(p)
-    .then(showAllSessionHistory)
-    .catch(e => console.error(e));
-  }//}}}
-
   function closureCreateSessionDateList(obj)//{{{
   {
-    var dateList    = obj.dateList;
-    var itemList    = obj.itemList;
-    var currentTime = obj.currentTime;
+    var databaseName = obj.databaseName;
+    var dateList     = obj.dateList;
+    var itemList     = obj.itemList;
+    var currentTime  = obj.currentTime;
     if (dateList === void 0 || dateList === null) {
         throw new Error("dateList isn't found in arguments");
     }
@@ -731,62 +663,28 @@
 
     var createSessionDate = closureCreateSessionDate();
 
-    function createSessionItemList(prototypeSelector)//{{{
-    {
-      var listProto = getPrototypeAndRemoveTag(prototypeSelector);
-      var list = document.createDocumentFragment();
-
-      return {
-        add: function(addItem) {
-          var item = listProto.cloneNode(true);
-          item.setAttribute('name', addItem.date);
-
-          var remove = item.querySelector(selectorSessionItemDelete);
-          if (remove) {
-            remove.addEventListener('click', deleteSessionItem, true);
-            // item.date is a number after using getTime already.
-            remove.setAttribute('name', addItem.date);
-            remove.setAttribute(attrNameOfSessionItemId, addItem.id);
-          }
-
-          var url = item.querySelector(selectorSessionItemUrl);
-          if (url) {
-            url.href = addItem.url;
-          }
-
-          var icon = item.querySelector(selectorSessionItemIcon);
-          if (icon) {
-            icon.src = addItem.dataURI;
-          }
-
-          var title = item.querySelector(selectorSessionItemTitle);
-          if (title) {
-            title.textContent = addItem.title;
-          }
-
-          list.appendChild(item);
-        },
-        get: function() {
-          return Array.prototype.slice.call(list.childNodes);
-        },
-        clear: function() {
-          list = document.createDocumentFragment();
-        },
-      };
-    }//}}}
-
     function createSessionDateListItem(items)//{{{
     {
-      var cSIL = createSessionItemList(prototypeSelectorOfSessionItem);
+      var cHI = closureCreateHistoryItem(
+        Object.assign(optionsForCreateHistoryItem, {
+          databaseName: databaseName,
+        })
+      );
+      var opts = {
+        date: false,
+      };
 
-      cSIL.clear();
+      var item;
+      var list = [];
       var i = 0;
       while (i < items.length) {
-        cSIL.add(items[i]);
+        item = cHI(items[i], opts);
+        addStringToAttributeOfElement(item, 'class', elementDoesNotClassName);
+        list.push(item);
         ++i;
       }
 
-      return cSIL.get();
+      return list;
     }//}}}
 
     function addItemToElement(element, list)//{{{
@@ -882,8 +780,9 @@
             savedSessionDateTitleText, 'class', elementDoesNotClassName);
 
           var cSSDL = closureCreateSessionDateList({
-            dateList: addSavedSessionDateListLocation,
-            itemList: addSessionListLocation,
+            databaseName: dbSavedSessionName,
+            dateList:     addSavedSessionDateListLocation,
+            itemList:     addSessionListLocation,
           });
           cSSDL(savedSessions);
         }
@@ -894,9 +793,10 @@
 
           // new
           var cSDL = closureCreateSessionDateList({
-            dateList: addSessionDateListLocation,
-            itemList: addSessionListLocation,
-            currentTime: currentTime,
+            databaseName: dbSessionName,
+            dateList:     addSessionDateListLocation,
+            itemList:     addSessionListLocation,
+            currentTime:  currentTime,
           });
           cSDL(sessions);
 
@@ -965,6 +865,196 @@
     }
   }//}}}
 
+  function closureCreateHistoryDate(obj)//{{{
+  {
+    //{{{ local variables.
+    obj = obj || {};
+    var classNameOfHistoryDateItem = obj.className || 'historyDate';
+    var classNameOfDeleteBtn       = obj.itemDelete || 'itemDelete';
+    var classNameOfHistoryDate     = obj.itemDate || 'itemDate'; // DateTitle
+    var classNameToAddHistoryItemLocation = obj.itemList || 'itemList';
+    //}}}
+
+    function createPrototype()//{{{
+    {
+      var fieldset = document.createElement('fieldset');
+      addStringToAttributeOfElement(
+        fieldset, 'class', classNameOfHistoryDateItem);
+      addStringToAttributeOfElement(fieldset, 'class', 'historyField');
+
+      var legend = document.createElement('legend');
+      var span = document.createElement('span');
+      addStringToAttributeOfElement(span, 'class', classNameOfHistoryDate);
+      var img = document.createElement('img');
+      addStringToAttributeOfElement(img, 'src', deleteIconPath);
+      addStringToAttributeOfElement(img, 'alt', 'Delete button');
+      addStringToAttributeOfElement(img, 'class', classNameOfDeleteBtn);
+      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
+      legend.appendChild(span);
+      legend.appendChild(img);
+      fieldset.appendChild(legend);
+
+      var article = document.createElement('article');
+      addStringToAttributeOfElement(
+        article, 'class', classNameToAddHistoryItemLocation);
+      addStringToAttributeOfElement(article, 'class', 'ellipsis_over');
+      fieldset.appendChild(article);
+
+      return fieldset;
+    }//}}}
+
+    var proto = createPrototype();
+
+    function createHistoryDate(addItem, showOptions)//{{{
+    {
+      if (!addItem.hasOwnProperty('date')) {
+        throw new Error("the property of 'date' is not found.");
+      }
+      var opts = { // default.
+        deleteButton: true,
+        date:         true,
+        title:        true,
+      };
+      if (showOptions !== void 0 && showOptions !== null) {
+        Object.keys(showOptions).forEach(v => opts[v] = showOptions[v]);
+      }
+
+      var time = addItem.date.getTime();
+      var historyDate = proto.cloneNode(true);
+      addStringToAttributeOfElement(historyDate, 'name', time);
+
+      if (opts.deleteButton) {
+        var del = historyDate.querySelector(`.${classNameOfDeleteBtn}`);
+        addStringToAttributeOfElement(del, 'name', time);
+        del.addEventListener('click', removeHistoryDate, true);
+      }
+
+      if (opts.title || opts.date) {
+        var dateTitle = historyDate.querySelector(`.${classNameOfHistoryDate}`);
+        dateTitle.textContent = getFormatEachLanguages(addItem.date, {
+          'ja':      'YYYY/MM/DD',
+          'default': 'MM/DD/YYYY',
+        });
+      }
+
+      return historyDate;
+    }//}}}
+
+    return createHistoryDate;
+  }//}}}
+
+  function closureCreateHistoryItem(obj)//{{{
+  {
+    if (obj === void 0 || obj === null || !obj.hasOwnProperty('databaseName')) {
+      throw new Error("invalid arguments.");
+    }
+
+    //{{{ local variable
+    var databaseName           = obj.databaseName;
+    var attrNameOfDatabase     = obj.attrNameOfDatabase || 'database';
+    var classNameOfHistoryItem = obj.className || 'historyItem';
+    var classNameOfDeleteBtn   = obj.itemDelete || 'itemDelete';
+    var classNameOfPageIcon    = obj.itemIcon || 'itemIcon';
+    var classNameOfTitle       = obj.itemTitle || 'itemTitle';
+    var classNameOfDate        = obj.itemDate || 'itemDate';
+    var classNameOfLink        = obj.itemUrl || 'itemUrl';
+    var attrNameOfItemId       = obj.attrNameOfItemId || 'historyItemId';
+    //}}}
+    //
+    function createPrototype() {//{{{
+      var section = document.createElement('section');
+      addStringToAttributeOfElement(section, 'class', classNameOfHistoryItem);
+      addStringToAttributeOfElement(section, 'class', 'ellipsis');
+      addStringToAttributeOfElement(section, attrNameOfDatabase, databaseName);
+
+      var img     = document.createElement('img');
+      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
+
+      var deleteIcon  = img.cloneNode(true);
+      addStringToAttributeOfElement(deleteIcon, 'src', deleteIconPath);
+      addStringToAttributeOfElement(deleteIcon, 'alt', 'Delete button');
+      addStringToAttributeOfElement(deleteIcon, 'class', classNameOfDeleteBtn);
+
+      var pageIcon = img.cloneNode(true);
+      addStringToAttributeOfElement(pageIcon, 'alt', 'page icon');
+      addStringToAttributeOfElement(pageIcon, 'class', classNameOfPageIcon);
+
+      var span  = document.createElement('span');
+      var title = span.cloneNode(true);
+      addStringToAttributeOfElement(title, 'class', classNameOfTitle);
+      var date = span.cloneNode(true);
+      addStringToAttributeOfElement(date, 'class', classNameOfDate);
+
+      var a = document.createElement('a');
+      addStringToAttributeOfElement(a, 'target', '_blank');
+      addStringToAttributeOfElement(a, 'class', classNameOfLink);
+
+      a.appendChild(pageIcon);
+      a.appendChild(title);
+
+      section.appendChild(deleteIcon);
+      section.appendChild(date);
+      section.appendChild(a);
+
+      return section;
+    }//}}}
+
+    var proto = createPrototype();
+
+    function createHistoryItem(addItem, showOptions) {//{{{
+      if (!addItem.hasOwnProperty('date')) {
+        throw new Error("the property of 'date' is not found.");
+      }
+      var opts = { // default.
+        deleteButton: true,
+        date:         true,
+        link:         true,
+        title:        true,
+        icon:         true,
+      };
+      if (showOptions !== void 0 && showOptions !== null) {
+        Object.keys(showOptions).forEach(v => opts[v] = showOptions[v]);
+      }
+
+      var item = proto.cloneNode(true);
+      item.setAttribute('name', addItem.date);
+
+      if (opts.deleteButton) {
+        var del = item.querySelector(`.${classNameOfDeleteBtn}`);
+        del.setAttribute('name', addItem.date);
+        del.setAttribute(attrNameOfDatabase, databaseName);
+        del.addEventListener('click', removeHistoryItem, true);
+        if (addItem.hasOwnProperty('id')) {
+          del.setAttribute(attrNameOfItemId, addItem.id);
+        }
+      }
+
+      if (opts.date !== false) {
+        var date = item.querySelector(`.${classNameOfDate}`);
+        date.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
+      }
+
+      if (addItem.hasOwnProperty('url') && opts.link) {
+        var link = item.querySelector(`.${classNameOfLink}`);
+        link.setAttribute('href', addItem.url);
+      }
+
+      if (addItem.hasOwnProperty('dataURI') && opts.icon) {
+        var icon = item.querySelector(`.${classNameOfPageIcon}`);
+        icon.setAttribute('src', addItem.dataURI);
+      }
+
+      if (addItem.hasOwnProperty('title') && opts.title) {
+        var title = item.querySelector(`.${classNameOfTitle}`);
+        title.textContent = addItem.title;
+      }
+
+      return item;
+    }//}}}
+
+    return createHistoryItem;
+  }//}}}
+
   function showAllHistory()//{{{
   {
     return new Promise((resolve, reject) => {
@@ -975,31 +1065,35 @@
         showAutoCompleteDateList(historyArray);
 
         var historyDateList =
-          document.querySelector(selectorOfLocationWhereAddHistoryDateItem);
+          document.querySelector(selectorOfLocationWhereAddHistoryDate);
         clearItemInElement(historyDateList);
 
-        var historyDate = createHistoryDate(prototypeSelectorOfHistoryDate);
-        var historyDateItemList =
-          createHistoryDateItemList(prototypeSelectorOfHistoryItem);
+        var createHistoryDate =
+          closureCreateHistoryDate(optionsForCreateHistoryDate);
+        var createHistoryItem =
+          closureCreateHistoryItem(
+            Object.assign(optionsForCreateHistoryItem,
+              { databaseName: dbHistoryName }));
 
-        var hDate, historyItemList, itemList;
+        var hDate, historyItemList, list;
         var data, i, j, z;
         i = 0;
         while (i < historyArray.length) {
           data = historyArray[i];
-          hDate = historyDate(data);
+          hDate = createHistoryDate(data);
 
+          list = [];
           j = 0;
           while (j < data.data.length) {
-            historyDateItemList.set(data.data[j]);
+            list.push( createHistoryItem(data.data[j]) );
             j++;
           }
-          itemList = historyDateItemList.get().reverse();
+          list = list.reverse();
 
-          historyItemList = hDate.querySelector(selectorOfLocationWhereAddItem);
+          historyItemList = hDate.querySelector(selectorHistoryItemList);
           z = 0;
-          while (z < itemList.length) {
-            historyItemList.appendChild(itemList[z]);
+          while (z < list.length) {
+            historyItemList.appendChild(list[z]);
             ++z;
           }
 
@@ -1069,10 +1163,17 @@
 
   function removeHistoryItem(event)//{{{
   {
+    // indexedDB name.
+    var dbName = event.target.getAttribute(attrNameOfDatabase);
+    // session item only.
+    var itemId = parseInt(event.target.getAttribute(attrNameOfItemId), 10);
+    // this value is new Date().getTime().
+    var time = parseInt(event.target.getAttribute('name'), 10);
+
     return new Promise((resolve, reject) => {
       db.delete({
-        name: dbHistoryName,
-        keys: parseInt(event.target.getAttribute('name'), 10),
+        name: dbName,
+        keys: itemId ? itemId : time,
       })
       .then(ret => {
         return new Promise(resolve => {
@@ -1101,8 +1202,8 @@
       searchDate = new Date(matches[1], (matches[2] - 1) | 0, matches[3]);
     }
 
-    var historyDateList = document.querySelectorAll(
-      selectorHistoryDate + ':not(.' + prototypeClassName + ')');
+    var historyDateList =
+      document.querySelectorAll(`.${classNameOfHistoryDate}`);
     var item, date;
     var i = 0;
     while (i < historyDateList.length) {
@@ -1125,8 +1226,7 @@
     var item, sec, historyItem, itemTitles;
 
     var regex = new RegExp(event.target.value.trim(), 'ig');
-    var field = document.querySelectorAll(
-      selectorHistoryDate + ':not(.' + prototypeClassName + ')');
+    var field = document.querySelectorAll(`.${classNameOfHistoryDate}`);
 
     i = 0;
     while (i < field.length) {
