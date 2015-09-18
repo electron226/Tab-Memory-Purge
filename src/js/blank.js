@@ -72,9 +72,15 @@
   function loadPurgedTabInfo()
   {
     return new Promise((resolve, reject) => {
-      (() => {
-        var args = getQueryString(document);
+      var args = getQueryString(document);
 
+      (() => {
+        return new Promise(resolve => {
+          chrome.runtime.sendMessage(
+            { event: 'check_purged_tab', url: args.url }, resolve);
+        });
+      })()
+      .then(() => {
         var span = eUrl;
         while (span.firstChild) {
           span.removeChild(span.firstChild);
@@ -95,7 +101,7 @@
           name : dbPageInfoName,
           key  : args.url,
         });
-      })()
+      })
       .then(pageInfo => {
         if (pageInfo === void 0 || pageInfo === null) {
           document.title = eUrl.textContent;

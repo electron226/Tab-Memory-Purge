@@ -1975,6 +1975,18 @@
           .then(() => console.log('restore is completed.'))
           .catch(e => console.error(e));
           break;
+        case 'check_purged_tab':
+          var tabId = sender.tab.id;
+          if (!unloaded.hasOwnProperty(tabId)) {
+            unloaded[tabId] = {
+              url:          message.url,
+              scrollPosition: { x : 0 , y : 0 },
+            };
+            sendResponse(true);
+          } else {
+            sendResponse(false);
+          }
+          break;
         case 'current_icon':
           sendResponse(currentIcon);
           break;
