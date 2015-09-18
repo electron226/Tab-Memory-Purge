@@ -201,7 +201,7 @@
   var unloadedCount  = 0;
   var unloadedChange = false;
   Object.observe(unloaded, changes => {//{{{
-    console.log('unloaded was changed.', changes);
+    console.log('unloaded was changed.', Object.assign({}, changes));
 
     var tabId;
     changes.forEach(v => {
@@ -210,6 +210,11 @@
         case 'add':
           unloadedCount++;
           deleteTick(tabId);
+          chrome.tabs.get(tabId, tab => {
+            if (!isReleasePage(tab.url)) {
+              writeHistory(tab);
+            }
+          });
           break;
         case 'delete':
           unloadedCount--;
@@ -1032,15 +1037,12 @@
           return;
         }
 
-        var p2 = [];
-        p2.push( writeHistory(tab) );
-        p2.push(
-          new Promise(resolve2 => {
+        (() => {
+          return new Promise(resolve2 => {
             chrome.tabs.sendMessage(tabId, { event: 'form_cache' }, resolve2);
-          })
-        );
-
-        return Promise.all(p2).then(() => {
+          });
+        })()
+        .then(() => {
           return new Promise((resolve3, reject3) => {
             var url = getPurgeURL(tab.url);
 
