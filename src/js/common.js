@@ -87,7 +87,7 @@
   setObjectProperty(window, 'dbSessionName', 'session');
   setObjectProperty(window, 'dbSavedSessionName', 'savedSession');
 
-  var dbCreateStores = {};
+  var dbCreateStores = {};//{{{
   dbCreateStores[window.dbHistoryName] = {
     property: {
       keyPath: 'date',
@@ -130,7 +130,7 @@
       },
     },
   };
-  setObjectProperty(window, 'dbCreateStores', dbCreateStores);
+  setObjectProperty(window, 'dbCreateStores', dbCreateStores);//}}}
 
   var blankUrl = chrome.runtime.getURL('blank.html');
   setObjectProperty(window, 'extensionExcludeUrl',
