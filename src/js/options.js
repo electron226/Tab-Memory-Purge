@@ -602,78 +602,85 @@
 
   function saveSession()//{{{
   {
-    var showList = addSessionListLocation.querySelectorAll(
-      'section:not(.' + elementDoesNotClassName + ')');
-    if (showList.length === 0) {
-      return;
-    }
+    return new Promise((resolve, reject) => {
+      var showList = addSessionListLocation.querySelectorAll(
+        'section:not(.' + elementDoesNotClassName + ')');
+      if (showList.length === 0) {
+        resolve();
+        return;
+      }
 
-    var a;
-    var urls = [];
-    var i = 0;
-    while (i < showList.length) {
-      a = showList[i].querySelector(selectorHistoryItemUrl);
-      urls.push(a.href);
-      ++i;
-    }
+      var a;
+      var urls = [];
+      var i = 0;
+      while (i < showList.length) {
+        a = showList[i].querySelector(selectorHistoryItemUrl);
+        urls.push(a.href);
+        ++i;
+      }
 
-    var time = Date.now();
-    var newSessions = urls.reverse().map(v => {
-      return { date: time, url: v };
+      var time = Date.now();
+      var newSessions = urls.reverse().map(v => {
+        return { date: time, url: v };
+      });
+
+      db.put({
+        name: dbSavedSessionName,
+        data: newSessions,
+      })
+      .then(showAllSessionHistory)
+      .then(resolve)
+      .catch(reject);
     });
-
-    db.put({
-      name: dbSavedSessionName,
-      data: newSessions,
-    })
-    .then(showAllSessionHistory)
-    .catch(e => console.error(e));
   }//}}}
 
   function deleteSession()//{{{
   {
-    var date = parseInt(sessionTitle.getAttribute('name'));
-    var dbNames = [ dbSessionName, dbSavedSessionName ];
+    return new Promise((resolve, reject) => {
+      var date = parseInt(sessionTitle.getAttribute('name'));
+      var dbNames = [ dbSessionName, dbSavedSessionName ];
 
-    var p = [];
-    var i = 0;
-    while (i < dbNames.length) {
-      p.push(
-        db.getCursor({
-          name: dbNames[i],
-          range: IDBKeyRange.only(date),
-          indexName: 'date',
-        })
-      );
-      ++i;
-    }
-
-    Promise.all(p)
-    .then(results => {
-      var sessions = [];
-      i = 0;
-      while (i < results.length) {
-        sessions = sessions.concat(results[i]);
-        ++i;
-      }
-      var delKeys = sessions.map(v => v.id);
-
-      var p2 = [];
-      i = 0;
+      var p = [];
+      var i = 0;
       while (i < dbNames.length) {
-        p2.push(
-          db.delete({
+        p.push(
+          db.getCursor({
             name: dbNames[i],
-            keys: delKeys,
+            range: IDBKeyRange.only(date),
+            indexName: 'date',
           })
         );
         ++i;
       }
 
-      return Promise.all(p2);
-    })
-    .then(showAllSessionHistory)
-    .catch(e => console.error(e));
+      Promise.all(p)
+      .then(results => {
+        var sessions = [];
+        i = 0;
+        while (i < results.length) {
+          sessions = sessions.concat(results[i]);
+          ++i;
+        }
+        var delKeys = sessions.map(v => v.id);
+
+        var p2 = [];
+        i = 0;
+        while (i < dbNames.length) {
+          p2.push(
+            db.delete({
+              name: dbNames[i],
+              keys: delKeys,
+            })
+          );
+          ++i;
+        }
+
+        return Promise.all(p2);
+      })
+      .then(showAllSessionHistory)
+      .then(resolve)
+      .catch(reject);
+    });
   }//}}}
 
   function restoreSession()//{{{
