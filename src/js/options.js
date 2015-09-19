@@ -78,9 +78,9 @@
   var exportLocation = document.querySelector('#export');
   var importLocation = document.querySelector('#import');
 
-  var excludeKeyNames = [];
-  excludeKeyNames.push(versionKey);
-  excludeKeyNames.push(previousSessionTimeKey);
+  var excludeKeyNames = new Set();
+  excludeKeyNames.add(versionKey);
+  excludeKeyNames.add(previousSessionTimeKey);
 //}}}
 
   var OperateOptionValue = function() {//{{{
@@ -159,7 +159,9 @@
           return;
         }
       }
-      console.warn("Doesn't find the elememt name.", name);
+      if (!excludeKeyNames.has(name)) {
+        console.warn("Doesn't find the elememt name.", name);
+      }
       resolve();
     });
   };
@@ -377,17 +379,26 @@
   var afterMenuSelection = processAfterMenuSelection();
   //}}}
 
+  function clearItemInElement(node)//{{{
+  {
+    while(node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+    return node;
+  }//}}}
+
   function deleteKeyItemFromObject(obj, deleteKeys)//{{{
   {
-    if (toType(obj) !== 'object' || toType(deleteKeys) !== 'array') {
+    if (toType(obj) !== 'object' || toType(deleteKeys) !== 'set') {
       throw new Error('Invalid arguments.');
     }
 
     var newObj = obj;
-    var i = 0;
-    while (i < deleteKeys.length) {
-      delete newObj[ deleteKeys[i] ];
-      ++i;
+    var iter = deleteKeys.entries();
+    var i = iter.next();
+    while (!i.done) {
+      delete newObj[ i.value[0] ];
+      i = iter.next();
     }
 
     return newObj;
@@ -410,6 +421,144 @@
         resolve();
       });
     });
+  }//}}}
+
+  function showChangeHistory()//{{{
+  {
+    return new Promise(resolve => {
+      ajax({ url: changeHistory, responseType: 'text' })
+      .then(result => {
+        eChangeHistoryField.innerHTML = result.response;
+        resolve();
+      });
+    });
+  }//}}}
+
+  function showAllKeybindString()//{{{
+  {
+    console.log('showAllKeybindString');
+
+    var options = document.querySelectorAll(selectorKeybindOption);
+    var keyJson, keyString;
+    var i = 0;
+    while (i < options.length) {
+      keyJson   = options[i].querySelector(selectorKeybindValue);
+      keyString = options[i].querySelector(selectorShowingKeybind);
+      try {
+        if (keyJson.value === '{}' ||
+            keyJson.value === ''   ||
+            keyJson.value === null ||
+            keyJson.value === void 0) {
+            ++i;
+            continue;
+        }
+
+        keyString.value = generateKeyString(JSON.parse(keyJson.value));
+      } catch (e) {
+        console.warn(e, keyJson.value);
+      }
+
+      ++i;
+    }
+  }//}}}
+
+  function setKeybindOption(className, keyInfo)//{{{
+  {
+    var option = document.querySelector(
+      '.' + className + selectorKeybindOption);
+
+    var keybindValue = option.querySelector(selectorKeybindValue);
+    keybindValue.value = JSON.stringify(keyInfo);
+
+    var showKeybindString = option.querySelector(selectorShowingKeybind);
+    try {
+      showKeybindString.value = generateKeyString(keyInfo);
+    } catch (e) {
+      showKeybindString.value = '';
+    }
+  }//}}}
+
+  function keyupEvent(event)//{{{
+  {
+    if (keybindTrace.isRun()) {
+      var info = keybindTrace.traceEvent(event);
+      setKeybindOption(info.id, info.key);
+
+      // save the keybind with using event to storage.
+      var newEvent = document.createEvent('HTMLEvents');
+      newEvent.initEvent('change', false, true);
+      var traceTarget = document.querySelector(
+        '*[name="' + info.id + '"]' + selectorKeybindValue);
+      traceTarget.dispatchEvent(newEvent);
+    }
+  }//}}}
+
+  function buttonClicked(event)//{{{
+  {
+    var t = event.target;
+
+    // keybind only.
+    var parentClassName = t.parentNode.getAttribute('class');
+    var optionName;
+    if (parentClassName) {
+      optionName = parentClassName.replace(
+        selectorKeybindOption.replace(/^./, ''), '').trim();
+    }
+
+    var el;
+    var cName = t.getAttribute('class');
+    switch (cName) {
+    case keybindClassNameOfSetButton:
+      if (keybindTrace.isRun()) {
+        keybindTrace.stop();
+      }
+      keybindTrace.start(optionName);
+      break;
+    case keybindClassNameOfClearButton:
+      setKeybindOption(optionName, {});
+
+      // save the keybind with using event to storage.
+      el = document.querySelector(
+        '[name="' + optionName + '"]' + selectorKeybindValue);
+      var newEvent = document.createEvent('HTMLEvents');
+      newEvent.initEvent('change', false, true);
+      el.dispatchEvent(newEvent);
+      break;
+    case classNameOfCopyButton:
+      exportLocation.select();
+      var result = document.execCommand('copy');
+      var msg    = result ? 'successed' : 'failured';
+      console.log('have copied the string of import area. it is ' + msg + '.');
+
+      window.getSelection().removeAllRanges();
+      break;
+    case classNameOfApplyButton:
+      var value;
+
+      try {
+        value = JSON.parse(importLocation.value.trim());
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          var msg = "Invalid the json string. The value doesn't correct:\n" +
+                    e.message;
+          console.error(msg);
+          alert(msg);
+        } else {
+          console.error(e);
+        }
+        break;
+      }
+
+      value = deleteKeyItemFromObject(value, excludeKeyNames);
+      operateOption.import(document, value)
+      .then(writeOptions => {
+        return new Promise(
+          resolve => chrome.storage.local.set(writeOptions, resolve));
+      })
+      .then(showOptionValuesToOperateSettingsPage)
+      .catch(e => console.error(e));
+      break;
+    }
   }//}}}
 
   function addAutocompleteDateList(element)//{{{
@@ -722,14 +871,6 @@
     }//}}}
 
     return createSessionDateList;
-  }//}}}
-
-  function clearItemInElement(node)//{{{
-  {
-    while(node.firstChild) {
-      node.removeChild(node.firstChild);
-    }
-    return node;
   }//}}}
 
   function selectCurrentSession()//{{{
@@ -1192,94 +1333,69 @@
     });
   }//}}}
 
-  function showSpecificHistoryDate(event)//{{{
+  function showSpecificHistoryDateAndItem()//{{{
   {
-    var value      = event.target.value;
-    var regex      = new RegExp(/(\d+)-(\d+)-(\d+)/);
-    var matches, searchDate;
-    if (value.length > 0) {
-      matches    = value.match(regex);
-      searchDate = new Date(matches[1], (matches[2] - 1) | 0, matches[3]);
+    var field, date, historyItems, item, itemTitle, itemUrl;
+    var i, j, count;
+
+    var shdv       = searchHistoryDate.value;
+    var shdvLen    = shdv.length;
+    var searchTime;
+    if (shdvLen > 0) {
+      var matches    = shdv.match(/(\d+)-(\d+)-(\d+)/);
+      var searchDate = new Date(matches[1], matches[2] - 1, matches[3]);
+      searchTime = searchDate.getTime();
     }
 
-    var historyDateList =
-      document.querySelectorAll(`.${classNameOfHistoryDate}`);
-    var item, date;
-    var i = 0;
-    while (i < historyDateList.length) {
-      item = historyDateList[i];
-      date = new Date(parseInt(item.name, 10));
-      if (value.length === 0 || date.getTime() === searchDate.getTime()) {
+    var shiv      = searchHistoryItem.value.trim();
+    var shivLen   = shiv.length;
+    var regexItem = new RegExp(shiv, 'ig');
+
+    var dateList = document.querySelectorAll(`.${classNameOfHistoryDate}`);
+    i = 0;
+    while (i < dateList.length) {
+      field = dateList[i];
+      date = new Date(parseInt(field.name));
+
+      if (shdvLen === 0 || date.getTime() === searchTime) {
         removeStringFromAttributeOfElement(
-          item, 'class', elementDoesNotClassName);
+          field, 'class', elementDoesNotClassName);
       } else {
-        addStringToAttributeOfElement(item, 'class', elementDoesNotClassName);
+        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
+        ++i;
+        continue;
       }
 
-      ++i;
-    }
-  }//}}}
-
-  function showSpecificHistoryItem(event)//{{{
-  {
-    var i, j, f, count;
-    var item, sec, historyItem, itemTitles;
-
-    var regex = new RegExp(event.target.value.trim(), 'ig');
-    var field = document.querySelectorAll(`.${classNameOfHistoryDate}`);
-
-    i = 0;
-    while (i < field.length) {
-      f = field[i];
-      itemTitles = f.querySelectorAll(selectorHistoryItemTitle);
-
+      historyItems = field.querySelectorAll(`.${classNameOfHistoryItem}`);
       count = 0;
-      j = 0;
-      while (j < itemTitles.length) {
-        item = itemTitles[j];
-        sec = item.parentNode.parentNode;
-        historyItem = sec.querySelector(selectorHistoryItemUrl);
-        if (regex.test(item.textContent) || regex.test(historyItem.href)) {
-          removeStringFromAttributeOfElement(
-            sec, 'class', elementDoesNotClassName);
-        } else {
-          addStringToAttributeOfElement(sec, 'class', elementDoesNotClassName);
-          count = (count + 1) | 0;
-        }
+      j     = 0;
+      while (j < historyItems.length) {
+        item = historyItems[j];
 
+        itemTitle = item.querySelector(selectorHistoryItemTitle);
+        itemUrl   = item.querySelector(selectorHistoryItemUrl);
+        if (shivLen === 0 ||
+            regexItem.test(itemTitle.textContent) ||
+            regexItem.test(itemUrl.href)) {
+          removeStringFromAttributeOfElement(
+            item, 'class', elementDoesNotClassName);
+        } else {
+          addStringToAttributeOfElement(
+            item, 'class', elementDoesNotClassName);
+          ++count;
+        }
         ++j;
       }
 
-      if (count === itemTitles.length) {
-        addStringToAttributeOfElement(f, 'class', elementDoesNotClassName);
+      if (count === historyItems.length) {
+        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
       } else {
-        removeStringFromAttributeOfElement(f, 'class', elementDoesNotClassName);
+        removeStringFromAttributeOfElement(
+          field, 'class', elementDoesNotClassName);
       }
 
       ++i;
     }
-  }//}}}
-
-  function showChangeHistory()//{{{
-  {
-    return new Promise(resolve => {
-      ajax({ url: changeHistory, responseType: 'text' })
-      .then(result => {
-        eChangeHistoryField.innerHTML = result.response;
-        resolve();
-      });
-    });
-  }//}}}
-
-  function initHistoryEvent()//{{{
-  {
-    return new Promise(resolve => {
-      searchHistoryDate.addEventListener(
-        'change', showSpecificHistoryDate, true);
-      searchHistoryItem.addEventListener(
-        'keyup', showSpecificHistoryItem, true);
-      resolve();
-    });
   }//}}}
 
   function changeMenu(name)//{{{
@@ -1300,23 +1416,6 @@
     }
 
     changeMenu(t.getAttribute('name'));
-  }//}}}
-
-  function initSectionBarEvent(d)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      try {
-        var e = d.querySelectorAll(buttonSelector);
-        var i = 0;
-        while (i < e.length) {
-          e[i].addEventListener('click', sectionButtonClicked, true);
-          ++i;
-        }
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    });
   }//}}}
 
   function applyNewOptionToExtensionProcess()//{{{
@@ -1351,6 +1450,34 @@
     .catch(mes => console.error(mes));
   }//}}}
 
+  function initHistoryEvent()//{{{
+  {
+    return new Promise(resolve => {
+      searchHistoryDate.addEventListener(
+        'change', showSpecificHistoryDateAndItem, true);
+      searchHistoryItem.addEventListener(
+        'keyup', showSpecificHistoryDateAndItem, true);
+      resolve();
+    });
+  }//}}}
+
+  function initSectionBarEvent(d)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      try {
+        var e = d.querySelectorAll(buttonSelector);
+        var i = 0;
+        while (i < e.length) {
+          e[i].addEventListener('click', sectionButtonClicked, true);
+          ++i;
+        }
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }//}}}
+
   function initOptionElementEvent(d)//{{{
   {
     return new Promise(resolve => {
@@ -1374,138 +1501,12 @@
     });
   }//}}}
 
-  function showAllKeybindString()//{{{
-  {
-    console.log('showAllKeybindString');
-
-    var options = document.querySelectorAll(selectorKeybindOption);
-    var keyJson, keyString;
-    var i = 0;
-    while (i < options.length) {
-      keyJson   = options[i].querySelector(selectorKeybindValue);
-      keyString = options[i].querySelector(selectorShowingKeybind);
-      try {
-        if (keyJson.value === '{}' ||
-            keyJson.value === null ||
-            keyJson.value === void 0) {
-            ++i;
-            continue;
-        }
-
-        keyString.value = generateKeyString(JSON.parse(keyJson.value));
-      } catch (e) {
-        console.warn(e, keyJson.value);
-      }
-
-      ++i;
-    }
-  }//}}}
-
-  function setKeybindOption(className, keyInfo)//{{{
-  {
-    var option = document.querySelector(
-      '.' + className + selectorKeybindOption);
-
-    var keybindValue = option.querySelector(selectorKeybindValue);
-    keybindValue.value = JSON.stringify(keyInfo);
-
-    var showKeybindString = option.querySelector(selectorShowingKeybind);
-    try {
-      showKeybindString.value = generateKeyString(keyInfo);
-    } catch (e) {
-      showKeybindString.value = '';
-    }
-  }//}}}
-
-  function keyupEvent(event)//{{{
-  {
-    if (keybindTrace.isRun()) {
-      var info = keybindTrace.traceEvent(event);
-      setKeybindOption(info.id, info.key);
-
-      // save the keybind with using event to storage.
-      var newEvent = document.createEvent('HTMLEvents');
-      newEvent.initEvent('change', false, true);
-      var traceTarget = document.querySelector(
-        '*[name="' + info.id + '"]' + selectorKeybindValue);
-      traceTarget.dispatchEvent(newEvent);
-    }
-  }//}}}
-
   function initKeybindEvent(d)//{{{
   {
     return new Promise(resolve => {
       d.addEventListener('keyup', keyupEvent, true);
       resolve();
     });
-  }//}}}
-
-  function buttonClicked(event)//{{{
-  {
-    var t = event.target;
-
-    // keybind only.
-    var parentClassName = t.parentNode.getAttribute('class');
-    var optionName;
-    if (parentClassName) {
-      optionName = parentClassName.replace(
-        selectorKeybindOption.replace(/^./, ''), '').trim();
-    }
-
-    var el;
-    var cName = t.getAttribute('class');
-    switch (cName) {
-    case keybindClassNameOfSetButton:
-      if (keybindTrace.isRun()) {
-        keybindTrace.stop();
-      }
-      keybindTrace.start(optionName);
-      break;
-    case keybindClassNameOfClearButton:
-      setKeybindOption(optionName, {});
-
-      // save the keybind with using event to storage.
-      el = document.querySelector(
-        '[name="' + optionName + '"]' + selectorKeybindValue);
-      var newEvent = document.createEvent('HTMLEvents');
-      newEvent.initEvent('change', false, true);
-      el.dispatchEvent(newEvent);
-      break;
-    case classNameOfCopyButton:
-      exportLocation.select();
-      var result = document.execCommand('copy');
-      var msg    = result ? 'successed' : 'failured';
-      console.log('have copied the string of import area. it is ' + msg + '.');
-
-      window.getSelection().removeAllRanges();
-      break;
-    case classNameOfApplyButton:
-      var value;
-
-      try {
-        value = JSON.parse(importLocation.value.trim());
-      } catch (e) {
-        if (e instanceof SyntaxError) {
-          var msg = "Invalid the json string. The value doesn't correct:\n" +
-                    e.message;
-          console.error(msg);
-          alert(msg);
-        } else {
-          console.error(e);
-        }
-        break;
-      }
-
-      value = deleteKeyItemFromObject(value, excludeKeyNames);
-      operateOption.import(document, value)
-      .then(writeOptions => {
-        return new Promise(
-          resolve => chrome.storage.local.set(writeOptions, resolve));
-      })
-      .then(showOptionValuesToOperateSettingsPage)
-      .catch(e => console.error(e));
-      break;
-    }
   }//}}}
 
   function initButtonEvent(d)//{{{
