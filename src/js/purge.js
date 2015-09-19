@@ -129,6 +129,10 @@
    */
   var ticked = new Map();
 
+  // Set the setInterval id of interval process.
+  // While extension is running, continue to run.
+  var continueRun = new Map();
+
   /**
    * When purge tabs, the object that the scroll position of purging tabs
    * is saved.
@@ -315,15 +319,34 @@
     });
   }//}}}
 
+  function initializeIntervalProcess()//{{{
+  {
+    return new Promise((resolve, reject) => {
+      intervalProcess(myOptions.get('interval_timing') || 5)
+      .then(resolve)
+      .catch(reject);
+    });
+  }
+
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
   // Therefore, the callback function of setInterval is called.
-  function initializeIntervalProcess(intervalTime)//{{{
+  function intervalProcess(intervalTime)//{{{
   {
     console.log('initializeIntervalProcess', intervalTime);
 
+    var intervalName = 'main';
     return new Promise((resolve, reject) => {
-      setInterval(() => {//{{{
+      var intervalId = continueRun.get(intervalName);
+      if (intervalId !== void 0 || intervalId !== null) {
+        console.warn(
+          "Already running interval process, so its process is stop." +
+          `Then create new interval process. intervalName: ${intervalName}`);
+        clearInterval(intervalId);
+        continueRun.delete(intervalName);
+      }
+
+      intervalId = setInterval(() => {//{{{
         console.log('run callback funciton of setInterval.');
         if (db === void 0 || db === null) {
           reject(new Error('IndexedDB is not initialized yet.'));
@@ -354,6 +377,7 @@
           }
         }
       }, intervalTime * 1000);//}}}
+      continueRun.set(intervalName, intervalId);
 
       resolve();
     });
@@ -1673,9 +1697,7 @@
     .then(getInitAndLoadOptions)
     .then(initializeUseOptions)
     .then(initializeAlreadyPurgedTabs)
-    .then(() => {
-      return initializeIntervalProcess(myOptions.get('interval_timing') || 5);
-    })
+    .then(initializeIntervalProcess)
     .then(initializeIntervalUpdateCheck(updateCheckTime))
     .then(deleteOldDatabase)
     .then(deleteAllPurgedTabUrlFromHistory)
@@ -1757,8 +1779,9 @@
       getInitAndLoadOptions()
       .then(options => {
         myOptions = options;
-        resolve();
+        return initializeIntervalProcess();
       })
+      .then(resolve)
       .catch(reject);
     });
   }//}}}
@@ -1792,8 +1815,18 @@
   {
     console.log('initializeIntervalUpdateCheck', checkTime);
 
+    var intervalName = 'updateCheck';
     return new Promise(resolve => {
-      setInterval(updateCheck, checkTime);
+      var intervalId = continueRun.get(intervalName);
+      if (intervalId !== void 0 && intervalId !== null) {
+        console.warn('already be running the update check process, ' +
+                      "so it's stop, and restart;");
+        clearInterval(intervalId);
+        continueRun.delete(intervalName);
+      }
+
+      intervalId = setInterval(updateCheck, checkTime);
+      continueRun.set('updateCheck', intervalId);
       resolve();
     });
   }//}}}
