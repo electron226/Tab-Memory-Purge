@@ -43,8 +43,8 @@
       getCurrentIconState()
       .then(iconValue => {
         if (release === null || restore === null) {
-          reject("fail updatePurgeOrRestoreButton function. " +
-                 "Doesn't find release and restore.");
+          reject(new Error("fail updatePurgeOrRestoreButton function. " +
+                 "Doesn't find release and restore."));
           return;
         }
 
@@ -70,13 +70,13 @@
       getCurrentIconState()
       .then(iconValue => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError.messsage);
+          reject(new Error(chrome.runtime.lastError));
           return;
         }
 
         if (not_release === null || removeNotRelease === null) {
           reject("fail updateNotReleaseButton function. " +
-            "Doesn't find not_release and remove_not_release.");
+                 "Doesn't find not_release and remove_not_release.");
           return;
         }
 
@@ -84,11 +84,11 @@
           not_release.style.display      = 'none';
           removeNotRelease.style.display = 'none';
         } else if (iconValue & TEMP_EXCLUDE) {
-          not_release.style.display = 'none';
+          not_release.style.display      = 'none';
           removeNotRelease.style.display = 'block';
         } else {
           removeNotRelease.style.display = 'none';
-          not_release.style.display = 'block';
+          not_release.style.display      = 'block';
         }
         resolve();
       });
@@ -126,7 +126,7 @@
       break;
     case 'not_release':
     case 'remove_not_release':
-      chrome.runtime.sendMessage({ event: 'switch_not_release' })
+      chrome.runtime.sendMessage({ event: 'switch_not_release' });
       popupClose();
       break;
     case 'switchTimer':

@@ -913,18 +913,19 @@
       return INVALID_EXCLUDE;
     }
 
+    var keybind, result;
+
     // Check the keybind exclude list.
-    var keybind =
-      checkMatchUrlString(url, getTargetExcludeList('keybind')) || 0;
+    keybind = checkMatchUrlString(url, getTargetExcludeList('keybind')) || 0;
 
     // Check the exclude list for the extension.
-    var result = checkMatchUrlString(url, getTargetExcludeList('extension'));
+    result = checkMatchUrlString(url, getTargetExcludeList('extension'));
     if (result) {
       return result | keybind;
     }
 
     // Check the exclude list for Google Chrome.
-    var result = checkMatchUrlString(url, getTargetExcludeList('chrome'));
+    result = checkMatchUrlString(url, getTargetExcludeList('chrome'));
     if (result) {
       return result | keybind;
     }
@@ -1185,7 +1186,7 @@
   */
   function tick(tabId)//{{{
   {
-    console.log('tick');
+    console.log('tick', tabId);
 
     return new Promise((resolve, reject) => {
       if (toType(tabId) !== 'number' || unloaded.hasOwnProperty(tabId)) {
