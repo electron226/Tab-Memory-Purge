@@ -121,17 +121,21 @@
       }
       return; // return.
     case 'restore_release':
-      chrome.runtime.sendMessage({ event: 'release' }, popupClose);
+      chrome.runtime.sendMessage({ event: 'release' });
+      popupClose();
       break;
     case 'not_release':
     case 'remove_not_release':
-      chrome.runtime.sendMessage({ event: 'switch_not_release' }, popupClose);
+      chrome.runtime.sendMessage({ event: 'switch_not_release' })
+      popupClose();
       break;
     case 'switchTimer':
-      chrome.runtime.sendMessage({ event: 'switchTimerState' }, popupClose);
+      chrome.runtime.sendMessage({ event: 'switchTimerState' });
+      popupClose();
       break;
     case 'add_current_tab_exclude_list':
-      chrome.runtime.sendMessage({ event: 'excludeDialogMenu' }, popupClose);
+      chrome.runtime.sendMessage({ event: 'excludeDialogMenu' });
+      popupClose();
       break;
     case 'normal':
     case 'keybind':
