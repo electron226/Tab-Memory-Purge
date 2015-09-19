@@ -145,7 +145,7 @@
 
   var db                 = null; // indexedDB.
   var currentSessionTime = null;
-  var currentIcon        = null;
+  var iconState = new Map(); /// key: tabId, value: represent an icon.
   var currentTabId       = null; // webRequest only.
   var disableTimer       = false;
 
@@ -919,7 +919,7 @@
             reject(new Error(chrome.runtime.lastError));
             return;
           }
-          currentIcon = changeIcon;
+          iconState.set(tab.id, changeIcon);
 
           var title = 'Tab Memory Purge\n';
           if (changeIcon & DISABLE_TIMER) {
@@ -1871,6 +1871,7 @@
   chrome.tabs.onRemoved.addListener(tabId => {//{{{
     console.log('chrome.tabs.onRemoved.', tabId);
     delete unloaded[tabId];
+    iconState.delete(tabId);
   });//}}}
 
   chrome.tabs.onAttached.addListener(tabId => {//{{{
@@ -1882,6 +1883,7 @@
   chrome.tabs.onDetached.addListener(tabId => {//{{{
     console.log('chrome.tabs.onDetached.', tabId);
     delete unloaded[tabId];
+    iconState.delete(tabId);
   });//}}}
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {//{{{
@@ -2006,8 +2008,8 @@
             sendResponse(false);
           }
           break;
-        case 'current_icon':
-          sendResponse(currentIcon);
+        case 'get_icon_state':
+          sendResponse(iconState.get(message.tabId));
           break;
         case 'keybind_check_exclude_list':
           var state = checkExcludeList(message.location.href);

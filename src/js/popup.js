@@ -1,96 +1,108 @@
 (function(window, document) {
   "use strict";
 
+  var release = document.querySelector('#release');
+  var restore = document.querySelector('#restore_release');
+  var not_release = document.querySelector('#not_release');
+  var removeNotRelease = document.querySelector('#remove_not_release');
+
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()
     .then(loadTranslation(document, translationPath))
-    .catch(e => {
-      console.error(
-        "Doesn't initialize the translation correctly.\n error: %s", e);
-    });
+    .then(updatePurgeOrRestoreButton)
+    .then(updateNotReleaseButton)
+    .catch(e => console.error(e));
   }, true);
 
-  window.addEventListener('load', () => {
-    updatePurgeOrRestoreButton()
-    .then(updateNotReleaseButton);
-  });
-
-  function updatePurgeOrRestoreButton()
+  function getCurrentIconState()//{{{
   {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
-        { event: 'current_icon' }, iconValue => {
+      chrome.tabs.query(
+        { active: true, currentWindow: true }, tabs => {
           if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError.messsage);
+            reject(new Error(chrome.runtime.lastError));
             return;
           }
-
-          var p = document.querySelector('div[name="release"]');
-          var r = document.querySelector('div[name="restore_release"]');
-          if (p === null || r === null) {
-            reject("fail updatePurgeOrRestoreButton function. " +
-                   "Doesn't find release and restore.");
-            return;
-          }
-
-          if (iconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
-            p.style.display = 'block';
-            r.style.display = 'none';
-          } else {
-            p.style.display = 'none';
-            r.style.display = 'block';
-          }
-
-          resolve();
+          chrome.runtime.sendMessage(
+            { event: 'get_icon_state', tabId: tabs[0].id }, state => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError));
+                return;
+              }
+              resolve(state);
+            }
+          );
         }
       );
     });
-  }
+  }//}}}
 
-  function updateNotReleaseButton()
+  function updatePurgeOrRestoreButton()//{{{
   {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
-        { event: 'current_icon' }, iconValue => {
+      getCurrentIconState()
+      .then(iconValue => {
+        if (release === null || restore === null) {
+          reject("fail updatePurgeOrRestoreButton function. " +
+                 "Doesn't find release and restore.");
+          return;
+        }
+
+        if (iconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
+          release.style.display = 'block';
+          restore.style.display = 'none';
+        } else {
+          release.style.display = 'none';
+          restore.style.display = 'block';
+        }
+
+        resolve();
+      });
+    });
+  }//}}}
+
+  function updateNotReleaseButton()//{{{
+  {
+    return new Promise((resolve, reject) => {
+      getCurrentIconState()
+      .then(iconValue => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.messsage);
           return;
         }
 
-        var nr = document.querySelector('div[name="not_release"]');
-        var rnr = document.querySelector('div[name="remove_not_release"]');
-        if (nr === null || rnr === null) {
+        if (not_release === null || removeNotRelease === null) {
           reject("fail updateNotReleaseButton function. " +
-                 "Doesn't find not_release and remove_not_release.");
+            "Doesn't find not_release and remove_not_release.");
           return;
         }
 
         if (iconValue & (USE_EXCLUDE | EXTENSION_EXCLUDE)) {
-          nr.style.display = 'none';
-          rnr.style.display = 'none';
+          not_release.style.display = 'none';
+          removeNotRelease.style.display = 'none';
         } else if (iconValue & TEMP_EXCLUDE) {
-          nr.style.display = 'none';
-          rnr.style.display = 'block';
+          not_release.style.display = 'none';
+          removeNotRelease.style.display = 'block';
         } else {
-          rnr.style.display = 'none';
-          nr.style.display = 'block';
+          removeNotRelease.style.display = 'none';
+          not_release.style.display = 'block';
         }
         resolve();
       });
     });
-  }
+  }//}}}
 
-  function popupClose()
+  function popupClose()//{{{
   {
     window.close();
-  }
+  }//}}}
 
-  function buttonClicked(event)
+  function buttonClicked(event)//{{{
   {
     var i, m, s;
-    var name = event.target.getAttribute('name');
+    var id = event.target.getAttribute('id');
 
-    switch (name) {
+    switch (id) {
     case 'option_prev':
       m = document.querySelectorAll('.menu');
       for (i = 0; i < m.length; i = (i + 1) | 0) {
@@ -126,7 +138,7 @@
     case 'information':
     case 'operate_settings':
       chrome.tabs.query({ url: optionPage + '*' }, results => {
-        var url = optionPage + '?page=' + name;
+        var url = optionPage + '?page=' + id;
         if (results.length === 0) {
           chrome.tabs.create({ url: url }, popupClose);
         } else {
@@ -135,12 +147,12 @@
       });
       break;
     default:
-      chrome.runtime.sendMessage({ event: name }, popupClose);
+      chrome.runtime.sendMessage({ event: id }, popupClose);
       break;
     }
-  }
+  }//}}}
 
-  function initButtons()
+  function initButtons()//{{{
   {
     return new Promise(function(resolve) {
       var buttons = document.querySelectorAll('div.btn');
@@ -149,15 +161,15 @@
         el = buttons[i];
         el.addEventListener('click', buttonClicked, true);
 
-        // The elements of the all are setting name into item.
+        // The elements of the all are setting id into item.
         inAll = el.querySelectorAll('*');
         for (j = 0; j < inAll.length; j = (j + 1) | 0) {
-          if (!(inAll[j].getAttribute('name'))) {
-            inAll[j].setAttribute('name', el.getAttribute('name'));
+          if (!(inAll[j].getAttribute('id'))) {
+            inAll[j].setAttribute('id', el.getAttribute('id'));
           }
         }
       }
       resolve();
     });
-  }
+  }//}}}
 })(this, this.document);
