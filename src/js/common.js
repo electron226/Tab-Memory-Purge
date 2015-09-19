@@ -135,10 +135,12 @@
 
   var blankUrl = chrome.runtime.getURL('blank.html');
   setObjectProperty(window, 'extensionExcludeUrl',
+      '^' + blankUrl
+  );
+  setObjectProperty(window, 'chromeExcludeUrl',
       '^chrome-*\\w*://\n' +
       '^view-source:\n' +
-      '^file:///\n' +
-      '^' + blankUrl
+      '^file:///'
   );
 
   // initTranslationsでキー名を使用するときに使う。
@@ -158,6 +160,7 @@
     'USE_EXCLUDE',       // 16
     'TEMP_EXCLUDE',      // 32
     'EXTENSION_EXCLUDE', // 64
+    'CHROME_EXCLUDE',    // 128
   ];
   var i = 0;
   while (i < excludeValues.length) {
@@ -169,18 +172,19 @@
   // defined NORMAL etc... in common.js.
   var icons = new Map();
   var iconNumbers = new Map();
-  iconNumbers.set('icon_disable_timer', DISABLE_TIMER);
-  iconNumbers.set('icon_019', NORMAL);
-  iconNumbers.set('icon_019_use_exclude', USE_EXCLUDE);
-  iconNumbers.set('icon_019_temp_exclude', TEMP_EXCLUDE);
-  iconNumbers.set('icon_019_extension_exclude', EXTENSION_EXCLUDE);
+  iconNumbers.set(DISABLE_TIMER, 'icon_disable_timer');
+  iconNumbers.set(NORMAL, 'icon_019');
+  iconNumbers.set(USE_EXCLUDE, 'icon_019_use_exclude');
+  iconNumbers.set(TEMP_EXCLUDE, 'icon_019_temp_exclude');
+  iconNumbers.set(EXTENSION_EXCLUDE, 'icon_019_extension_exclude');
+  iconNumbers.set(CHROME_EXCLUDE, 'icon_019_extension_exclude');
 
   var keybindIconSuffix = '_with_keybind';
   var iter = iconNumbers.entries();
   for (i = iter.next(); !i.done; i = iter.next()) {
-    icons.set(i.value[1], chrome.runtime.getURL('img/icons/' + i.value[0] + '.png'));
-    icons.set(i.value[1] | KEYBIND_EXCLUDE,
-      chrome.runtime.getURL('img/icons/' + i.value[0] + keybindIconSuffix + '.png'));
+    icons.set(i.value[0], chrome.runtime.getURL('img/icons/' + i.value[1] + '.png'));
+    icons.set(i.value[0] | KEYBIND_EXCLUDE,
+      chrome.runtime.getURL('img/icons/' + i.value[1] + keybindIconSuffix + '.png'));
   }
   setObjectProperty(window, 'icons', icons);
 

@@ -66,7 +66,8 @@
     "versionKey":                   true,
     "defaultValues":                true,
     "translationPath":              true,
-    "extensionExcludeUrl":          true,
+    "extensionExcludeUrl":          true.
+    "chromeExcludeUrl":             true,
     "icons":                        true,
     "getScrollPosScript":           true,
     "blankUrl":                     true,
@@ -85,6 +86,7 @@
     "TEMP_EXCLUDE":      true,
     "USE_EXCLUDE":       true,
     "EXTENSION_EXCLUDE": true,
+    "CHROME_EXCLUDE":    true,
 
     "UPDATE_CONFIRM_DIALOG":    true,
     "RESTORE_PREVIOUS_SESSION": true,

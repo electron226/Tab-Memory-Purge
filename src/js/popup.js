@@ -51,9 +51,12 @@
         if (iconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
           release.style.display = 'block';
           restore.style.display = 'none';
-        } else {
+        } else if (iconValue & EXTENSION_EXCLUDE) {
           release.style.display = 'none';
           restore.style.display = 'block';
+        } else {
+          release.style.display = 'none';
+          restore.style.display = 'none';
         }
 
         resolve();
@@ -77,8 +80,8 @@
           return;
         }
 
-        if (iconValue & (USE_EXCLUDE | EXTENSION_EXCLUDE)) {
-          not_release.style.display = 'none';
+        if (iconValue & (USE_EXCLUDE | EXTENSION_EXCLUDE | CHROME_EXCLUDE)) {
+          not_release.style.display      = 'none';
           removeNotRelease.style.display = 'none';
         } else if (iconValue & TEMP_EXCLUDE) {
           not_release.style.display = 'none';

@@ -857,6 +857,12 @@
   {
     console.log('getTargetExcludeList', target);
     switch (target) {
+      case 'chrome':
+        return {
+          list:        chromeExcludeUrl,
+          options:     'i',
+          returnValue: CHROME_EXCLUDE,
+        };
       case 'extension':
         return {
           list:        extensionExcludeUrl,
@@ -889,7 +895,8 @@
   * 与えられたURLが全ての除外リストに一致するか検索する。
   * @param {String} url - 対象のURL.
   * @return {Value} If be ran resolve function, return value is following.
-  *               EXTENSION_EXCLUDE = 拡張機能内の除外リストと一致
+  *               CHROME_EXCLUDE = chrome関係の除外リストと一致
+  *               EXTENSION_EXCLUDE = 拡張機能関係のアドレスと一致
   *               USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
   *               TEMP_EXCLUDE   = 一時的な非解放リストと一致
   *               NORMAL = 一致しなかった。
@@ -910,8 +917,14 @@
     var keybind =
       checkMatchUrlString(url, getTargetExcludeList('keybind')) || 0;
 
-    // Check the exclude list in the extension.
+    // Check the exclude list for the extension.
     var result = checkMatchUrlString(url, getTargetExcludeList('extension'));
+    if (result) {
+      return result | keybind;
+    }
+
+    // Check the exclude list for Google Chrome.
+    var result = checkMatchUrlString(url, getTargetExcludeList('chrome'));
     if (result) {
       return result | keybind;
     }
@@ -958,6 +971,9 @@
           } else if (changeIcon & EXTENSION_EXCLUDE) {
             title += "The url of this tab is included" +
                     " exclude list of in this extension.";
+          } else if (changeIcon & CHROME_EXCLUDE) {
+            title += "The url of this tab is included" +
+                    " exclude list for Google Chrome.";
           } else {
             reject(new Error('Invalid state. ' + changeIcon));
             return;
@@ -1065,9 +1081,10 @@
         }
 
         var state = checkExcludeList(tab.url);
-        if (state & EXTENSION_EXCLUDE) {
+        if (state & (CHROME_EXCLUDE | EXTENSION_EXCLUDE)) {
           reject(new Error(
-            'The tabId have been included the exclusion list of extension: ' +
+            'The tabId have been included the exclusion list' +
+            ' of extension and chrome: ' +
             tabId));
           return;
         } else if (state & INVALID_EXCLUDE) {
@@ -1972,8 +1989,8 @@
             var t = results.filter(v => {
               var state = checkExcludeList(v.url);
               var retState = (message.event === 'all_purge') ?
-                             (EXTENSION_EXCLUDE & INVALID_EXCLUDE) ^ state :
-                             NORMAL & state;
+               (CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE) ^ state :
+               NORMAL & state;
               return !unloaded.hasOwnProperty(v.id) && retState !== 0;
             });
             if (t.length === 0) {
@@ -2047,7 +2064,8 @@
         case 'keybind_check_exclude_list':
           var state = checkExcludeList(message.location.href);
           sendResponse(state ^
-            (EXTENSION_EXCLUDE | KEYBIND_EXCLUDE | INVALID_EXCLUDE));
+            (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
+             KEYBIND_EXCLUDE | INVALID_EXCLUDE));
           break;
         case 'switchTimerState':
           switchDisableTimerState()
