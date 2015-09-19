@@ -100,8 +100,12 @@
       var valueType = obj.valueType;
 
       var val = (type === 'get') ? el[property] : value;
+      if (valueType === 'number') {
+        val = parseInt(val, 10);
+      }
+
       if (toType(val) !== valueType) {
-        reject(new Error('${val} is not ${valueType} type.'));
+        reject(new Error(`${val} is not ${valueType} type: ${toType(val)}`));
         return;
       }
 
