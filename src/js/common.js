@@ -38,6 +38,7 @@
     config.set('interval_timing', 5);
     config.set('new_tab_opens_with_purged_tab', false);
     config.set('get_title_when_does_not_title', false);
+    config.set('not_purge_playsound_tab', true);
 
     config.set('keybind_release', JSON.stringify({}));
     config.set('keybind_switch_not_release', JSON.stringify({}));

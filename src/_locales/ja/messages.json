@@ -152,7 +152,11 @@
     "description": "オプションの項目"
   },
   "get_title_when_does_not_title": {
-    "message": "解放したタブのタイトルを取得できなかった場合、解放前のページからタイトルを取得する。",
+    "message": "解放したタブのタイトルを取得できなかった場合、解放前のページからタイトルを取得する",
+    "description": "オプションの項目"
+  },
+  "not_purge_playsound_tab": {
+    "message": "音を再生中のタブは自動的に解放しない",
     "description": "オプションの項目"
   },
 

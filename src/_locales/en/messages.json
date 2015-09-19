@@ -159,7 +159,10 @@
     "message": "If the title wasn't able to get in a purged tab, Extension takes the title from the previous page to be purged.",
     "description": "the item of the options."
   },
-
+  "not_purge_playsound_tab": {
+    "message": "Doesn't purge the playing sound tab automatically.",
+    "description": "the item of the options."
+  },
 
   "specification": {
     "message": "Brief description of specification.",

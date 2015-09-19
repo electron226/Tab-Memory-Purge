@@ -782,6 +782,20 @@
   }//}}}
 
   /**
+   * isPlayingSound
+   *
+   * Whether it is playing sound that given the tab.
+   *
+   * @param {Object} tab - The tab object of chrome.tabs.
+   * @return {Boolean} If the tab have been playing sound, True.
+   *     haven't playing sound if False.
+   */
+  function isPlayingSound(tab)//{{{
+  {
+    return tab.audible === true;
+  }//}}}
+
+  /**
   * Check whether the user matches that set the exclusion list.
   * @param {String} url - the url to check whether matches.
   * @param {Object} excludeObj - the object represent exclusion list settings.
@@ -1141,7 +1155,12 @@
 
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          reject(new Error('tick function is skipped:' + tabId));
+          reject(new Error(`tick function is skipped: ${tabId}`));
+          return;
+        }
+
+        if (myOptions.get('not_purge_playsound_tab') && isPlayingSound(tab)) {
+          reject(new Error(`the tab have been playing sound: ${tabId}`));
           return;
         }
 
