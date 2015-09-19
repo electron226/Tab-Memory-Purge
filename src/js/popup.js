@@ -118,9 +118,7 @@
     case 'add_current_tab_exclude_list':
       chrome.runtime.sendMessage({ event: 'excludeDialogMenu' }, popupClose);
       break;
-    case 'option':
-      chrome.tabs.create({ url: optionPage }, popupClose);
-      break;
+    case 'normal':
     case 'keybind':
     case 'history':
     case 'session_history':
