@@ -25,6 +25,7 @@
     "gulp-compass": "^2.1.0",
     "gulp-concat": "^2.6.0",
     "gulp-csscomb": "^3.0.6",
+    "gulp-htmlhint": "^0.3.0",
     "gulp-htmlmin": "^1.1.4",
     "gulp-jshint": "^1.11.2",
     "gulp-jsonminify": "^1.0.0",

@@ -134,6 +134,12 @@
     runSequence('babel', 'usemin-build', 'clean-tmp', callback);
   });
 
+  gulp.task('htmlhint', () => {
+    return gulp.src('src/**.*.html')
+           .pipe($.htmlhint())
+           .pipe($.htmlhint.failReporter());
+  });
+
   gulp.task('minify-html', () => {
     return gulp.src('dist/**/*.html')
     .pipe($.plumber())
@@ -235,14 +241,14 @@
   gulp.task('debug', callback => {
     runSequence(
       'clean-debug',
-      ['sass-debug', 'jshint', 'replace-debug'],
+      ['htmlhint', 'sass-debug', 'jshint', 'replace-debug'],
       callback);
   });
   gulp.task('build', callback => {
     runSequence(
       'clean-build',
       'copy-build',
-      ['compass-build', 'jshint', 'replace-build'],
+      ['compass-build', 'jshint', 'replace-build', 'htmlhint'],
       ['autoprefixer', 'babel', 'jsonminify'],
       'usemin-build',
       ['csscomb', 'uglify-build', 'minify-html'],
