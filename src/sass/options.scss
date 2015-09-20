@@ -222,14 +222,16 @@ $dateListWidth: 15%;
     margin-left: 1rem;
 }
 
-.controlBar {
+#sessionControlBar {
     @extend .border-shadow;
     @include display-flex;
+
+    height: $base-line-height;
 
     background-color: $light-primary-color;
 }
 
-.control {
+#sessionIconControl {
     margin-left: auto;
 }
 

@@ -58,7 +58,7 @@
 
   var eChangeHistoryField = document.querySelector('#change_history div');
 
-  var dateListNav = document.querySelector('#dateListNav');
+  var dateListNav     = document.querySelector('#dateListNav');
   var sessionNotFound = document.querySelector('#sessionNotFound');
   var savedSessionDateTitleText =
     document.querySelector('#savedSessionDateTitle');
@@ -68,12 +68,13 @@
   var idNameOfSessionDateList = 'sessionDateList';
   var addSessionDateListLocation =
     document.querySelector(`#${idNameOfSessionDateList}`);
-  var addSessionListLocation     = document.querySelector('#sessionList');
-  var selectorDateList            = '#dateList';
-  var sessionTitle                = document.querySelector('#sessionTitle');
-  var sessionSave                 = document.querySelector('#sessionSave');
-  var sessionDelete               = document.querySelector('#sessionDelete');
-  var sessionRestore              = document.querySelector('#sessionRestore');
+  var addSessionListLocation = document.querySelector('#sessionList');
+  var selectorDateList       = '#dateList';
+  var sessionTitle           = document.querySelector('#sessionTitle');
+  var sessionSave            = document.querySelector('#sessionSave');
+  var sessionDelete          = document.querySelector('#sessionDelete');
+  var sessionRestore         = document.querySelector('#sessionRestore');
+  var sessionIconControl = document.querySelector('#sessionIconControl');
 
   var exportLocation = document.querySelector('#export');
   var importLocation = document.querySelector('#import');
@@ -604,6 +605,22 @@
     return formatDate(new Date(time), formatType);
   }//}}}
 
+  function changeSessionIconControlState(state)//{{{
+  {
+    if (state) {
+      removeStringFromAttributeOfElement(
+        sessionIconControl, 'class', elementDoesNotClassName);
+    } else {
+      addStringToAttributeOfElement(
+        sessionIconControl, 'class', elementDoesNotClassName);
+    }
+  }//}}}
+
+  function clearSessionTitleInSessionControlBar()//{{{
+  {
+    sessionTitle.textContent = '';
+  }//}}}
+
   function saveSession()//{{{
   {
     return new Promise((resolve, reject) => {
@@ -632,7 +649,6 @@
         name: dbSavedSessionName,
         data: newSessions,
       })
-      .then(showAllSessionHistory)
       .then(resolve)
       .catch(reject);
     });
@@ -681,7 +697,6 @@
 
         return Promise.all(p2);
       })
-      .then(showAllSessionHistory)
       .then(resolve)
       .catch(reject);
     });
@@ -761,6 +776,8 @@
           notShowLists[i], 'class', elementDoesNotClassName);
         ++i;
       }
+
+      changeSessionIconControlState(true);
 
       // If clicking date is saved sesssion, add button is not show.
       var list = event.target.parentNode;
@@ -911,10 +928,6 @@
   function showAllSessionHistory()//{{{
   {
     return new Promise((resolve, reject) => {
-      sessionSave.addEventListener('click', saveSession, true);
-      sessionDelete.addEventListener('click', deleteSession, true);
-      sessionRestore.addEventListener('click', restoreSession, true);
-
       getAllSessionHistory()
       .then(results => {
         var savedSessions = results[0];
@@ -1461,6 +1474,34 @@
     .catch(mes => console.error(mes));
   }//}}}
 
+  function initSessionHistoryEvent()//{{{
+  {
+    function commonFunc(e) {//{{{
+      return new Promise((resolve, reject)=> {
+        (() => {
+          var idName = e.target.getAttribute('id');
+          if (idName === sessionSave.getAttribute('id')) {
+            return saveSession();
+          } else if (idName === sessionDelete.getAttribute('id')) {
+            return deleteSession();
+          }
+        })()
+        .then(clearSessionTitleInSessionControlBar)
+        .then(changeSessionIconControlState(false))
+        .then(showAllSessionHistory)
+        .then(resolve)
+        .catch(reject);
+      });
+    }//}}}
+
+    sessionSave.addEventListener('click', commonFunc, true);
+    sessionDelete.addEventListener('click', commonFunc, true);
+    sessionRestore.addEventListener('click', restoreSession, true);
+
+    clearSessionTitleInSessionControlBar();
+    changeSessionIconControlState(false);
+  }//}}}
+
   function initHistoryEvent()//{{{
   {
     return new Promise(resolve => {
@@ -1529,6 +1570,7 @@
         els[i].addEventListener('click', buttonClicked, true);
         ++i;
       }
+
       resolve();
     });
   }//}}}
@@ -1556,6 +1598,7 @@
     .then(initButtonEvent(document))
     .then(initKeybindEvent(document))
     .then(initHistoryEvent(document))
+    .then(initSessionHistoryEvent(document))
     .catch(e => console.error(e));
   }, true);//}}}
 }(this, this.document));
