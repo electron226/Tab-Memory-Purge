@@ -1708,8 +1708,6 @@
    */
   function initialize()//{{{
   {
-    console.log('initialize');
-
     initializeDatabase()
     .then(versionCheckAndUpdate)
     .then(getInitAndLoadOptions)

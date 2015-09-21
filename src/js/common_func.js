@@ -136,63 +136,71 @@
       var pageInfos = array[1];
       var dataURIs  = array[2];
 
+      var i, v;
+
       var pageInfoDict = {};
-      pageInfos.forEach(function(v) {
+      i = 0;
+      while (i < pageInfos.length) {
+        v = pageInfos[i];
         pageInfoDict[v.url] = { title: v.title, host: v.host };
-      });
+        ++i;
+      }
 
       var dataURIDict = {};
-      dataURIs.forEach(function(v) {
+      i = 0;
+      while (i < dataURIs.length) {
+        v = dataURIs[i];
         dataURIDict[v.host] = v.dataURI;
-      });
+        ++i;
+      }
 
       var page;
-      var date, tempDate;
+      var date, tempDate, addDate;
+      var obj;
       var showList = [];
       var dataList = [];
-      histories.forEach(function(v) {
+      i = 0;
+      while (i < histories.length) {
+        v = histories[i];
         page = pageInfoDict[v.url];
         if (page === void 0 || page === null) {
           console.warn("Don't find data in pageInfo of indexedDB.", v.url);
-          return;
+          ++i;
+          continue;
         }
 
         date = new Date(v.date);
         if (!tempDate) {
           tempDate = date;
+          addDate = new Date(tempDate.getFullYear(),
+                             tempDate.getMonth(),
+                             tempDate.getDate(),
+                             0, 0, 0, 0);
         }
 
         if (formatDate(tempDate, 'YYYY/MM/DD') !==
-          formatDate(date, 'YYYY/MM/DD')) {
-          showList.push({
-            date : new Date(tempDate.getFullYear(),
-              tempDate.getMonth(),
-              tempDate.getDate(),
-              0, 0, 0, 0),
-            data : dataList,
-          });
-            tempDate = date;
-            dataList = [];
-          }
+            formatDate(date, 'YYYY/MM/DD')) {
+          showList.push({ date : addDate, data : dataList });
+          tempDate = date;
+          dataList = [];
+        }
 
-          dataList.push({
-            id      : v.id,
-            date    : v.date,
-            url     : v.url,
-            title   : page.title,
-            host    : page.host,
-            dataURI : dataURIDict[page.host] || icons.get(NORMAL),
-          });
-      });
+        obj = {
+          date    : v.date,
+          url     : v.url,
+          title   : page.title,
+          host    : page.host,
+          dataURI : dataURIDict[page.host] || icons.get(NORMAL),
+        };
+        if (v.id) { obj.id = v.id; }
+        // if (v.windowId) { obj.windowId = v.windowId; }
+
+        dataList.push(obj);
+        ++i;
+      }
 
       if (dataList.length > 0) {
-        showList.push({
-          date : new Date(tempDate.getFullYear(),
-                          tempDate.getMonth(),
-                          tempDate.getDate(),
-                          0, 0, 0, 0),
-          data : dataList,
-        });
+        showList.push({ date : addDate, data : dataList });
       }
 
       resolve(showList);

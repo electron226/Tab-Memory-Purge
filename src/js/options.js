@@ -340,13 +340,13 @@
           break;
         case 'session_history':
           if (db.isOpened()) {
-            showAllSessionHistory()
-            .then(selectCurrentSession)
+            initSessionHistory()
+            .then(() => {})
             .catch(e => console.error(e));
           } else {
             setTimeout(() =>
-              showAllSessionHistory()
-              .then(selectCurrentSession)
+              initSessionHistory()
+              .then(() => {})
               .catch(e => console.error(e)), 1000);
           }
           break;
@@ -618,7 +618,10 @@
 
   function clearSessionTitleInSessionControlBar()//{{{
   {
-    sessionTitle.textContent = '';
+    return new Promise(resolve => {
+      sessionTitle.textContent = '';
+      resolve();
+    });
   }//}}}
 
   function saveSession()//{{{
@@ -724,36 +727,22 @@
 
   function closureCreateSessionDateList(obj)//{{{
   {
+    //{{{ local variable.
     var databaseName = obj.databaseName;
     var dateList     = obj.dateList;
     var itemList     = obj.itemList;
     var currentTime  = obj.currentTime;
     if (dateList === void 0 || dateList === null) {
-        throw new Error("dateList isn't found in arguments");
+      throw new Error("dateList isn't found in arguments");
     }
     if (itemList === void 0 || itemList === null) {
-        throw new Error("itemList isn't found in arguments");
+      throw new Error("itemList isn't found in arguments");
     }
     if (currentTime !== void 0 && currentTime !== null &&
-        toType(currentTime) !== 'number') {
+      toType(currentTime) !== 'number') {
       throw new Error('currentTime in arguments is not number.');
     }
-
-    function getDictSplitEachSessionDate(sessions)//{{{
-    {
-      var data;
-      var ret = {};
-      var i = 0;
-      while (i < sessions.length) {
-        data = sessions[i];
-        if (!ret.hasOwnProperty(data.date)) {
-          ret[data.date] = [];
-        }
-        ret[data.date].push(data);
-        ++i;
-      }
-      return ret;
-    }//}}}
+    //}}}
 
     function onClicked(event)//{{{
     {
@@ -810,31 +799,23 @@
 
     function closureCreateSessionDate()//{{{
     {
-      var df = document.createDocumentFragment();
       var div = document.createElement('div');
 
-      return {
-        add: function(time) {
-          var l = div.cloneNode(true);
-          var text;
-          if (currentTime !== void 0 && currentTime !== undefined &&
-              parseInt(currentTime) === parseInt(time)) {
-            text = 'Current Session';
-          } else {
-            text = getFormatEachLanguages(time);
-          }
+      return function(time) {
+        var l = div.cloneNode(true);
+        var text;
+        if (currentTime !== void 0 && currentTime !== undefined &&
+            parseInt(currentTime) === parseInt(time)) {
+          text = 'Current Session';
+        } else {
+          text = getFormatEachLanguages(time);
+        }
 
-          l.setAttribute('name', time);
-          l.textContent = text;
-          l.addEventListener('click', onClicked, true);
-          df.appendChild(l);
-        },
-        get: function() {
-          return Array.prototype.slice.call(df.childNodes);
-        },
-        clear: function() {
-          div = document.createElement('div');
-        },
+        l.setAttribute('name', time);
+        l.textContent = text;
+        l.addEventListener('click', onClicked, true);
+
+        return l;
       };
     }//}}}
 
@@ -864,38 +845,46 @@
       return list;
     }//}}}
 
-    function addItemToElement(element, list)//{{{
+    function getDictSplitEachSessionDate(sessions)//{{{
     {
+      var data, date, v;
+      var ret = new Map();
       var i = 0;
-      while (i < list.length) {
-        element.appendChild(list[i]);
-        i++;
+      while (i < sessions.length) {
+        data = sessions[i];
+        date = data.date;
+        v = ret.get(date) || [];
+        v.push(data);
+        ret.set(date, v);
+        ++i;
       }
+      return ret;
     }//}}}
 
     function createSessionDateList(sessions)//{{{
     {
-      var i, s, key;
-      var list = [];
+      var i, j, iter, s;
+      var dList = [];
+      var list  = [];
       var items;
 
-      createSessionDate.clear();
       i = 0;
       while (i < sessions.length) {
         s = getDictSplitEachSessionDate(sessions[i].data);
 
-        for (key in s) {
-          if (s.hasOwnProperty(key)) {
-            createSessionDate.add(parseInt(key));
-            items = createSessionDateListItem(s[parseInt(key)]).reverse();
-            list = list.concat(items);
-          }
+        iter = s.entries();
+        j = iter.next();
+        while (!j.done) {
+          dList.push( createSessionDate(j.value[0]) );
+          items = createSessionDateListItem(j.value[1]).reverse();
+          list = list.concat(items);
+          j = iter.next();
         }
         ++i;
       }
 
-      addItemToElement(dateList, createSessionDate.get());
-      addItemToElement(itemList, list);
+      dList.forEach(v => dateList.appendChild(v));
+      list.forEach(v => itemList.appendChild(v));
     }//}}}
 
     return createSessionDateList;
@@ -1474,6 +1463,18 @@
     .catch(mes => console.error(mes));
   }//}}}
 
+  function initSessionHistory()//{{{
+  {
+    return new Promise((resolve, reject)=> {
+      clearSessionTitleInSessionControlBar()
+      .then(changeSessionIconControlState(false))
+      .then(showAllSessionHistory)
+      .then(selectCurrentSession)
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
   function initSessionHistoryEvent()//{{{
   {
     function commonFunc(e) {//{{{
@@ -1486,9 +1487,7 @@
             return deleteSession();
           }
         })()
-        .then(clearSessionTitleInSessionControlBar)
-        .then(changeSessionIconControlState(false))
-        .then(showAllSessionHistory)
+        .then(initSessionHistory)
         .then(resolve)
         .catch(reject);
       });
@@ -1498,8 +1497,8 @@
     sessionDelete.addEventListener('click', commonFunc, true);
     sessionRestore.addEventListener('click', restoreSession, true);
 
-    clearSessionTitleInSessionControlBar();
-    changeSessionIconControlState(false);
+    clearSessionTitleInSessionControlBar()
+    .then(changeSessionIconControlState(false));
   }//}}}
 
   function initHistoryEvent()//{{{
