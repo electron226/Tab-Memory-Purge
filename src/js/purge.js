@@ -179,10 +179,9 @@
             throw new Error("TabId has already existed into unloaded." + tabId);
           }
 
-          unloaded[tabId] = {
-            url            : url,
-            scrollPosition : { x : 0 , y : 0 },
-          };
+          chrome.tabs.get(tabId, tab => {
+            setUnloaded(tabId, url, tab.windowId);
+          });
 
           return { redirectUrl: getPurgeURL(url) };
         }
@@ -200,6 +199,7 @@
    *    the values in the object are following.
    *       url            : the url before purging.
    *       scrollPosition : the object that represent the scroll position(x, y).
+   *       windowId       : the windowId of the purged tab.
    */
   var unloaded       = {};
   var unloadedCount  = 0;
@@ -231,6 +231,15 @@
 
     unloadedChange = true;
   });//}}}
+
+  function setUnloaded(key, url, windowId, position)//{{{
+  {
+    unloaded[key] = {
+      url            : url,
+      windowId       : windowId,
+      scrollPosition : position || { x : 0 , y : 0 },
+    };
+  }//}}}
 
   function loadScrollPosition(tabId)//{{{
   {
@@ -620,7 +629,8 @@
           if (item !== void 0 && item !== null &&
               item.url !== void 0 && item.url !== null &&
               item.url.length > 0) {
-            sessionWrites.push({ date: nowTime, url: item.url });
+            sessionWrites.push(
+                { date: nowTime, url: item.url, windowId: item.windowId });
           } else {
             console.error("Doesn't find url.", item);
           }
@@ -1114,10 +1124,7 @@
           });
         })
         .then(() => {
-          unloaded[tabId] = {
-            url            : tab.url,
-            scrollPosition : scrollPosition[0] || { x : 0 , y : 0 },
-          };
+          setUnloaded(tabId, tab.url, tab.windowId, scrollPosition[0]);
 
           return exclusiveProcessForFunc(
             'deleteAllPurgedTabUrlFromHistory',
@@ -1275,68 +1282,218 @@
     });
   }//}}}
 
-  function restoreTab(url)//{{{
+  function closureRestore()//{{{
   {
-    return new Promise((resolve, reject) => {
-      chrome.tabs.create(
-        { url: getPurgeURL(url), active: false }, tab => {
+    function isWindow(pWindowId)//{{{
+    {
+      console.log('isWindow in closureRestore.', pWindowId);
+
+      return new Promise((resolve, reject) => {
+        if (pWindowId) {
+          chrome.tabs.query({ windowId: pWindowId }, rTabs => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+            resolve(rTabs.length !== 0);
+          });
+        } else {
+          resolve(false);
+        }
+      });
+    }//}}}
+
+    function restoreTab(pSession)//{{{
+    {
+      console.log('restoreTab in closureRestore.', pSession);
+
+      return new Promise((resolve, reject) => {
+        var rMapResults = new Map();
+        var lNumWinId   = pSession.windowId;
+        var lStrUrl     = pSession.url;
+        var lObjOpts    = { url: getPurgeURL(lStrUrl), active: false };
+
+        if (lNumWinId) {
+          lObjOpts.windowId = lNumWinId;
+        }
+
+        chrome.tabs.create(lObjOpts, rTab => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+
+            rMapResults = new Map();
+            rMapResults.set(rTab.id, {
+              url            : lStrUrl,
+              windowId       : rTab.windowId,
+              scrollPosition : { x : 0 , y : 0 },
+            });
+            resolve(rMapResults);
+          }
+        );
+      });
+    }//}}}
+
+    function restoreWindow(pSessions)//{{{
+    {
+      console.log('restoreWindow in closureRestore.', pSessions);
+
+      return new Promise((resolve, reject) => {
+        var lMapTempUrls = new Map();
+        var rMapResults  = new Map();
+        var lStrUrl      = "";
+        var lArrayUrls   = [];
+        var i            = 0;
+        var v            = {};
+
+        pSessions.forEach(v => {
+          lStrUrl = getPurgeURL(v.url);
+          lMapTempUrls.set(lStrUrl, v.url);
+          lArrayUrls.push(lStrUrl);
+        });
+
+        chrome.windows.create({ url: lArrayUrls }, win => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
 
-          var ret = new Map();
-          ret.set(tab.id, {
-            url            : url,
-            scrollPosition : { x : 0 , y : 0 },
-          });
-          resolve(ret);
+          rMapResults = new Map();
+          i = 0;
+          while (i < win.tabs.length) {
+            v = win.tabs[i];
+            rMapResults.set(v.id, {
+              url            : lMapTempUrls.get(v.url),
+              windowId       : v.windowId,
+              scrollPosition : { x : 0 , y : 0 },
+            });
+            ++i;
+          }
+          resolve(rMapResults);
+        });
+      });
+    }//}}}
+
+    function restoreSessions(pNumWinId, pArraySessions)//{{{
+    {
+      console.log(
+        'restoreSessions in closureRestore', pNumWinId, pArraySessions.slice());
+
+      return new Promise((resolve, reject) => {
+        var lObjSession   = {};
+        var lArrayPromise = [];
+        var rMapResult    = new Map();
+        var iter         = rMapResult.entries();
+        var iterPos      = iter.next();
+        var i            = 0;
+
+        isWindow(pNumWinId)
+        .then(isWin => {
+          if (isWin) {
+            // restore tab to window of winId.
+            while (i < pArraySessions.length) {
+              lObjSession          = pArraySessions[i];
+              lObjSession.windowId = pNumWinId;
+              lArrayPromise.push( restoreTab(lObjSession) );
+              ++i;
+            }
+
+            return Promise.all(lArrayPromise).then(results => {
+              rMapResult = new Map();
+              i = 0;
+              while (i < results.length) {
+                iter      = results[i].entries();
+                iterPos   = iter.next();
+                while (!iterPos.done) {
+                  rMapResult.set(iterPos.value[0], iterPos.value[1]);
+                  iterPos = iter.next();
+                }
+                ++i;
+              }
+              return rMapResult;
+            });
+          } else {
+            // create window. therefore, to restore.
+            return restoreWindow(pArraySessions);
+          }
+        })
+        .then(resolve)
+        .catch(reject);
+      });
+    }//}}}
+
+    /**
+    * 指定した辞書型の再帰処理し、タブを復元する。
+    * 引数は第一引数のみを指定。
+    *
+    * @param {array of object} pSessions
+    *     You want to restore the array of sessions.
+    * @return {Promise} promiseが返る。
+    */
+    function restore(pSessions)//{{{
+    {
+      console.log(
+        'restore in closureRestore', Array.prototype.slice.call(pSessions));
+
+      return new Promise((resolve, reject) => {
+        var lNumWinId      = 0;
+        var lNumTabId      = 0;
+        var lArrayList     = [];
+        var lArraySession  = {};
+        var lArrayPromise  = [];
+        var lMapEachWindow = new Map();
+        var iter           = lMapEachWindow.entries();
+        var iterPos        = iter.next();
+        var i              = 0;
+
+        i = 0;
+        while (i < pSessions.length) {
+          lArraySession = pSessions[i];
+          lNumWinId     = lArraySession.windowId;
+          lArrayList    = lMapEachWindow.get(lNumWinId) || [];
+          lArrayList.push(lArraySession);
+          lMapEachWindow.set(lNumWinId, lArrayList);
+          ++i;
         }
-      );
-    });
+
+        lArrayPromise = [];
+        iter          = lMapEachWindow.entries();
+        iterPos       = iter.next();
+        while (!iterPos.done) {
+          lArrayPromise.push(
+            restoreSessions(iterPos.value[0], iterPos.value[1]));
+          iterPos = iter.next();
+        }
+
+        Promise.all(lArrayPromise)
+        .then(rResults => {
+          i = 0;
+          while (i < rResults.length) {
+            iter    = rResults[i].entries();
+            iterPos = iter.next();
+            while (!iterPos.done) {
+              lNumTabId = iterPos.value[0];
+              if (!unloaded.hasOwnProperty(lNumTabId)) {
+                unloaded[lNumTabId] = iterPos.value[1];
+              } else {
+                console.error(
+                  'same tabId is found in unloaded object.', lNumTabId);
+              }
+              iterPos = iter.next();
+            }
+            ++i;
+          }
+        })
+        .then(resolve)
+        .catch(reject);
+      });
+    }//}}}
+
+    return restore;
   }//}}}
 
-  /**
-  * 指定した辞書型の再帰処理し、タブを復元する。
-  * 引数は第一引数のみを指定。
-  *
-  * @param {Array} sessions You want to restore the array of sessions.
-  * @return {Promise} promiseが返る。
-  */
-  function restore(sessions)//{{{
-  {
-  console.log('restore', Array.prototype.slice.call(sessions));
-
-   return new Promise((resolve, reject) => {
-     var i, j;
-     var tabId, iter;
-     var p = [];
-
-     i = 0;
-     while (i < sessions.length) {
-       p.push( restoreTab(sessions[i].url) );
-       ++i;
-     }
-
-     Promise.all(p).then(results => {
-       i = 0;
-       while (i < results.length) {
-         iter = results[i].entries();
-         for (j = iter.next(); !j.done; j = iter.next()) {
-           tabId = j.value[0];
-           if (!unloaded.hasOwnProperty(tabId)) {
-             unloaded[tabId] = j.value[1];
-           } else {
-             console.error('same tabId is found in unloaded object.');
-           }
-         }
-         ++i;
-       }
-     })
-     .then(resolve)
-     .catch(reject);
-   });
-  }//}}}
+  var restore = closureRestore();
 
   function switchTempRelease(url)//{{{
   {
@@ -1653,10 +1810,10 @@
         var result = checkExcludeList(current.url);
         if (result ^ (NORMAL & INVALID_EXCLUDE)) {
           if (isReleasePage(current.url)) {
-            unloaded[current.id] = {
-              url            : getParameterByName(current.url, 'url'),
-              scrollPosition : { x: 0 , y: 0 },
-            };
+            setUnloaded(
+              current.id,
+              getParameterByName(current.url, 'url'),
+              current.windowId);
           }
 
           setTick(current.id).then(resolve).catch(reject);
@@ -2048,10 +2205,9 @@
         case 'check_purged_tab':
           var tabId = sender.tab.id;
           if (!unloaded.hasOwnProperty(tabId)) {
-            unloaded[tabId] = {
-              url:          message.url,
-              scrollPosition: { x : 0 , y : 0 },
-            };
+            chrome.tabs.get(tabId, tab => {
+              setUnloaded(tabId, message.url, tab.windowId);
+            });
             sendResponse(true);
           } else {
             sendResponse(false);

@@ -193,7 +193,7 @@
           dataURI : dataURIDict[page.host] || icons.get(NORMAL),
         };
         if (v.id) { obj.id = v.id; }
-        // if (v.windowId) { obj.windowId = v.windowId; }
+        if (v.windowId) { obj.windowId = v.windowId; }
 
         dataList.push(obj);
         ++i;

@@ -173,11 +173,16 @@ input, textarea {
 
 .historyField {
     @include border0;
-    @include rhythm-margins(1, 0);
 
     article {
         padding: 0 1rem;
         @include box-sizing(border-box);
+    }
+}
+
+#historyList {
+    .historyField:not(last-child) {
+        @include rhythm-margins(1, 0);
     }
 }
 
@@ -222,7 +227,7 @@ $dateListWidth: 15%;
     margin-left: 1rem;
 }
 
-#sessionControlBar {
+.controlBar {
     @extend .border-shadow;
     @include display-flex;
 
@@ -231,7 +236,13 @@ $dateListWidth: 15%;
     background-color: $light-primary-color;
 }
 
-#sessionIconControl {
+.windowBar {
+    @extend .controlBar;
+    @include flex-direction(column);
+    background-color: lighten($light-primary-color, 10%);
+}
+
+.iconControl {
     margin-left: auto;
 }
 

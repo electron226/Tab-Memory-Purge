@@ -1,6 +1,173 @@
 ﻿(function(window, document) {
   'use strict';
 
+  function removeHistoryDate(event)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
+      var begin = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+      var end = new Date(
+        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+      db.getCursor({
+        name: dbHistoryName,
+        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
+      })
+      .then(histories => {
+        var delKeys = histories.map(v => v.date);
+        return db.delete({
+          name: dbHistoryName,
+          keys: delKeys,
+        });
+      })
+      .then(ret => {
+        return new Promise(resolve => {
+          var historyDateLegend = event.target.parentNode;
+          var historyDateField  = historyDateLegend.parentNode;
+          var historyList       = historyDateField.parentNode;
+          historyList.removeChild(historyDateField);
+
+          resolve(ret);
+        });
+      })
+      .then(getAllHistory)
+      .then(showAutoCompleteDateList)
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeHistoryItem(event)//{{{
+  {
+    var t = event.target;
+    // indexedDB name.
+    var dbName = t.getAttribute(attrNameOfDatabase);
+    // session item only.
+    var itemId = parseInt(t.getAttribute(attrNameOfItemId), 10);
+    // this value is new Date().getTime().
+    var time = parseInt(t.getAttribute('name'), 10);
+
+    return new Promise((resolve, reject) => {
+      db.delete({
+        name: dbName,
+        keys: itemId ? itemId : time,
+      })
+      .then(ret => {
+        return new Promise(resolve => {
+          var historyItem     = event.target.parentNode;
+          var historyItemList = historyItem.parentNode;
+          historyItemList.removeChild(historyItem);
+
+          resolve(ret);
+        });
+      })
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeSessionHistoryItem(event)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      removeHistoryItem(event)
+      .then(() => {
+        function getField() {
+          return addSessionListLocation.querySelectorAll(
+            `fieldset:not(.${elementDoesNotClassName})`);
+        }
+
+        var showField = getField();
+        var itemList;
+        var i = 0;
+        while (i < showField.length) {
+          itemList = showField[i].querySelector(selectorHistoryItemList);
+          if (itemList.childNodes.length === 0) {
+            addSessionListLocation.removeChild(showField[i]);
+          }
+          ++i;
+        }
+
+        return (getField().length === 0) ? initSessionHistory() : null;
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
+  function removeSessionHistoryWindow(event)//{{{
+  {
+    return new Promise((resolve, reject) => {
+      var windowId = parseInt(event.target.getAttribute('windowId'));
+      var time     = parseInt(event.target.getAttribute('name'));
+      var dbNames  = [ dbSessionName, dbSavedSessionName ];
+
+      var p = [];
+      var i = 0;
+      while (i < dbNames.length) {
+        p.push(
+          db.getCursor({
+            name:      dbNames[i],
+            range:     IDBKeyRange.only(time),
+            indexName: 'date',
+          })
+        );
+        ++i;
+      }
+      Promise.all(p)
+      .then(results => {
+        var sessions = [];
+        i = 0;
+        while (i < results.length) {
+          sessions = sessions.concat(results[i]);
+          ++i;
+        }
+        var delKeys = sessions.filter(v => {
+          return windowId ? v.windowId === windowId : true;
+        })
+        .map(v => v.id);
+
+        p = [];
+        i = 0;
+        while (i < dbNames.length) {
+          p.push(
+            db.delete({
+              name: dbNames[i],
+              keys: delKeys,
+            })
+          );
+          ++i;
+        }
+
+        return Promise.all(p);
+      })
+      .then(() => {
+        function getField() {
+          return addSessionListLocation.querySelectorAll(
+            `fieldset:not(.${elementDoesNotClassName})`);
+        }
+
+        var showField = getField();
+        i = 0;
+        while (i < showField.length) {
+          if (parseInt(showField[i].getAttribute('windowId')) === windowId) {
+            addSessionListLocation.removeChild(showField[i]);
+          }
+          ++i;
+        }
+
+        return (getField().length === 0) ? initSessionHistory() : null;
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
   //{{{ variables
   var defaultMenu = "normal";
 
@@ -37,12 +204,14 @@
 
   var optionsForCreateHistoryDate = {
     className:          classNameOfHistoryDate,
+    deleteFunc:         removeHistoryDate,
     itemDelete:         selectorHistoryItemDelete.slice(1),
     itemDate:           selectorHistoryItemDate.slice(1),
     itemList:           selectorHistoryItemList.slice(1),
   };
   var optionsForCreateHistoryItem = {
     attrNameOfDatabase: attrNameOfDatabase,
+    deleteFunc:         removeHistoryItem,
     className:          classNameOfHistoryItem,
     itemDelete:         selectorHistoryItemDelete.slice(1),
     itemDate:           selectorHistoryItemDate.slice(1),
@@ -627,26 +796,41 @@
   function saveSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var showList = addSessionListLocation.querySelectorAll(
-        'section:not(.' + elementDoesNotClassName + ')');
-      if (showList.length === 0) {
+      var showField = addSessionListLocation.querySelectorAll(
+        `fieldset:not(.${elementDoesNotClassName})`);
+      if (showField.length === 0) {
         resolve();
         return;
       }
 
-      var a;
-      var urls = [];
+      var itemUrl = optionsForCreateHistoryItem.itemUrl;
+
+      var urlsOfEachWin = new Map();
+      var urls          = [];
+      var field, windowId, list;
       var i = 0;
-      while (i < showList.length) {
-        a = showList[i].querySelector(selectorHistoryItemUrl);
-        urls.push(a.href);
+      while (i < showField.length) {
+        field    = showField[i];
+        windowId = field.getAttribute('windowId');
+        list     = field.querySelectorAll(`.${itemUrl}`);
+        urls     = [];
+        Array.prototype.slice.call(list).forEach(v => urls.push(v.href));
+        urlsOfEachWin.set(windowId, urls);
         ++i;
       }
 
-      var time = Date.now();
-      var newSessions = urls.reverse().map(v => {
-        return { date: time, url: v };
-      });
+      var time        = Date.now();
+      var newSessions = [];
+      var iter        = urlsOfEachWin.entries();
+      var j           = iter.next();
+      while (!j.done) {
+        newSessions = newSessions.concat(
+          j.value[1].map(v => {
+            return { date: time, url: v, windowId: parseInt(j.value[0]) || 0 };
+          })
+        );
+        j = iter.next();
+      }
 
       db.put({
         name: dbSavedSessionName,
@@ -707,18 +891,23 @@
 
   function restoreSession()//{{{
   {
-    var showList = addSessionListLocation.querySelectorAll(
-      'section:not(.' + elementDoesNotClassName + ')');
-    if (showList.length === 0) {
+    var showField = addSessionListLocation.querySelectorAll(
+      'fieldset:not(.' + elementDoesNotClassName + ')');
+    if (showField.length === 0) {
       return;
     }
 
+    var windowId;
+    var field;
     var a;
     var restore = [];
     var i = 0;
-    while (i < showList.length) {
-      a = showList[i].querySelector(selectorHistoryItemUrl);
-      restore.push({ url: a.href });
+    while (i < showField.length) {
+      field    = showField[i];
+      windowId = parseInt(field.getAttribute('windowId'));
+      a        = field.querySelectorAll(selectorHistoryItemUrl);
+      Array.prototype.slice.call(a).forEach(
+        v => restore.push({ url: v.href, windowId: windowId }));
       ++i;
     }
 
@@ -749,7 +938,7 @@
       var name = event.target.getAttribute('name');
 
       // select which is showed a list of a session date.
-      var showLists = itemList.querySelectorAll('section[name="' + name + '"]');
+      var showLists = itemList.querySelectorAll(`fieldset[name="${name}"]`);
       var i = 0;
       while (i < showLists.length) {
         removeStringFromAttributeOfElement(
@@ -758,7 +947,7 @@
       }
 
       var notShowLists =
-        itemList.querySelectorAll('section:not([name="' + name + '"])');
+        itemList.querySelectorAll(`fieldset:not([name="${name}"])`);
       i = 0;
       while (i < notShowLists.length) {
         addStringToAttributeOfElement(
@@ -826,6 +1015,7 @@
       var cHI = closureCreateHistoryItem(
         Object.assign(optionsForCreateHistoryItem, {
           databaseName: databaseName,
+          deleteFunc:   removeSessionHistoryItem,
         })
       );
       var opts = {
@@ -837,7 +1027,6 @@
       var i = 0;
       while (i < items.length) {
         item = cHI(items[i], opts);
-        addStringToAttributeOfElement(item, 'class', elementDoesNotClassName);
         list.push(item);
         ++i;
       }
@@ -845,40 +1034,78 @@
       return list;
     }//}}}
 
-    function getDictSplitEachSessionDate(sessions)//{{{
+    function getDictSplitEachSession(sessions, attrName)//{{{
     {
-      var data, date, v;
+      var data, attr, v;
       var ret = new Map();
-      var i = 0;
+      var i   = 0;
       while (i < sessions.length) {
         data = sessions[i];
-        date = data.date;
-        v = ret.get(date) || [];
+        attr = data[attrName];
+        v    = ret.get(attr) || [];
         v.push(data);
-        ret.set(date, v);
+        ret.set(attr, v);
         ++i;
       }
       return ret;
     }//}}}
 
+    function createSessionWindowList(date, windowMap)//{{{
+    {
+      var windowId, field, article;
+
+      var createHistoryDate = closureCreateHistoryDate(
+        Object.assign(optionsForCreateHistoryDate, {
+          deleteFunc: removeSessionHistoryWindow,
+        })
+      );
+
+      var list  = [];
+      var count = 0;
+      var iter  = windowMap.entries();
+      var i     = iter.next();
+      while (!i.done) {
+        windowId = i.value[0];
+        field    = createHistoryDate({ date: date });
+        addStringToAttributeOfElement(field, 'windowId', windowId);
+        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
+        field.querySelector(
+          selectorHistoryItemDate).textContent = `Window ${count}`;
+        addStringToAttributeOfElement(
+          field.querySelector(selectorHistoryItemDelete), 'windowId', windowId);
+        article = field.querySelector(
+          `.${optionsForCreateHistoryDate.itemList}`);
+
+        createSessionDateListItem(i.value[1])
+        .forEach(v => article.appendChild(v));
+
+        list.push(field);
+
+        ++count;
+        i = iter.next();
+      }
+
+      return list;
+    }//}}}
+
     function createSessionDateList(sessions)//{{{
     {
-      var i, j, iter, s;
+      var i, j, iter, s, v;
       var dList = [];
       var list  = [];
       var items;
 
       i = 0;
       while (i < sessions.length) {
-        s = getDictSplitEachSessionDate(sessions[i].data);
-
+        s    = getDictSplitEachSession(sessions[i].data, 'date');
         iter = s.entries();
-        j = iter.next();
+        j    = iter.next();
         while (!j.done) {
           dList.push( createSessionDate(j.value[0]) );
-          items = createSessionDateListItem(j.value[1]).reverse();
-          list = list.concat(items);
-          j = iter.next();
+          v     = getDictSplitEachSession(j.value[1], 'windowId');
+          items = createSessionWindowList(j.value[0], v);
+          list  = list.concat(items);
+          j     = iter.next();
         }
         ++i;
       }
@@ -1021,11 +1248,16 @@
 
   function closureCreateHistoryDate(obj)//{{{
   {
+    if (obj === void 0 || obj === null || !obj.hasOwnProperty('deleteFunc')) {
+      throw new Error("Invalid arugments. Doesn't find object.");
+    }
+
     //{{{ local variables.
     obj = obj || {};
     var classNameOfHistoryDateItem = obj.className || 'historyDate';
     var classNameOfDeleteBtn       = obj.itemDelete || 'itemDelete';
     var classNameOfHistoryDate     = obj.itemDate || 'itemDate'; // DateTitle
+    var deleteFunc                        = obj.deleteFunc;
     var classNameToAddHistoryItemLocation = obj.itemList || 'itemList';
     //}}}
 
@@ -1073,14 +1305,14 @@
         Object.keys(showOptions).forEach(v => opts[v] = showOptions[v]);
       }
 
-      var time = addItem.date.getTime();
+      var time = new Date(addItem.date).getTime();
       var historyDate = proto.cloneNode(true);
       addStringToAttributeOfElement(historyDate, 'name', time);
 
       if (opts.deleteButton) {
         var del = historyDate.querySelector(`.${classNameOfDeleteBtn}`);
         addStringToAttributeOfElement(del, 'name', time);
-        del.addEventListener('click', removeHistoryDate, true);
+        del.addEventListener('click', deleteFunc, true);
       }
 
       if (opts.title || opts.date) {
@@ -1099,12 +1331,15 @@
 
   function closureCreateHistoryItem(obj)//{{{
   {
-    if (obj === void 0 || obj === null || !obj.hasOwnProperty('databaseName')) {
+    if (obj === void 0 || obj === null ||
+        !obj.hasOwnProperty('databaseName') ||
+        !obj.hasOwnProperty('deleteFunc')) {
       throw new Error("invalid arguments.");
     }
 
     //{{{ local variable
     var databaseName           = obj.databaseName;
+    var deleteFunc             = obj.deleteFunc;
     var attrNameOfDatabase     = obj.attrNameOfDatabase || 'database';
     var classNameOfHistoryItem = obj.className || 'historyItem';
     var classNameOfDeleteBtn   = obj.itemDelete || 'itemDelete';
@@ -1177,7 +1412,7 @@
         var del = item.querySelector(`.${classNameOfDeleteBtn}`);
         del.setAttribute('name', addItem.date);
         del.setAttribute(attrNameOfDatabase, databaseName);
-        del.addEventListener('click', removeHistoryItem, true);
+        del.addEventListener('click', deleteFunc, true);
         if (addItem.hasOwnProperty('id')) {
           del.setAttribute(attrNameOfItemId, addItem.id);
         }
@@ -1273,76 +1508,6 @@
       getHistoryListFromIndexedDB(db, dbHistoryName)
       .then(resolve)
       .catch(reject);
-    });
-  }//}}}
-
-  function removeHistoryDate(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
-      var begin = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-      var end = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
-      db.getCursor({
-        name: dbHistoryName,
-        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
-      })
-      .then(histories => {
-        var delKeys = histories.map(v => v.date);
-        return db.delete({
-          name: dbHistoryName,
-          keys: delKeys,
-        });
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyDateLegend = event.target.parentNode;
-          var historyDateField  = historyDateLegend.parentNode;
-          var historyList       = historyDateField.parentNode;
-          historyList.removeChild(historyDateField);
-
-          resolve(ret);
-        });
-      })
-      .then(getAllHistory)
-      .then(showAutoCompleteDateList)
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
-    });
-  }//}}}
-
-  function removeHistoryItem(event)//{{{
-  {
-    // indexedDB name.
-    var dbName = event.target.getAttribute(attrNameOfDatabase);
-    // session item only.
-    var itemId = parseInt(event.target.getAttribute(attrNameOfItemId), 10);
-    // this value is new Date().getTime().
-    var time = parseInt(event.target.getAttribute('name'), 10);
-
-    return new Promise((resolve, reject) => {
-      db.delete({
-        name: dbName,
-        keys: itemId ? itemId : time,
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyItem     = event.target.parentNode;
-          var historyItemList = historyItem.parentNode;
-          historyItemList.removeChild(historyItem);
-
-          resolve(ret);
-        });
-      })
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
     });
   }//}}}
 
