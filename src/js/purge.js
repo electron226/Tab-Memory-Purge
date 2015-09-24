@@ -251,7 +251,7 @@
         chrome.tabs.executeScript(
           tabId, { code: `scroll(${pos.x}, ${pos.y});` }, () => {
             if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError));
+              reject(new Error(chrome.runtime.lastError.message));
               return;
             }
 
@@ -317,7 +317,7 @@
     return new Promise((resolve, reject) => {
       chrome.system.memory.getInfo(info => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -335,7 +335,7 @@
       .then(resolve)
       .catch(reject);
     });
-  }
+  }//}}}
 
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
@@ -645,7 +645,7 @@
         write[previousSessionTimeKey] = nowTime;
         chrome.storage.local.set(write, () => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
           }
         });
       })
@@ -794,7 +794,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.getSelected(tab => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         resolve(tab);
@@ -964,7 +964,7 @@
       chrome.browserAction.setIcon(
         { path: icons.get(changeIcon), tabId: tab.id }, () => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
           iconState.set(tab.id, changeIcon);
@@ -1537,7 +1537,7 @@
       // 現在のタブの左右の未解放のタブを選択する
       chrome.windows.get(tab.windowId, { populate: true }, win => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -1620,7 +1620,7 @@
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(items => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -1634,13 +1634,13 @@
 
         chrome.storage.local.set(writeObject, () => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
 
           chrome.storage.local.remove('keybind', () => {
             if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError));
+              reject(new Error(chrome.runtime.lastError.message));
               return;
             }
             resolve();
@@ -1700,7 +1700,7 @@
       var currVersion = getVersion();
       chrome.storage.local.get(versionKey, storages => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -1726,7 +1726,7 @@
       // delete old current session time.
       chrome.storage.local.remove(previousSessionTimeKey, () => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         resolve();
@@ -1751,7 +1751,7 @@
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(null, items => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -1766,7 +1766,7 @@
 
         chrome.storage.local.remove(removeKeys, () => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
 
@@ -1826,7 +1826,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, tabs => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -1894,7 +1894,7 @@
       if (disableTimer) {
         chrome.tabs.query({}, tabs => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
 
@@ -1930,7 +1930,7 @@
     return new Promise((resolve, reject) => {
       chrome.tabs.get(tabId, tab => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 

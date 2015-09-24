@@ -191,6 +191,7 @@
   setObjectProperty(window, 'blankUrl', blankUrl);
   setObjectProperty(window, 'optionPage', chrome.runtime.getURL('options.html'));
   setObjectProperty(window, 'changeHistory', chrome.runtime.getURL('History.txt'));
+  setObjectProperty(window, 'gStrDeleteIconPath', 'img/icons/close.svg');
   setObjectProperty(window, 'UPDATE_CONFIRM_DIALOG', 'TMP_UPDATE_CONFIRMATION_DIALOG');
   setObjectProperty(window, 'RESTORE_PREVIOUS_SESSION', 'TMP_RESTORE_PREVIOUS_SESSION');
   setObjectProperty(window, 'updateCheckTime', 30 * 60 * 1000); // min * sec * Millisec.

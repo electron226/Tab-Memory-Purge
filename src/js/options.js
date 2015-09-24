@@ -1,311 +1,123 @@
 ﻿(function(window, document) {
   'use strict';
 
-  function removeHistoryDate(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      var date = new Date(parseInt(event.target.getAttribute('name'), 10));
-      var begin = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-      var end = new Date(
-        date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
-      db.getCursor({
-        name: dbHistoryName,
-        range: IDBKeyRange.bound(begin.getTime(), end.getTime()),
-      })
-      .then(histories => {
-        var delKeys = histories.map(v => v.date);
-        return db.delete({
-          name: dbHistoryName,
-          keys: delKeys,
-        });
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyDateLegend = event.target.parentNode;
-          var historyDateField  = historyDateLegend.parentNode;
-          var historyList       = historyDateField.parentNode;
-          historyList.removeChild(historyDateField);
-
-          resolve(ret);
-        });
-      })
-      .then(getAllHistory)
-      .then(showAutoCompleteDateList)
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
-    });
-  }//}}}
-
-  function removeHistoryItem(event)//{{{
-  {
-    var t = event.target;
-    // indexedDB name.
-    var dbName = t.getAttribute(attrNameOfDatabase);
-    // session item only.
-    var itemId = parseInt(t.getAttribute(attrNameOfItemId), 10);
-    // this value is new Date().getTime().
-    var time = parseInt(t.getAttribute('name'), 10);
-
-    return new Promise((resolve, reject) => {
-      db.delete({
-        name: dbName,
-        keys: itemId ? itemId : time,
-      })
-      .then(ret => {
-        return new Promise(resolve => {
-          var historyItem     = event.target.parentNode;
-          var historyItemList = historyItem.parentNode;
-          historyItemList.removeChild(historyItem);
-
-          resolve(ret);
-        });
-      })
-      .then(resolve)
-      .catch(e => {
-        console.error(e);
-        reject(e);
-      });
-    });
-  }//}}}
-
-  function removeSessionHistoryItem(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      removeHistoryItem(event)
-      .then(() => {
-        function getField() {
-          return addSessionListLocation.querySelectorAll(
-            `fieldset:not(.${elementDoesNotClassName})`);
-        }
-
-        var showField = getField();
-        var itemList;
-        var i = 0;
-        while (i < showField.length) {
-          itemList = showField[i].querySelector(selectorHistoryItemList);
-          if (itemList.childNodes.length === 0) {
-            addSessionListLocation.removeChild(showField[i]);
-          }
-          ++i;
-        }
-
-        return (getField().length === 0) ? initSessionHistory() : null;
-      })
-      .then(resolve)
-      .catch(reject);
-    });
-  }//}}}
-
-  function removeSessionHistoryWindow(event)//{{{
-  {
-    return new Promise((resolve, reject) => {
-      var windowId = parseInt(event.target.getAttribute('windowId'));
-      var time     = parseInt(event.target.getAttribute('name'));
-      var dbNames  = [ dbSessionName, dbSavedSessionName ];
-
-      var p = [];
-      var i = 0;
-      while (i < dbNames.length) {
-        p.push(
-          db.getCursor({
-            name:      dbNames[i],
-            range:     IDBKeyRange.only(time),
-            indexName: 'date',
-          })
-        );
-        ++i;
-      }
-      Promise.all(p)
-      .then(results => {
-        var sessions = [];
-        i = 0;
-        while (i < results.length) {
-          sessions = sessions.concat(results[i]);
-          ++i;
-        }
-        var delKeys = sessions.filter(v => {
-          return windowId ? v.windowId === windowId : true;
-        })
-        .map(v => v.id);
-
-        p = [];
-        i = 0;
-        while (i < dbNames.length) {
-          p.push(
-            db.delete({
-              name: dbNames[i],
-              keys: delKeys,
-            })
-          );
-          ++i;
-        }
-
-        return Promise.all(p);
-      })
-      .then(() => {
-        function getField() {
-          return addSessionListLocation.querySelectorAll(
-            `fieldset:not(.${elementDoesNotClassName})`);
-        }
-
-        var showField = getField();
-        i = 0;
-        while (i < showField.length) {
-          if (parseInt(showField[i].getAttribute('windowId')) === windowId) {
-            addSessionListLocation.removeChild(showField[i]);
-          }
-          ++i;
-        }
-
-        return (getField().length === 0) ? initSessionHistory() : null;
-      })
-      .then(resolve)
-      .catch(reject);
-    });
-  }//}}}
-
   //{{{ variables
-  var defaultMenu = "normal";
+  var db = null; // indexedDB class.
 
-  var db = null; // indexedDB
+  var sStrDefaultMenu = "normal";
 
-  var classNameOfCopyButton  = 'copy';
-  var classNameOfApplyButton = 'apply';
+  var sStrClassNameOfDoesNot  = 'doNotShow';
+  var sStrStyleDisplayNone    = 'display: none;';
 
-  var keybindClassNameOfSetButton   = 'keybind_set';
-  var keybindClassNameOfClearButton = 'keybind_clear';
-  var selectorKeybindOption         = '.keyOption';
-  var selectorShowingKeybind        = '.pressKey';
-  var selectorKeybindValue          = '.keybindValue';
+  var sStrClassNameOfMenu   = 'sectionMenu';
+  var sStrClassNameOfButton = 'sectionButton';
+  var sStrClassNameWhenSelect = 'select';
 
-  var menuSelector           = '.sectionMenu';
-  var buttonSelector         = '.sectionButton';
-  var sectionButtonClassName = buttonSelector.substring(1);
+  var sStrClassNameOfCopyBtn  = 'copy';
+  var sStrClassNameOfApplyBtn = 'apply';
 
-  var classNameWhenSelect     = 'select';
-  var elementDoesNotClassName = 'doNotShow';
-  var styleDisplayNone        = 'display: none;';
-  var deleteIconPath          = 'img/icons/close.svg';
+  var sStrClassNameOfSetKeybindButton   = 'keybind_set';
+  var sStrClassNameOfClearKeybindButton = 'keybind_clear';
+  var sStrClassNameOfKeybindOption      = 'keyOption';
+  var sStrClassNameOfShowKeybind        = 'pressKey';
+  var sStrClassNameOfKeybindValue       = 'keybindValue';
 
-  var classNameOfHistoryItem    = 'historyItem';
-  var classNameOfHistoryDate    = 'historyDate';
-  var selectorHistoryItemDelete = '.itemDelete';
-  var selectorHistoryItemIcon   = '.itemIcon';
-  var selectorHistoryItemUrl    = '.itemUrl';
-  var selectorHistoryItemDate   = '.itemDate';
-  var selectorHistoryItemTitle  = '.itemTitle';
-  var selectorHistoryItemList   = '.itemList';
-  var attrNameOfDatabase        = 'database';
-  var attrNameOfItemId          = 'historyItemId';
+  var sStrClassNameOfHistoryItem       = 'historyItem';
+  var sStrClassNameOfHistoryDate       = 'historyDate';
+  var sStrClassNameOfHistoryItemDelete = 'itemDelete';
+  var sStrClassNameOfHistoryItemIcon   = 'itemIcon';
+  var sStrClassNameOfHistoryItemUrl    = 'itemUrl';
+  var sStrClassNameOfHistoryItemDate   = 'itemDate';
+  var sStrClassNameOfHistoryItemTitle  = 'itemTitle';
+  var sStrClassNameOfHistoryItemList   = 'itemList';
+  var sStrAttrNameOfWindowId           = 'windowId';
+  var sStrAttrNameOfDatabase           = 'database';
+  var sStrAttrNameOfItemId             = 'historyItemId';
 
-  var optionsForCreateHistoryDate = {
-    className:          classNameOfHistoryDate,
-    deleteFunc:         removeHistoryDate,
-    itemDelete:         selectorHistoryItemDelete.slice(1),
-    itemDate:           selectorHistoryItemDate.slice(1),
-    itemList:           selectorHistoryItemList.slice(1),
+  var sStrIdNameOfHistoryList             = 'historyList';
+  var sStrIdNameOfSearchHistoryDate       = 'searchHistoryDate';
+  var sStrIdNameOfSearchHistoryItem       = 'searchHistoryItem';
+  var sStrIdNameOfSearchHistoryDateList   = 'historyDateList';
+
+  var sStrIdNameOfDateListNav             = 'dateListNav';
+  var sStrIdNameOfDateList                = 'dateList';
+  var sStrIdNameOfAddSavedSessionDateList = 'savedSessionDateList';
+  var sStrIdNameOfSessionDateList         = 'sessionDateList';
+  var sStrIdNameOfSessionNotFound         = 'sessionNotFound';
+  var sStrIdNameOfSavedSessionDateTitle   = 'savedSessionDateTitle';
+  var sStrIdNameOfSessionList             = 'sessionList';
+  var sStrIdNameOfSessionTitle            = 'sessionTitle';
+  var sStrIdNameOfSessionSave             = 'sessionSave';
+  var sStrIdNameOfSessionDelete           = 'sessionDelete';
+  var sStrIdNameOfSessionRestore          = 'sessionRestore';
+  var sStrIdNameOfSessionIconControl      = 'sessionIconControl';
+  var sStrIdNameOfChangeHistory           = 'change_history';
+  var sStrIdNameOfExport                  = 'export';
+  var sStrIdNameOfImport                  = 'import';
+
+  var sObjOptsForCreateHistoryDate = {
+    className:  sStrClassNameOfHistoryDate,
+    deleteFunc: function(pEvent) {
+      return removeHistoryDate(pEvent)
+             .then(getAllHistory)
+             .then(historyArray => {
+               return showAutoCompleteDateList(historyArray.reverse());
+             });
+    },
+    itemDelete: sStrClassNameOfHistoryItemDelete,
+    itemDate:   sStrClassNameOfHistoryItemDate,
+    itemList:   sStrClassNameOfHistoryItemList,
   };
-  var optionsForCreateHistoryItem = {
-    attrNameOfDatabase: attrNameOfDatabase,
-    deleteFunc:         removeHistoryItem,
-    className:          classNameOfHistoryItem,
-    itemDelete:         selectorHistoryItemDelete.slice(1),
-    itemDate:           selectorHistoryItemDate.slice(1),
-    itemUrl:            selectorHistoryItemUrl.slice(1),
-    itemIcon:           selectorHistoryItemIcon.slice(1),
-    itemTitle:          selectorHistoryItemTitle.slice(1),
+  var sObjOptsForCreateHistoryItem = {
+    attrNameOfDatabase: sStrAttrNameOfDatabase,
+    deleteFunc: function(pEvent) {
+      return removeHistoryItem(pEvent);
+    },
+    className:  sStrClassNameOfHistoryItem,
+    itemDelete: sStrClassNameOfHistoryItemDelete,
+    itemDate:   sStrClassNameOfHistoryItemDate,
+    itemUrl:    sStrClassNameOfHistoryItemUrl,
+    itemIcon:   sStrClassNameOfHistoryItemIcon,
+    itemTitle:  sStrClassNameOfHistoryItemTitle,
   };
 
-  var selectorOfLocationWhereAddHistoryDate = '#historyList';
-  var searchHistoryDate     = document.querySelector('#searchHistoryDate');
-  var searchHistoryItem     = document.querySelector('#searchHistoryItem');
-  var searchHistoryDateList = document.querySelector('#historyDateList');
-
-  var eChangeHistoryField = document.querySelector('#change_history div');
-
-  var dateListNav     = document.querySelector('#dateListNav');
-  var sessionNotFound = document.querySelector('#sessionNotFound');
-  var savedSessionDateTitleText =
-    document.querySelector('#savedSessionDateTitle');
-  var addSavedSessionDateListIdName = 'savedSessionDateList';
-  var addSavedSessionDateListLocation =
-    document.querySelector(`#${addSavedSessionDateListIdName}`);
-  var idNameOfSessionDateList = 'sessionDateList';
-  var addSessionDateListLocation =
-    document.querySelector(`#${idNameOfSessionDateList}`);
-  var addSessionListLocation = document.querySelector('#sessionList');
-  var selectorDateList       = '#dateList';
-  var sessionTitle           = document.querySelector('#sessionTitle');
-  var sessionSave            = document.querySelector('#sessionSave');
-  var sessionDelete          = document.querySelector('#sessionDelete');
-  var sessionRestore         = document.querySelector('#sessionRestore');
-  var sessionIconControl = document.querySelector('#sessionIconControl');
-
-  var exportLocation = document.querySelector('#export');
-  var importLocation = document.querySelector('#import');
-
-  var excludeKeyNames = new Set();
-  excludeKeyNames.add(versionKey);
-  excludeKeyNames.add(previousSessionTimeKey);
-//}}}
+  var sMapExcludeKeyNames = new Set();
+  sMapExcludeKeyNames.add(versionKey);
+  sMapExcludeKeyNames.add(previousSessionTimeKey);
+  //}}}
 
   var OperateOptionValue = function() {//{{{
   };
-  OperateOptionValue.prototype.get = function(d, name) {
-    return this.call(d, name, null, 'get');
-  };
-  OperateOptionValue.prototype.set = function(d, name, value) {
-    return this.call(d, name, value, 'set');
-  };
-  OperateOptionValue.prototype.__call = function(obj) {
+  OperateOptionValue.prototype.get = function(pElement, pStrName) {//{{{
+    return this.call(pElement, pStrName, null, 'get');
+  };//}}}
+  OperateOptionValue.prototype.set =//{{{
+    function(pElement, pStrName, pStrValue) {
+    return this.call(pElement, pStrName, pStrValue, 'set');
+  };//}}}
+  OperateOptionValue.prototype.call =//{{{
+    function(pElement, pStrName, pStrValue, pStrType) {
+    var $this    = this;
+    var lObjOpts = {};
+    var lElement = document.createDocumentFragment();
+
     return new Promise((resolve, reject) => {
-      var el        = obj.element;
-      var value     = obj.value;
-      var type      = obj.type;
-      var property  = obj.property;
-      var valueType = obj.valueType;
-
-      var val = (type === 'get') ? el[property] : value;
-      if (valueType === 'number') {
-        val = parseInt(val, 10);
+      if (pStrType === void 0 || pStrType === null) {
+        pStrType = 'get';
       }
 
-      if (toType(val) !== valueType) {
-        reject(new Error(`${val} is not ${valueType} type: ${toType(val)}`));
-        return;
-      }
-
-      if (type === 'get') {
-        resolve(val);
-      } else {
-        el[property] = (toType(val) === 'string') ? val.trim() : val;
-        resolve();
-      }
-    });
-  };
-  OperateOptionValue.prototype.call = function(d, name, value, type) {
-    var $this = this;
-    return new Promise((resolve, reject) => {
-      if (type === void 0 || type === null) {
-        type = 'get';
-      }
-
-      var el = d.querySelector(
-        `input[name="${name}"], textarea[name="${name}"]`);
-      if (el) {
+      lElement = pElement.querySelector(
+        `input[name="${pStrName}"], textarea[name="${pStrName}"]`);
+      if (lElement) {
         try {
-          var obj = {
-            element:   el,
-            value:     value,
-            type:      type,
+          lObjOpts = {
+            element:   lElement,
+            value:     pStrValue,
+            type:      pStrType,
           };
-          switch (el.type) {
+          switch (lElement.type) {
           case 'checkbox':
-            obj = Object.assign(obj, {
+            lObjOpts = Object.assign(lObjOpts, {
               property:  'checked',
               valueType: 'boolean',
             });
@@ -313,235 +125,285 @@
           case 'number':
           case 'text':
           case 'textarea':
-            obj = Object.assign(obj, {
+            lObjOpts = Object.assign(lObjOpts, {
               property:  'value',
-              valueType: (el.type === 'number') ? 'number' : 'string',
+              valueType: (lElement.type === 'number') ? 'number' : 'string',
             });
             break;
           default:
             reject(new Error(
               `Doesn't write the code of each element type.` +
-              ` name: ${name}, type: ${el.type}`));
+              ` name: ${pStrName}, type: ${lElement.type}`));
             break;
           }
 
-          $this.__call(obj).then(resolve).catch(reject);
+          $this._call(lObjOpts).then(resolve).catch(reject);
           return;
         } catch (e) {
-          reject(new Error(`(Value = ${value}) is not` +
-                           ` ${el.type} type. name: ${name}`));
+          reject(new Error(`(Value = ${pStrValue}) is not` +
+                           ` ${lElement.type} type. name: ${pStrName}`));
           return;
         }
       }
-      if (!excludeKeyNames.has(name)) {
-        console.warn("Doesn't find the elememt name.", name);
+
+      if (!sMapExcludeKeyNames.has(pStrName)) {
+        console.warn("Doesn't find the elememt name.", pStrName);
       }
       resolve();
     });
-  };
-  OperateOptionValue.prototype.init = function(d) {
-    return this.load(d, defaultValues);
-  };
-  OperateOptionValue.prototype.load = function(d, loadOptions) {
-    var $this = this;
+  };//}}}
+  OperateOptionValue.prototype._call = function(pObj) {//{{{
+    var lElement      = pObj.element;
+    var lStrValue     = pObj.value;
+    var lStrType      = pObj.type;
+    var lStrProperty  = pObj.property;
+    var lStrValueType = pObj.valueType;
+    var lAnyVal       = (lStrType === 'get') ?
+                        lElement[lStrProperty] : lStrValue;
+
+    return new Promise((resolve, reject) => {
+      if (lStrValueType === 'number') {
+        lAnyVal = parseInt(lAnyVal, 10);
+      }
+
+      if (toType(lAnyVal) !== lStrValueType) {
+        reject(new Error(
+          `${lAnyVal} is not ${lStrValueType} type: ${toType(lAnyVal)}`));
+        return;
+      }
+
+      if (lStrType === 'get') {
+        resolve(lAnyVal);
+      } else {
+        lElement[lStrProperty] =
+          (toType(lAnyVal) === 'string') ? lAnyVal.trim() : lAnyVal;
+        resolve();
+      }
+    });
+  };//}}}
+  OperateOptionValue.prototype.init = function(pElement) {//{{{
+    return this.load(pElement, defaultValues);
+  };//}}}
+  OperateOptionValue.prototype.load = function(pElement, pObjOpts) {//{{{
+    var $this         = this;
+    var lArrayPromise = [];
+    var lMapNew       = new Map();
+
+    var iter          = lMapNew.entries();
+    var i             = iter.next();
+    var key           = "";
 
     return new Promise((resolve, reject) => {
       $this.export()
-      .then(options => {
-        switch (toType(loadOptions)) {
+      .then(rOptions => {
+        switch (toType(pObjOpts)) {
         case 'map':
-          options = loadOptions;
+          rOptions = pObjOpts;
           break;
         case 'object':
-          var newMap = new Map();
-          for (var key in loadOptions) {
-            if (loadOptions.hasOwnProperty(key)) {
-              newMap.set(key, loadOptions[key]);
+          lMapNew = new Map();
+          for (key in pObjOpts) {
+            if (pObjOpts.hasOwnProperty(key)) {
+              lMapNew.set(key, pObjOpts[key]);
             }
           }
-          options = newMap;
+          rOptions = lMapNew;
           break;
         }
 
-        var p = [];
-        var iter = options.entries();
-        var i = iter.next();
+        lArrayPromise = [];
+        iter = rOptions.entries();
+        i    = iter.next();
         while (!i.done) {
-          p.push( $this.set(d, i.value[0], i.value[1]) );
+          lArrayPromise.push($this.set(pElement, i.value[0], i.value[1]));
           i = iter.next();
         }
 
-        Promise.all(p).then(resolve, reject);
+        return Promise.all(lArrayPromise);
       })
+      .then(resolve)
       .catch(reject);
     });
-  };
-  OperateOptionValue.prototype.export = function() {
+  };//}}}
+  OperateOptionValue.prototype.export = function() {//{{{
+    var lResult = new Map();
+
     return new Promise(resolve => {
       chrome.storage.local.get(items => {
-        var r = new Map();
+        lResult = new Map();
         defaultValues.forEach((v, key) => {
-          r.set(key, items.hasOwnProperty(key) ? items[key] : v);
+          lResult.set(key, items.hasOwnProperty(key) ? items[key] : v);
         });
-        resolve(r);
+        resolve(lResult);
       });
     });
-  };
-  OperateOptionValue.prototype.import = function(d, importOptions) {
+  };//}}}
+  OperateOptionValue.prototype.import = function(pElement, pObjOpts) {//{{{
     var $this = this;
+
     return new Promise((resolve, reject) => {
-      $this.load(d, importOptions)
-      .then(() => resolve(importOptions))
+      $this.load(pElement, pObjOpts)
+      .then(resolve(pObjOpts))
       .catch(reject);
     });
-  };
+  };//}}}
   //}}}
 
-  var ShowMenuSelection = function(selectors, className_when_select) {//{{{
+  var ShowMenuSelection = function(pStrSelectors, pClassNameWhenSelect) {//{{{
     ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
 
-    this.menuSelector          = selectors.menu;
-    this.buttonSelector        = selectors.button;
-    this.className_when_select = className_when_select;
+    this.strMenuSelector        = pStrSelectors.menu;
+    this.strButtonSelector      = pStrSelectors.button;
+    this.strClassNameWhenSelect = pClassNameWhenSelect;
   };
-  ShowMenuSelection.prototype.showMenu = function(selector) {
-    return function(idName) {
-      var showMenu = document.querySelector(selector + '#' + idName + '');
-      var dontShowMenu =
-        document.querySelectorAll(selector + ':not(#' + idName + ')');
+  ShowMenuSelection.prototype.showMenu = function(pStrSelector) {//{{{
+    var i = 0;
 
-      removeStringFromAttributeOfElement(showMenu, 'style', styleDisplayNone);
-      var i = 0;
-      while (i < dontShowMenu.length) {
+    return function(pIdName) {
+      var lElShowMenu = document.querySelector(`${pStrSelector}#${pIdName}`);
+      var lElDoesNotShowMenu = document.querySelectorAll(
+        `${pStrSelector}:not(#${pIdName})`);
+
+      removeStringFromAttributeOfElement(
+        lElShowMenu, 'style', sStrStyleDisplayNone);
+      i = 0;
+      while (i < lElDoesNotShowMenu.length) {
         addStringToAttributeOfElement(
-          dontShowMenu[i], 'style', styleDisplayNone);
+          lElDoesNotShowMenu[i], 'style', sStrStyleDisplayNone);
         ++i;
       }
     };
-  };
-  ShowMenuSelection.prototype.changeSelectionButtonColor = function(selector) {
-    var $this = this;
+  };//}}}
+  ShowMenuSelection.prototype.changeSelectionButtonColor = //{{{
+    function(pStrSelector) {
+    var $this         = this;
+    var lElPrevSelect = document.createDocumentFragment();
+    var lElNewSelect  = document.createDocumentFragment();
 
-    return function(name) {
-      var o = document.querySelector(
-        selector + '.' + $this.className_when_select);
-      if (o !== null) {
+    return function(pName) {
+      lElPrevSelect = document.querySelector(
+        `${pStrSelector}.${$this.strClassNameWhenSelect}`);
+      if (lElPrevSelect !== null) {
         removeStringFromAttributeOfElement(
-          o, 'class', $this.className_when_select);
+          lElPrevSelect, 'class', $this.strClassNameWhenSelect);
       }
 
-      var n = document.querySelector(selector + '[name = "' + name + '"]');
-      addStringToAttributeOfElement(n, 'class', $this.className_when_select);
+      lElNewSelect = document.querySelector(`${pStrSelector}[name="${pName}"]`);
+      addStringToAttributeOfElement(
+        lElNewSelect, 'class', $this.strClassNameWhenSelect);
     };
-  };
-  ShowMenuSelection.prototype.show = function(name) {
-    var $this = this;
+  };//}}}
+  ShowMenuSelection.prototype.show = function(pName) {//{{{
+    var showMenuArea     = this.showMenu(this.strMenuSelector);
+    var selectMenuButton =
+      this.changeSelectionButtonColor(this.strButtonSelector);
 
-    return new Promise((resolve) => {
-      var showMenuArea, selectMenuButton;
+    return new Promise(resolve => {
+      showMenuArea(pName);
+      selectMenuButton(pName);
 
-      showMenuArea     = $this.showMenu($this.menuSelector);
-      selectMenuButton = $this.changeSelectionButtonColor($this.buttonSelector);
-
-      showMenuArea(name);
-      selectMenuButton(name);
-
-      resolve(name);
+      resolve(pName);
     });
   };//}}}
+  //}}}
 
-  var KeyTrace = function(id) {//{{{
-    this.id = id || null;
-    this.result = null;
+  var KeyTrace = function(pId) {//{{{
+    this.id     = pId || null;
+    this.objResult = null;
   };
-  KeyTrace.prototype.start = function(id) {
-    if (id === null || id === void 0) {
+  KeyTrace.prototype.start = function(pId) {//{{{
+    if (pId === null || pId === void 0) {
       throw new Error("Doesn't set the id of arguments.");
     }
 
-    this.id = id;
-  };
-  KeyTrace.prototype.traceEvent = function(event) {
+    this.id = pId;
+  };//}}}
+  KeyTrace.prototype.traceEvent = function(pEvent) {//{{{
     if (this.id === null || this.id === void 0) {
       throw new Error("Doesn't set the id in this instance yet.");
     }
 
-    this.result = { id: this.id, key: keyCheck(event) };
+    this.objResult = { id: this.id, key: keyCheck(pEvent) };
     this.stop();
 
-    return this.result;
-  };
-  KeyTrace.prototype.stop = function() {
-    this.id = null;
-  };
-  KeyTrace.prototype.clear = function() {
-    this.id = null;
-    this.result = null;
-  };
-  KeyTrace.prototype.isRun = function() {
-    return this.id !== void 0 && this.id !== null;
-  };
-  KeyTrace.prototype.getResult = function() {
-    return this.result;
+    return this.objResult;
   };//}}}
+  KeyTrace.prototype.stop = function() {//{{{
+    this.id = null;
+  };//}}}
+  KeyTrace.prototype.clear = function() {//{{{
+    this.id        = null;
+    this.objResult = null;
+  };//}}}
+  KeyTrace.prototype.isRun = function() {//{{{
+    return this.id !== void 0 && this.id !== null;
+  };//}}}
+  KeyTrace.prototype.getResult = function() {//{{{
+    return this.objResult;
+  };//}}}
+  //}}}
 
-  function processAfterMenuSelection()//{{{
+  function processAfterMenuSelection(name)//{{{
   {
-    console.log('processAfterMenuSelection');
+    return new Promise((resolve, reject) => {
+      switch (name) {
+      case 'normal':
+        break;
+      case 'keybind':
+        setTimeout(showAllKeybindString, 500);
+        break;
+      case 'information':
+        break;
+      case 'history':
+        var historyFunc = function() {
+          showAllHistory()
+          .then(resolve)
+          .catch(e => console.error(e));
+        };
 
-    return function(name) {
-      return new Promise((resolve, reject) => {
-        switch (name) {
-        case 'normal':
-          break;
-        case 'keybind':
-          showAllKeybindString();
-          break;
-        case 'information':
-          break;
-        case 'history':
-          if (db.isOpened()) {
-            showAllHistory().catch(e => console.error(e));
-          } else {
-            setTimeout(
-              () => showAllHistory().catch(e => console.error(e)), 1000);
-          }
-          break;
-        case 'session_history':
-          if (db.isOpened()) {
-            initSessionHistory()
-            .then(() => {})
-            .catch(e => console.error(e));
-          } else {
-            setTimeout(() =>
-              initSessionHistory()
-              .then(() => {})
-              .catch(e => console.error(e)), 1000);
-          }
-          break;
-        case 'change_history':
-          showChangeHistory()
-          .catch(e => console.error(e));
-          break;
-        case 'operate_settings':
-          showOptionValuesToOperateSettingsPage()
-          .catch(e => console.error(e));
-          break;
-        default:
-          reject(new Error("The Invalid menu name."));
-          return;
+        if (db.isOpened()) {
+          historyFunc();
+        } else {
+          setTimeout(historyFunc, 1000);
         }
-        history.pushState(name,
-          document.title + ' ' + chrome.i18n.getMessage(name),
-          optionPage + '?page=' + name);
-        resolve(name);
-      });
-    };
+        break;
+      case 'session_history':
+        var sessionHistoryFunc = function() {
+          initSessionHistory()
+          .then(resolve)
+          .catch(e => console.error(e));
+        };
+
+        if (db.isOpened()) {
+          sessionHistoryFunc();
+        } else {
+          setTimeout(sessionHistoryFunc, 1000);
+        }
+        break;
+      case 'change_history':
+        showChangeHistory()
+        .then(resolve)
+        .catch(e => console.error(e));
+        break;
+      case 'operate_settings':
+        showOptionValuesToOperateSettingsPage()
+        .then(resolve)
+        .catch(e => console.error(e));
+        break;
+      default:
+        reject(new Error("The Invalid menu name."));
+        return;
+      }
+
+      history.pushState(name,
+        `${document.title} ${chrome.i18n.getMessage(name)}`,
+        `${optionPage}?page=${name}`);
+    });
   }//}}}
 
   window.addEventListener('popstate', e => {//{{{
     if (e.state) {
-      menuToggle.show(e.state || defaultMenu);
+      menuToggle.show(e.state || sStrDefaultMenu);
     }
   }, true);//}}}
 
@@ -549,49 +411,89 @@
   var operateOption = new OperateOptionValue();
   var keybindTrace  = new KeyTrace();
   var menuToggle    = new ShowMenuSelection(
-    { menu: menuSelector, button: buttonSelector }, classNameWhenSelect);
-  var afterMenuSelection = processAfterMenuSelection();
+    {
+      menu:   `.${sStrClassNameOfMenu}`,
+      button: `.${sStrClassNameOfButton}`,
+    },
+    sStrClassNameWhenSelect);
   //}}}
 
-  function clearItemInElement(node)//{{{
+  function clearItemInElement(pNode)//{{{
   {
-    while(node.firstChild) {
-      node.removeChild(node.firstChild);
+    while(pNode.firstChild) {
+      pNode.removeChild(pNode.firstChild);
     }
-    return node;
+    return pNode;
   }//}}}
 
-  function deleteKeyItemFromObject(obj, deleteKeys)//{{{
+  function deleteKeyItemFromObject(pObj, pDeleteKeys)//{{{
   {
-    if (toType(obj) !== 'object' || toType(deleteKeys) !== 'set') {
+    var lObjNew         = pObj;
+    var lObjType        = toType(pObj);
+    var lDeleteKeysType = toType(pDeleteKeys);
+    var iter;
+    var i   = 0;
+    var key = "";
+
+    if (lObjType !== 'object' &&
+        lObjType !== 'set' &&
+        lObjType !== 'map' ||
+        lDeleteKeysType !== 'Array' &&
+        lDeleteKeysType !== 'object' &&
+        lDeleteKeysType !== 'map' &&
+        lDeleteKeysType !== 'set') {
       throw new Error('Invalid arguments.');
     }
 
-    var newObj = obj;
-    var iter = deleteKeys.entries();
-    var i = iter.next();
-    while (!i.done) {
-      delete newObj[ i.value[0] ];
+    if (lDeleteKeysType === 'object') {
+      for (key in pDeleteKeys) {
+        if (pDeleteKeys.hasOwnProperty(key)) {
+          if (lObjType === 'object') {
+            delete lObjNew[ pDeleteKeys[key] ];
+          } else {
+            lObjNew.delete(pDeleteKeys[key]);
+          }
+        }
+      }
+    } else {
+      // the deleteKeysType is Array, map, or set.
+      iter = pDeleteKeys.keys();
       i = iter.next();
+      while (!i.done) {
+        if (lObjType === 'object') {
+          delete lObjNew[ i.value ];
+        } else {
+          // the objType is map or set.
+          lObjNew.delete(i.value);
+        }
+        i = iter.next();
+      }
     }
 
-    return newObj;
+    return lObjNew;
   }//}}}
 
   function showOptionValuesToOperateSettingsPage()//{{{
   {
+    var lElExport = document.querySelector(`#${sStrIdNameOfExport}`);
+    var lNewOpts = {};
+    var lObj = {};
+    var iter;
+    var i;
+
     return new Promise(resolve => {
       operateOption.export()
       .then(options => {
-        var obj = {};
-        var iter = options.entries();
-        var i = iter.next();
+        lObj = {};
+        iter = options.entries();
+        i = iter.next();
         while (!i.done) {
-          obj[ i.value[0] ] = i.value[1];
+          lObj[ i.value[0] ] = i.value[1];
           i = iter.next();
         }
-        var newOptions = deleteKeyItemFromObject(obj, excludeKeyNames);
-        exportLocation.value = JSON.stringify(newOptions, null, '    ');
+        lNewOpts        = deleteKeyItemFromObject(lObj, sMapExcludeKeyNames);
+        lElExport.value = JSON.stringify(lNewOpts, null, '    ');
+
         resolve();
       });
     });
@@ -599,10 +501,15 @@
 
   function showChangeHistory()//{{{
   {
+    var lElChangeHistory = document.createDocumentFragment();
+
     return new Promise(resolve => {
       ajax({ url: changeHistory, responseType: 'text' })
       .then(result => {
-        eChangeHistoryField.innerHTML = result.response;
+        lElChangeHistory =
+          document.querySelector(`#${sStrIdNameOfChangeHistory}`);
+        lElChangeHistory.innerText = result.response;
+
         resolve();
       });
     });
@@ -612,119 +519,139 @@
   {
     console.log('showAllKeybindString');
 
-    var options = document.querySelectorAll(selectorKeybindOption);
-    var keyJson, keyString;
+    var lElKeybindOptions =
+      document.querySelectorAll(`.${sStrClassNameOfKeybindOption}`);
+    var lElKeybind  = document.createDocumentFragment();
+    var lObjKeyJson = {};
+    var lStrKey     = '';
     var i = 0;
-    while (i < options.length) {
-      keyJson   = options[i].querySelector(selectorKeybindValue);
-      keyString = options[i].querySelector(selectorShowingKeybind);
+
+    i = 0;
+    while (i < lElKeybindOptions.length) {
+      lElKeybind  = lElKeybindOptions[i];
+      lObjKeyJson = lElKeybind.querySelector(`.${sStrClassNameOfKeybindValue}`);
+      lStrKey     = lElKeybind.querySelector(`.${sStrClassNameOfShowKeybind}`);
       try {
-        if (keyJson.value === '{}' ||
-            keyJson.value === ''   ||
-            keyJson.value === null ||
-            keyJson.value === void 0) {
+        if (lObjKeyJson.value === '{}' ||
+            lObjKeyJson.value === ''   ||
+            lObjKeyJson.value === null ||
+            lObjKeyJson.value === void 0) {
             ++i;
             continue;
         }
 
-        keyString.value = generateKeyString(JSON.parse(keyJson.value));
+        lStrKey.value = generateKeyString(JSON.parse(lObjKeyJson.value));
       } catch (e) {
-        console.warn(e, keyJson.value);
+        console.warn(e, lObjKeyJson.value);
       }
 
       ++i;
     }
   }//}}}
 
-  function setKeybindOption(className, keyInfo)//{{{
+  function setKeybindOption(pClassName, pKeyInfo)//{{{
   {
-    var option = document.querySelector(
-      '.' + className + selectorKeybindOption);
+    var lElOpt = document.querySelector(
+      `.${pClassName}.${sStrClassNameOfKeybindOption}`);
+    var lElKeybindValue =
+      lElOpt.querySelector(`.${sStrClassNameOfKeybindValue}`);
+    var lElShowKeybind =
+      lElOpt.querySelector(`.${sStrClassNameOfShowKeybind}`);
 
-    var keybindValue = option.querySelector(selectorKeybindValue);
-    keybindValue.value = JSON.stringify(keyInfo);
-
-    var showKeybindString = option.querySelector(selectorShowingKeybind);
+    lElKeybindValue.value = JSON.stringify(pKeyInfo);
     try {
-      showKeybindString.value = generateKeyString(keyInfo);
+      lElShowKeybind.value = generateKeyString(pKeyInfo);
     } catch (e) {
-      showKeybindString.value = '';
+      lElShowKeybind.value = '';
     }
   }//}}}
 
-  function keyupEvent(event)//{{{
+  function keyupEvent(pEvent)//{{{
   {
+    var lObjInfo       = {};
+    var lEventNew      = document.createEvent('HTMLEvents');
+    var lElTraceTarget = document.createDocumentFragment();
+
     if (keybindTrace.isRun()) {
-      var info = keybindTrace.traceEvent(event);
-      setKeybindOption(info.id, info.key);
+      lObjInfo = keybindTrace.traceEvent(pEvent);
+      setKeybindOption(lObjInfo.id, lObjInfo.key);
 
       // save the keybind with using event to storage.
-      var newEvent = document.createEvent('HTMLEvents');
-      newEvent.initEvent('change', false, true);
-      var traceTarget = document.querySelector(
-        '*[name="' + info.id + '"]' + selectorKeybindValue);
-      traceTarget.dispatchEvent(newEvent);
+      lEventNew = document.createEvent('HTMLEvents');
+      lEventNew.initEvent('change', false, true);
+
+      lElTraceTarget = document.querySelector(
+        `[name="${lObjInfo.id}"].${sStrClassNameOfKeybindValue}`);
+      lElTraceTarget.dispatchEvent(lEventNew);
     }
   }//}}}
 
-  function buttonClicked(event)//{{{
+  function buttonClicked(pEvent)//{{{
   {
-    var t = event.target;
+    var lElTarget    = pEvent.target;
+    var lElClassName = lElTarget.getAttribute('class');
+    var lEventNew    = document.createEvent('HTMLEvents');
+    var lElement     = document.createDocumentFragment();
+    var lElExport    = document.createDocumentFragment();
+    var lElImport    = document.createDocumentFragment();
+    var lStrMsg      = "";
+    var lStrValue    = "";
+    var lBoolResult  = false;
 
     // keybind only.
-    var parentClassName = t.parentNode.getAttribute('class');
-    var optionName;
-    if (parentClassName) {
-      optionName = parentClassName.replace(
-        selectorKeybindOption.replace(/^./, ''), '').trim();
+    var lStrClassNameOfParent = lElTarget.parentNode.getAttribute('class');
+    var lStrOptionName        = "";
+    if (lStrClassNameOfParent) {
+      lStrOptionName = lStrClassNameOfParent.replace(
+        sStrClassNameOfKeybindOption, '').trim();
     }
 
-    var el;
-    var cName = t.getAttribute('class');
-    switch (cName) {
-    case keybindClassNameOfSetButton:
+    switch (lElClassName) {
+    case sStrClassNameOfSetKeybindButton:
       if (keybindTrace.isRun()) {
         keybindTrace.stop();
       }
-      keybindTrace.start(optionName);
+      keybindTrace.start(lStrOptionName);
       break;
-    case keybindClassNameOfClearButton:
-      setKeybindOption(optionName, {});
+    case sStrClassNameOfClearKeybindButton:
+      setKeybindOption(lStrOptionName, {});
 
       // save the keybind with using event to storage.
-      el = document.querySelector(
-        '[name="' + optionName + '"]' + selectorKeybindValue);
-      var newEvent = document.createEvent('HTMLEvents');
-      newEvent.initEvent('change', false, true);
-      el.dispatchEvent(newEvent);
+      lElement  = document.querySelector(
+        `[name="${lStrOptionName}"].${sStrClassNameOfKeybindValue}`);
+      lEventNew = document.createEvent('HTMLEvents');
+      lEventNew.initEvent('change', false, true);
+      lElement.dispatchEvent(lEventNew);
       break;
-    case classNameOfCopyButton:
-      exportLocation.select();
-      var result = document.execCommand('copy');
-      var msg    = result ? 'successed' : 'failured';
-      console.log('have copied the string of import area. it is ' + msg + '.');
+    case sStrClassNameOfCopyBtn:
+      lElExport = document.querySelector(`#${sStrIdNameOfExport}`);
+      lElExport.select();
+
+      lBoolResult = document.execCommand('copy');
+      lStrMsg    = lBoolResult ? 'successed' : 'failured';
+      console.log(`have copied the string of import area. it is ${lStrMsg}.`);
 
       window.getSelection().removeAllRanges();
       break;
-    case classNameOfApplyButton:
-      var value;
+    case sStrClassNameOfApplyBtn:
+      lElImport = document.querySelector(`#${sStrIdNameOfImport}`);
 
       try {
-        value = JSON.parse(importLocation.value.trim());
+        lStrValue = JSON.parse(lElImport.value.trim());
       } catch (e) {
         if (e instanceof SyntaxError) {
-          var msg = "Invalid the json string. The value doesn't correct:\n" +
+          lStrMsg = "Invalid the json string. The value doesn't correct:\n" +
                     e.message;
-          console.error(msg);
-          alert(msg);
+          console.error(lStrMsg);
+          alert(lStrMsg);
         } else {
           console.error(e);
         }
         break;
       }
 
-      value = deleteKeyItemFromObject(value, excludeKeyNames);
-      operateOption.import(document, value)
+      lStrValue = deleteKeyItemFromObject(lStrValue, sMapExcludeKeyNames);
+      operateOption.import(document, lStrValue)
       .then(writeOptions => {
         return new Promise(
           resolve => chrome.storage.local.set(writeOptions, resolve));
@@ -735,60 +662,63 @@
     }
   }//}}}
 
-  function addAutocompleteDateList(element)//{{{
+  function addAutocompleteDateList(pElement)//{{{
   {
-    var autocompleteList = element;
-    var optionElement = document.createElement('option');
+    var lElAutoComp = pElement;
+    var lElOption = document.createElement('option');
 
-    while (autocompleteList.firstChild) {
-      autocompleteList.removeChild(autocompleteList.firstChild);
+    while (lElAutoComp.firstChild) {
+      lElAutoComp.removeChild(lElAutoComp.firstChild);
     }
 
-    return function(date) {
-      var option = optionElement.cloneNode(true);
-      option.value = formatDate(date, 'YYYY-MM-DD');
-      autocompleteList.appendChild(option);
+    return function(pDate) {
+      var lElNewOption   = lElOption.cloneNode(true);
+      lElNewOption.value = formatDate(pDate, 'YYYY-MM-DD');
+      lElAutoComp.appendChild(lElNewOption);
     };
   }//}}}
 
-  function getFormatEachLanguages(time, formatString)//{{{
+  function getFormatEachLanguages(pTime, pObjFormat)//{{{
   {
-    if (time === void 0 || time === null) {
-      throw new Error('Invalid arguments is time:' + time);
+    var lStrFormatType = "";
+    var lStrLang       = chrome.i18n.getUILanguage();
+
+    if (pTime === void 0 || pTime === null) {
+      throw new Error(`Invalid arguments is pTime: ${pTime}`);
     }
 
-    if (formatString === void 0 || formatString === null) {
-      formatString = {
+    if (pObjFormat === void 0 || pObjFormat === null) {
+      pObjFormat = {
         'ja':      'YYYY/MM/DD hh:mm:ss',
         'default': 'MM/DD/YYYY hh:mm:ss',
       };
     }
 
-    var formatType;
-    var lang = chrome.i18n.getUILanguage();
-    if (formatString.hasOwnProperty(lang)) {
-      formatType = formatString[lang];
-    } else {
-      formatType = formatString['default'];
-    }
-    return formatDate(new Date(time), formatType);
+    lStrFormatType = pObjFormat.hasOwnProperty(lStrLang) ?
+                     pObjFormat[lStrLang] :
+                     pObjFormat['default'];
+    return formatDate(new Date(pTime), lStrFormatType);
   }//}}}
 
-  function changeSessionIconControlState(state)//{{{
+  function changeSessionIconControlState(pState)//{{{
   {
-    if (state) {
+    var lElSessionIconControl =
+      document.querySelector(`#${sStrIdNameOfSessionIconControl}`);
+    if (pState) {
       removeStringFromAttributeOfElement(
-        sessionIconControl, 'class', elementDoesNotClassName);
+        lElSessionIconControl, 'class', sStrClassNameOfDoesNot);
     } else {
       addStringToAttributeOfElement(
-        sessionIconControl, 'class', elementDoesNotClassName);
+        lElSessionIconControl, 'class', sStrClassNameOfDoesNot);
     }
   }//}}}
 
   function clearSessionTitleInSessionControlBar()//{{{
   {
     return new Promise(resolve => {
-      sessionTitle.textContent = '';
+      var lElSessionTitle =
+        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      lElSessionTitle.textContent = '';
       resolve();
     });
   }//}}}
@@ -796,37 +726,50 @@
   function saveSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var showField = addSessionListLocation.querySelectorAll(
-        `fieldset:not(.${elementDoesNotClassName})`);
-      if (showField.length === 0) {
+      var lElAddLocationWhereSessionList =
+        document.querySelector(`#${sStrIdNameOfSessionList}`);
+      var lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
+        `fieldset:not(.${sStrClassNameOfDoesNot})`);
+      if (lElShowField.length === 0) {
         resolve();
         return;
       }
 
-      var itemUrl = optionsForCreateHistoryItem.itemUrl;
+      var lMapUrlsOfEachWin = new Map();
+      var iter              = lMapUrlsOfEachWin.entries();
+      var j                 = iter.next();
+      var i                 = 0;
+      var lNumWinId         = 0;
+      var arrayNewSessions  = [];
+      var lArrayUrls        = [];
+      var lStrItemUrl       = sObjOptsForCreateHistoryItem.itemUrl;
+      var lElField          = document.createDocumentFragment();
+      var lElItemUrlList    = document.createDocumentFragment();
+      var lDateNow          = Date.now();
 
-      var urlsOfEachWin = new Map();
-      var urls          = [];
-      var field, windowId, list;
-      var i = 0;
-      while (i < showField.length) {
-        field    = showField[i];
-        windowId = field.getAttribute('windowId');
-        list     = field.querySelectorAll(`.${itemUrl}`);
-        urls     = [];
-        Array.prototype.slice.call(list).forEach(v => urls.push(v.href));
-        urlsOfEachWin.set(windowId, urls);
+      while (i < lElShowField.length) {
+        lElField       = lElShowField[i];
+        lNumWinId      = lElField.getAttribute(sStrAttrNameOfWindowId);
+        lElItemUrlList = lElField.querySelectorAll(`.${lStrItemUrl}`);
+        lArrayUrls     = [];
+        Array.prototype.slice.call(lElItemUrlList)
+          .forEach(v => lArrayUrls.push(v.href));
+        lMapUrlsOfEachWin.set(lNumWinId, lArrayUrls);
         ++i;
       }
 
-      var time        = Date.now();
-      var newSessions = [];
-      var iter        = urlsOfEachWin.entries();
-      var j           = iter.next();
+      lDateNow         = Date.now();
+      arrayNewSessions = [];
+      iter             = lMapUrlsOfEachWin.entries();
+      j                = iter.next();
       while (!j.done) {
-        newSessions = newSessions.concat(
+        arrayNewSessions = arrayNewSessions.concat(
           j.value[1].map(v => {
-            return { date: time, url: v, windowId: parseInt(j.value[0]) || 0 };
+            return {
+              date: lDateNow,
+              url: v,
+              windowId: parseInt(j.value[0]) || 0
+            };
           })
         );
         j = iter.next();
@@ -834,7 +777,7 @@
 
       db.put({
         name: dbSavedSessionName,
-        data: newSessions,
+        data: arrayNewSessions,
       })
       .then(resolve)
       .catch(reject);
@@ -844,45 +787,49 @@
   function deleteSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var date = parseInt(sessionTitle.getAttribute('name'));
-      var dbNames = [ dbSessionName, dbSavedSessionName ];
+      var lElSessionTitle =
+        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      var lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
+      var lArrayDbNames   = [ dbSessionName, dbSavedSessionName ];
+      var lArrayPromise   = [];
+      var lArraySessions  = [];
+      var lArrayDelKeys   = [];
+      var i               = 0;
 
-      var p = [];
-      var i = 0;
-      while (i < dbNames.length) {
-        p.push(
+      i = 0;
+      while (i < lArrayDbNames.length) {
+        lArrayPromise.push(
           db.getCursor({
-            name: dbNames[i],
-            range: IDBKeyRange.only(date),
+            name: lArrayDbNames[i],
+            range: IDBKeyRange.only(lNumDate),
             indexName: 'date',
           })
         );
         ++i;
       }
 
-      Promise.all(p)
+      Promise.all(lArrayPromise)
       .then(results => {
-        var sessions = [];
         i = 0;
         while (i < results.length) {
-          sessions = sessions.concat(results[i]);
+          lArraySessions = lArraySessions.concat(results[i]);
           ++i;
         }
-        var delKeys = sessions.map(v => v.id);
 
-        var p2 = [];
+        lArrayPromise   = [];
+        lArrayDelKeys = lArraySessions.map(v => v.id);
         i = 0;
-        while (i < dbNames.length) {
-          p2.push(
+        while (i < lArrayDbNames.length) {
+          lArrayPromise.push(
             db.delete({
-              name: dbNames[i],
-              keys: delKeys,
+              name: lArrayDbNames[i],
+              keys: lArrayDelKeys,
             })
           );
           ++i;
         }
 
-        return Promise.all(p2);
+        return Promise.all(lArrayPromise);
       })
       .then(resolve)
       .catch(reject);
@@ -891,227 +838,269 @@
 
   function restoreSession()//{{{
   {
-    var showField = addSessionListLocation.querySelectorAll(
-      'fieldset:not(.' + elementDoesNotClassName + ')');
-    if (showField.length === 0) {
+    var lElAddLocationWhereSessionList =
+      document.querySelector(`#${sStrIdNameOfSessionList}`);
+    var lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
+      `fieldset:not(.${sStrClassNameOfDoesNot})`);
+    if (lElShowField.length === 0) {
       return;
     }
 
-    var windowId;
-    var field;
-    var a;
-    var restore = [];
-    var i = 0;
-    while (i < showField.length) {
-      field    = showField[i];
-      windowId = parseInt(field.getAttribute('windowId'));
-      a        = field.querySelectorAll(selectorHistoryItemUrl);
-      Array.prototype.slice.call(a).forEach(
-        v => restore.push({ url: v.href, windowId: windowId }));
+    var lElField      = document.createDocumentFragment();
+    var lElA          = document.createElement('a');
+    var lArrayRestore = [];
+    var lNumWindowId  = 0;
+    var i             = 0;
+
+    i = 0;
+    while (i < lElShowField.length) {
+      lElField      = lElShowField[i];
+      lNumWindowId  = parseInt(lElField.getAttribute(sStrAttrNameOfWindowId));
+      lElA  = lElField.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
+      Array.prototype.slice.call(lElA).forEach(
+        v => lArrayRestore.push({ url: v.href, windowId: lNumWindowId }));
       ++i;
     }
 
-    chrome.runtime.sendMessage({ event: 'restore', session: restore });
+    chrome.runtime.sendMessage({ event: 'restore', session: lArrayRestore });
   }//}}}
 
   function closureCreateSessionDateList(obj)//{{{
   {
     //{{{ local variable.
-    var databaseName = obj.databaseName;
-    var dateList     = obj.dateList;
-    var itemList     = obj.itemList;
-    var currentTime  = obj.currentTime;
-    if (dateList === void 0 || dateList === null) {
+    const lStrDbName       = obj.databaseName;
+    const lElToAddDateList = obj.dateList;
+    const lElToAddItemList = obj.itemList;
+    const lNumCurrentTime  = obj.currentTime;
+    if (lElToAddDateList === void 0 || lElToAddDateList === null) {
       throw new Error("dateList isn't found in arguments");
     }
-    if (itemList === void 0 || itemList === null) {
+    if (lElToAddItemList === void 0 || lElToAddItemList === null) {
       throw new Error("itemList isn't found in arguments");
     }
-    if (currentTime !== void 0 && currentTime !== null &&
-      toType(currentTime) !== 'number') {
+    if (lNumCurrentTime !== void 0 && lNumCurrentTime !== null &&
+        toType(lNumCurrentTime) !== 'number') {
       throw new Error('currentTime in arguments is not number.');
     }
     //}}}
 
-    function onClicked(event)//{{{
+    function onClicked(pEvent)//{{{
     {
-      var name = event.target.getAttribute('name');
+      var lElTarget    = pEvent.target;
+      var lStrName     = lElTarget.getAttribute('name');
+      var lElList      = lElTarget.parentNode;
+      var lStrListName = lElList.getAttribute('id');
+      var lElShowLists     =
+        lElToAddItemList.querySelectorAll(`fieldset[name="${lStrName}"]`);
+      var lElNotShowLists  =
+        lElToAddItemList.querySelectorAll(`fieldset:not([name="${lStrName}"])`);
+      var lElSessionSave   =
+        document.querySelector(`#${sStrIdNameOfSessionSave}`);
+      var lElDateList      = document.querySelector(`#${sStrIdNameOfDateList}`);
+      var lElSelectDates   = lElDateList.querySelector(`[name="${lStrName}"]`);
+      var lElNotSelectDates =
+        lElDateList.querySelectorAll(`:not([name="${lStrName}"])`);
+      var lElSessionTitle  =
+        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      var i = 0;
 
       // select which is showed a list of a session date.
-      var showLists = itemList.querySelectorAll(`fieldset[name="${name}"]`);
-      var i = 0;
-      while (i < showLists.length) {
+      i = 0;
+      while (i < lElShowLists.length) {
         removeStringFromAttributeOfElement(
-          showLists[i], 'class', elementDoesNotClassName);
+          lElShowLists[i], 'class', sStrClassNameOfDoesNot);
         ++i;
       }
 
-      var notShowLists =
-        itemList.querySelectorAll(`fieldset:not([name="${name}"])`);
       i = 0;
-      while (i < notShowLists.length) {
+      while (i < lElNotShowLists.length) {
         addStringToAttributeOfElement(
-          notShowLists[i], 'class', elementDoesNotClassName);
+          lElNotShowLists[i], 'class', sStrClassNameOfDoesNot);
         ++i;
       }
 
       changeSessionIconControlState(true);
 
       // If clicking date is saved sesssion, add button is not show.
-      var list = event.target.parentNode;
-      var listName = list.getAttribute('id');
-      if (listName === addSavedSessionDateListIdName) {
+      if (lStrListName === sStrIdNameOfAddSavedSessionDateList) {
         addStringToAttributeOfElement(
-          sessionSave, 'class', elementDoesNotClassName);
+          lElSessionSave, 'class', sStrClassNameOfDoesNot);
       } else {
         removeStringFromAttributeOfElement(
-          sessionSave, 'class', elementDoesNotClassName);
+          lElSessionSave, 'class', sStrClassNameOfDoesNot);
       }
 
       // a button of session date is changed by state.
-      var dateList = document.querySelector(selectorDateList);
-      var selectDates = dateList.querySelector('[name="' + name + '"]');
-      addStringToAttributeOfElement(selectDates, 'class', classNameWhenSelect);
+      addStringToAttributeOfElement(
+        lElSelectDates, 'class', sStrClassNameWhenSelect);
 
-      sessionTitle.setAttribute('name', name);
-      sessionTitle.textContent = selectDates.textContent;
+      lElSessionTitle.setAttribute('name', lStrName);
+      lElSessionTitle.textContent = lElSelectDates.textContent;
 
-      var notSelectDates =
-        dateList.querySelectorAll(':not([name="' + name + '"])');
       i = 0;
-      while (i < notSelectDates.length) {
+      while (i < lElNotSelectDates.length) {
         removeStringFromAttributeOfElement(
-          notSelectDates[i], 'class', classNameWhenSelect);
+          lElNotSelectDates[i], 'class', sStrClassNameWhenSelect);
         ++i;
       }
     }//}}}
 
     function closureCreateSessionDate()//{{{
     {
-      var div = document.createElement('div');
+      var lElDiv = document.createElement('div');
 
-      return function(time) {
-        var l = div.cloneNode(true);
-        var text;
-        if (currentTime !== void 0 && currentTime !== undefined &&
-            parseInt(currentTime) === parseInt(time)) {
-          text = 'Current Session';
+      return function(pTime) {
+        var lElDivRet = lElDiv.cloneNode(true);
+        var lStrText;
+
+        if (lNumCurrentTime !== void 0 &&
+            lNumCurrentTime !== undefined &&
+            lNumCurrentTime === parseInt(pTime)) {
+          lStrText = 'Current Session';
         } else {
-          text = getFormatEachLanguages(time);
+          lStrText = getFormatEachLanguages(pTime);
         }
 
-        l.setAttribute('name', time);
-        l.textContent = text;
-        l.addEventListener('click', onClicked, true);
+        lElDivRet.setAttribute('name', pTime);
+        lElDivRet.textContent = lStrText;
+        lElDivRet.addEventListener('click', onClicked, true);
 
-        return l;
+        return lElDivRet;
       };
     }//}}}
 
-    var createSessionDate = closureCreateSessionDate();
-
-    function createSessionDateListItem(items)//{{{
+    function createSessionDateListItem(pArrayItems)//{{{
     {
-      var cHI = closureCreateHistoryItem(
-        Object.assign(optionsForCreateHistoryItem, {
-          databaseName: databaseName,
+      var lCreateHistoryItem = closureCreateHistoryItem(
+        Object.assign(sObjOptsForCreateHistoryItem, {
+          databaseName: lStrDbName,
           deleteFunc:   removeSessionHistoryItem,
         })
       );
-      var opts = {
+      var lObjOpts = {
         date: false,
       };
+      var lElItem    = document.createDocumentFragment();
+      var lArrayList = [];
+      var i          = 0;
 
-      var item;
-      var list = [];
-      var i = 0;
-      while (i < items.length) {
-        item = cHI(items[i], opts);
-        list.push(item);
+      i = 0;
+      while (i < pArrayItems.length) {
+        lElItem = lCreateHistoryItem(pArrayItems[i], lObjOpts);
+        lArrayList.push(lElItem);
         ++i;
       }
 
-      return list;
+      return lArrayList;
     }//}}}
 
-    function getDictSplitEachSession(sessions, attrName)//{{{
+    function getDictSplitEachSession(pArraySessions, pStrAttrName)//{{{
     {
-      var data, attr, v;
-      var ret = new Map();
-      var i   = 0;
-      while (i < sessions.length) {
-        data = sessions[i];
-        attr = data[attrName];
-        v    = ret.get(attr) || [];
-        v.push(data);
-        ret.set(attr, v);
+      var lObjData   = {};
+      var lAnyAttr   = null;
+      var lAnyValue  = null;
+      var lMapResult = new Map();
+      var i          = 0;
+
+      i = 0;
+      while (i < pArraySessions.length) {
+        lObjData  = pArraySessions[i];
+        lAnyAttr  = lObjData[pStrAttrName];
+        lAnyValue = lMapResult.get(lAnyAttr) || [];
+        lAnyValue.push(lObjData);
+        lMapResult.set(lAnyAttr, lAnyValue);
+
         ++i;
       }
-      return ret;
+      return lMapResult;
     }//}}}
 
-    function createSessionWindowList(date, windowMap)//{{{
+    function createSessionWindowList(lNumTime, lMapWindow)//{{{
     {
-      var windowId, field, article;
-
-      var createHistoryDate = closureCreateHistoryDate(
-        Object.assign(optionsForCreateHistoryDate, {
+      var lCreateHistoryDate = closureCreateHistoryDate(
+        Object.assign(sObjOptsForCreateHistoryDate, {
           deleteFunc: removeSessionHistoryWindow,
         })
       );
+      var lNumWindowId         = 0;
+      var lNumCount            = 0;
+      var lElField             = document.createDocumentFragment();
+      var lElArticle           = document.createDocumentFragment();
+      var lElWindowTitle       = document.createDocumentFragment();
+      var lElHistoryItemDelete = document.createDocumentFragment();
+      var lArrayList           = [];
+      var iter                 = null;
+      var i                    = null;
 
-      var list  = [];
-      var count = 0;
-      var iter  = windowMap.entries();
-      var i     = iter.next();
+      lArrayList = [];
+      lNumCount  = 0;
+      iter       = lMapWindow.entries();
+      i          = iter.next();
       while (!i.done) {
-        windowId = i.value[0];
-        field    = createHistoryDate({ date: date });
-        addStringToAttributeOfElement(field, 'windowId', windowId);
-        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
-        field.querySelector(
-          selectorHistoryItemDate).textContent = `Window ${count}`;
+        lNumWindowId = i.value[0];
+        lElField     = lCreateHistoryDate({ date: lNumTime });
         addStringToAttributeOfElement(
-          field.querySelector(selectorHistoryItemDelete), 'windowId', windowId);
-        article = field.querySelector(
-          `.${optionsForCreateHistoryDate.itemList}`);
+          lElField, sStrAttrNameOfWindowId, lNumWindowId);
+        addStringToAttributeOfElement(
+          lElField, 'class', sStrClassNameOfDoesNot);
+
+        lElWindowTitle =
+          lElField.querySelector(`.${sStrClassNameOfHistoryItemDate}`);
+        lElWindowTitle.textContent = `Window ${lNumCount}`;
+
+        lElHistoryItemDelete =
+          lElField.querySelector(`.${sStrClassNameOfHistoryItemDelete}`);
+        addStringToAttributeOfElement(
+            lElHistoryItemDelete, sStrAttrNameOfWindowId, lNumWindowId);
+
+        lElArticle =
+          lElField.querySelector(`.${sObjOptsForCreateHistoryDate.itemList}`);
 
         createSessionDateListItem(i.value[1])
-        .forEach(v => article.appendChild(v));
+        .forEach(v => lElArticle.appendChild(v));
 
-        list.push(field);
+        lArrayList.push(lElField);
 
-        ++count;
+        ++lNumCount;
         i = iter.next();
       }
 
-      return list;
+      return lArrayList;
     }//}}}
 
-    function createSessionDateList(sessions)//{{{
+    function createSessionDateList(pArraySessions)//{{{
     {
-      var i, j, iter, s, v;
-      var dList = [];
-      var list  = [];
-      var items;
+      var lCreateSessionDate      = closureCreateSessionDate();
+      var lMapSessionEachDate     = new Map();
+      var lMapSessionEachWindowId = new Map();
+      var lArrayDateList          = [];
+      var lArrayItemList          = [];
+      var lArrayItem              = [];
+      var i                       = 0;
+      var j                       = null;
+      var iter                    = null;
 
       i = 0;
-      while (i < sessions.length) {
-        s    = getDictSplitEachSession(sessions[i].data, 'date');
-        iter = s.entries();
+      while (i < pArraySessions.length) {
+        lMapSessionEachDate =
+          getDictSplitEachSession(pArraySessions[i].data, 'date');
+        iter = lMapSessionEachDate.entries();
         j    = iter.next();
         while (!j.done) {
-          dList.push( createSessionDate(j.value[0]) );
-          v     = getDictSplitEachSession(j.value[1], 'windowId');
-          items = createSessionWindowList(j.value[0], v);
-          list  = list.concat(items);
-          j     = iter.next();
+          lArrayDateList.push( lCreateSessionDate(j.value[0]) );
+          lMapSessionEachWindowId =
+            getDictSplitEachSession(j.value[1], sStrAttrNameOfWindowId);
+          lArrayItem =
+            createSessionWindowList(j.value[0], lMapSessionEachWindowId);
+          lArrayItemList = lArrayItemList.concat(lArrayItem);
+
+          j = iter.next();
         }
         ++i;
       }
 
-      dList.forEach(v => dateList.appendChild(v));
-      list.forEach(v => itemList.appendChild(v));
+      lArrayDateList.forEach(v => lElToAddDateList.appendChild(v));
+      lArrayItemList.forEach(v => lElToAddItemList.appendChild(v));
     }//}}}
 
     return createSessionDateList;
@@ -1119,23 +1108,30 @@
 
   function selectCurrentSession()//{{{
   {
+    var lElLocationWhereToAddSessionDateList =
+      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
+    var lElCurrentSessionItem  = document.createDocumentFragment();
+    var lNumCurrentSessionTime = 0;
+
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get(items => {
+      chrome.storage.local.get(rObjItems => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
-        var currentSessionTime = items[previousSessionTimeKey];
-        if (currentSessionTime === void 0 || currentSessionTime === null) {
+        lNumCurrentSessionTime = rObjItems[previousSessionTimeKey];
+        if (lNumCurrentSessionTime === void 0 ||
+            lNumCurrentSessionTime === null) {
           resolve();
           return;
         }
 
-        var currentSessionItem = addSessionDateListLocation.querySelector(
-          `[name="${currentSessionTime}"]`);
-        if (currentSessionItem) {
-          currentSessionItem.click();
+        lElCurrentSessionItem =
+          lElLocationWhereToAddSessionDateList.querySelector(
+            `[name="${lNumCurrentSessionTime}"]`);
+        if (lElCurrentSessionItem) {
+          lElCurrentSessionItem.click();
         }
       });
     });
@@ -1143,54 +1139,75 @@
 
   function showAllSessionHistory()//{{{
   {
+    var lElAddSavedSessionDateListLocation =
+      document.querySelector(`#${sStrIdNameOfAddSavedSessionDateList}`);
+    var lElAddSessionDateListLocation      =
+      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
+    var lElAddLocationWhereSessionList     =
+      document.querySelector(`#${sStrIdNameOfSessionList}`);
+    var lElSavedSessionDateTitle           =
+      document.querySelector(`#${sStrIdNameOfSavedSessionDateTitle}`);
+    var lElDateListNav                     =
+      document.querySelector(`#${sStrIdNameOfDateListNav}`);
+    var lElSessionNotFound                 =
+      document.querySelector(`#${sStrIdNameOfSessionNotFound}`);
+    var lArraySavedSessions         = [];
+    var lArraySessions              = [];
+    var lNumCurrentTime             = 0;
+    var lCreateSavedSessionDateList = null;
+    var lCreateSessionDateList      = null;
+
     return new Promise((resolve, reject) => {
       getAllSessionHistory()
       .then(results => {
-        var savedSessions = results[0];
-        var sessions      = results[1];
+        lArraySavedSessions = results[0];
+        lArraySessions      = results[1];
 
-        clearItemInElement(addSavedSessionDateListLocation);
-        clearItemInElement(addSessionDateListLocation);
-        clearItemInElement(addSessionListLocation);
+        clearItemInElement(lElAddSavedSessionDateListLocation);
+        clearItemInElement(lElAddSessionDateListLocation);
+        clearItemInElement(lElAddLocationWhereSessionList);
 
-        if (savedSessions.length === 0) {
+        // saved session list.
+        if (lArraySavedSessions.length === 0) {
           addStringToAttributeOfElement(
-            savedSessionDateTitleText, 'class', elementDoesNotClassName);
+            lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
         } else {
           removeStringFromAttributeOfElement(
-            savedSessionDateTitleText, 'class', elementDoesNotClassName);
+            lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
 
-          var cSSDL = closureCreateSessionDateList({
+          lCreateSavedSessionDateList = closureCreateSessionDateList({
             databaseName: dbSavedSessionName,
-            dateList:     addSavedSessionDateListLocation,
-            itemList:     addSessionListLocation,
+            dateList:     lElAddSavedSessionDateListLocation,
+            itemList:     lElAddLocationWhereSessionList,
           });
-          cSSDL(savedSessions);
+          lCreateSavedSessionDateList(lArraySavedSessions);
         }
 
-        //{{{
+        //{{{ session list.
         chrome.storage.local.get(previousSessionTimeKey, items => {
-          var currentTime = items[previousSessionTimeKey];
+          lNumCurrentTime = items[previousSessionTimeKey];
 
           // new
-          var cSDL = closureCreateSessionDateList({
+          lCreateSessionDateList = closureCreateSessionDateList({
             databaseName: dbSessionName,
-            dateList:     addSessionDateListLocation,
-            itemList:     addSessionListLocation,
-            currentTime:  currentTime,
+            dateList:     lElAddSessionDateListLocation,
+            itemList:     lElAddLocationWhereSessionList,
+            currentTime:  lNumCurrentTime,
           });
-          cSDL(sessions);
+          lCreateSessionDateList(lArraySessions);
 
-          if (savedSessions.length > 0 || sessions.length > 0) {
+          // If savedSession list or session list are empty,
+          // showing the message of session is empty.
+          if (lArraySavedSessions.length > 0 || lArraySessions.length > 0) {
             addStringToAttributeOfElement(
-              sessionNotFound, 'class', elementDoesNotClassName);
+              lElSessionNotFound, 'class', sStrClassNameOfDoesNot);
             removeStringFromAttributeOfElement(
-              dateListNav, 'style', styleDisplayNone);
+              lElDateListNav, 'style', sStrStyleDisplayNone);
           } else {
             removeStringFromAttributeOfElement(
-              sessionNotFound, 'class', elementDoesNotClassName);
+              lElSessionNotFound, 'class', sStrClassNameOfDoesNot);
             addStringToAttributeOfElement(
-              dateListNav, 'style', styleDisplayNone);
+              lElDateListNav, 'style', sStrStyleDisplayNone);
           }
           resolve();
         });
@@ -1202,243 +1219,459 @@
 
   function getAllSessionHistory()//{{{
   {
+    var lArrayPromise       = [];
+    var lArraySavedSessions = [];
+    var lArraySessions      = [];
+    var lArrayPageInfos     = [];
+    var lArrayDataURIs      = [];
+
     return new Promise((resolve, reject) => {
       if (db === void 0 || db === null) {
         reject(new Error("IndexedDB doesn't initialize yet."));
         return;
       }
 
-      var p = [];
-      p.push( db.getAll({ name: dbSavedSessionName }) );
-      p.push( db.getAll({ name: dbSessionName }) );
-      p.push( db.getAll({ name: dbPageInfoName }) );
-      p.push( db.getAll({ name: dbDataURIName }) );
+      lArrayPromise = [];
+      lArrayPromise.push( db.getAll({ name: dbSavedSessionName }) );
+      lArrayPromise.push( db.getAll({ name: dbSessionName }) );
+      lArrayPromise.push( db.getAll({ name: dbPageInfoName }) );
+      lArrayPromise.push( db.getAll({ name: dbDataURIName }) );
 
-      Promise.all(p)
-      .then(results => {
-        var savedSessions = results[0];
-        var sessions      = results[1];
-        var pageInfos     = results[2];
-        var dataURIs      = results[3];
+      Promise.all(lArrayPromise)
+      .then(rResults => {
+        lArraySavedSessions = rResults[0];
+        lArraySessions      = rResults[1];
+        lArrayPageInfos     = rResults[2];
+        lArrayDataURIs      = rResults[3];
 
-        var p = [];
-        p.push(
-          getListAfterJoinHistoryDataOnDB([savedSessions, pageInfos, dataURIs])
+        lArrayPromise = [];
+        lArrayPromise.push(
+          getListAfterJoinHistoryDataOnDB(
+            [ lArraySavedSessions, lArrayPageInfos, lArrayDataURIs ])
         );
-        p.push(
-          getListAfterJoinHistoryDataOnDB([sessions, pageInfos, dataURIs])
+        lArrayPromise.push(
+          getListAfterJoinHistoryDataOnDB(
+            [ lArraySessions, lArrayPageInfos, lArrayDataURIs ])
         );
 
-        return Promise.all(p);
+        return Promise.all(lArrayPromise);
       })
       .then(resolve)
       .catch(reject);
     });
   }//}}}
 
-  function showAutoCompleteDateList(histories)//{{{
+  function showAutoCompleteDateList(pArrayHistories)//{{{
   {
-    var autocompleteDateList = addAutocompleteDateList(searchHistoryDateList);
+    var lElSearchHistoryDateList =
+      document.querySelector(`#${sStrIdNameOfSearchHistoryDateList}`);
+    var lElAutocompleteDateList =
+      addAutocompleteDateList(lElSearchHistoryDateList);
     var i = 0;
-    while (i < histories.length) {
-      autocompleteDateList(histories[i].date);
+
+    i = 0;
+    while (i < pArrayHistories.length) {
+      lElAutocompleteDateList(pArrayHistories[i].date);
       ++i;
     }
   }//}}}
 
-  function closureCreateHistoryDate(obj)//{{{
+  function removeHistoryDate(pEvent)//{{{
   {
-    if (obj === void 0 || obj === null || !obj.hasOwnProperty('deleteFunc')) {
+    return new Promise((resolve, reject) => {
+      var lTarget   = pEvent.target;
+      var lDate     = new Date( parseInt(lTarget.getAttribute('name')) );
+      var lFullYear = lDate.getFullYear();
+      var lMonth    = lDate.getMonth();
+      var lDay      = lDate.getDate();
+      var lBegin    = new Date(lFullYear, lMonth, lDay, 0, 0, 0, 0);
+      var lEnd      = new Date(lFullYear, lMonth, lDay, 23, 59, 59, 999);
+      var lDelKeys  = [];
+      var lHistoryDateLegend = lTarget.parentNode;
+      var lHistoryDateField  = lHistoryDateLegend.parentNode;
+      var lHistoryList       = lHistoryDateField.parentNode;
+
+      db.getCursor({
+        name:  dbHistoryName,
+        range: IDBKeyRange.bound(lBegin.getTime(), lEnd.getTime()),
+      })
+      .then(histories => {
+        lDelKeys = histories.map(v => v.date);
+        return db.delete({
+          name: dbHistoryName,
+          keys: lDelKeys,
+        });
+      })
+      .then(ret => {
+        lHistoryList.removeChild(lHistoryDateField);
+        return ret;
+      })
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeHistoryItem(pEvent)//{{{
+  {
+    var lTarget          = pEvent.target;
+    var lHistoryItem     = lTarget.parentNode;
+    var lHistoryItemList = lHistoryItem.parentNode;
+    // indexedDB name.
+    var lDbName = lTarget.getAttribute(sStrAttrNameOfDatabase);
+    // session item only.
+    var lItemId = parseInt(lTarget.getAttribute(sStrAttrNameOfItemId), 10);
+    // this value is new Date().getTime().
+    var lTime   = parseInt(lTarget.getAttribute('name'), 10);
+
+    return new Promise((resolve, reject) => {
+      db.delete({
+        name: lDbName,
+        keys: lItemId ? lItemId : lTime,
+      })
+      .then(ret => {
+        lHistoryItemList.removeChild(lHistoryItem);
+        return ret;
+      })
+      .then(resolve)
+      .catch(e => {
+        console.error(e);
+        reject(e);
+      });
+    });
+  }//}}}
+
+  function removeSessionHistoryItem(event)//{{{
+  {
+    var lElSessionList =
+      document.querySelector(`#${sStrIdNameOfSessionList}`);
+    var getShowField = function(){
+      return lElSessionList.querySelectorAll(
+        `fieldset:not(.${sStrClassNameOfDoesNot})`);
+    };
+    var lElShowField = getShowField();
+    var lElItemList;
+    var i = 0;
+
+    return new Promise((resolve, reject) => {
+      removeHistoryItem(event)
+      .then(() => {
+        i = 0;
+        while (i < lElShowField.length) {
+          lElItemList =
+            lElShowField[i].querySelector(`.${sStrClassNameOfHistoryItemList}`);
+          if (lElItemList.childNodes.length === 0) {
+            lElSessionList.removeChild(lElShowField[i]);
+          }
+          ++i;
+        }
+
+        return (getShowField().length === 0) ? initSessionHistory() : null;
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
+  function removeSessionHistoryWindow(event)//{{{
+  {
+    var lTarget        = event.target;
+    var lElShowField   = document.createDocumentFragment();
+    var lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
+    var getShowField = function(){
+      return lElSessionList.querySelectorAll(
+        `fieldset:not(.${sStrClassNameOfDoesNot})`);
+    };
+    var lNumWindowId   = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId));
+    var lDateTime      = parseInt(lTarget.getAttribute('name'));
+    var lArrayDbName   = [ dbSessionName, dbSavedSessionName ];
+    var lArrayPromise  = [];
+    var lArraySessions = [];
+    var lArrayDelKeys  = [];
+    var lNumWindowIdOfField = 0;
+    var i                   = 0;
+
+    return new Promise((resolve, reject) => {
+      // get from all the databases of a session history.
+      lArrayPromise  = [];
+      i = 0;
+      while (i < lArrayDbName.length) {
+        lArrayPromise.push(
+          db.getCursor({
+            name:      lArrayDbName[i],
+            range:     IDBKeyRange.only(lDateTime),
+            indexName: 'date',
+          })
+        );
+        ++i;
+      }
+
+      Promise.all(lArrayPromise)
+      .then(rResults => {
+        // create the array for to delete session history from database.
+        lArraySessions = [];
+        i              = 0;
+        while (i < rResults.length) {
+          lArraySessions = lArraySessions.concat(rResults[i]);
+          ++i;
+        }
+        lArrayDelKeys = lArraySessions.filter(v => {
+          return lNumWindowId ? v.windowId === lNumWindowId : true;
+        })
+        .map(v => v.id);
+
+        // delete specified window from the databases of a session history.
+        lArrayPromise = [];
+        i = 0;
+        while (i < lArrayDbName.length) {
+          lArrayPromise.push(
+            db.delete({
+              name: lArrayDbName[i],
+              keys: lArrayDelKeys,
+            })
+          );
+          ++i;
+        }
+
+        return Promise.all(lArrayPromise);
+      })
+      .then(() => {
+        // deletes the deleted window item from DOM.
+        lElShowField = getShowField();
+        i = 0;
+        while (i < lElShowField.length) {
+          lNumWindowIdOfField =
+            parseInt(lElShowField[i].getAttribute(sStrAttrNameOfWindowId));
+          if (lNumWindowIdOfField === lNumWindowId) {
+            lElSessionList.removeChild(lElShowField[i]);
+          }
+          ++i;
+        }
+
+        // If the session history of the same Date in empty, deletes the field.
+        return (getShowField().length === 0) ? initSessionHistory() : null;
+      })
+      .then(resolve)
+      .catch(reject);
+    });
+  }//}}}
+
+  function closureCreateHistoryDate(pObjOpts)//{{{
+  {
+    if (pObjOpts === void 0 ||
+        pObjOpts === null ||
+        !pObjOpts.hasOwnProperty('deleteFunc')) {
       throw new Error("Invalid arugments. Doesn't find object.");
     }
 
     //{{{ local variables.
-    obj = obj || {};
-    var classNameOfHistoryDateItem = obj.className || 'historyDate';
-    var classNameOfDeleteBtn       = obj.itemDelete || 'itemDelete';
-    var classNameOfHistoryDate     = obj.itemDate || 'itemDate'; // DateTitle
-    var deleteFunc                        = obj.deleteFunc;
-    var classNameToAddHistoryItemLocation = obj.itemList || 'itemList';
+    var lFuncDelete                    = pObjOpts.deleteFunc;
+    var lStrClassNameOfHistoryDateItem = pObjOpts.className || 'historyDate';
+    var lStrClassNameOfDeleteButton    = pObjOpts.itemDelete || 'itemDelete';
+    // itemDate also be used as DateTitle.
+    var lStrClassNameOfHistoryDate     = pObjOpts.itemDate || 'itemDate';
+    var lStrClassNameToAddHistoryItem  = pObjOpts.itemList || 'itemList';
     //}}}
 
     function createPrototype()//{{{
     {
-      var fieldset = document.createElement('fieldset');
+      var lElFieldset = document.createElement('fieldset');
+      var lElLegend   = document.createElement('legend');
+      var lElSpan     = document.createElement('span');
+      var lElImg      = document.createElement('img');
+      var lElArticle  = document.createElement('article');
+
       addStringToAttributeOfElement(
-        fieldset, 'class', classNameOfHistoryDateItem);
-      addStringToAttributeOfElement(fieldset, 'class', 'historyField');
+        lElFieldset, 'class', lStrClassNameOfHistoryDateItem);
+      addStringToAttributeOfElement(lElFieldset, 'class', 'historyField');
 
-      var legend = document.createElement('legend');
-      var span = document.createElement('span');
-      addStringToAttributeOfElement(span, 'class', classNameOfHistoryDate);
-      var img = document.createElement('img');
-      addStringToAttributeOfElement(img, 'src', deleteIconPath);
-      addStringToAttributeOfElement(img, 'alt', 'Delete button');
-      addStringToAttributeOfElement(img, 'class', classNameOfDeleteBtn);
-      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
-      legend.appendChild(span);
-      legend.appendChild(img);
-      fieldset.appendChild(legend);
-
-      var article = document.createElement('article');
       addStringToAttributeOfElement(
-        article, 'class', classNameToAddHistoryItemLocation);
-      addStringToAttributeOfElement(article, 'class', 'ellipsis_over');
-      fieldset.appendChild(article);
+        lElSpan, 'class', lStrClassNameOfHistoryDate);
 
-      return fieldset;
+      addStringToAttributeOfElement(lElImg, 'src', gStrDeleteIconPath);
+      addStringToAttributeOfElement(lElImg, 'alt', 'Delete button');
+      addStringToAttributeOfElement(
+        lElImg, 'class', lStrClassNameOfDeleteButton);
+      addStringToAttributeOfElement(lElImg, 'class', 'icon16_rev');
+
+      addStringToAttributeOfElement(
+        lElArticle, 'class', lStrClassNameToAddHistoryItem);
+      addStringToAttributeOfElement(lElArticle, 'class', 'ellipsis_over');
+
+      lElLegend.appendChild(lElSpan);
+      lElLegend.appendChild(lElImg);
+      lElFieldset.appendChild(lElLegend);
+      lElFieldset.appendChild(lElArticle);
+
+      return lElFieldset;
     }//}}}
 
-    var proto = createPrototype();
-
-    function createHistoryDate(addItem, showOptions)//{{{
+    function createHistoryDate(pItem, pOpts)//{{{
     {
-      if (!addItem.hasOwnProperty('date')) {
+      if (!pItem.hasOwnProperty('date')) {
         throw new Error("the property of 'date' is not found.");
       }
-      var opts = { // default.
+
+      var lElProto        = createPrototype();
+      var lElHistoryDate  = lElProto.cloneNode(true);
+      var lElDeleteButton =
+        lElHistoryDate.querySelector(`.${lStrClassNameOfDeleteButton}`);
+        var lElDateTitle  =
+        lElHistoryDate.querySelector(`.${lStrClassNameOfHistoryDate}`);
+      var lNumTime        = 0;
+      var lObjOpts = { // default options.
         deleteButton: true,
         date:         true,
         title:        true,
       };
-      if (showOptions !== void 0 && showOptions !== null) {
-        Object.keys(showOptions).forEach(v => opts[v] = showOptions[v]);
+
+      if (pOpts !== void 0 && pOpts !== null) {
+        Object.keys(pOpts).forEach(v => lObjOpts[v] = pOpts[v]);
       }
 
-      var time = new Date(addItem.date).getTime();
-      var historyDate = proto.cloneNode(true);
-      addStringToAttributeOfElement(historyDate, 'name', time);
+      lNumTime       = new Date(pItem.date).getTime();
+      addStringToAttributeOfElement(lElHistoryDate, 'name', lNumTime);
 
-      if (opts.deleteButton) {
-        var del = historyDate.querySelector(`.${classNameOfDeleteBtn}`);
-        addStringToAttributeOfElement(del, 'name', time);
-        del.addEventListener('click', deleteFunc, true);
+      if (lObjOpts.deleteButton) {
+        addStringToAttributeOfElement(lElDeleteButton, 'name', lNumTime);
+        lElDeleteButton.addEventListener('click', lFuncDelete, true);
       }
 
-      if (opts.title || opts.date) {
-        var dateTitle = historyDate.querySelector(`.${classNameOfHistoryDate}`);
-        dateTitle.textContent = getFormatEachLanguages(addItem.date, {
+      if (lObjOpts.title || lObjOpts.date) {
+        lElDateTitle.textContent = getFormatEachLanguages(pItem.date, {
           'ja':      'YYYY/MM/DD',
           'default': 'MM/DD/YYYY',
         });
       }
 
-      return historyDate;
+      return lElHistoryDate;
     }//}}}
 
     return createHistoryDate;
   }//}}}
 
-  function closureCreateHistoryItem(obj)//{{{
+  function closureCreateHistoryItem(pObj)//{{{
   {
-    if (obj === void 0 || obj === null ||
-        !obj.hasOwnProperty('databaseName') ||
-        !obj.hasOwnProperty('deleteFunc')) {
-      throw new Error("invalid arguments.");
+    if (pObj === void 0 ||
+        pObj === null ||
+        !pObj.hasOwnProperty('databaseName') ||
+        !pObj.hasOwnProperty('deleteFunc')) {
+      throw new Error("Invalid arguments.");
     }
 
     //{{{ local variable
-    var databaseName           = obj.databaseName;
-    var deleteFunc             = obj.deleteFunc;
-    var attrNameOfDatabase     = obj.attrNameOfDatabase || 'database';
-    var classNameOfHistoryItem = obj.className || 'historyItem';
-    var classNameOfDeleteBtn   = obj.itemDelete || 'itemDelete';
-    var classNameOfPageIcon    = obj.itemIcon || 'itemIcon';
-    var classNameOfTitle       = obj.itemTitle || 'itemTitle';
-    var classNameOfDate        = obj.itemDate || 'itemDate';
-    var classNameOfLink        = obj.itemUrl || 'itemUrl';
-    var attrNameOfItemId       = obj.attrNameOfItemId || 'historyItemId';
+    var lStrDbName                  = pObj.databaseName;
+    var lFuncDelete                 = pObj.deleteFunc;
+    var lStrAttrNameOfDatabase      = pObj.attrNameOfDatabase || 'database';
+    var lStrClassNameOfHistoryItem  = pObj.className || 'historyItem';
+    var lStrClassNameOfDeleteButton = pObj.itemDelete || 'itemDelete';
+    var lStrClassNameOfPageIcon     = pObj.itemIcon || 'itemIcon';
+    var lStrClassNameOfTitle        = pObj.itemTitle || 'itemTitle';
+    var lStrClassNameOfDate         = pObj.itemDate || 'itemDate';
+    var lStrClassNameOfLink         = pObj.itemUrl || 'itemUrl';
+    var lStrAttrNameOfItemId        = pObj.attrNameOfItemId || 'historyItemId';
     //}}}
-    //
-    function createPrototype() {//{{{
-      var section = document.createElement('section');
-      addStringToAttributeOfElement(section, 'class', classNameOfHistoryItem);
-      addStringToAttributeOfElement(section, 'class', 'ellipsis');
-      addStringToAttributeOfElement(section, attrNameOfDatabase, databaseName);
 
-      var img     = document.createElement('img');
-      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
+    function createPrototype()//{{{
+    {
+      var lElSection = document.createElement('section');
+      var lElSpan    = document.createElement('span');
+      var lElA       = document.createElement('a');
+      var lElImg     = document.createElement('img');
+      addStringToAttributeOfElement(lElImg, 'class', 'icon16_rev');
 
-      var deleteIcon  = img.cloneNode(true);
-      addStringToAttributeOfElement(deleteIcon, 'src', deleteIconPath);
-      addStringToAttributeOfElement(deleteIcon, 'alt', 'Delete button');
-      addStringToAttributeOfElement(deleteIcon, 'class', classNameOfDeleteBtn);
+      var lElDeleteIcon = lElImg.cloneNode(true);
+      var lElPageIcon   = lElImg.cloneNode(true);
+      var lElTitle      = lElSpan.cloneNode(true);
+      var lElDate       = lElSpan.cloneNode(true);
 
-      var pageIcon = img.cloneNode(true);
-      addStringToAttributeOfElement(pageIcon, 'alt', 'page icon');
-      addStringToAttributeOfElement(pageIcon, 'class', classNameOfPageIcon);
+      addStringToAttributeOfElement(
+        lElSection, 'class', lStrClassNameOfHistoryItem);
+      addStringToAttributeOfElement(lElSection, 'class', 'ellipsis');
+      addStringToAttributeOfElement(
+        lElSection, lStrAttrNameOfDatabase, lStrDbName);
 
-      var span  = document.createElement('span');
-      var title = span.cloneNode(true);
-      addStringToAttributeOfElement(title, 'class', classNameOfTitle);
-      var date = span.cloneNode(true);
-      addStringToAttributeOfElement(date, 'class', classNameOfDate);
+      addStringToAttributeOfElement(lElDeleteIcon, 'src', gStrDeleteIconPath);
+      addStringToAttributeOfElement(lElDeleteIcon, 'alt', 'Delete button');
+      addStringToAttributeOfElement(
+        lElDeleteIcon, 'class', lStrClassNameOfDeleteButton);
 
-      var a = document.createElement('a');
-      addStringToAttributeOfElement(a, 'target', '_blank');
-      addStringToAttributeOfElement(a, 'class', classNameOfLink);
+      addStringToAttributeOfElement(lElPageIcon, 'alt', 'page icon');
+      addStringToAttributeOfElement(
+        lElPageIcon, 'class', lStrClassNameOfPageIcon);
 
-      a.appendChild(pageIcon);
-      a.appendChild(title);
+      addStringToAttributeOfElement(lElTitle, 'class', lStrClassNameOfTitle);
+      addStringToAttributeOfElement(lElDate, 'class', lStrClassNameOfDate);
 
-      section.appendChild(deleteIcon);
-      section.appendChild(date);
-      section.appendChild(a);
+      addStringToAttributeOfElement(lElA, 'target', '_blank');
+      addStringToAttributeOfElement(lElA, 'class', lStrClassNameOfLink);
 
-      return section;
+      lElA.appendChild(lElPageIcon);
+      lElA.appendChild(lElTitle);
+
+      lElSection.appendChild(lElDeleteIcon);
+      lElSection.appendChild(lElDate);
+      lElSection.appendChild(lElA);
+
+      return lElSection;
     }//}}}
 
-    var proto = createPrototype();
-
-    function createHistoryItem(addItem, showOptions) {//{{{
-      if (!addItem.hasOwnProperty('date')) {
+    function createHistoryItem(pItem, pOpts)//{{{
+    {
+      if (!pItem.hasOwnProperty('date')) {
         throw new Error("the property of 'date' is not found.");
       }
-      var opts = { // default.
+
+      var lElProto        = createPrototype();
+      var lElItem         = lElProto.cloneNode(true);
+      var lElDeleteButton =
+        lElItem.querySelector(`.${lStrClassNameOfDeleteButton}`);
+      var lElDate         = lElItem.querySelector(`.${lStrClassNameOfDate}`);
+      var lElLink         = lElItem.querySelector(`.${lStrClassNameOfLink}`);
+      var lElIcon         =
+        lElItem.querySelector(`.${lStrClassNameOfPageIcon}`);
+      var lElTitle        = lElItem.querySelector(`.${lStrClassNameOfTitle}`);
+      var lObjOpts = { // default.
         deleteButton: true,
         date:         true,
         link:         true,
         title:        true,
         icon:         true,
       };
-      if (showOptions !== void 0 && showOptions !== null) {
-        Object.keys(showOptions).forEach(v => opts[v] = showOptions[v]);
+      if (pOpts !== void 0 && pOpts !== null) {
+        Object.keys(pOpts).forEach(v => lObjOpts[v] = pOpts[v]);
       }
 
-      var item = proto.cloneNode(true);
-      item.setAttribute('name', addItem.date);
+      lElItem.setAttribute('name', pItem.date);
 
-      if (opts.deleteButton) {
-        var del = item.querySelector(`.${classNameOfDeleteBtn}`);
-        del.setAttribute('name', addItem.date);
-        del.setAttribute(attrNameOfDatabase, databaseName);
-        del.addEventListener('click', deleteFunc, true);
-        if (addItem.hasOwnProperty('id')) {
-          del.setAttribute(attrNameOfItemId, addItem.id);
+      if (lObjOpts.deleteButton) {
+        lElDeleteButton.setAttribute('name', pItem.date);
+        lElDeleteButton.setAttribute(lStrAttrNameOfDatabase, lStrDbName);
+        lElDeleteButton.addEventListener('click', lFuncDelete, true);
+        if (pItem.hasOwnProperty('id')) {
+          lElDeleteButton.setAttribute(lStrAttrNameOfItemId, pItem.id);
         }
       }
 
-      if (opts.date !== false) {
-        var date = item.querySelector(`.${classNameOfDate}`);
-        date.textContent = formatDate(new Date(addItem.date), 'hh:mm:ss');
+      if (lObjOpts.date !== false) {
+        lElDate.textContent = formatDate(new Date(pItem.date), 'hh:mm:ss');
       }
 
-      if (addItem.hasOwnProperty('url') && opts.link) {
-        var link = item.querySelector(`.${classNameOfLink}`);
-        link.setAttribute('href', addItem.url);
+      if (pItem.hasOwnProperty('url') && lObjOpts.link) {
+        lElLink.setAttribute('href', pItem.url);
       }
 
-      if (addItem.hasOwnProperty('dataURI') && opts.icon) {
-        var icon = item.querySelector(`.${classNameOfPageIcon}`);
-        icon.setAttribute('src', addItem.dataURI);
+      if (pItem.hasOwnProperty('dataURI') && lObjOpts.icon) {
+        lElIcon.setAttribute('src', pItem.dataURI);
       }
 
-      if (addItem.hasOwnProperty('title') && opts.title) {
-        var title = item.querySelector(`.${classNameOfTitle}`);
-        title.textContent = addItem.title;
+      if (pItem.hasOwnProperty('title') && lObjOpts.title) {
+        lElTitle.textContent = pItem.title;
       }
 
-      return item;
+      return lElItem;
     }//}}}
 
     return createHistoryItem;
@@ -1446,47 +1679,57 @@
 
   function showAllHistory()//{{{
   {
+    var lElHistoryDateList   =
+      document.querySelector(`#${sStrIdNameOfHistoryList}`);
+    var lElHistoryItemList   = document.createDocumentFragment();
+    var lElHistoryDate       = document.createDocumentFragment();
+    var lElCreateHistoryDate = null;
+    var lElCreateHistoryItem = null;
+    var lArrayList = [];
+    var lObjData   = {};
+    var i          = 0;
+    var j          = 0;
+    var z          = 0;
+
     return new Promise((resolve, reject) => {
       getAllHistory()
       .then(historyArray => {
+        console.log(historyArray);
         historyArray = historyArray.reverse();
 
         showAutoCompleteDateList(historyArray);
 
-        var historyDateList =
-          document.querySelector(selectorOfLocationWhereAddHistoryDate);
-        clearItemInElement(historyDateList);
+        clearItemInElement(lElHistoryDateList);
 
-        var createHistoryDate =
-          closureCreateHistoryDate(optionsForCreateHistoryDate);
-        var createHistoryItem =
+        lElCreateHistoryDate =
+          closureCreateHistoryDate(sObjOptsForCreateHistoryDate);
+        lElCreateHistoryItem =
           closureCreateHistoryItem(
-            Object.assign(optionsForCreateHistoryItem,
+            Object.assign(sObjOptsForCreateHistoryItem,
               { databaseName: dbHistoryName }));
 
-        var hDate, historyItemList, list;
-        var data, i, j, z;
         i = 0;
         while (i < historyArray.length) {
-          data = historyArray[i];
-          hDate = createHistoryDate(data);
+          lObjData       = historyArray[i];
+          lElHistoryDate = lElCreateHistoryDate(lObjData);
 
-          list = [];
+          lArrayList = [];
           j = 0;
-          while (j < data.data.length) {
-            list.push( createHistoryItem(data.data[j]) );
+          while (j < lObjData.data.length) {
+            lArrayList.push( lElCreateHistoryItem(lObjData.data[j]) );
             j++;
           }
-          list = list.reverse();
+          lArrayList = lArrayList.reverse();
 
-          historyItemList = hDate.querySelector(selectorHistoryItemList);
+          lElHistoryItemList =
+            lElHistoryDate.querySelector(`.${sStrClassNameOfHistoryItemList}`);
           z = 0;
-          while (z < list.length) {
-            historyItemList.appendChild(list[z]);
+          while (z < lArrayList.length) {
+            lElHistoryItemList.appendChild(lArrayList[z]);
             ++z;
           }
 
-          historyDateList.appendChild(hDate);
+          lElHistoryDateList.appendChild(lElHistoryDate);
 
           ++i;
         }
@@ -1513,87 +1756,106 @@
 
   function showSpecificHistoryDateAndItem()//{{{
   {
-    var field, date, historyItems, item, itemTitle, itemUrl;
-    var i, j, count;
+    var lElSearchHistoryDate         =
+      document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
+    var lStrSearchHistoryValue       = lElSearchHistoryDate.value;
+    var lStrSearchHistoryValueLen    = lStrSearchHistoryValue.length;
+    var lElSearchHistoryItem         =
+      document.querySelector(`#${sStrIdNameOfSearchHistoryItem}`);
+    var lElSearchHistoryItemValue    = lElSearchHistoryItem.value.trim();
+    var lElSearchHistoryItemValueLen = lElSearchHistoryItemValue.length;
+    var lRegItem        = new RegExp(lElSearchHistoryItemValue, 'ig');
+    var lElDateList     =
+      document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
+    var lElField        = document.createDocumentFragment();
+    var lElHistoryItems = document.createDocumentFragment();
+    var lElItem         = document.createDocumentFragment();
+    var lElItemTitle    = document.createDocumentFragment();
+    var lElItemUrl      = document.createDocumentFragment();
+    var lArrayMatch    = [];
+    var lDate          = new Date();
+    var lDateSearch    = new Date();
+    var i              = 0;
+    var j              = 0;
+    var lNumCount      = 0;
+    var lNumSearchTime = 0;
 
-    var shdv       = searchHistoryDate.value;
-    var shdvLen    = shdv.length;
-    var searchTime;
-    if (shdvLen > 0) {
-      var matches    = shdv.match(/(\d+)-(\d+)-(\d+)/);
-      var searchDate = new Date(matches[1], matches[2] - 1, matches[3]);
-      searchTime = searchDate.getTime();
+    if (lStrSearchHistoryValueLen > 0) {
+      lArrayMatch = lStrSearchHistoryValue.match(/(\d+)-(\d+)-(\d+)/);
+      lDateSearch =
+        new Date(lArrayMatch[1], lArrayMatch[2] - 1, lArrayMatch[3]);
+      lNumSearchTime = lDateSearch.getTime();
     }
 
-    var shiv      = searchHistoryItem.value.trim();
-    var shivLen   = shiv.length;
-    var regexItem = new RegExp(shiv, 'ig');
-
-    var dateList = document.querySelectorAll(`.${classNameOfHistoryDate}`);
     i = 0;
-    while (i < dateList.length) {
-      field = dateList[i];
-      date = new Date(parseInt(field.name));
+    while (i < lElDateList.length) {
+      lElField = lElDateList[i];
+      lDate    = new Date(parseInt(lElField.name));
 
-      if (shdvLen === 0 || date.getTime() === searchTime) {
+      if (lStrSearchHistoryValueLen === 0 ||
+          lDate.getTime() === lNumSearchTime) {
         removeStringFromAttributeOfElement(
-          field, 'class', elementDoesNotClassName);
+          lElField, 'class', sStrClassNameOfDoesNot);
       } else {
-        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
+        addStringToAttributeOfElement(
+          lElField, 'class', sStrClassNameOfDoesNot);
         ++i;
         continue;
       }
 
-      historyItems = field.querySelectorAll(`.${classNameOfHistoryItem}`);
-      count = 0;
-      j     = 0;
-      while (j < historyItems.length) {
-        item = historyItems[j];
-
-        itemTitle = item.querySelector(selectorHistoryItemTitle);
-        itemUrl   = item.querySelector(selectorHistoryItemUrl);
-        if (shivLen === 0 ||
-            regexItem.test(itemTitle.textContent) ||
-            regexItem.test(itemUrl.href)) {
+      lElHistoryItems =
+        lElField.querySelectorAll(`.${sStrClassNameOfHistoryItem}`);
+      lNumCount = 0;
+      j         = 0;
+      while (j < lElHistoryItems.length) {
+        lElItem = lElHistoryItems[j];
+        lElItemTitle =
+          lElItem.querySelector(`.${sStrClassNameOfHistoryItemTitle}`);
+        lElItemUrl   =
+          lElItem.querySelector(`.${sStrClassNameOfHistoryItemUrl}`);
+        if (lElSearchHistoryItemValueLen === 0 ||
+            lRegItem.test(lElItemTitle.textContent) ||
+            lRegItem.test(lElItemUrl.href)) {
           removeStringFromAttributeOfElement(
-            item, 'class', elementDoesNotClassName);
+            lElItem, 'class', sStrClassNameOfDoesNot);
         } else {
           addStringToAttributeOfElement(
-            item, 'class', elementDoesNotClassName);
-          ++count;
+            lElItem, 'class', sStrClassNameOfDoesNot);
+          ++lNumCount;
         }
         ++j;
       }
 
-      if (count === historyItems.length) {
-        addStringToAttributeOfElement(field, 'class', elementDoesNotClassName);
+      if (lNumCount === lElHistoryItems.length) {
+        addStringToAttributeOfElement(
+          lElField, 'class', sStrClassNameOfDoesNot);
       } else {
         removeStringFromAttributeOfElement(
-          field, 'class', elementDoesNotClassName);
+          lElField, 'class', sStrClassNameOfDoesNot);
       }
 
       ++i;
     }
   }//}}}
 
-  function changeMenu(name)//{{{
+  function changeMenu(pStrName)//{{{
   {
     return new Promise((resolve, reject) => {
-      menuToggle.show(name)
-      .then(afterMenuSelection)
+      menuToggle.show(pStrName)
+      .then(processAfterMenuSelection(pStrName))
       .then(resolve)
       .catch(reject);
     });
   }//}}}
 
-  function sectionButtonClicked(event)//{{{
+  function sectionButtonClicked(pEvent)//{{{
   {
-    var t = event.target;
-    if (t.getAttribute('class') !== sectionButtonClassName) {
+    var lElTarget = pEvent.target;
+    if (lElTarget.getAttribute('class') !== sStrClassNameOfButton) {
       return;
     }
 
-    changeMenu(t.getAttribute('name'));
+    changeMenu(lElTarget.getAttribute('name'));
   }//}}}
 
   function applyNewOptionToExtensionProcess()//{{{
@@ -1605,27 +1867,28 @@
     });
   }//}}}
 
-  function updateOptionValueToStorage(e)//{{{
+  function updateOptionValueToStorage(pEvent)//{{{
   {
-    var name = e.target.name;
-    if (name === void 0 || name === null || name.length === 0) {
+    var lElTarget = pEvent.target;
+    var lStrName = lElTarget.getAttribute('name');
+    if (lStrName === void 0 || lStrName === null || lStrName.length === 0) {
       return;
     }
+    var lObjWrite = {};
 
-    var writeObj = {};
-    operateOption.get(document, name)
-    .then(item => {
+    operateOption.get(document, lStrName)
+    .then(rItem => {
       return new Promise(resolve => {
-        writeObj[name] = item;
-        chrome.storage.local.set(writeObj, () => {
+        lObjWrite[lStrName] = rItem;
+        chrome.storage.local.set(lObjWrite, () => {
           console.log(
-            'have wrote the data. name: ' + name + ', value: ' + item);
+            `have wrote the data. name: ${lStrName}, value: ${rItem}`);
           resolve();
         });
       });
     })
     .then(applyNewOptionToExtensionProcess)
-    .catch(mes => console.error(mes));
+    .catch(rMes => console.error(rMes));
   }//}}}
 
   function initSessionHistory()//{{{
@@ -1640,15 +1903,20 @@
     });
   }//}}}
 
-  function initSessionHistoryEvent()//{{{
-  {
-    function commonFunc(e) {//{{{
+  var initSessionHistoryEvent = (function() {//{{{
+    var lElSessionSave =
+      document.querySelector(`#${sStrIdNameOfSessionSave}`);
+    var lElSessionDelete =
+      document.querySelector(`#${sStrIdNameOfSessionDelete}`);
+    var lElSessionRestore =
+      document.querySelector(`#${sStrIdNameOfSessionRestore}`);
+    var commonFunc = function(pEvent) {//{{{
       return new Promise((resolve, reject)=> {
         (() => {
-          var idName = e.target.getAttribute('id');
-          if (idName === sessionSave.getAttribute('id')) {
+          var lStrIdName = pEvent.target.getAttribute('id');
+          if (lStrIdName === lElSessionSave.getAttribute('id')) {
             return saveSession();
-          } else if (idName === sessionDelete.getAttribute('id')) {
+          } else if (lStrIdName === lElSessionDelete.getAttribute('id')) {
             return deleteSession();
           }
         })()
@@ -1656,82 +1924,97 @@
         .then(resolve)
         .catch(reject);
       });
-    }//}}}
+    };//}}}
 
-    sessionSave.addEventListener('click', commonFunc, true);
-    sessionDelete.addEventListener('click', commonFunc, true);
-    sessionRestore.addEventListener('click', restoreSession, true);
+    return function() {
+      lElSessionSave.addEventListener('click', commonFunc, true);
+      lElSessionDelete.addEventListener('click', commonFunc, true);
+      lElSessionRestore.addEventListener('click', restoreSession, true);
 
-    clearSessionTitleInSessionControlBar()
-    .then(changeSessionIconControlState(false));
-  }//}}}
+      clearSessionTitleInSessionControlBar()
+      .then(changeSessionIconControlState(false));
+    };
+  })();//}}}
 
   function initHistoryEvent()//{{{
   {
     return new Promise(resolve => {
-      searchHistoryDate.addEventListener(
+      var lElSearchHistoryDate =
+        document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
+      var lElSearchHistoryItem =
+        document.querySelector(`#${sStrIdNameOfSearchHistoryItem}`);
+
+      lElSearchHistoryDate.addEventListener(
         'change', showSpecificHistoryDateAndItem, true);
-      searchHistoryItem.addEventListener(
+      lElSearchHistoryItem.addEventListener(
         'keyup', showSpecificHistoryDateAndItem, true);
       resolve();
     });
   }//}}}
 
-  function initSectionBarEvent(d)//{{{
+  function initSectionBarEvent(pEvent)//{{{
   {
+    var lElButton = document.createDocumentFragment();
+    var i = 0;
+
     return new Promise((resolve, reject) => {
       try {
-        var e = d.querySelectorAll(buttonSelector);
-        var i = 0;
-        while (i < e.length) {
-          e[i].addEventListener('click', sectionButtonClicked, true);
+        lElButton = pEvent.querySelectorAll(`.${sStrClassNameOfButton}`);
+        i = 0;
+        while (i < lElButton.length) {
+          lElButton[i].addEventListener('click', sectionButtonClicked, true);
           ++i;
         }
         resolve();
-      } catch (err) {
-        reject(err);
+      } catch (rError) {
+        reject(rError);
       }
     });
   }//}}}
 
-  function initOptionElementEvent(d)//{{{
+  function initOptionElementEvent(pEvent)//{{{
   {
-    return new Promise(resolve => {
-      var i, els;
+    var lElInput    = document.createDocumentFragment();
+    var lElTextarea = document.createDocumentFragment();
+    var lElItem     = document.createDocumentFragment();
+    var i           = 0;
 
-      els = d.querySelectorAll("input");
+    return new Promise(resolve => {
+      lElInput = pEvent.querySelectorAll("input");
       i = 0;
-      while (i < els.length) {
-        els[i].addEventListener('keyup', updateOptionValueToStorage, true);
-        els[i].addEventListener('change', updateOptionValueToStorage, true);
+      while (i < lElInput.length) {
+        lElItem = lElInput[i];
+        lElItem.addEventListener('keyup', updateOptionValueToStorage, true);
+        lElItem.addEventListener('change', updateOptionValueToStorage, true);
         ++i;
       }
 
-      els = d.querySelectorAll("textarea");
+      lElTextarea = pEvent.querySelectorAll("textarea");
       i = 0;
-      while (i < els.length) {
-        els[i].addEventListener('keyup', updateOptionValueToStorage, true);
+      while (i < lElTextarea.length) {
+        lElItem = lElTextarea[i];
+        lElItem.addEventListener('keyup', updateOptionValueToStorage, true);
         ++i;
       }
       resolve();
     });
   }//}}}
 
-  function initKeybindEvent(d)//{{{
+  function initKeybindEvent(pEvent)//{{{
   {
     return new Promise(resolve => {
-      d.addEventListener('keyup', keyupEvent, true);
+      pEvent.addEventListener('keyup', keyupEvent, true);
       resolve();
     });
   }//}}}
 
-  function initButtonEvent(d)//{{{
+  function initButtonEvent(pEvent)//{{{
   {
     return new Promise(resolve => {
-      var els = d.querySelectorAll('button');
+      var lElButtons = pEvent.querySelectorAll('button');
       var i = 0;
-      while (i < els.length) {
-        els[i].addEventListener('click', buttonClicked, true);
+      while (i < lElButtons.length) {
+        lElButtons[i].addEventListener('click', buttonClicked, true);
         ++i;
       }
 
@@ -1740,6 +2023,9 @@
   }//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
+    var lObjArgs = {};
+    var lStrMenu = "";
+
     (() => {
       return new Promise(resolve => {
         db = new Database(dbName, dbVersion);
@@ -1747,22 +2033,22 @@
         resolve();
       });
     }())
-    .then(() => {
-      var args = getQueryString(document);
-      var menu = (args === void 0 ||
-                  args === null ||
-                  !args.hasOwnProperty('page')) ? defaultMenu : args.page;
-      return changeMenu(menu);
-    })
-    .then(initSectionBarEvent(document))
     .then(loadTranslation(document, translationPath))
     .then(operateOption.load(document))
-    .then(showAllKeybindString)
+    .then(initSectionBarEvent(document))
     .then(initOptionElementEvent(document))
     .then(initButtonEvent(document))
     .then(initKeybindEvent(document))
     .then(initHistoryEvent(document))
     .then(initSessionHistoryEvent(document))
-    .catch(e => console.error(e));
+    .then(() => {
+      lObjArgs = getQueryString(document);
+      lStrMenu = (lObjArgs === void 0 ||
+                  lObjArgs === null ||
+                  !lObjArgs.hasOwnProperty('page')) ? sStrDefaultMenu :
+                                                      lObjArgs.page;
+      return changeMenu(lStrMenu);
+    })
+    .catch(rErr => console.error(rErr));
   }, true);//}}}
 }(this, this.document));

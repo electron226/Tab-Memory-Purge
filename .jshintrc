@@ -73,6 +73,7 @@
     "blankUrl":                     true,
     "optionPage":                   true,
     "changeHistory":                true,
+    "gStrDeleteIconPath":           true,
     "optionMenus":                  true,
     "contextMenus":                 true,
     "parentMenuId":                 true,

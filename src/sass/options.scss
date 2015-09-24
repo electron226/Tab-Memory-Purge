@@ -119,8 +119,8 @@ input, textarea {
     @include border0;
 
     @include adjust-leading-to(2);
-    background-color: $primary-color;
     @include single-box-shadow(0, 1px, 3px, 0, $input-border-color);
+    background-color: $primary-color;
 
     &:hover, &.select {
         background-color: $light-primary-color;
