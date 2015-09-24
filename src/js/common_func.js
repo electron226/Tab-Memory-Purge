@@ -172,14 +172,14 @@
         date = new Date(v.date);
         if (!tempDate) {
           tempDate = date;
-          addDate = new Date(tempDate.getFullYear(),
-                             tempDate.getMonth(),
-                             tempDate.getDate(),
-                             0, 0, 0, 0);
         }
 
         if (formatDate(tempDate, 'YYYY/MM/DD') !==
             formatDate(date, 'YYYY/MM/DD')) {
+          addDate = new Date(tempDate.getFullYear(),
+                             tempDate.getMonth(),
+                             tempDate.getDate(),
+                             0, 0, 0, 0);
           showList.push({ date : addDate, data : dataList });
           tempDate = date;
           dataList = [];
@@ -200,6 +200,10 @@
       }
 
       if (dataList.length > 0) {
+        addDate = new Date(tempDate.getFullYear(),
+                           tempDate.getMonth(),
+                           tempDate.getDate(),
+                           0, 0, 0, 0);
         showList.push({ date : addDate, data : dataList });
       }
 
