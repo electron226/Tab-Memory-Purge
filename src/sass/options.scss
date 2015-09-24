@@ -14,9 +14,10 @@
 @import "basecolors";
 @import "common.scss";
 
-$main-field-width:    95vw;
+$main-field-width:        95vw;
+$max-height-section-menu: 80vh;
 
-$base-font-size: 14px;
+$base-font-size:   14px;
 $base-line-height: 24px;
 @include establish-baseline;
 
@@ -138,8 +139,10 @@ input, textarea {
     @include single-box-shadow(0, 3px, 3px, 0, $input-border-color);
     @include box-sizing(border-box);
 
-    width:   $main-field-width;
-    padding: 1rem;
+    width:      $main-field-width;
+    max-height: $max-height-section-menu;
+    overflow:   auto;
+    padding:    1rem;
     @include rhythm-padding(1);
     background-color: #fff;
 }
@@ -181,6 +184,8 @@ input, textarea {
 }
 
 #historyList {
+    overflow:   auto;
+
     .historyField:not(last-child) {
         @include rhythm-margins(1, 0);
     }
@@ -248,13 +253,9 @@ $dateListWidth: 15%;
 
 #change_history {
     @include rhythm-padding(1);
+    @include adjust-font-size-to(12px, 1);
 
-    div {
-        @include adjust-font-size-to(12px, 1);
-        height:      80vh;
-        overflow:    auto;
-        white-space: pre;
-    }
+    overflow:   auto;
 }
 
 #information {
