@@ -1,64 +1,72 @@
-/*global keyCheck: true */
 (function(window, document) {
   "use strict";
 
   function getKeyBinds()//{{{
   {
-    return new Promise(function(resolve, reject) {
-      chrome.storage.local.get(null, function(items) {
+    return new Promise((resolve, reject) => {
+      var lMapKeys    = new Map();
+      var lObjKeyInfo = {};
+      var lStrKeyName = "";
+
+      chrome.storage.local.get(null, pObjItems => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError.messsage);
+          reject(new Error(chrome.runtime.lastError.messsage));
           return;
         }
 
-        var keyInfo;
-        var keys = {};
-        for (var keyName in items) {
-          if (items.hasOwnProperty(keyName) &&
-              keyName.indexOf('keybind_') !== -1) {
+        lMapKeys = new Map();
+        for (lStrKeyName in pObjItems) {
+          if (pObjItems.hasOwnProperty(lStrKeyName) &&
+              lStrKeyName.indexOf('keybind_') !== -1) {
             try {
-              keyInfo = JSON.parse(items[keyName]);
-              if (toType(keyInfo) !== 'object') {
+              lObjKeyInfo = JSON.parse(pObjItems[lStrKeyName]);
+              if (toType(lObjKeyInfo) !== 'object') {
                 continue;
               }
 
-              keys[keyName] = items[keyName] || defaultValues.get(keyName);
+              lMapKeys.set(lStrKeyName,
+                pObjItems[lStrKeyName] || gMapDefaultValues.get(lStrKeyName));
             } catch (e) {
               continue;
             }
           }
         }
 
-        resolve(keys);
+        resolve(lMapKeys);
       });
     });
   }//}}}
 
-  document.addEventListener('keyup', function(e) {//{{{
-    var currentFocus = document.activeElement;
-    var activeElementName = currentFocus.tagName.toLowerCase();
-    if (activeElementName === 'input' || activeElementName === 'textarea') {
+  document.addEventListener('keyup', pEvent => {//{{{
+    var lElCurrentFocus      = document.activeElement;
+    var lElActiveElementName = lElCurrentFocus.tagName.toLowerCase();
+    if (lElActiveElementName === 'input' ||
+        lElActiveElementName === 'textarea') {
       return;
     }
 
     chrome.runtime.sendMessage(
       { event: 'keybind_check_exclude_list', location: window.location },
-      function(result) {
-        if (result) {
-          getKeyBinds()
-          .then(function(keys) {
-            var pushKey = JSON.stringify(keyCheck(e));
+      pBoolResult => {
+        var pushKey = "";
+        var iter    = null;
+        var i       = null;
 
-            for (var key in keys) {
-              if (keys.hasOwnProperty(key) && keys[key] === pushKey) {
+        if (pBoolResult) {
+          getKeyBinds()
+          .then(pMapKeys => {
+            pushKey = JSON.stringify(keyCheck(pEvent));
+            iter    = pMapKeys.entries();
+            i       = iter.next();
+            while (!i.done) {
+              if (i.value[1] === pushKey) {
                 chrome.runtime.sendMessage(
-                  { event: key.replace(/^keybind_/, '') });
+                  { event: i.value[0].replace(/^keybind_/, '') });
               }
+              i = iter.next();
             }
           })
-          .catch(function(e) {
-            console.error(e);
-          });
+          .catch(eErr => console.error(eErr));
         } else {
           console.error('Tab Memory Purge: This url contain the exclude list.');
         }

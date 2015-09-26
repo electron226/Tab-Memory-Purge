@@ -34,198 +34,215 @@
    *     Call the function when each time the state change is changed.
    * @return {promise} a promise object.
    */
-  function ajax(obj)//{{{
+  function ajax(pObjOpts)//{{{
   {
-    var method           = obj.method || 'GET';
-    var url              = obj.url;
-    var async            = obj.async || true;
-    var user             = obj.user || '';
-    var password         = obj.password || '';
-    var timeout          = (obj.timeout || 60) * 1000;
-    var mimeType         = obj.mimeType;
-    var headers          = obj.headers;
-    var data             = obj.data || null;
-    var responseType     = obj.responseType;
-    var readyStateChange = obj.readyStateChange;
+    var lStrMethod            = pObjOpts.method || 'GET';
+    var lStrUrl               = pObjOpts.url;
+    var lBoolAsync            = pObjOpts.async || true;
+    var lStrUser              = pObjOpts.user || '';
+    var lStrPassword          = pObjOpts.password || '';
+    var lNumTimeout           = (pObjOpts.timeout || 60) * 1000;
+    var lStrMimeType          = pObjOpts.mimeType;
+    var lArrayHeaders         = pObjOpts.headers;
+    var lData                 = pObjOpts.data || null;
+    var lStrResponseType      = pObjOpts.responseType;
+    var lFuncReadyStateChange = pObjOpts.readyStateChange;
+    var lXmlHttpReq           = new XMLHttpRequest();
 
     return new Promise(function(resolve, reject) {
-      var xhr = new XMLHttpRequest();
+      lXmlHttpReq = new XMLHttpRequest();
 
-      xhr.open(method, url, async, user, password);
-      xhr.timeout = timeout;
-      if (headers !== void 0 && headers !== null) {
-        if (headers.length !== 2) {
+      lXmlHttpReq.open(lStrMethod, lStrUrl, lBoolAsync, lStrUser, lStrPassword);
+      lXmlHttpReq.timeout = lNumTimeout;
+      if (lArrayHeaders !== void 0 && lArrayHeaders !== null) {
+        if (lArrayHeaders.length !== 2) {
           reject(
             new Error('headers is not array type, or array size is not 2.'));
           return;
         }
-        xhr.setRequestHeader.apply(null, headers);
+        lXmlHttpReq.setRequestHeader.apply(null, lArrayHeaders);
       }
-      if (readyStateChange !== void 0 && readyStateChange !== null) {
-        xhr.onreadystatechange = readyStateChange;
+      if (lFuncReadyStateChange !== void 0 && lFuncReadyStateChange !== null) {
+        lXmlHttpReq.onreadystatechange = lFuncReadyStateChange;
       }
-      if (mimeType !== void 0 && mimeType !== null) {
-        xhr.overrideMimeType(mimeType);
+      if (lStrMimeType !== void 0 && lStrMimeType !== null) {
+        lXmlHttpReq.overrideMimeType(lStrMimeType);
       }
-      if (responseType !== void 0 && responseType !== null) {
-        xhr.responseType = responseType;
+      if (lStrResponseType !== void 0 && lStrResponseType !== null) {
+        lXmlHttpReq.responseType = lStrResponseType;
       }
 
-      xhr.ontimeout = function() {
-        reject(new Error('timeout: ' + obj));
+      lXmlHttpReq.ontimeout = function() {
+        reject(new Error('timeout: \n' + JSON.stringfy(pObjOpts, '    ')));
       };
-      xhr.onload = function() {
+      lXmlHttpReq.onload = function() {
         resolve({
-          status:   xhr.status,
+          status:   lXmlHttpReq.status,
           response: this.response,
-          xhr:      xhr,
+          xhr:      lXmlHttpReq,
         });
       };
-      xhr.onerror = function(e) {
+      lXmlHttpReq.onerror = function(e) {
         reject(new Error(e));
       };
-      xhr.send(data);
+      lXmlHttpReq.send(lData);
     });
   }//}}}
 
-  function loadTranslation(document, url) //{{{
+  function loadTranslation(pElement, pStrUrl) //{{{
   {
     return new Promise((resolve, reject) => {
-      ajax({ url: url }).then(ret => {
-        if (ret.status === 200) {
-          var t = JSON.parse(ret.response);
-          var el = document.evaluate(
-            '//*[@translation]', document, null, 7, null);
-          var item, textName;
-          var i = 0;
-          while (i < el.snapshotLength) {
-            item = el.snapshotItem(i);
-            textName = item.getAttribute('translation');
-            if (t.hasOwnProperty(textName)) {
-              item.textContent = chrome.i18n.getMessage(textName);
+      var lStrTarget       = "";
+      var lElementSnapshot = null;
+      var lElItem          = document.createDocumentFragment();
+      var lStrTextName     = "";
+      var i                = 0;
+
+      ajax({ url: pStrUrl }).then(pObjResult => {
+        if (pObjResult.status === 200) {
+          lStrTarget = JSON.parse(pObjResult.response);
+          lElementSnapshot =
+            pElement.evaluate('//*[@translation]', pElement, null, 7, null);
+
+          i = 0;
+          while (i < lElementSnapshot.snapshotLength) {
+            lElItem      = lElementSnapshot.snapshotItem(i);
+            lStrTextName = lElItem.getAttribute('translation');
+            if (lStrTarget.hasOwnProperty(lStrTextName)) {
+              lElItem.textContent = chrome.i18n.getMessage(lStrTextName);
             }
 
             ++i;
           }
           resolve();
         } else {
-          reject(new Error(ret.xhr.statusText));
+          reject(new Error(pObjResult.xhr.statusText));
         }
       })
       .catch(reject);
     });
   }//}}}
 
-  function getHostName(url)//{{{
+  function getHostName(pStrUrl)//{{{
   {
-    console.log('getHostName', url);
+    console.log('getHostName', pStrUrl);
 
-    var result = /\/\/([\w-.~]*)\//i.exec(url);
-    if (result) {
-      return result[1];
+    var lArrayResult = /\/\/([\w-.~]*)\//i.exec(pStrUrl);
+    if (lArrayResult) {
+      return lArrayResult[1];
     } else {
-      console.error("Don't get hostname.", url);
+      console.error("Don't get hostname.", pStrUrl);
       return null;
     }
   }//}}}
 
-  function getListAfterJoinHistoryDataOnDB(array)//{{{
+  function getListAfterJoinHistoryDataOnDB(pArraySessions)//{{{
   {
     return new Promise(function(resolve) {
-      var histories = array[0];
-      var pageInfos = array[1];
-      var dataURIs  = array[2];
+      var lDate        = new Date();
+      var lDateTemp    = new Date();
+      var lDateAdd     = new Date();
+      var rListResult  = [];
+      var lListData    = [];
+      var lObjPageInfo = {};
+      var lObjDataURI  = {};
+      var lObjPage     = {};
+      var lObjAdd      = {};
+      var lObjValue    = {};
+      var i            = 0;
 
-      var i, v;
+      var histories = pArraySessions[0];
+      var pageInfos = pArraySessions[1];
+      var dataURIs  = pArraySessions[2];
 
-      var pageInfoDict = {};
+      lObjPageInfo = {};
       i = 0;
       while (i < pageInfos.length) {
-        v = pageInfos[i];
-        pageInfoDict[v.url] = { title: v.title, host: v.host };
+        lObjValue = pageInfos[i];
+        lObjPageInfo[lObjValue.url] =
+          { title: lObjValue.title, host: lObjValue.host };
         ++i;
       }
 
-      var dataURIDict = {};
+      lObjDataURI = {};
       i = 0;
       while (i < dataURIs.length) {
-        v = dataURIs[i];
-        dataURIDict[v.host] = v.dataURI;
+        lObjValue = dataURIs[i];
+        lObjDataURI[lObjValue.host] = lObjValue.dataURI;
         ++i;
       }
 
-      var page;
-      var date, tempDate, addDate;
-      var obj;
-      var showList = [];
-      var dataList = [];
+      rListResult = [];
+      lListData   = [];
       i = 0;
       while (i < histories.length) {
-        v = histories[i];
-        page = pageInfoDict[v.url];
-        if (page === void 0 || page === null) {
-          console.warn("Don't find data in pageInfo of indexedDB.", v.url);
+        lObjValue = histories[i];
+        lObjPage = lObjPageInfo[lObjValue.url];
+        if (lObjPage === void 0 || lObjPage === null) {
+          console.warn(
+            "Don't find data in pageInfo of indexedDB.", lObjValue.url);
           ++i;
           continue;
         }
 
-        date = new Date(v.date);
-        if (!tempDate) {
-          tempDate = date;
+        lDate = new Date(lObjValue.date);
+        if (!lDateTemp) {
+          lDateTemp = lDate;
         }
 
-        if (formatDate(tempDate, 'YYYY/MM/DD') !==
-            formatDate(date, 'YYYY/MM/DD')) {
-          addDate = new Date(tempDate.getFullYear(),
-                             tempDate.getMonth(),
-                             tempDate.getDate(),
-                             0, 0, 0, 0);
-          showList.push({ date : addDate, data : dataList });
-          tempDate = date;
-          dataList = [];
+        if (formatDate(lDateTemp, 'YYYY/MM/DD') !==
+            formatDate(lDate, 'YYYY/MM/DD')) {
+          lDateAdd = new Date(lDateTemp.getFullYear(),
+                              lDateTemp.getMonth(),
+                              lDateTemp.getDate(),
+                              0, 0, 0, 0);
+          rListResult.push({ date : lDateAdd, data : lListData });
+          lDateTemp = lDate;
+          lListData = [];
         }
 
-        obj = {
-          date    : v.date,
-          url     : v.url,
-          title   : page.title,
-          host    : page.host,
-          dataURI : dataURIDict[page.host] || icons.get(NORMAL),
+        lObjAdd = {
+          date    : lObjValue.date,
+          url     : lObjValue.url,
+          title   : lObjPage.title,
+          host    : lObjPage.host,
+          dataURI : lObjDataURI[lObjPage.host] || gMapIcons.get(NORMAL),
         };
-        if (v.id) { obj.id = v.id; }
-        if (v.windowId) { obj.windowId = v.windowId; }
+        if (lObjValue.id) { lObjAdd.id = lObjValue.id; }
+        if (lObjValue.windowId) { lObjAdd.windowId = lObjValue.windowId; }
 
-        dataList.push(obj);
+        lListData.push(lObjAdd);
         ++i;
       }
 
-      if (dataList.length > 0) {
-        addDate = new Date(tempDate.getFullYear(),
-                           tempDate.getMonth(),
-                           tempDate.getDate(),
-                           0, 0, 0, 0);
-        showList.push({ date : addDate, data : dataList });
+      if (lListData.length > 0) {
+        lDateAdd = new Date(lDateTemp.getFullYear(),
+                            lDateTemp.getMonth(),
+                            lDateTemp.getDate(),
+                            0, 0, 0, 0);
+        rListResult.push({ date : lDateAdd, data : lListData });
       }
 
-      resolve(showList);
+      resolve(rListResult);
     });
   }//}}}
 
   /**
    * Get history list.
-   * @param {Database} db - the instance of Database class in indexedDB.js.
-   * @param {String} dbName - the target history name in indexedDB.
+   * @param {Database} pInstanceDB -
+   *     the instance of Database class in indexedDB.js.
+   * @param {String} pStrDbName - the target history name in indexedDB.
    * @return {Promise} return promise.
    */
-  function getHistoryListFromIndexedDB(db, dbName)//{{{
+  function getHistoryListFromIndexedDB(pInstanceDB, pStrDbName)//{{{
   {
-    return new Promise(function(resolve, reject) {
-      var p = [];
-      p.push( db.getAll({ name: dbName }) );
-      p.push( db.getAll({ name: dbPageInfoName }) );
-      p.push( db.getAll({ name: dbDataURIName }) );
+    return new Promise((resolve, reject) => {
+      var lArrayPromise = [];
+      lArrayPromise.push( pInstanceDB.getAll({ name: pStrDbName }) );
+      lArrayPromise.push( pInstanceDB.getAll({ name: gStrDbPageInfoName }) );
+      lArrayPromise.push( pInstanceDB.getAll({ name: gStrDbDataURIName }) );
 
-      Promise.all(p)
+      Promise.all(lArrayPromise)
       .then(getListAfterJoinHistoryDataOnDB)
       .then(resolve)
       .catch(reject);
@@ -234,37 +251,42 @@
 
   /**
    * 受け取った引数を分解し、連想配列(ハッシュ)として返す。
+   * @param {object} pElement - You want to get the queries is HTMLElement.
    * @return {Object} 引数を表す連想配列。キーは受け取った引数名。
    *                  引数がない場合はnullが返る。
    */
-  function getQueryString(document)//{{{
+  function getQueryString(pElement)//{{{
   {
-    if (1 < document.location.search.length) {
+    if (1 < pElement.location.search.length) {
       // 最初の1文字(?)を除いた文字列を取得
-      var query = decodeURIComponent(document.location.search.substring(1));
+      var lStrQuery = decodeURIComponent(pElement.location.search.substring(1));
 
       // 引数ごとに分割
-      var parameters = query.split('&');
-      var result = {};
-      var i = 0;
-      var element, paramName, paramValue;
+      var parameters     = lStrQuery.split('&');
+      var rObjResult     = {};
+      var lArrayElement  = [];
+      var lStrParamName  = "";
+      var lStrParamValue = "";
+      var i              = 0;
+
+      i = 0;
       while (i < parameters.length) {
-        element = parameters[i].split('=');
-        if (element[0] === '' ||
-            element[1] === undefined ||
-            element[1] === null) {
+        lArrayElement = parameters[i].split('=');
+        if (lArrayElement[0] === '' ||
+            lArrayElement[1] === undefined ||
+            lArrayElement[1] === null) {
           ++i;
           continue;
         }
 
-        paramName = element[0];
-        paramValue = decodeURIComponent(element[1]);
-        result[paramName] = paramValue;
+        lStrParamName             = lArrayElement[0];
+        lStrParamValue            = decodeURIComponent(lArrayElement[1]);
+        rObjResult[lStrParamName] = lStrParamValue;
 
         ++i;
       }
 
-      return result;
+      return rObjResult;
     }
 
     return null;
@@ -272,48 +294,57 @@
 
   function closureGetDataURI()//{{{
   {
-    function getDataType(buf)//{{{
+    function getDataType(pArrayBuf)//{{{
     {
-      if (buf[0] === 0xFF &&
-          buf[1] === 0xD8 &&
-          buf[buf.byteLength - 2] === 0xFF &&
-          buf[buf.byteLength - 1] === 0xD9) {
+      if (pArrayBuf[0] === 0xFF &&
+          pArrayBuf[1] === 0xD8 &&
+          pArrayBuf[pArrayBuf.byteLength - 2] === 0xFF &&
+          pArrayBuf[pArrayBuf.byteLength - 1] === 0xD9) {
         return 'image/jpeg';
-      } else if (buf[0] === 0x89 && buf[1] === 0x50 &&
-                 buf[2] === 0x4E && buf[3] === 0x47) {
+      } else if (pArrayBuf[0] === 0x89 && pArrayBuf[1] === 0x50 &&
+                 pArrayBuf[2] === 0x4E && pArrayBuf[3] === 0x47) {
         return 'image/png';
-      } else if (buf[0] === 0x47 && buf[1] === 0x49 &&
-                 buf[2] === 0x46 && buf[3] === 0x38) {
+      } else if (pArrayBuf[0] === 0x47 && pArrayBuf[1] === 0x49 &&
+                 pArrayBuf[2] === 0x46 && pArrayBuf[3] === 0x38) {
         return 'image/gif';
-      } else if (buf[0] === 0x42 && buf[1] === 0x4D) {
+      } else if (pArrayBuf[0] === 0x42 && pArrayBuf[1] === 0x4D) {
         return 'image/bmp';
-      } else if (buf[0] === 0x00 && buf[1] === 0x00 && buf[2] === 0x01) {
+      } else if (pArrayBuf[0] === 0x00 &&
+                 pArrayBuf[1] === 0x00 &&
+                 pArrayBuf[2] === 0x01) {
         return 'image/x-icon';
       } else {
         return 'image/unknown';
       }
     }//}}}
 
-    function getDataURI(url)//{{{
+    function getDataURI(pStrUrl)//{{{
     {
       return new Promise(function(resolve, reject) {
+        var lU8ArrayBytes  = new Uint8Array();
+        var lStrDataType   = '';
+        var lStrBinaryData = '';
+        var i              = 0;
+
         ajax({
-          url: url,
+          url:          pStrUrl,
           responseType: 'arraybuffer',
-        }).then(ret => {
-          if (ret.status === 200) {
-            var bytes = new Uint8Array(ret.response);
-            var dataType = getDataType(bytes);
-            var binaryData = '';
-            var i = 0;
-            while (i < bytes.byteLength) {
-              binaryData += String.fromCharCode(bytes[i]);
+        }).then(pResult => {
+          if (pResult.status === 200) {
+            lU8ArrayBytes  = new Uint8Array(pResult.response);
+            lStrDataType   = getDataType(lU8ArrayBytes);
+            lStrBinaryData = '';
+
+            i = 0;
+            while (i < lU8ArrayBytes.byteLength) {
+              lStrBinaryData += String.fromCharCode(lU8ArrayBytes[i]);
               ++i;
             }
 
-            resolve('data:' + dataType + ';base64,' + window.btoa(binaryData));
+            resolve(
+              `data:${lStrDataType};base64,${window.btoa(lStrBinaryData)}`);
           } else {
-            reject(new Error(ret.xhr.statusText));
+            reject(new Error(pResult.xhr.statusText));
           }
         }).catch(reject);
       });
@@ -322,30 +353,32 @@
     return getDataURI;
   }//}}}
 
-  function hasStringOfAttributeOfElement(element, attrName, addStr)//{{{
+  function hasStringOfAttributeOfElement(pElement, pStrAttrName, lStrAdd)//{{{
   {
-    var re = new RegExp('(^|\\s+)' + addStr, '');
-    return re.test(element.getAttribute(attrName));
+    var lRegex = new RegExp(`(^|\\s+)${lStrAdd}`, '');
+    return lRegex.test(pElement.getAttribute(pStrAttrName));
   }//}}}
 
-  function addStringToAttributeOfElement(element, attrName, addStr)//{{{
+  function addStringToAttributeOfElement(pElement, pStrAttrName, lStrAdd)//{{{
   {
-    if (!hasStringOfAttributeOfElement(element, attrName, addStr)) {
-      var oldAttribute = element.getAttribute(attrName);
-      element.setAttribute(
-        attrName, (oldAttribute ? oldAttribute + ' ' : '') + addStr);
+    if (!hasStringOfAttributeOfElement(pElement, pStrAttrName, lStrAdd)) {
+      var lStrAttr = pElement.getAttribute(pStrAttrName);
+
+      pElement.setAttribute(
+        pStrAttrName, (lStrAttr ? lStrAttr + ' ' : '') + lStrAdd);
       return true;
     }
     return false;
   }//}}}
 
   function removeStringFromAttributeOfElement(//{{{
-    element, attrName, removeStr, replaceStr)
+    pElement, pStrAttrName, pStrRemove, pStrReplace)
   {
-    var re = new RegExp('(^|\\s+)' + removeStr, 'ig');
-    var value = element.getAttribute(attrName);
-    if (value) {
-      element.setAttribute(attrName, value.replace(re, replaceStr || ''));
+    var lRegex    = new RegExp('(^|\\s+)' + pStrRemove, 'ig');
+    var lStrValue = pElement.getAttribute(pStrAttrName);
+    if (lStrValue) {
+      pElement.setAttribute(
+        pStrAttrName, lStrValue.replace(lRegex, pStrReplace || ''));
     }
   }//}}}
 
@@ -353,20 +386,20 @@
    * keyCheck
    * return key information object.
    *
-   * @param {Event} e Event on keypress, keydown or keyup.
+   * @param {Event} pEvent Event on keypress, keydown or keyup.
    * @return {Object} object of key information.
    */
-  function keyCheck(e) {//{{{
-    if (e === void 0) {
+  function keyCheck(pEvent) {//{{{
+    if (pEvent === void 0 || pEvent === null) {
       throw new Error("Invalid argument. don't get event object.");
     }
 
     return {
-      ctrl: e.ctrlKey,
-      alt: e.altKey,
-      shift: e.shiftKey,
-      meta: e.metaKey,
-      keyCode: e.keyCode
+      ctrl:    pEvent.ctrlKey,
+      alt:     pEvent.altKey,
+      shift:   pEvent.shiftKey,
+      meta:    pEvent.metaKey,
+      keyCode: pEvent.keyCode
     };
   }//}}}
 
@@ -374,118 +407,128 @@
    * generateKeyString
    * Based on key info create string.
    *
-   * @param {Object} keyInfo has got return value of keyCheck function.
+   * @param {Object} pObjKeyInfo has got return value of keyCheck function.
    * @return {String} result string.
    */
-  function generateKeyString(keyInfo) {//{{{
-    if (toType(keyInfo) !== 'object') {
+  function generateKeyString(pObjKeyInfo) //{{{
+  {
+    if (toType(pObjKeyInfo) !== 'object') {
       throw new Error('Invalid type of argument.');
     }
 
-    var output = '';
-    if (keyInfo.meta) { output += 'Meta +'; }
-    if (keyInfo.ctrl) { output += 'Ctrl +'; }
-    if (keyInfo.alt) { output += 'Alt +'; }
-    if (keyInfo.shift) { output += 'Shift +'; }
+    var lStrOutput = '';
+    if (pObjKeyInfo.meta)  { lStrOutput += 'Meta +'; }
+    if (pObjKeyInfo.ctrl)  { lStrOutput += 'Ctrl +'; }
+    if (pObjKeyInfo.alt)   { lStrOutput += 'Alt +'; }
+    if (pObjKeyInfo.shift) { lStrOutput += 'Shift +'; }
 
-    output += ' ';
+    lStrOutput += ' ';
 
     /* refernece to
      * http://www.javascripter.net/faq/keycodes.htm */
-    switch (keyInfo.keyCode) {
-      case 8:   output += 'BackSpace'; break;
-      case 9:   output += 'Tab'; break;
-      case 12:  output += 'Numpad 5'; break;
-      case 13:  output += 'Enter'; break;
-      case 19:  output += 'Pause'; break;
-      case 20:  output += 'CapsLock'; break;
-      case 27:  output += 'Esc'; break;
-      case 32:  output += 'Space'; break;
-      case 33:  output += 'Page Up'; break;
-      case 34:  output += 'Page Down'; break;
-      case 35:  output += 'End'; break;
-      case 36:  output += 'Home'; break;
-      case 37:  output += 'Left'; break;
-      case 38:  output += 'Up'; break;
-      case 39:  output += 'Right'; break;
-      case 40:  output += 'Down'; break;
-      case 44:  output += 'PrintScreen'; break;
-      case 45:  output += 'Insert'; break;
-      case 46:  output += 'Delete'; break;
-      case 106: output += 'Numpad*'; break;
-      case 107: output += 'Numpad+'; break;
-      case 109: output += 'Numpad-'; break;
-      case 110: output += 'Numpad.'; break;
-      case 111: output += 'Numpad/'; break;
-      case 144: output += 'NumLock'; break;
-      case 145: output += 'ScrollLock'; break;
-      case 188: output += ','; break;
-      case 190: output += '.'; break;
-      case 191: output += '/'; break;
-      case 192: output += '`'; break;
-      case 219: output += '['; break;
-      case 220: output += '\\'; break;
-      case 221: output += ']'; break;
-      case 222: output += '\''; break;
+    switch (pObjKeyInfo.keyCode) {
+      case 8:   lStrOutput += 'BackSpace'; break;
+      case 9:   lStrOutput += 'Tab'; break;
+      case 12:  lStrOutput += 'Numpad 5'; break;
+      case 13:  lStrOutput += 'Enter'; break;
+      case 19:  lStrOutput += 'Pause'; break;
+      case 20:  lStrOutput += 'CapsLock'; break;
+      case 27:  lStrOutput += 'Esc'; break;
+      case 32:  lStrOutput += 'Space'; break;
+      case 33:  lStrOutput += 'Page Up'; break;
+      case 34:  lStrOutput += 'Page Down'; break;
+      case 35:  lStrOutput += 'End'; break;
+      case 36:  lStrOutput += 'Home'; break;
+      case 37:  lStrOutput += 'Left'; break;
+      case 38:  lStrOutput += 'Up'; break;
+      case 39:  lStrOutput += 'Right'; break;
+      case 40:  lStrOutput += 'Down'; break;
+      case 44:  lStrOutput += 'PrintScreen'; break;
+      case 45:  lStrOutput += 'Insert'; break;
+      case 46:  lStrOutput += 'Delete'; break;
+      case 106: lStrOutput += 'Numpad*'; break;
+      case 107: lStrOutput += 'Numpad+'; break;
+      case 109: lStrOutput += 'Numpad-'; break;
+      case 110: lStrOutput += 'Numpad.'; break;
+      case 111: lStrOutput += 'Numpad/'; break;
+      case 144: lStrOutput += 'NumLock'; break;
+      case 145: lStrOutput += 'ScrollLock'; break;
+      case 188: lStrOutput += ','; break;
+      case 190: lStrOutput += '.'; break;
+      case 191: lStrOutput += '/'; break;
+      case 192: lStrOutput += '`'; break;
+      case 219: lStrOutput += '['; break;
+      case 220: lStrOutput += '\\'; break;
+      case 221: lStrOutput += ']'; break;
+      case 222: lStrOutput += '\''; break;
       default:
-        if (48 <= keyInfo.keyCode && keyInfo.keyCode <= 57 || // 0 to 9
-            65 <= keyInfo.keyCode && keyInfo.keyCode <= 90) { // A to Z
-          output += String.fromCharCode(keyInfo.keyCode);
-        } else if (96 <= keyInfo.keyCode && keyInfo.keyCode <= 105) {
+        if (48 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 57 || // 0 to 9
+            65 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 90) { // A to Z
+          lStrOutput += String.fromCharCode(pObjKeyInfo.keyCode);
+        } else if (96 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 105) {
           // Numpad 0 to Numpad 9
-          output += 'Numpad ' + (keyInfo.keyCode - 96);
-        } else if (112 <= keyInfo.keyCode && keyInfo.keyCode <= 123) {
+          lStrOutput += 'Numpad ' + (pObjKeyInfo.keyCode - 96);
+        } else if (112 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 123) {
           // F1 to F12
-          output += 'F' + (keyInfo.keyCode - 111);
+          lStrOutput += 'F' + (pObjKeyInfo.keyCode - 111);
         } else {
           throw new Error('Invalid keyCode.');
         }
         break;
     }
 
-    return output.trim();
+    return lStrOutput.trim();
   }//}}}
 
   /* base program.
    * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
    */
-  function toType(obj) {//{{{
-    var type = ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
-    if (type === 'global') {
-      if (obj === void 0) { return 'undefined'; }
-      else if (obj === null) { return 'null'; }
+  function toType(pObj) {//{{{
+    var lStrType =
+      ({}).toString.call(pObj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+    if (lStrType === 'global') {
+      if (pObj === void 0)    { return 'undefined'; }
+      else if (pObj === null) { return 'null'; }
     }
-    return type;
+    return lStrType;
   }//}}}
 
   /**
    * 日付をフォーマットする
    * http://qiita.com/osakanafish/items/c64fe8a34e7221e811d0
-   * @param  {Date}   date     日付
-   * @param  {String} [format] フォーマット
+   * @param  {Date}   pDate     日付
+   * @param  {String} [pStrFormat] フォーマット
    * @return {String}          フォーマット済み日付
    */
-  function formatDate(date, format)//{{{
+  function formatDate(pDate, pStrFormat)//{{{
   {
-    if (!format) {
-      format = 'YYYY-MM-DD hh:mm:ss.SSS';
+    var lStrMilliSeconds = "";
+    var lNumLength       = 0;
+    var i                = 0;
+
+    if (!pStrFormat) {
+      pStrFormat = 'YYYY-MM-DD hh:mm:ss.SSS';
     }
-    format = format.replace(/YYYY/g, date.getFullYear());
-    format = format.replace(/MM/g, ('0' + (date.getMonth() + 1)).slice(-2));
-    format = format.replace(/DD/g, ('0' + date.getDate()).slice(-2));
-    format = format.replace(/hh/g, ('0' + date.getHours()).slice(-2));
-    format = format.replace(/mm/g, ('0' + date.getMinutes()).slice(-2));
-    format = format.replace(/ss/g, ('0' + date.getSeconds()).slice(-2));
-    if (format.match(/S/g)) {
-      var milliSeconds = ('00' + date.getMilliseconds()).slice(-3);
-      var length = format.match(/S/g).length;
-      var i = 0;
-      while (i < length) {
-        format = format.replace(/S/, milliSeconds.substring(i, i + 1));
+    pStrFormat = pStrFormat.replace(/YYYY/g, pDate.getFullYear());
+    pStrFormat = pStrFormat.replace(
+      /MM/g, ('0' + (pDate.getMonth() + 1)).slice(-2));
+    pStrFormat = pStrFormat.replace(/DD/g, ('0' + pDate.getDate()).slice(-2));
+    pStrFormat = pStrFormat.replace(/hh/g, ('0' + pDate.getHours()).slice(-2));
+    pStrFormat = pStrFormat.replace(
+      /mm/g, ('0' + pDate.getMinutes()).slice(-2));
+    pStrFormat = pStrFormat.replace(
+      /ss/g, ('0' + pDate.getSeconds()).slice(-2));
+    if (pStrFormat.match(/S/g)) {
+      lStrMilliSeconds = ('00' + pDate.getMilliseconds()).slice(-3);
+      lNumLength = pStrFormat.match(/S/g).length;
+      i = 0;
+      while (i < lNumLength) {
+        pStrFormat =
+          pStrFormat.replace(/S/, lStrMilliSeconds.substring(i, i + 1));
         ++i;
       }
     }
-    return format;
+    return pStrFormat;
   }//}}}
 
   /**
@@ -499,30 +542,31 @@
   function setObjectProperty()//{{{
   {
     console.log('setObjectProperty', arguments);
-    var args = Array.prototype.slice.call(arguments);
-    if (args.length < 2) {
+
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+    if (lArrayArgs.length < 2) {
       throw new Error('setObjectProperty arguments is less.');
     }
 
-    var obj = args[0];
-    var name = args[1];
-    var value = args[2];
-    if (toType(name) === 'function') {
-      if (name.name.length === 0) {
+    var lObjToAdd = lArrayArgs[0];
+    var lObjName  = lArrayArgs[1];
+    var lValue    = lArrayArgs[2];
+    if (toType(lObjName) === 'function') {
+      if (lObjName.name.length === 0) {
         throw new Error('a nameless function.');
       }
-      if (obj.hasOwnProperty(name.name)) {
-        throw new Error('Already had added to object.', obj, name.name);
+      if (lObjToAdd.hasOwnProperty(lObjName.name)) {
+        throw new Error('Already had added to object.', lArrayArgs);
       }
 
-      obj[name.name] = name;
+      lObjToAdd[lObjName.name] = lObjName;
       return;
     }
 
-    if (obj.hasOwnProperty(name)) {
-      throw new Error('Already had added to object.', obj, name, value);
+    if (lObjToAdd.hasOwnProperty(lObjName)) {
+      throw new Error('Already had added to object.', lArrayArgs);
     }
-    obj[name] = value;
+    lObjToAdd[lObjName] = lValue;
   }//}}}
 
   //{{{ method.

@@ -5,13 +5,13 @@
   // variables.//{{{
   var db = null;
 
-  var maxRecorsiveCount = 3;
+  var sNumMaxRecorsiveCount = 3;
 
-  const eIcon = document.querySelector('#favicon');
-  const eTitle = document.querySelector('#title');
-  const eUrl   = document.querySelector('#url');
+  const sElementIcon  = document.querySelector('#favicon');
+  const sElementTitle = document.querySelector('#title');
+  const sElementUrl   = document.querySelector('#url');
 
-  const F5Key = generateKeyString({
+  const gObjF5Key = generateKeyString({
     ctrl    : false,
     alt     : false,
     shift   : false,
@@ -22,43 +22,50 @@
 
   function navigateToPageBeforePurged()//{{{
   {
-    var args = getQueryString(document);
-    if (args.url) {
-      window.location.replace(args.url);
+    var lObjArgs = getQueryString(document);
+    if (lObjArgs.url) {
+      window.location.replace(lObjArgs.url);
     }
   }//}}}
 
   function getDataOfBeforeToPurge()//{{{
   {
-    var url = eUrl.textContent;
-    return ajax({ url: url, responseType: 'document' }).then(ret => {
-      if (ret.status === 200) {
-        var newTitle = ret.response.title;
-        if (newTitle) {
-          document.title = newTitle;
-          eTitle.textContent = newTitle;
-          eTitle.removeAttribute('style');
+    var lStrUrl      = "";
+    var lStrNewTitle = "";
+    var lElFavicon   = document.createDocumentFragment();
+    var lStrHost     = "";
 
-          var favicon = ret.response.querySelector('link[rel="shortcut icon"]');
-          var host = getHostName(url);
+    lStrUrl = sElementUrl.textContent;
+    return ajax({ url: lStrUrl, responseType: 'document' })
+    .then(pObjResult => {
+      if (pObjResult.status === 200) {
+        lStrNewTitle = pObjResult.response.title;
+        if (lStrNewTitle) {
+          document.title            = lStrNewTitle;
+          sElementTitle.textContent = lStrNewTitle;
+          sElementTitle.removeAttribute('style');
+
+          lElFavicon =
+            pObjResult.response.querySelector('link[rel="shortcut icon"]');
+          lStrHost   = getHostName(lStrUrl);
 
           db.add({
-            name: dbPageInfoName,
+            name: gStrDbPageInfoName,
             data: {
-              url: url,
-              title: newTitle || 'Unknown',
-              host: host,
+              url:   lStrUrl,
+              title: lStrNewTitle || 'Unknown',
+              host:  lStrHost,
             },
           });
 
-          if (favicon) {
-            getDataURI(favicon.href)
-            .then(iconDataURI => {
+          if (lElFavicon) {
+            getDataURI(lElFavicon.href)
+            .then(pStrIconDataURI => {
               db.add({
-                name: dbDataURIName,
+                name: gStrDbDataURIName,
                 data: {
-                  host: host,
-                  dataURI: iconDataURI,
+                  host:    lStrHost,
+                  dataURI: pStrIconDataURI,
                 }
               });
             });
@@ -71,81 +78,96 @@
 
   function loadPurgedTabInfo()
   {
+    var lObjArgs    = {};
+    var lStrUrl     = '';
+    var lStrName    = '';
+    var lStrFavicon = '';
+
+    var lElSpan = document.createDocumentFragment();
+    var lElA    = document.createDocumentFragment();
+    var lElHead = document.createDocumentFragment();
+    var lElLink = document.createDocumentFragment();
+
     return new Promise((resolve, reject) => {
-      var args = getQueryString(document);
+      lObjArgs = getQueryString(document);
 
       (() => {
         return new Promise(resolve => {
           chrome.runtime.sendMessage(
-            { event: 'check_purged_tab', url: args.url }, resolve);
+            { event: 'check_purged_tab', url: lObjArgs.url }, resolve);
         });
       })()
       .then(() => {
-        var span = eUrl;
-        while (span.firstChild) {
-          span.removeChild(span.firstChild);
+        lElSpan = sElementUrl;
+        while (lElSpan.firstChild) {
+          lElSpan.removeChild(lElSpan.firstChild);
         }
-        if (args.url) {
-          var url     = args.url;
-          var a       = document.createElement('a');
-          a.href      = url;
-          a.innerText = url;
-          span.appendChild(a);
+
+        if (lObjArgs.url) {
+          lStrUrl        = lObjArgs.url;
+          lElA           = document.createElement('a');
+          lElA.href      = lStrUrl;
+          lElA.innerText = lStrUrl;
+          lElSpan.appendChild(lElA);
         } else {
-          span.innerHTML = 'None';
+          lElSpan.innerHTML = 'None';
           reject(new Error("Doesn't get a purged url."));
           return;
         }
 
         return db.get({
-          name : dbPageInfoName,
-          key  : args.url,
+          name : gStrDbPageInfoName,
+          key  : lObjArgs.url,
         });
       })
       .then(pageInfo => {
         if (pageInfo === void 0 || pageInfo === null) {
-          document.title = eUrl.textContent;
-          eTitle.setAttribute('style', 'display: none');
+          document.title = sElementUrl.textContent;
+          sElementTitle.setAttribute('style', 'display: none');
+
           (() => {
-            var name = 'get_title_when_does_not_title';
-            chrome.storage.local.get(name, items => {
-              if (items.hasOwnProperty(name) &&
-                  items[name] === true &&
-                  maxRecorsiveCount >= 0) {
-                console.log('MaxRecorsiveCount is ', maxRecorsiveCount);
-                --maxRecorsiveCount;
-                getDataOfBeforeToPurge();
+            lStrName = 'get_title_when_does_not_title';
+            chrome.storage.local.get(lStrName, items => {
+              if (items.hasOwnProperty(lStrName) &&
+                  items[lStrName] === true &&
+                  sNumMaxRecorsiveCount >= 0) {
+                console.log('MaxRecorsiveCount is ', sNumMaxRecorsiveCount);
+
+                --sNumMaxRecorsiveCount;
+
+                getDataOfBeforeToPurge().then(resolve).catch(reject);
               } else {
                 reject(new Error("Doesn't get a title of a purged tab."));
               }
             });
           })();
         } else if (pageInfo.title === 'Unknown') {
-            db.delete({ name: dbPageInfoName, keys: pageInfo.url })
+            db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
             .then(getDataOfBeforeToPurge)
             .catch(reject);
         } else {
-          document.title = pageInfo.title;
-          eTitle.textContent = pageInfo.title;
+          document.title            = pageInfo.title;
+          sElementTitle.textContent = pageInfo.title;
         }
 
         return db.get({
-          name : dbDataURIName,
+          name : gStrDbDataURIName,
           key  : pageInfo.host,
         });
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
-          var favicon = dataURIInfo.dataURI;
+          lStrFavicon  = dataURIInfo.dataURI;
 
-          var head = document.querySelector('head');
-          var link = document.createElement('link');
-          link.rel  = 'shortcut icon';
-          link.href = decodeURIComponent(favicon);
-          head.appendChild(link);
+          lElHead      = document.querySelector('head');
+          lElLink      = document.createElement('link');
+          lElLink.rel  = 'shortcut icon';
+          lElLink.href = decodeURIComponent(lStrFavicon);
+          lElHead.appendChild(lElLink);
 
-          eIcon.src = favicon;
-          removeStringFromAttributeOfElement(eIcon, 'class', 'doNotShow');
+          sElementIcon.src = lStrFavicon;
+          removeStringFromAttributeOfElement(
+            sElementIcon, 'class', 'doNotShow');
         }
       })
       .then(resolve)
@@ -156,15 +178,15 @@
   document.addEventListener('click', navigateToPageBeforePurged, true);
 
   document.addEventListener('keydown', e => {//{{{
-    if (F5Key === generateKeyString(keyCheck(e))) {
+    if (gObjF5Key === generateKeyString(keyCheck(e))) {
       navigateToPageBeforePurged();
     }
   }, true);//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
     (() => {
-      db = new Database(dbName, dbVersion);
-      return db.open(dbCreateStores);
+      db = new Database(gStrDbName, gNumDbVersion);
+      return db.open(gObjDbCreateStores);
     })()
     .then(loadPurgedTabInfo);
   });//}}}
@@ -172,11 +194,11 @@
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{
       switch (message.event) {
         case 'location_replace':
-          var url = document.getElementById('url');
-          if (url.textContent.length === 0) {
+          var lStrUrl = document.getElementById('url');
+          if (lStrUrl.textContent.length === 0) {
             sendResponse(true);
           } else {
-            window.location.replace(url.textContent);
+            window.location.replace(lStrUrl.textContent);
             sendResponse(false);
           }
           break;

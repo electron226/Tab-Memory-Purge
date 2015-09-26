@@ -3,111 +3,112 @@
   "use strict";
 
   /* for this script. */
-  function setObjectProperty(obj, name, value)//{{{
+  function setObjectProperty(pObj, pStrName, pValue)//{{{
   {
-    console.log('setObjectProperty in common.js', obj, name, value);
-    if (obj.hasOwnProperty(name)) {
-      throw new Error('Already contain to + obj', name, value);
+    console.log('setObjectProperty in common.js', pObj, pStrName, pValue);
+    if (pObj.hasOwnProperty(pStrName)) {
+      throw new Error('Already contain to pObj', pStrName, pValue);
     }
-    obj[name] = value;
+    pObj[pStrName] = pValue;
   }//}}}
 
-  setObjectProperty(window, 'versionKey', 'version');
-  setObjectProperty(window, 'previousSessionTimeKey', 'previous_session_time');
+  setObjectProperty(window, 'gStrVersionKey', 'version');
+  setObjectProperty(window, 'gStrPreviousSessionTimeKey', 'previous_session_time');
 
   function closureExtensionOption()//{{{
   {
     /*jshint -W069*/
-    var config = new Map();
-    config.set('no_release', false);
-    config.set('timer', 20);
-    config.set('exclude_url',
+    var lStrKeybindDefault = JSON.stringify({});
+    var lMapConfig = new Map();
+    lMapConfig.set('no_release', false);
+    lMapConfig.set('timer', 20);
+    lMapConfig.set('exclude_url',
       '^https://\n' +
       '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
       'youtube.com'
     );
-    config.set('regex_insensitive', true);
-    config.set('enable_auto_purge', true);
-    config.set('remaiming_memory', 500);
-    config.set('max_history', 7);
-    config.set('max_sessions', 10);
-    config.set('purging_all_tabs_except_active', false);
-    config.set('max_opening_tabs', 5);
-    config.set('interval_timing', 5);
-    config.set('new_tab_opens_with_purged_tab', false);
-    config.set('get_title_when_does_not_title', false);
-    config.set('not_purge_playsound_tab', true);
+    lMapConfig.set('regex_insensitive', true);
+    lMapConfig.set('enable_auto_purge', true);
+    lMapConfig.set('remaiming_memory', 500);
+    lMapConfig.set('max_history', 7);
+    lMapConfig.set('max_sessions', 10);
+    lMapConfig.set('purging_all_tabs_except_active', false);
+    lMapConfig.set('max_opening_tabs', 5);
+    lMapConfig.set('interval_timing', 5);
+    lMapConfig.set('new_tab_opens_with_purged_tab', false);
+    lMapConfig.set('get_title_when_does_not_title', false);
+    lMapConfig.set('not_purge_playsound_tab', true);
 
-    config.set('keybind_release', JSON.stringify({}));
-    config.set('keybind_switch_not_release', JSON.stringify({}));
-    config.set('keybind_all_purge', JSON.stringify({}));
-    config.set('keybind_all_purge_without_exclude_list', JSON.stringify({}));
-    config.set('keybind_all_unpurge', JSON.stringify({}));
-    config.set('keybind_exclude_url',
+    lMapConfig.set('keybind_release', lStrKeybindDefault);
+    lMapConfig.set('keybind_switch_not_release', lStrKeybindDefault);
+    lMapConfig.set('keybind_all_purge', lStrKeybindDefault);
+    lMapConfig.set('keybind_all_purge_without_exclude_list', lStrKeybindDefault);
+    lMapConfig.set('keybind_all_unpurge', lStrKeybindDefault);
+    lMapConfig.set('keybind_exclude_url',
       'nicovideo.jp\n' +
       'youtube.com');
-    config.set('keybind_regex_insensitive', true);
-    config.set(window['versionKey'], chrome.app.getDetails());
-    config.set(window['previousSessionTimeKey'], null);
+    lMapConfig.set('keybind_regex_insensitive', true);
+    lMapConfig.set(window['gStrVersionKey'], chrome.app.getDetails());
+    lMapConfig.set(window['gStrPreviousSessionTimeKey'], null);
 
     return {
-      get: function(key) { return config.get(key); },
-      replace: function(key, value) {
-        if (config.has(key)) {
-          config.set(key, value);
+      get: function(pKey) { return lMapConfig.get(pKey); },
+      replace: function(pKey, pValue) {
+        if (lMapConfig.has(pKey)) {
+          lMapConfig.set(pKey, pValue);
         }
-        throw new Error("Doesn't exist key: " + key);
+        throw new Error(`Doesn't exist pKey: ${pKey}`);
       },
-      forEach: function(callback, thisArgs) {
-        if (toType(callback) !== 'function') {
-          throw new Error("callback isn't function");
+      forEach: function(pCallback, pThisArgs) {
+        if (toType(pCallback) !== 'function') {
+          throw new Error("pCallback isn't function");
         }
-        var iter = config.entries();
+        var iter = lMapConfig.entries();
         var i = iter.next();
         while (!i.done) {
-          callback.call(thisArgs, i.value[1], i.value[0], config);
+          pCallback.call(pThisArgs, i.value[1], i.value[0], lMapConfig);
           i = iter.next();
         }
       },
-      has:     function(key) { return config.has(key); },
-      entries: function()    { return config.entries(); },
-      keys:    function()    { return config.keys(); },
-      values:  function()    { return config.values(); },
+      has:     function(pKey) { return lMapConfig.has(pKey); },
+      entries: function()    { return lMapConfig.entries(); },
+      keys:    function()    { return lMapConfig.keys(); },
+      values:  function()    { return lMapConfig.values(); },
     };
   }//}}}
 
-  setObjectProperty(window, 'defaultValues', closureExtensionOption());
+  setObjectProperty(window, 'gMapDefaultValues', closureExtensionOption());
 
-  setObjectProperty(window, 'dbName', 'TMP_DB');
-  setObjectProperty(window, 'dbVersion', 2);
-  setObjectProperty(window, 'dbHistoryName', 'history');
-  setObjectProperty(window, 'dbDataURIName', 'dataURI');
-  setObjectProperty(window, 'dbPageInfoName', 'pageInfo');
-  setObjectProperty(window, 'dbSessionName', 'session');
-  setObjectProperty(window, 'dbSavedSessionName', 'savedSession');
+  setObjectProperty(window, 'gStrDbName', 'TMP_DB');
+  setObjectProperty(window, 'gNumDbVersion', 2);
+  setObjectProperty(window, 'gStrDbHistoryName', 'history');
+  setObjectProperty(window, 'gStrDbDataURIName', 'dataURI');
+  setObjectProperty(window, 'gStrDbPageInfoName', 'pageInfo');
+  setObjectProperty(window, 'gStrDbSessionName', 'session');
+  setObjectProperty(window, 'gStrDbSavedSessionName', 'savedSession');
 
-  var dbCreateStores = {};//{{{
-  dbCreateStores[window.dbHistoryName] = {
+  var lObjCreateStores = {};//{{{
+  lObjCreateStores[window.gStrDbHistoryName] = {
     property: {
       keyPath: 'date',
       autoIncrement: false,
     },
   };
-  dbCreateStores[window.dbDataURIName] = {
+  lObjCreateStores[window.gStrDbDataURIName] = {
     property: {
       keyPath: 'host',
       autoIncrement: false,
     },
   };
-  dbCreateStores[window.dbPageInfoName] = {
+  lObjCreateStores[window.gStrDbPageInfoName] = {
     property: {
       keyPath: 'url',
       autoIncrement: false,
     },
   };
-  dbCreateStores[window.dbSessionName] = {
+  lObjCreateStores[window.gStrDbSessionName] = {
     property: {
       keyPath: 'id',
       autoIncrement: true,
@@ -119,7 +120,7 @@
       },
     },
   };
-  dbCreateStores[window.dbSavedSessionName] = {
+  lObjCreateStores[window.gStrDbSavedSessionName] = {
     property: {
       keyPath: 'id',
       autoIncrement: true,
@@ -131,29 +132,28 @@
       },
     },
   };
-  setObjectProperty(window, 'dbCreateStores', dbCreateStores);//}}}
+  setObjectProperty(window, 'gObjDbCreateStores', lObjCreateStores);//}}}
 
-  var blankUrl = chrome.runtime.getURL('blank.html');
-  setObjectProperty(window, 'extensionExcludeUrl',
-      '^' + blankUrl
-  );
-  setObjectProperty(window, 'chromeExcludeUrl',
+  var gStrBlankUrl = chrome.runtime.getURL('blank.html');
+  setObjectProperty(window, 'gStrExtensionExcludeUrl', '^' + gStrBlankUrl);
+  setObjectProperty(window, 'gStrChromeExcludeUrl',
       '^chrome-*\\w*://\n' +
       '^view-source:\n' +
       '^file:///'
   );
 
+
   // initTranslationsでキー名を使用するときに使う。
   // どのファイルを選択しても問題ない。
-  setObjectProperty(window, 'translationPath',
+  setObjectProperty(window, 'gStrTranslationPath',
     chrome.runtime.getURL('_locales/ja/messages.json') ||
     chrome.runtime.getURL('_locales/en/messages.json'));
   // file of get scroll position of tab.
-  setObjectProperty(window, 'getScrollPosScript', 'js/load_scripts/getScrollPosition.js');
+  setObjectProperty(window, 'gStrGetScrollPosScript', 'js/load_scripts/getScrollPosition.js');
 
   // a value which represents of the exclude list.
-  var excludeValues = [
-    'DISABLE_TIMER',     // 1
+  var lArrayExcludeValues = [
+    'DISABLE_AUTOPURGE',     // 1
     'INVALID_EXCLUDE',   // 2
     'KEYBIND_EXCLUDE',   // 4
     'NORMAL',            // 8
@@ -161,38 +161,57 @@
     'TEMP_EXCLUDE',      // 32
     'EXTENSION_EXCLUDE', // 64
     'CHROME_EXCLUDE',    // 128
+    'EXTENSION_ICON_38', // 256
+    'EXTENSION_ICON_48', // 512
+    'EXTENSION_ICON_128', // 1024
   ];
   var i = 0;
-  while (i < excludeValues.length) {
-    setObjectProperty(window, excludeValues[i], 1 << i);
+  while (i < lArrayExcludeValues.length) {
+    setObjectProperty(window, lArrayExcludeValues[i], 1 << i);
     ++i;
   }
 
   // the path of icons.
   // defined NORMAL etc... in common.js.
-  var icons = new Map();
-  var iconNumbers = new Map();
-  iconNumbers.set(DISABLE_TIMER, 'icon_disable_timer');
-  iconNumbers.set(NORMAL, 'icon_019');
-  iconNumbers.set(USE_EXCLUDE, 'icon_019_use_exclude');
-  iconNumbers.set(TEMP_EXCLUDE, 'icon_019_temp_exclude');
-  iconNumbers.set(EXTENSION_EXCLUDE, 'icon_019_extension_exclude');
-  iconNumbers.set(CHROME_EXCLUDE, 'icon_019_extension_exclude');
+  var lMapIcons = new Map();
+  var lMapIconNumbers = new Map();
+  lMapIconNumbers.set(DISABLE_AUTOPURGE, 'icon_disable_timer');
+  lMapIconNumbers.set(NORMAL,            'icon_019');
+  lMapIconNumbers.set(USE_EXCLUDE,       'icon_019_use_exclude');
+  lMapIconNumbers.set(TEMP_EXCLUDE,      'icon_019_temp_exclude');
+  lMapIconNumbers.set(EXTENSION_EXCLUDE, 'icon_019_extension_exclude');
+  lMapIconNumbers.set(CHROME_EXCLUDE,    'icon_019_extension_exclude');
 
-  var keybindIconSuffix = '_with_keybind';
-  var iter = iconNumbers.entries();
-  for (i = iter.next(); !i.done; i = iter.next()) {
-    icons.set(i.value[0], chrome.runtime.getURL('img/icons/' + i.value[1] + '.png'));
-    icons.set(i.value[0] | KEYBIND_EXCLUDE,
-      chrome.runtime.getURL('img/icons/' + i.value[1] + keybindIconSuffix + '.png'));
+  var lStrIconDir           = 'img/icons/';
+  var lStrKeybindIconSuffix = '_with_keybind';
+  var iter = lMapIconNumbers.entries();
+  i    = iter.next();
+  while (!i.done) {
+    lMapIcons.set(i.value[0], chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}.png`));
+    lMapIcons.set(i.value[0] | KEYBIND_EXCLUDE,
+      chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}${lStrKeybindIconSuffix}.png`));
+    i = iter.next();
   }
-  setObjectProperty(window, 'icons', icons);
 
-  setObjectProperty(window, 'blankUrl', blankUrl);
-  setObjectProperty(window, 'optionPage', chrome.runtime.getURL('options.html'));
-  setObjectProperty(window, 'changeHistory', chrome.runtime.getURL('History.txt'));
+  var lMapMainIcons = new Map();
+  lMapMainIcons.set(EXTENSION_ICON_38, 'icon_038');
+  lMapMainIcons.set(EXTENSION_ICON_48, 'icon_048');
+  lMapMainIcons.set(EXTENSION_ICON_128, 'icon_128');
+
+  iter = lMapMainIcons.entries();
+  i    = iter.next();
+  while (!i.done) {
+    lMapIcons.set(i.value[0], chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}.png`));
+    i = iter.next();
+  }
+
+  setObjectProperty(window, 'gMapIcons', lMapIcons);
+
+  setObjectProperty(window, 'gStrBlankUrl', gStrBlankUrl);
+  setObjectProperty(window, 'gStrOptionPage', chrome.runtime.getURL('options.html'));
+  setObjectProperty(window, 'gStrChangeHistory', chrome.runtime.getURL('History.txt'));
   setObjectProperty(window, 'gStrDeleteIconPath', 'img/icons/close.svg');
   setObjectProperty(window, 'UPDATE_CONFIRM_DIALOG', 'TMP_UPDATE_CONFIRMATION_DIALOG');
   setObjectProperty(window, 'RESTORE_PREVIOUS_SESSION', 'TMP_RESTORE_PREVIOUS_SESSION');
-  setObjectProperty(window, 'updateCheckTime', 30 * 60 * 1000); // min * sec * Millisec.
+  setObjectProperty(window, 'gNumUpdateCheckTime', 30 * 60 * 1000); // min * sec * Millisec.
 })(this);

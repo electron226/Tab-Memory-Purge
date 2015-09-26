@@ -1,94 +1,114 @@
 (function(document) {
   "use strict";
 
-  var PREFIX = 'TMP_';
-  var XPATH = '//input | //textarea';
+  //{{{ the variables in this script.
+  var sStrPrefix = 'TMP_';
+  var sStrXPath  = '//input | //textarea';
+  //}}}
 
-  function checkSkipType(type)
+  function checkSkipType(pStrType)//{{{
   {
-    var SKIP_TYPE = [
-      'file', 'submit', 'image', 'reset', 'button',
-    ];
+    var lArraySkipType = [ 'file', 'submit', 'image', 'reset', 'button', ];
+    return lArraySkipType.some(v => pStrType === v);
+  }//}}}
 
-    return SKIP_TYPE.some(function(v) {
-      return type === v;
-    });
-  }
+  (function() {//{{{
+    var lSetRestored     = new Set();
+    var lElement         = document.createDocumentFragment();
+    var lElementSnapshot = null;
+    var lStrKeyName      = "";
+    var lValue           = null;
+    var iter             = lSetRestored.keys();
+    var i                = 0;
+    var j                = null;
 
-  (function() {
-    var restored = {};
-
-    var el, keyName, value;
-    var elements = document.evaluate(XPATH, document, null, 7, null);
-    for (var i = 0, len = elements.snapshotLength; i < len; i++) {
-      el = elements.snapshotItem(i);
-      if (el.name === void 0 || el.name === null || checkSkipType(el.type)) {
+    lElementSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
+    i = 0;
+    while (i < lElementSnapshot.snapshotLength) {
+      lElement = lElementSnapshot.snapshotItem(i);
+      if (lElement.name === void 0 ||
+          lElement.name === null ||
+          checkSkipType(lElement.type)) {
+        ++i;
         continue;
       }
 
-      keyName = PREFIX + el.name;
-      value   = sessionStorage.getItem(keyName);
-      value   = (toType(value) === 'string') ? JSON.parse(value) : value;
-      if (value === void 0 || value === null || value.length === 0) {
+      lStrKeyName = sStrPrefix + lElement.name;
+      lValue      = sessionStorage.getItem(lStrKeyName);
+      lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : lValue;
+      if (lValue === void 0 || lValue === null || lValue.length === 0) {
+        ++i;
         continue;
       }
 
-      switch (el.type) {
+      switch (lElement.type) {
       case 'checkbox':
       case 'radio':
-        /*jshint loopfunc: true*/
-        el.checked =
-          value.some(function(v) { return el.value === v; }) ? true : false;
+        lElement.checked =
+          lValue.some(v => (lElement.value === v)) ? true : false;
         break;
       default:
-        el.value = value.shift();
-        sessionStorage.setItem(keyName, JSON.stringify(value));
+        lElement.value = lValue.shift();
+        sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
         break;
       }
 
-      restored[keyName] = true;
+      lSetRestored.add(lStrKeyName);
+      ++i;
     }
 
-    for (var key in restored) {
-      if (restored.hasOwnProperty(key)) {
-        sessionStorage.removeItem(key);
-      }
+    iter = lSetRestored.keys();
+    j    = iter.next();
+    while (!j.done) {
+      sessionStorage.removeItem(j.value);
+      j = iter.next();
     }
-  })();
+  })();//}}}
 
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-    switch (message.event) {
+  chrome.runtime.onMessage.addListener(//{{{
+    (pObjMessage, pObjSender, pFuncSendResponse) => {
+    switch (pObjMessage.event) {
     case 'form_cache':
-      var el, keyName, value;
-      var elements = document.evaluate(XPATH, document, null, 7, null);
-      for (var i = 0, len = elements.snapshotLength; i < len; i++) {
-        el = elements.snapshotItem(i);
-        if (el.name === void 0 || el.name === null ||
-            el.value === void 0 || el.value === null || el.value === '' ||
-            checkSkipType(el.type)) {
+      var lElement    = document.createDocumentFragment();
+      var lElSnapshot = null;
+      var lStrKeyName = "";
+      var lValue      = null;
+      var i           = 0;
+
+      lElSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
+      i = 0;
+      while (i < lElSnapshot.snapshotLength) {
+        lElement = lElSnapshot.snapshotItem(i);
+        if (lElement.name === void 0 || lElement.name === null ||
+            lElement.value === void 0 || lElement.value === null ||
+            lElement.value === '' || checkSkipType(lElement.type)) {
+            ++i;
           continue;
         }
 
-        switch (el.type) {
+        switch (lElement.type) {
         case 'checkbox':
         case 'radio':
-          if (!el.checked) {
+          if (!lElement.checked) {
+            ++i;
             continue;
           }
           break;
         }
 
-        keyName = PREFIX + el.name;
-        value   = sessionStorage.getItem(keyName);
-        value   = (toType(value) === 'string') ? JSON.parse(value) : [];
+        lStrKeyName = sStrPrefix + lElement.name;
+        lValue      = sessionStorage.getItem(lStrKeyName);
+        lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : [];
 
-        value.push(el.value);
-        sessionStorage.setItem(keyName, JSON.stringify(value));
+        lValue.push(lElement.lValue);
+        sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
+        ++i;
       }
-      sendResponse();
+
+      pFuncSendResponse();
       break;
     }
-  });
+  });//}}}
 
   console.log('the form cache scripts of TAB MEMORY PURGE is loaded.');
 })(this.document);

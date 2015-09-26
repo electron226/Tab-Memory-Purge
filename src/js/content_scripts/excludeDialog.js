@@ -1,21 +1,22 @@
 (function(window, document) {
   "use strict";
 
-  function getNumber(target) {//{{{
-    var result = target.match(/(\d+)/);
-    if (result === null) {
+  function getNumber(pStrTarget) {//{{{
+    var lArrayResult = pStrTarget.match(/(\d+)/);
+    if (lArrayResult === null) {
       throw new Error("Doesn't get width and height.");
     } else {
-      return parseInt(result[1], 10);
+      return parseInt(lArrayResult[1], 10);
     }
   }//}}}
 
   function getPathNames()//{{{
   {
-    var replacedPathName = window.location.pathname.replace(/(^\/|\/$)/g, '');
-    var pathNameMatch = replacedPathName.split('/');
-    if (pathNameMatch && replacedPathName.length > 0) {
-      return pathNameMatch;
+    var lStrReplacedPathName =
+      window.location.pathname.replace(/(^\/|\/$)/g, '');
+    var lArrayPathName = lStrReplacedPathName.split('/');
+    if (lArrayPathName && lStrReplacedPathName.length > 0) {
+      return lArrayPathName;
     } else {
       return null;
     }
@@ -23,289 +24,321 @@
 
   function getHosts()//{{{
   {
-    var hostRegex = /^(\w+)[.]+(.*):*(\d*)/i;
-    var hostMatch = window.location.hostname.match(hostRegex);
-    if (hostMatch) {
-      return hostMatch.filter((v, i) => (i !== 0 && v !== ""));
+    var lRegexHost = /^(\w+)[.]+(.*):*(\d*)/i;
+    var lArrayHostMatch = window.location.hostname.match(lRegexHost);
+    if (lArrayHostMatch) {
+      return lArrayHostMatch.filter((v, i) => (i !== 0 && v !== ""));
     } else {
       return [ window.location.hostname ];
     }
   }//}}}
 
-  function initTextStyle(element)//{{{
+  function initTextStyle(pElement)//{{{
   {
-    element.style.fontFamily = 'sans-serif';
-    element.style.fontSize   = styleBaseFontSize;
-    textStyleLikeAdobe(element);
+    pElement.style.fontFamily = 'sans-serif';
+    pElement.style.fontSize   = sStrStyleBaseFontSize;
+    textStyleLikeAdobe(pElement);
   }//}}}
 
-  function textStyleLikeAdobe(element)//{{{
+  function textStyleLikeAdobe(pElement)//{{{
   {
-    element.style.color      = styleFontColor;
-    element.style.textshadow = '0 0 1px rgba(' + styleFontColor + ', .1)';
-    element.style.fontSmoothing = 'antialiased';
+    pElement.style.color      = sStrStyleFontColor;
+    pElement.style.textshadow = `0 0 1px rgba(${sStrStyleFontColor}, .1)`;
+    pElement.style.fontSmoothing = 'antialiased';
   }//}}}
 
-  // variable. //{{{
-  var styleBaseFontSize      = '12px';
-  var styleFontColor         = '#212121';
-  var stylePrimaryColor      = '#03A9F4';
-  var styleLightPrimaryColor = '#BBDEFB';
-  var styleBorderColor       = '#727272';
-
-  var hostname = window.location.hostname;
-  var pathname = '/*';
-
-  var hosts = getHosts();
-  var paths = getPathNames();
-
-  // デザイン
-  // http://www.cssdesk.com/PLetB
-  var br = document.createElement('br');
-  var div    = document.createElement('div');
-  initTextStyle(div);
-  var span   = document.createElement('span');
-  initTextStyle(span);
-  var button = document.createElement('button');
-  initTextStyle(button);
-  var input  = document.createElement('input');
-  initTextStyle(input);
-  input.type           = 'range';
-  input.style.position = "relative";
-  input.style.top      = "0.4em";
-  //}}}
-
-  // parent
   function createParentElement()//{{{
   {
-    var p = div.cloneNode();
-    p.style.position   = 'fixed';
-    p.style.background = styleLightPrimaryColor;
-    p.style.boxShadow  = "0px 1px 3px 0" + styleBorderColor;
-    p.style.width      = "42em";
-    p.style.height     = "32em";
-    p.style.display    = 'none';
-    p.style.zIndex     = '100';
+    var lElParentDiv = sElDiv.cloneNode();
+    lElParentDiv.style.position   = 'fixed';
+    lElParentDiv.style.background = sStrStyleLightPrimaryColor;
+    lElParentDiv.style.boxShadow  = `0px 1px 3px 0 ${sStrBorderColor}`;
+    lElParentDiv.style.width      = "42em";
+    lElParentDiv.style.height     = "32em";
+    lElParentDiv.style.display    = 'none';
+    lElParentDiv.style.zIndex     = '100';
 
-    p.style.left = (window.innerWidth -
-      getNumber(p.style.width) * getNumber(styleBaseFontSize)) / 2.0 + 'px';
-    p.style.top = (window.innerHeight -
-      getNumber(p.style.height) * getNumber(styleBaseFontSize)) / 2.0 + 'px';
+    lElParentDiv.style.left =
+      (window.innerWidth - getNumber(lElParentDiv.style.width) *
+      getNumber(sStrStyleBaseFontSize)) / 2.0 + 'px';
+    lElParentDiv.style.top =
+      (window.innerHeight - getNumber(lElParentDiv.style.height) *
+      getNumber(sStrStyleBaseFontSize)) / 2.0 + 'px';
 
-    return p;
-  }//}}}
-
-  var parent = createParentElement();
-
-  function close() {//{{{
-    parent.style.display = 'none';
+    return lElParentDiv;
   }//}}}
 
   // title
   function createTitleBar()//{{{
   {
-    var titleBar = div.cloneNode();
-    titleBar.style.padding    = '1em';
-    titleBar.style.fontWeight = 'bold';
-    titleBar.style.background = stylePrimaryColor;
+    var lElTitleBar       = sElDiv.cloneNode();
+    var lElTitle          = sElSpan.cloneNode();
+    var lElTitleBarButton = sElButton.cloneNode();
 
-    var title = span.cloneNode();
-    title.style.fontSize = '1.5em';
-    title.textContent = "Tab Memory Purge";
-    titleBar.appendChild(title);
+    lElTitleBar.style.padding    = '1em';
+    lElTitleBar.style.fontWeight = 'bold';
+    lElTitleBar.style.background = sStrStylePrimaryColor;
 
-    var titleBarButton = button.cloneNode();
-    titleBarButton.style.position = 'absolute';
-    titleBarButton.style.right    = '1em';
-    titleBarButton.textContent    = "x";
-    titleBarButton.onclick        = close;
-    titleBar.appendChild(titleBarButton);
+    lElTitle.style.fontSize = '1.5em';
+    lElTitle.textContent    = "Tab Memory Purge";
 
-    return titleBar;
+    lElTitleBarButton.style.position = 'absolute';
+    lElTitleBarButton.style.right    = '1em';
+    lElTitleBarButton.textContent    = "x";
+    lElTitleBarButton.onclick        = parentClose;
+
+    lElTitleBar.appendChild(lElTitle);
+    lElTitleBar.appendChild(lElTitleBarButton);
+
+    return lElTitleBar;
   }//}}}
-
-  parent.appendChild(createTitleBar());
 
   // inside exclude dialog.
   function createExcludeDialog()//{{{
   {
-    var insideExcludeDialog = div.cloneNode();
-    insideExcludeDialog.style.padding   = "1em";
-    insideExcludeDialog.style.textAlign = "center";
+    var lStrDialog     = sElDiv.cloneNode();
+    var lElUrl         = sElDiv.cloneNode();
+    var lElMessage1    = sElDiv.cloneNode();
+    var lElMessage2    = sElDiv.cloneNode();
+    var lElMessage2In1 = sElDiv.cloneNode();
+    var lElMessage2In2 = sElDiv.cloneNode();
+    var lElRangess     = sElDiv.cloneNode();
+    var lElSpanHost    = sElSpan.cloneNode();
+    var lElInputHost   = sElInput.cloneNode();
+    var lElPageSpan    = document.createDocumentFragment();
+    var lElPage        = document.createDocumentFragment();
 
-    var url            = div.cloneNode();
-    url.style.fontSize = '1.5em';
-    url.style.padding  = '2em 0';
-    url.textContent    = hostname + pathname;
+    lStrDialog.style.padding   = "1em";
+    lStrDialog.style.textAlign = "center";
 
-    var mes1 = div.cloneNode();
-    mes1.textContent = chrome.i18n.getMessage('exclude_dialog_mes1');
+    lElUrl.style.fontSize = '1.5em';
+    lElUrl.style.padding  = '2em 0';
+    lElUrl.textContent    = sStrUri;
 
-    var mes2        = div.cloneNode();
-    var mes2_inner1 = div.cloneNode();
-    var mes2_inner2 = div.cloneNode();
-    mes2_inner1.textContent = chrome.i18n.getMessage('exclude_dialog_mes2');
-    mes2_inner2.textContent = chrome.i18n.getMessage('exclude_dialog_mes3');
-    mes2.appendChild(mes2_inner1);
-    mes2.appendChild(mes2_inner2);
+    lElMessage1.textContent    = chrome.i18n.getMessage('exclude_dialog_mes1');
 
-    insideExcludeDialog.appendChild(mes1);
-    insideExcludeDialog.appendChild(url);
-    insideExcludeDialog.appendChild(mes2);
+    lElMessage2In1.textContent = chrome.i18n.getMessage('exclude_dialog_mes2');
+    lElMessage2In2.textContent = chrome.i18n.getMessage('exclude_dialog_mes3');
 
-    var ranges = div.cloneNode();
-    var hostSpan           = span.cloneNode();
-    hostSpan.style.padding = "0 1.5em;";
-    hostSpan.textContent   = "Host:";
-    var host   = input.cloneNode();
-    host.min   = 0;
-    host.max   = hosts.length-1;
-    host.value = 0;
-    host.addEventListener('change', e => {
-      hostname = window.location.hostname;
-      var hosts = getHosts();
-      for (var i = 0, len = e.target.value; i < len; i++) {
-        hostname = hostname.replace(hosts[i], '*');
+    lElSpanHost.style.padding = "0 1.5em;";
+    lElSpanHost.textContent   = "Host:";
+
+    lElInputHost.min   = 0;
+    lElInputHost.max   = sArrayHosts.length-1;
+    lElInputHost.value = 0;
+    lElInputHost.addEventListener('change', pEvent => {
+      var i   = 0;
+      var lStrHostName = sStrHostName;
+
+      i = 0;
+      while (i < pEvent.target.value) {
+        lStrHostName = lStrHostName.replace(sArrayHosts[i], '*');
+        ++i;
       }
-      url.textContent = hostname + pathname;
+      lElUrl.textContent = lStrHostName + sStrPathName;
     });
-    hostSpan.appendChild(host);
-    ranges.appendChild(hostSpan);
 
-    if (paths) {
-      var pageSpan = hostSpan.cloneNode();
-      pageSpan.textContent = "Page:";
+    lElMessage2.appendChild(lElMessage2In1);
+    lElMessage2.appendChild(lElMessage2In2);
 
-      var page = input.cloneNode();
-      page.value = 0;
-      page.min   = 0;
-      page.max   = paths.length;
-      page.addEventListener('change', e => {
-        pathname = '';
-        for (var i = 0, len = e.target.value; i < len; i++) {
-          pathname += '/' + paths[i];
+    lStrDialog.appendChild(lElMessage1);
+    lStrDialog.appendChild(lElUrl);
+    lStrDialog.appendChild(lElMessage2);
+
+    lElSpanHost.appendChild(lElInputHost);
+    lElRangess.appendChild(lElSpanHost);
+
+    if (sArrayPaths) {
+      lElPageSpan = lElSpanHost.cloneNode();
+      lElPageSpan.textContent = "Page:";
+
+      lElPage = sElInput.cloneNode();
+      lElPage.value = 0;
+      lElPage.min   = 0;
+      lElPage.max   = sArrayPaths.length;
+      lElPage.addEventListener('change', pEvent => {
+        var i   = 0;
+        var lStrPathName = '';
+
+        i = 0;
+        while (i < pEvent.target.value) {
+          lStrPathName += '/' + sArrayPaths[i];
+          ++i;
         }
-        pathname += (page.max > e.target.value) ? '/*' : '/';
-        url.textContent = hostname + pathname;
+        lStrPathName += (lElPage.max > pEvent.target.value) ? '/*' : '/';
+        lElUrl.textContent = sStrHostName + lStrPathName;
       });
 
-      pageSpan.appendChild(page);
-      ranges.appendChild(pageSpan);
+      lElPageSpan.appendChild(lElPage);
+      lElRangess.appendChild(lElPageSpan);
     }
 
-    insideExcludeDialog.appendChild(ranges);
+    lStrDialog.appendChild(lElRangess);
 
-    return insideExcludeDialog;
+    return lStrDialog;
   }//}}}
 
-  parent.appendChild(createExcludeDialog());
-
-  // buttons
-  var excludeDialogButtons = div.cloneNode();
-  excludeDialogButtons.style.position  = "absolute";
-  excludeDialogButtons.style.right     = "1em";
-  excludeDialogButtons.style.bottom    = "1em";
-  excludeDialogButtons.style.textAlign = "right";
-
-  var excludeButtonTemplate = button.cloneNode();
-  excludeButtonTemplate.style.width  = '16em';
-  excludeButtonTemplate.style.margin = '0.16em';
-
-  function setAddUrlToExcludeList(storageName)//{{{
+  function setAddUrlToExcludeList(pStrStorageName)//{{{
   {
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get(storageName, items => {
+      chrome.storage.local.get(pStrStorageName, pArrayItems => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError));
           return;
         }
-        var uri    = hostname + pathname;
-        var addUri = uri.replace(/\*/g, '').replace(/\/$/g, '');
+        var lArrayCheckItems = [];
+        var lObjWrite        = {};
+        var lStrAddUri       = "";
+        var lStrItem         = "";
+        var lBoolExclude     = false;
 
-        var item = items[storageName];
-        item = item.replace(/\n$/, '').trim();
+        lStrAddUri = sStrUri.replace(/\*/g, '').replace(/\/$/g, '');
 
-        var checkItems = item.split('\n');
-        var i = 0;
-        while (i < checkItems.length) {
-          if (checkItems[i].trim() === addUri) {
-            resolve();
-            return;
-          }
-          ++i;
+        lStrItem = pArrayItems[pStrStorageName];
+        lStrItem = lStrItem.replace(/\n$/, '').trim();
+
+        lArrayCheckItems = lStrItem.split('\n');
+        lBoolExclude = lArrayCheckItems.some(pValue => {
+          return pValue.trim() === lStrAddUri;
+        });
+        if (lBoolExclude) {
+          resolve();
+          return;
         }
 
-        item += '\n' + addUri;
+        lStrItem += '\n' + lStrAddUri;
 
-        var write = {};
-        write[storageName] = item;
-        chrome.storage.local.set(write, resolve);
+        lObjWrite = {};
+        lObjWrite[pStrStorageName] = lStrItem;
+        chrome.storage.local.set(lObjWrite, resolve);
       });
     });
   }//}}}
 
-  function addExclusionListClicked(optionName)//{{{
+  function addExclusionListClicked(pStrOptionName)//{{{
   {
-    setAddUrlToExcludeList(optionName)
+    setAddUrlToExcludeList(pStrOptionName)
     .then(() => {
       chrome.runtime.sendMessage(
         { event: 'load_options_and_reload_current_tab' });
-      close();
-    },
-    error => console.error(error));
+      parentClose();
+    })
+    .catch(pErr => console.error(pErr));
   }//}}}
 
-  var toExcludeListBtn = excludeButtonTemplate.cloneNode();
-  toExcludeListBtn.textContent =
-    chrome.i18n.getMessage('exclude_dialog_add_to_exclude_list');
-  toExcludeListBtn.addEventListener('click', () => {
-    addExclusionListClicked('exclude_url');
-  });
-
-  var toKeybindExcludeListBtn = excludeButtonTemplate.cloneNode();
-  toKeybindExcludeListBtn.textContent =
-    chrome.i18n.getMessage('exclude_dialog_add_to_keybind_exclude_list');
-  toKeybindExcludeListBtn.addEventListener('click', () => {
-    addExclusionListClicked('keybind_exclude_url');
-  });
-
-  var toTempExcludeListBtn = excludeButtonTemplate.cloneNode();
-  toTempExcludeListBtn.textContent =
-    chrome.i18n.getMessage('exclude_dialog_add_to_temp_exclude_list');
-  toTempExcludeListBtn.addEventListener('click', () => {
-    var uri = hostname + pathname;
-    chrome.runtime.sendMessage({ event: 'add_to_temp_exclude_list', url: uri });
-    close();
-  });
-
-  var cancelBtn = excludeButtonTemplate.cloneNode();
-  cancelBtn.textContent = chrome.i18n.getMessage('cancel');
-  cancelBtn.onclick     = close;
-
-  var buttons = [
-    toExcludeListBtn, toKeybindExcludeListBtn, toTempExcludeListBtn ];
-  var i = 0;
-  while (i < buttons.length) {
-    excludeDialogButtons.appendChild(buttons[i]);
-    excludeDialogButtons.appendChild(br);
-    ++i;
-  }
-  excludeDialogButtons.appendChild(cancelBtn);
-
-  // add to parent.
-  parent.appendChild(excludeDialogButtons);
-
-  // show.
-  var body = document.getElementsByTagName('body')[0];
-  body.appendChild(parent);
+  function parentClose() {//{{{
+    sElParent.style.display = 'none';
+  }//}}}
 
   chrome.runtime.onMessage.addListener(message => {//{{{
     switch (message.event) {
       case 'showExcludeDialog':
-        parent.style.display = 'block';
+        sElParent.style.display = 'block';
         break;
     }
   });//}}}
+
+  //{{{ variable in script.
+  var sStrStyleBaseFontSize      = '12px';
+  var sStrStyleFontColor         = '#212121';
+  var sStrStylePrimaryColor      = '#03A9F4';
+  var sStrStyleLightPrimaryColor = '#BBDEFB';
+  var sStrBorderColor            = '#727272';
+
+  var sStrHostName = window.location.hostname;
+  var sStrPathName = '/*';
+  var sStrUri      = sStrHostName + sStrPathName;
+
+  var sArrayHosts = getHosts();
+  var sArrayPaths = getPathNames();
+
+  // main elements.
+  var lElBody   = document.getElementsByTagName('body')[0];
+  var sElParent = document.createDocumentFragment();
+  var sElBr     = document.createElement('br');
+  var sElDiv    = document.createElement('div');
+  var sElSpan   = document.createElement('span');
+  var sElButton = document.createElement('button');
+  var sElInput  = document.createElement('input');
+  initTextStyle(sElDiv);
+  initTextStyle(sElSpan);
+  initTextStyle(sElButton);
+  initTextStyle(sElInput);
+  sElInput.type           = 'range';
+  sElInput.style.position = "relative";
+  sElInput.style.top      = "0.4em";
+
+  // clone elements.
+  var sElExcludeDialogButtons        = document.createDocumentFragment();
+  var sElExcludeButtonTemplate       = document.createDocumentFragment();
+  var sElAddExcludeListButton        = document.createDocumentFragment();
+  var sElAddKeybindExcludeListButton = document.createDocumentFragment();
+  var sElAddTempExcludeListButton    = document.createDocumentFragment();
+  var sElCancelButton                = document.createDocumentFragment();
+
+  var sArrayButtons = [];
+  //}}}
+
+  // buttons
+  sElExcludeDialogButtons                 = sElDiv.cloneNode();
+  sElExcludeDialogButtons.style.position  = "absolute";
+  sElExcludeDialogButtons.style.right     = "1em";
+  sElExcludeDialogButtons.style.bottom    = "1em";
+  sElExcludeDialogButtons.style.textAlign = "right";
+
+  sElExcludeButtonTemplate              = sElButton.cloneNode();
+  sElExcludeButtonTemplate.style.width  = '16em';
+  sElExcludeButtonTemplate.style.margin = '0.16em';
+
+  sElAddExcludeListButton        = sElExcludeButtonTemplate.cloneNode();
+  sElAddKeybindExcludeListButton = sElExcludeButtonTemplate.cloneNode();
+  sElAddTempExcludeListButton    = sElExcludeButtonTemplate.cloneNode();
+
+  sElAddExcludeListButton.textContent =
+    chrome.i18n.getMessage('exclude_dialog_add_to_exclude_list');
+  sElAddExcludeListButton.addEventListener('click', () => {
+    addExclusionListClicked('exclude_url');
+  });
+
+  sElAddKeybindExcludeListButton.textContent =
+    chrome.i18n.getMessage('exclude_dialog_add_to_keybind_exclude_list');
+  sElAddKeybindExcludeListButton.addEventListener('click', () => {
+    addExclusionListClicked('keybind_exclude_url');
+  });
+
+  sElAddTempExcludeListButton.textContent =
+    chrome.i18n.getMessage('exclude_dialog_add_to_temp_exclude_list');
+  sElAddTempExcludeListButton.addEventListener('click', () => {
+    var lStrUri = sStrHostName + sStrPathName;
+    chrome.runtime.sendMessage(
+      { event: 'add_to_temp_exclude_list', url: lStrUri });
+    parentClose();
+  });
+
+  sElCancelButton             = sElExcludeButtonTemplate.cloneNode();
+  sElCancelButton.textContent = chrome.i18n.getMessage('cancel');
+  sElCancelButton.onclick     = parentClose;
+
+  // be adding the elements to parent elements.
+  sElParent = createParentElement();
+  sElParent.appendChild(createTitleBar());
+  sElParent.appendChild(createExcludeDialog());
+
+  sArrayButtons = [
+    sElAddExcludeListButton,
+    sElAddKeybindExcludeListButton,
+    sElAddTempExcludeListButton
+  ];
+  sArrayButtons.forEach(v => {
+    sElExcludeDialogButtons.appendChild(v);
+    sElExcludeDialogButtons.appendChild(sElBr);
+  });
+  sElExcludeDialogButtons.appendChild(sElCancelButton);
+
+  sElParent.appendChild(sElExcludeDialogButtons); // add to parent.
+
+  // show.
+  lElBody.appendChild(sElParent);
 
   console.debug("exclude Dialog of Tab Memory Purge is loaded.");
 })(this, this.document);

@@ -251,7 +251,7 @@
 
 
   "switchTimer": {
-    "message": "The purging timer to enable or disable.",
+    "message": "The automatic purged to enable or disable.",
     "description": "The menu item on the right click popup menu."
   },
   "add_current_tab_exclude_list": {

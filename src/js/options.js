@@ -82,8 +82,8 @@
   };
 
   var sMapExcludeKeyNames = new Set();
-  sMapExcludeKeyNames.add(versionKey);
-  sMapExcludeKeyNames.add(previousSessionTimeKey);
+  sMapExcludeKeyNames.add(gStrVersionKey);
+  sMapExcludeKeyNames.add(gStrPreviousSessionTimeKey);
   //}}}
 
   var OperateOptionValue = function() {//{{{
@@ -182,7 +182,7 @@
     });
   };//}}}
   OperateOptionValue.prototype.init = function(pElement) {//{{{
-    return this.load(pElement, defaultValues);
+    return this.load(pElement, gMapDefaultValues);
   };//}}}
   OperateOptionValue.prototype.load = function(pElement, pObjOpts) {//{{{
     var $this         = this;
@@ -231,7 +231,7 @@
     return new Promise(resolve => {
       chrome.storage.local.get(items => {
         lResult = new Map();
-        defaultValues.forEach((v, key) => {
+        gMapDefaultValues.forEach((v, key) => {
           lResult.set(key, items.hasOwnProperty(key) ? items[key] : v);
         });
         resolve(lResult);
@@ -397,7 +397,7 @@
 
       history.pushState(name,
         `${document.title} ${chrome.i18n.getMessage(name)}`,
-        `${optionPage}?page=${name}`);
+        `${gStrOptionPage}?page=${name}`);
     });
   }//}}}
 
@@ -504,7 +504,7 @@
     var lElChangeHistory = document.createDocumentFragment();
 
     return new Promise(resolve => {
-      ajax({ url: changeHistory, responseType: 'text' })
+      ajax({ url: gStrChangeHistory, responseType: 'text' })
       .then(result => {
         lElChangeHistory =
           document.querySelector(`#${sStrIdNameOfChangeHistory}`);
@@ -776,7 +776,7 @@
       }
 
       db.put({
-        name: dbSavedSessionName,
+        name: gStrDbSavedSessionName,
         data: arrayNewSessions,
       })
       .then(resolve)
@@ -790,7 +790,7 @@
       var lElSessionTitle =
         document.querySelector(`#${sStrIdNameOfSessionTitle}`);
       var lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
-      var lArrayDbNames   = [ dbSessionName, dbSavedSessionName ];
+      var lArrayDbNames   = [ gStrDbSessionName, gStrDbSavedSessionName ];
       var lArrayPromise   = [];
       var lArraySessions  = [];
       var lArrayDelKeys   = [];
@@ -868,7 +868,7 @@
   function closureCreateSessionDateList(obj)//{{{
   {
     //{{{ local variable.
-    const lStrDbName       = obj.databaseName;
+    const gStrDbName       = obj.databaseName;
     const lElToAddDateList = obj.dateList;
     const lElToAddItemList = obj.itemList;
     const lNumCurrentTime  = obj.currentTime;
@@ -973,7 +973,7 @@
     {
       var lCreateHistoryItem = closureCreateHistoryItem(
         Object.assign(sObjOptsForCreateHistoryItem, {
-          databaseName: lStrDbName,
+          databaseName: gStrDbName,
           deleteFunc:   removeSessionHistoryItem,
         })
       );
@@ -1120,7 +1120,7 @@
           return;
         }
 
-        lNumCurrentSessionTime = rObjItems[previousSessionTimeKey];
+        lNumCurrentSessionTime = rObjItems[gStrPreviousSessionTimeKey];
         if (lNumCurrentSessionTime === void 0 ||
             lNumCurrentSessionTime === null) {
           resolve();
@@ -1176,7 +1176,7 @@
             lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
 
           lCreateSavedSessionDateList = closureCreateSessionDateList({
-            databaseName: dbSavedSessionName,
+            databaseName: gStrDbSavedSessionName,
             dateList:     lElAddSavedSessionDateListLocation,
             itemList:     lElAddLocationWhereSessionList,
           });
@@ -1184,12 +1184,12 @@
         }
 
         //{{{ session list.
-        chrome.storage.local.get(previousSessionTimeKey, items => {
-          lNumCurrentTime = items[previousSessionTimeKey];
+        chrome.storage.local.get(gStrPreviousSessionTimeKey, items => {
+          lNumCurrentTime = items[gStrPreviousSessionTimeKey];
 
           // new
           lCreateSessionDateList = closureCreateSessionDateList({
-            databaseName: dbSessionName,
+            databaseName: gStrDbSessionName,
             dateList:     lElAddSessionDateListLocation,
             itemList:     lElAddLocationWhereSessionList,
             currentTime:  lNumCurrentTime,
@@ -1232,10 +1232,10 @@
       }
 
       lArrayPromise = [];
-      lArrayPromise.push( db.getAll({ name: dbSavedSessionName }) );
-      lArrayPromise.push( db.getAll({ name: dbSessionName }) );
-      lArrayPromise.push( db.getAll({ name: dbPageInfoName }) );
-      lArrayPromise.push( db.getAll({ name: dbDataURIName }) );
+      lArrayPromise.push( db.getAll({ name: gStrDbSavedSessionName }) );
+      lArrayPromise.push( db.getAll({ name: gStrDbSessionName }) );
+      lArrayPromise.push( db.getAll({ name: gStrDbPageInfoName }) );
+      lArrayPromise.push( db.getAll({ name: gStrDbDataURIName }) );
 
       Promise.all(lArrayPromise)
       .then(rResults => {
@@ -1292,13 +1292,13 @@
       var lHistoryList       = lHistoryDateField.parentNode;
 
       db.getCursor({
-        name:  dbHistoryName,
+        name:  gStrDbHistoryName,
         range: IDBKeyRange.bound(lBegin.getTime(), lEnd.getTime()),
       })
       .then(histories => {
         lDelKeys = histories.map(v => v.date);
         return db.delete({
-          name: dbHistoryName,
+          name: gStrDbHistoryName,
           keys: lDelKeys,
         });
       })
@@ -1386,7 +1386,7 @@
     };
     var lNumWindowId   = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId));
     var lDateTime      = parseInt(lTarget.getAttribute('name'));
-    var lArrayDbName   = [ dbSessionName, dbSavedSessionName ];
+    var lArrayDbName   = [ gStrDbSessionName, gStrDbSavedSessionName ];
     var lArrayPromise  = [];
     var lArraySessions = [];
     var lArrayDelKeys  = [];
@@ -1562,7 +1562,7 @@
     }
 
     //{{{ local variable
-    var lStrDbName                  = pObj.databaseName;
+    var gStrDbName                  = pObj.databaseName;
     var lFuncDelete                 = pObj.deleteFunc;
     var lStrAttrNameOfDatabase      = pObj.attrNameOfDatabase || 'database';
     var lStrClassNameOfHistoryItem  = pObj.className || 'historyItem';
@@ -1591,7 +1591,7 @@
         lElSection, 'class', lStrClassNameOfHistoryItem);
       addStringToAttributeOfElement(lElSection, 'class', 'ellipsis');
       addStringToAttributeOfElement(
-        lElSection, lStrAttrNameOfDatabase, lStrDbName);
+        lElSection, lStrAttrNameOfDatabase, gStrDbName);
 
       addStringToAttributeOfElement(lElDeleteIcon, 'src', gStrDeleteIconPath);
       addStringToAttributeOfElement(lElDeleteIcon, 'alt', 'Delete button');
@@ -1648,7 +1648,7 @@
 
       if (lObjOpts.deleteButton) {
         lElDeleteButton.setAttribute('name', pItem.date);
-        lElDeleteButton.setAttribute(lStrAttrNameOfDatabase, lStrDbName);
+        lElDeleteButton.setAttribute(lStrAttrNameOfDatabase, gStrDbName);
         lElDeleteButton.addEventListener('click', lFuncDelete, true);
         if (pItem.hasOwnProperty('id')) {
           lElDeleteButton.setAttribute(lStrAttrNameOfItemId, pItem.id);
@@ -1706,7 +1706,7 @@
         lElCreateHistoryItem =
           closureCreateHistoryItem(
             Object.assign(sObjOptsForCreateHistoryItem,
-              { databaseName: dbHistoryName }));
+              { databaseName: gStrDbHistoryName }));
 
         i = 0;
         while (i < historyArray.length) {
@@ -1748,7 +1748,7 @@
         return;
       }
 
-      getHistoryListFromIndexedDB(db, dbHistoryName)
+      getHistoryListFromIndexedDB(db, gStrDbHistoryName)
       .then(resolve)
       .catch(reject);
     });
@@ -1910,6 +1910,7 @@
       document.querySelector(`#${sStrIdNameOfSessionDelete}`);
     var lElSessionRestore =
       document.querySelector(`#${sStrIdNameOfSessionRestore}`);
+
     var commonFunc = function(pEvent) {//{{{
       return new Promise((resolve, reject)=> {
         (() => {
@@ -2028,12 +2029,12 @@
 
     (() => {
       return new Promise(resolve => {
-        db = new Database(dbName, dbVersion);
-        db.open(dbCreateStores);
+        db = new Database(gStrDbName, gNumDbVersion);
+        db.open(gObjDbCreateStores);
         resolve();
       });
     }())
-    .then(loadTranslation(document, translationPath))
+    .then(loadTranslation(document, gStrTranslationPath))
     .then(operateOption.load(document))
     .then(initSectionBarEvent(document))
     .then(initOptionElementEvent(document))
