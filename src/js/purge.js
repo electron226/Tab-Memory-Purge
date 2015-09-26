@@ -2395,9 +2395,9 @@
           break;
         case 'keybind_check_exclude_list':
           lNumState = checkExcludeList(pObjMessage.location.href);
-          pFuncSendResponse(lNumState ^
+          pFuncSendResponse(!(lNumState &
             (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
-             KEYBIND_EXCLUDE | INVALID_EXCLUDE));
+             KEYBIND_EXCLUDE | INVALID_EXCLUDE)));
           break;
         case 'switchTimerState':
           switchDisableTimerState()
