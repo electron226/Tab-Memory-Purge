@@ -865,13 +865,13 @@
     chrome.runtime.sendMessage({ event: 'restore', session: lArrayRestore });
   }//}}}
 
-  function closureCreateSessionDateList(obj)//{{{
+  function closureCreateSessionDateList(pObjOpts)//{{{
   {
     //{{{ local variable.
-    const gStrDbName       = obj.databaseName;
-    const lElToAddDateList = obj.dateList;
-    const lElToAddItemList = obj.itemList;
-    const lNumCurrentTime  = obj.currentTime;
+    const gStrDbName       = pObjOpts.databaseName;
+    const lElToAddDateList = pObjOpts.dateList;
+    const lElToAddItemList = pObjOpts.itemList;
+    const lNumCurrentTime  = pObjOpts.currentTime;
     if (lElToAddDateList === void 0 || lElToAddDateList === null) {
       throw new Error("dateList isn't found in arguments");
     }
@@ -1694,7 +1694,6 @@
     return new Promise((resolve, reject) => {
       getAllHistory()
       .then(historyArray => {
-        console.log(historyArray);
         historyArray = historyArray.reverse();
 
         showAutoCompleteDateList(historyArray);
