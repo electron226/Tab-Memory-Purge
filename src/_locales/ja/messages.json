@@ -159,6 +159,18 @@
     "message": "音を再生中のタブは自動的に解放しない",
     "description": "オプションの項目"
   },
+  "restore_to_current_window": {
+    "message": "現在のウインドウに復元",
+    "description": "セッション履歴の復元タイプ"
+  },
+  "restore_to_new_window": {
+    "message": "新しいウインドウを作成して復元",
+    "description": "セッション履歴の復元タイプ"
+  },
+  "restore_to_original_window": {
+    "message": "元のウインドウに復元",
+    "description": "セッション履歴の復元タイプ"
+  },
 
 
   "specification": {

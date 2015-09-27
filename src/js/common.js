@@ -41,6 +41,8 @@
     lMapConfig.set('get_title_when_does_not_title', false);
     lMapConfig.set('not_purge_playsound_tab', true);
 
+    lMapConfig.set('restored_type', 'restore_to_current_window');
+
     lMapConfig.set('keybind_release', lStrKeybindDefault);
     lMapConfig.set('keybind_switch_not_release', lStrKeybindDefault);
     lMapConfig.set('keybind_all_purge', lStrKeybindDefault);

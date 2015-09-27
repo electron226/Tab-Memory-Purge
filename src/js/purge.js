@@ -1398,25 +1398,6 @@
   var restore = (function() {//{{{
     console.log('create closure of restore.');
 
-    function isWindow(pWindowId)//{{{
-    {
-      console.log('isWindow in closure of restore.', pWindowId);
-
-      return new Promise((resolve, reject) => {
-        if (pWindowId) {
-          chrome.tabs.query({ windowId: pWindowId }, rTabs => {
-            if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError.message));
-              return;
-            }
-            resolve(rTabs.length !== 0);
-          });
-        } else {
-          resolve(false);
-        }
-      });
-    }//}}}
-
     function restoreTab(pSession)//{{{
     {
       console.log('restoreTab in closure of restore.', pSession);
@@ -1489,72 +1470,133 @@
       });
     }//}}}
 
-    function restoreSessions(pNumWinId, pArraySessions)//{{{
+    function restoreSessionsInCurrentOrOriginal(//{{{
+      pNumWinId, pArraySessions, pStrRestoreType)
     {
-      console.log(
-        'restoreSessions in closure if restore',
-        pNumWinId, pArraySessions.slice());
+      console.log('restoreSessionsInCurrentOrOriginal in closure of restore.',
+        Array.prototype.slice.call(arguments));
 
       return new Promise((resolve, reject) => {
         var lObjSession   = {};
         var lArrayPromise = [];
         var rMapResult    = new Map();
-        var iter         = rMapResult.entries();
-        var iterPos      = iter.next();
-        var i            = 0;
+        var iter          = rMapResult.entries();
+        var iterPos       = iter.next();
+        var i             = 0;
 
-        isWindow(pNumWinId)
-        .then(isWin => {
-          if (isWin) {
-            // restore tab to window of winId.
-            while (i < pArraySessions.length) {
-              lObjSession          = pArraySessions[i];
-              lObjSession.windowId = pNumWinId;
-              lArrayPromise.push( restoreTab(lObjSession) );
-              ++i;
-            }
-
-            return Promise.all(lArrayPromise).then(results => {
-              rMapResult = new Map();
-              i = 0;
-              while (i < results.length) {
-                iter      = results[i].entries();
-                iterPos   = iter.next();
-                while (!iterPos.done) {
-                  rMapResult.set(iterPos.value[0], iterPos.value[1]);
-                  iterPos = iter.next();
-                }
-                ++i;
-              }
-              return rMapResult;
-            });
+        // restore tab to window of winId.
+        lArrayPromise = [];
+        i = 0;
+        while (i < pArraySessions.length) {
+          lObjSession          = pArraySessions[i];
+          if (pStrRestoreType === 'restore_to_original_window') {
+            lObjSession.windowId = pNumWinId;
           } else {
-            // create window. therefore, to restore.
-            return restoreWindow(pArraySessions);
+            delete lObjSession.windowId;
           }
+          lArrayPromise.push( restoreTab(lObjSession) );
+          ++i;
+        }
+
+        Promise.all(lArrayPromise).then(results => {
+          rMapResult = new Map();
+          i = 0;
+          while (i < results.length) {
+            iter      = results[i].entries();
+            iterPos   = iter.next();
+            while (!iterPos.done) {
+              rMapResult.set(iterPos.value[0], iterPos.value[1]);
+              iterPos = iter.next();
+            }
+            ++i;
+          }
+          return rMapResult;
         })
         .then(resolve)
         .catch(reject);
       });
     }//}}}
 
-    return function(pSessions) {//{{{
-      console.log('restore', Array.prototype.slice.call(pSessions));
+    function restoreSessions(pNumWinId, pArraySessions, pStrRestoreType)//{{{
+    {
+      console.log(
+        'restoreSessions in closure if restore',
+        pNumWinId, pArraySessions.slice(), pStrRestoreType);
+      var lArrayArgs = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
-        var lNumWinId      = 0;
-        var lNumTabId      = 0;
-        var lArrayList     = [];
-        var lArraySession  = {};
-        var lArrayPromise  = [];
-        var lMapEachWindow = new Map();
-        var iter           = lMapEachWindow.entries();
-        var iterPos        = iter.next();
-        var i              = 0;
+        switch (pStrRestoreType) {
+        case 'restore_to_current_window':
+          restoreSessionsInCurrentOrOriginal.apply(null, lArrayArgs)
+          .then(resolve)
+          .catch(reject);
+          break;
+        case 'restore_to_original_window':
+          (function(pWindowId) {
+            return new Promise((resolve, reject) => {
+              if (pWindowId) {
+                chrome.tabs.query({ windowId: pWindowId }, rTabs => {
+                  if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                    return;
+                  }
+                  resolve(rTabs.length !== 0);
+                });
+              } else {
+                resolve(false);
+              }
+            });
+          })(pNumWinId)
+          .then(isWin => {
+            if (isWin) {
+              return restoreSessionsInCurrentOrOriginal.apply(null, lArrayArgs);
+            } else {
+              // create window. therefore, to restore.
+              return restoreWindow(pArraySessions);
+            }
+          })
+          .then(resolve)
+          .catch(reject);
+          break;
+        case 'restore_to_new_window':
+          restoreWindow(pArraySessions)
+          .then(resolve)
+          .catch(reject);
+          break;
+        }
+      });
+    }//}}}
+
+    return function(pArraySessions, pStrRestoreType) {//{{{
+      console.log('restore', Array.prototype.slice.call(arguments));
+
+      return new Promise((resolve, reject) => {
+        var lArrayList                      = [];
+        var lArraySession                   = {};
+        var lArrayPromise                   = [];
+        var lStrRestoreTypeOptName          = "";
+        var lNumWinId                       = 0;
+        var lNumTabId                       = 0;
+        var lMapEachWindow                  = new Map();
+        var iter                            = lMapEachWindow.entries();
+        var iterPos                         = iter.next();
+        var i                               = 0;
+
+        if (pStrRestoreType === void 0 || pStrRestoreType === null) {
+          lStrRestoreTypeOptName = 'restored_type';
+          pStrRestoreType = (sMapOptions.get(lStrRestoreTypeOptName) ||
+                             gMapDefaultValues.get(lStrRestoreTypeOptName));
+        }
+
+        if (toType(pStrRestoreType) !== 'string') {
+          throw new Error(
+            "Invalid arguments, pStrRestoreType isn't string type: " +
+            `${toType(pStrRestoreType)}`);
+        }
 
         i = 0;
-        while (i < pSessions.length) {
-          lArraySession = pSessions[i];
+        while (i < pArraySessions.length) {
+          lArraySession = pArraySessions[i];
           lNumWinId     = lArraySession.windowId;
           lArrayList    = lMapEachWindow.get(lNumWinId) || [];
           lArrayList.push(lArraySession);
@@ -1566,8 +1608,8 @@
         iter          = lMapEachWindow.entries();
         iterPos       = iter.next();
         while (!iterPos.done) {
-          lArrayPromise.push(
-            restoreSessions(iterPos.value[0], iterPos.value[1]));
+          lArrayPromise.push(restoreSessions(
+              iterPos.value[0], iterPos.value[1], pStrRestoreType));
           iterPos = iter.next();
         }
 

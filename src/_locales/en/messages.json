@@ -163,6 +163,18 @@
     "message": "Doesn't purge the playing sound tab automatically.",
     "description": "the item of the options."
   },
+  "restore_to_current_window": {
+    "message": "Restore to current window",
+    "description": "The restored type of the session history."
+  },
+  "restore_to_new_window": {
+    "message": "Restore to a new window",
+    "description": "The restored type of the session history."
+  },
+  "restore_to_original_window": {
+    "message": "Restore to the original window",
+    "description": "The restored type of the session history."
+  },
 
   "specification": {
     "message": "Brief description of specification.",

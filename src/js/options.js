@@ -100,14 +100,14 @@
     var $this    = this;
     var lObjOpts = {};
     var lElement = document.createDocumentFragment();
+    var lElSelect = document.createDocumentFragment();
 
     return new Promise((resolve, reject) => {
       if (pStrType === void 0 || pStrType === null) {
         pStrType = 'get';
       }
 
-      lElement = pElement.querySelector(
-        `input[name="${pStrName}"], textarea[name="${pStrName}"]`);
+      lElement = pElement.querySelector(`[name="${pStrName}"`);
       if (lElement) {
         try {
           lObjOpts = {
@@ -130,6 +130,26 @@
               valueType: (lElement.type === 'number') ? 'number' : 'string',
             });
             break;
+          case 'select-one':
+            lElSelect = lElement.querySelectorAll('option');
+            if (pStrType === 'get') {
+              Array.prototype.slice.call(lElSelect).forEach(pValue => {
+                if (pValue.selected === true) {
+                  resolve(pValue.getAttribute('value'));
+                }
+              });
+            } else {
+              Array.prototype.slice.call(lElSelect).forEach(pValue => {
+                if (pValue.getAttribute('value') === pStrValue) {
+                  console.log('select set', pStrValue);
+                  pValue.selected = true;
+                } else {
+                  console.log('select not set', pStrValue);
+                  pValue.selected = false;
+                }
+              });
+            }
+            return;
           default:
             reject(new Error(
               `Doesn't write the code of each element type.` +
@@ -139,9 +159,8 @@
 
           $this._call(lObjOpts).then(resolve).catch(reject);
           return;
-        } catch (e) {
-          reject(new Error(`(Value = ${pStrValue}) is not` +
-                           ` ${lElement.type} type. name: ${pStrName}`));
+        } catch (pErr) {
+          reject(new Error(pErr));
           return;
         }
       }
@@ -1976,11 +1995,15 @@
   {
     var lElInput    = document.createDocumentFragment();
     var lElTextarea = document.createDocumentFragment();
+    var lElSelect   = document.createDocumentFragment();
     var lElItem     = document.createDocumentFragment();
     var i           = 0;
 
     return new Promise(resolve => {
-      lElInput = pEvent.querySelectorAll("input");
+      lElInput    = pEvent.querySelectorAll("input");
+      lElTextarea = pEvent.querySelectorAll("textarea");
+      lElSelect   = pEvent.querySelectorAll("select");
+
       i = 0;
       while (i < lElInput.length) {
         lElItem = lElInput[i];
@@ -1989,11 +2012,17 @@
         ++i;
       }
 
-      lElTextarea = pEvent.querySelectorAll("textarea");
       i = 0;
       while (i < lElTextarea.length) {
         lElItem = lElTextarea[i];
         lElItem.addEventListener('keyup', updateOptionValueToStorage, true);
+        ++i;
+      }
+
+      i = 0;
+      while (i < lElSelect.length) {
+        lElItem = lElSelect[i];
+        lElItem.addEventListener('change', updateOptionValueToStorage, true);
         ++i;
       }
       resolve();
