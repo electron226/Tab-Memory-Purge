@@ -28,7 +28,7 @@
     }
   }//}}}
 
-  function getDataOfBeforeToPurge()//{{{
+  function getDataOfBeforeToPurge(pNumRecorsiveCount)//{{{
   {
     var lStrUrl      = "";
     var lStrNewTitle = "";
@@ -71,12 +71,12 @@
             });
           }
         }
-        return loadPurgedTabInfo();
+        return loadPurgedTabInfo(--pNumRecorsiveCount);
       }
     });
   }//}}}
 
-  function loadPurgedTabInfo()
+  function loadPurgedTabInfo(pNumRecorsiveCount)
   {
     var lObjArgs    = {};
     var lStrUrl     = '';
@@ -89,6 +89,14 @@
     var lElLink = document.createDocumentFragment();
 
     return new Promise((resolve, reject) => {
+      if (pNumRecorsiveCount !== void 0 && pNumRecorsiveCount !== null) {
+        pNumRecorsiveCount = sNumMaxRecorsiveCount;
+      } else if (toType(pNumRecorsiveCount) !== 'number') {
+        reject(
+          new Error("Invalid arguments. pNumRecorsiveCount is not number."));
+        return;
+      }
+
       lObjArgs = getQueryString(document);
 
       (() => {
@@ -121,6 +129,11 @@
         });
       })
       .then(pageInfo => {
+        if (sNumMaxRecorsiveCount < 0) {
+          reject(new Error("Doesn't get a title of a purged tab."));
+          return;
+        }
+
         if (pageInfo === void 0 || pageInfo === null) {
           document.title = sElementUrl.textContent;
           sElementTitle.setAttribute('style', 'display: none');
@@ -133,27 +146,30 @@
                   sNumMaxRecorsiveCount >= 0) {
                 console.log('MaxRecorsiveCount is ', sNumMaxRecorsiveCount);
 
-                --sNumMaxRecorsiveCount;
-
-                getDataOfBeforeToPurge().then(resolve).catch(reject);
+                getDataOfBeforeToPurge(pNumRecorsiveCount)
+                .then(resolve)
+                .catch(reject);
               } else {
                 reject(new Error("Doesn't get a title of a purged tab."));
+                return;
               }
             });
           })();
-        } else if (pageInfo.title === 'Unknown') {
-            db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
-            .then(getDataOfBeforeToPurge)
-            .catch(reject);
+        } else if (!pageInfo.hasOwnProperty('title') ||
+                    pageInfo.title === 'Unknown') {
+          db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
+          .then(getDataOfBeforeToPurge(pNumRecorsiveCount))
+          .then(resolve)
+          .catch(reject);
         } else {
           document.title            = pageInfo.title;
           sElementTitle.textContent = pageInfo.title;
-        }
 
-        return db.get({
-          name : gStrDbDataURIName,
-          key  : pageInfo.host,
-        });
+          return db.get({
+            name : gStrDbDataURIName,
+            key  : pageInfo.host,
+          });
+        }
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
