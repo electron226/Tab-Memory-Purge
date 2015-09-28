@@ -179,10 +179,22 @@
     var lStrValueType = pObj.valueType;
     var lAnyVal       = (lStrType === 'get') ?
                         lElement[lStrProperty] : lStrValue;
+    var lNumMax       = 0;
+    var lNumMin       = 0;
 
     return new Promise((resolve, reject) => {
       if (lStrValueType === 'number') {
-        lAnyVal = parseInt(lAnyVal, 10);
+        lNumMin = parseInt(lElement.getAttribute('min'));
+        lNumMax = parseInt(lElement.getAttribute('max'));
+        lAnyVal = parseInt(lAnyVal);
+
+        if (lNumMin && lAnyVal < lNumMin) {
+          lAnyVal = lNumMin;
+          lElement.value = lNumMin;
+        } else if (lNumMax && lNumMax < lAnyVal){
+          lAnyVal = lNumMax;
+          lElement.value = lNumMax;
+        }
       }
 
       if (toType(lAnyVal) !== lStrValueType) {
