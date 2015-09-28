@@ -109,7 +109,13 @@
             var lDBRequest = (pStrType === 'add') ?
                       lDBStore.add(lObjData[i]) : lDBStore.put(lObjData[i]);
             lDBRequest.onsuccess = resolve;
-            lDBRequest.onerror   = reject;
+            lDBRequest.onerror   = function(pErr) {
+              var newError = new Error(
+                `storeName: ${lStrStoreName}, ` +
+                `name: ${pErr.target.error.name}, ` +
+                `message: ${pErr.target.error.message}`);
+              reject(newError);
+            };
           })
         );
         ++i;
