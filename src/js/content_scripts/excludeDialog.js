@@ -104,16 +104,19 @@
     var lElMessage2In2 = sElDiv.cloneNode();
     var lElRangess     = sElDiv.cloneNode();
     var lElSpanHost    = sElSpan.cloneNode();
-    var lElInputHost   = sElInput.cloneNode();
+    var lElInputHost   = document.createDocumentFragment();
     var lElPageSpan    = document.createDocumentFragment();
     var lElPage        = document.createDocumentFragment();
+    var lStrHostName   = sStrHostName;
+    var lStrPathName   = sStrPathName;
 
     lStrDialog.style.padding   = "1em";
     lStrDialog.style.textAlign = "center";
 
+    lElUrl.setAttribute('id', sStrIdNameOfTargetUrl);
     lElUrl.style.fontSize = '1.5em';
     lElUrl.style.padding  = '2em 0';
-    lElUrl.textContent    = sStrUri;
+    lElUrl.textContent    = sStrHostName + '/*';
 
     lElMessage1.textContent    = chrome.i18n.getMessage('exclude_dialog_mes1');
 
@@ -123,19 +126,18 @@
     lElSpanHost.style.padding = "0 1.5em;";
     lElSpanHost.textContent   = "Host:";
 
+    lStrHostName   = sStrHostName;
+
+    lElInputHost   = sElInput.cloneNode();
     lElInputHost.min   = 0;
     lElInputHost.max   = sArrayHosts.length-1;
     lElInputHost.value = 0;
     lElInputHost.addEventListener('change', pEvent => {
-      var i   = 0;
-      var lStrHostName = sStrHostName;
-
-      i = 0;
-      while (i < pEvent.target.value) {
-        lStrHostName = lStrHostName.replace(sArrayHosts[i], '*');
-        ++i;
+      for (var i = 0; i < pEvent.target.value; i = (i + 1) | 0) {
+        lStrHostName =
+          lStrHostName.replace(new RegExp(`${sArrayHosts[i]}[.]*`), '*');
       }
-      lElUrl.textContent = lStrHostName + sStrPathName;
+      lElUrl.textContent = lStrHostName + lStrPathName;
     });
 
     lElMessage2.appendChild(lElMessage2In1);
@@ -151,22 +153,19 @@
     if (sArrayPaths) {
       lElPageSpan = lElSpanHost.cloneNode();
       lElPageSpan.textContent = "Page:";
-
-      lElPage = sElInput.cloneNode();
-      lElPage.value = 0;
+      
+      lElPage       = sElInput.cloneNode();
       lElPage.min   = 0;
       lElPage.max   = sArrayPaths.length;
+      lElPage.value = 0;
       lElPage.addEventListener('change', pEvent => {
-        var i   = 0;
-        var lStrPathName = '';
+        lStrPathName = '';
 
-        i = 0;
-        while (i < pEvent.target.value) {
+        for (var i = 0; i < pEvent.target.value; i = (i + 1) | 0) {
           lStrPathName += '/' + sArrayPaths[i];
-          ++i;
         }
         lStrPathName += (lElPage.max > pEvent.target.value) ? '/*' : '/';
-        lElUrl.textContent = sStrHostName + lStrPathName;
+        lElUrl.textContent = lStrHostName + lStrPathName;
       });
 
       lElPageSpan.appendChild(lElPage);
@@ -178,12 +177,26 @@
     return lStrDialog;
   }//}}}
 
+  function getAddUrl()//{{{
+  {
+    var lElAddUrl  = document.createDocumentFragment();
+    var lStrAddUri = "";
+
+    lElAddUrl  = sElParent.querySelector(`#${sStrIdNameOfTargetUrl}`);
+    lStrAddUri = lElAddUrl.textContent
+                          .replace(/\*/g, '')
+                          .replace(/\/$/g, '')
+                          .replace(/^\./, '');
+
+    return lStrAddUri;
+  }//}}}
+
   function setAddUrlToExcludeList(pStrStorageName)//{{{
   {
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(pStrStorageName, pArrayItems => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
         var lArrayCheckItems = [];
@@ -192,10 +205,9 @@
         var lStrItem         = "";
         var lBoolExclude     = false;
 
-        lStrAddUri = sStrUri.replace(/\*/g, '').replace(/\/$/g, '');
-
-        lStrItem = pArrayItems[pStrStorageName];
-        lStrItem = lStrItem.replace(/\n$/, '').trim();
+        lStrAddUri = getAddUrl();
+        lStrItem   = pArrayItems[pStrStorageName];
+        lStrItem   = lStrItem.replace(/\n$/, '').trim();
 
         lArrayCheckItems = lStrItem.split('\n');
         lBoolExclude = lArrayCheckItems.some(pValue => {
@@ -247,10 +259,12 @@
 
   var sStrHostName = window.location.hostname;
   var sStrPathName = '/*';
-  var sStrUri      = sStrHostName + sStrPathName;
 
   var sArrayHosts = getHosts();
   var sArrayPaths = getPathNames();
+
+  // idNames
+  var sStrIdNameOfTargetUrl   = "_TMP_ADDURL";
 
   // main elements.
   var lElBody   = document.getElementsByTagName('body')[0];
@@ -309,7 +323,7 @@
   sElAddTempExcludeListButton.textContent =
     chrome.i18n.getMessage('exclude_dialog_add_to_temp_exclude_list');
   sElAddTempExcludeListButton.addEventListener('click', () => {
-    var lStrUri = sStrHostName + sStrPathName;
+    var lStrUri = getAddUrl();
     chrome.runtime.sendMessage(
       { event: 'add_to_temp_exclude_list', url: lStrUri });
     parentClose();
