@@ -755,16 +755,17 @@
     return function(pTab) {
       console.log('writeHistory', Object.assign({}, pTab));
 
-      var lDateNow      = new Date();
-      var lDateBegin    = new Date();
-      var lNumYear      = 0;
-      var lNumMonth     = 0;
-      var lNumDay       = 0;
-      var lStrTabUrl    = "";
-      var lStrTabTitle  = "";
-      var lStrHost      = "";
-      var lArrayDelKeys = [];
-      var lArrayPromise = [];
+      var lDateNow         = new Date();
+      var lDateBegin       = new Date();
+      var lNumYear         = 0;
+      var lNumMonth        = 0;
+      var lNumDay          = 0;
+      var lStrTabUrl       = "";
+      var lStrTabTitle     = "";
+      var lStrHost         = "";
+      var lStrUnknownTitle = 'Unknown';
+      var lArrayDelKeys    = [];
+      var lArrayPromise    = [];
 
       return new Promise((resolve, reject) => {
         lStrTabUrl = pTab.url;
@@ -804,7 +805,27 @@
           });
         })
         .then(() => {
-          lStrTabTitle = pTab.title || 'Unknown';
+          return new Promise((resolve, reject) => {
+            if (sMapOptions.get('get_title_when_does_not_title') === true &&
+                !pTab.title) {
+              ajax({ url:lStrTabUrl, responseType: 'document' })
+              .then(pObjResult => {
+                if (pObjResult.status === 200) {
+                  resolve(pObjResult.response.title || lStrUnknownTitle);
+                  return;
+                } else {
+                  reject(new Error("Doesn't get title with ajax."));
+                  return;
+                }
+              });
+            } else {
+              resolve(pTab.title || lStrUnknownTitle);
+              return;
+            }
+          });
+        })
+        .then(pStrTitle => {
+          lStrTabTitle = pStrTitle;
           lStrHost     = getHostName(lStrTabUrl);
 
           lArrayPromise = [];
