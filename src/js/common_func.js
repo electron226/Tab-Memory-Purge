@@ -486,6 +486,8 @@
 
   /* base program.
    * http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator/
+   *
+   * I have added about NaN
    */
   function toType(pObj) {//{{{
     var lStrType =
@@ -493,6 +495,8 @@
     if (lStrType === 'global') {
       if (pObj === void 0)    { return 'undefined'; }
       else if (pObj === null) { return 'null'; }
+    } else if (lStrType === 'number') {
+      if (isNaN(pObj)) { return 'NaN'; }
     }
     return lStrType;
   }//}}}
