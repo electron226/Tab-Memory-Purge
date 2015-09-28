@@ -56,7 +56,7 @@
   var sNumUnloadedCount   = 0;
   var sBoolUnloadedChange = false;
   Object.observe(sObjUnloaded, pArrayChanges => {//{{{
-    console.log('sObjUnloaded was changed.', Object.assign({}, pArrayChanges));
+    console.info('sObjUnloaded was changed.', Object.assign({}, pArrayChanges));
 
     var lNumTabId = 0;
     pArrayChanges.forEach(v => {
@@ -101,7 +101,7 @@
    */
   function getParameterByName(pUrl, pName)//{{{
   {
-    console.log('getParameterByName', pUrl, pName);
+    console.info('getParameterByName', pUrl, pName);
 
     var lRegParameter = new RegExp(`[\\?&]${pName}\s*=\s*([^&#]*)`);
     var lStrResults   = lRegParameter.exec(decodeURIComponent(pUrl));
@@ -118,7 +118,7 @@
    */
   function getPurgeURL(pUrl)//{{{
   {
-    console.log('getPurgeURL', pUrl);
+    console.info('getPurgeURL', pUrl);
 
     var lStrPage = gStrBlankUrl;
     var lStrArgs = '&url=' + encodeURIComponent(pUrl).replace(/%20/g, '+');
@@ -131,7 +131,7 @@
    */
   function autoPurgeCheck()//{{{
   {
-    console.log('purgeCheck() in closureAutoPurgeCheck');
+    console.info('purgeCheck() in closureAutoPurgeCheck');
 
     var gNumRemaimingMemory = 0;
     var iter                = sMapTicked.entries();
@@ -173,12 +173,12 @@
    * @return {promise} return promise.
    */
   var exclusiveProcessForFunc = (function() {//{{{
-    console.log('create closure of exclusiveProcessForFunc');
+    console.info('create closure of exclusiveProcessForFunc');
 
     var lSetLocks          = new Set();
 
     return function() {
-      console.log('exclusiveProcessForFunc',
+      console.info('exclusiveProcessForFunc',
         Array.prototype.slice.call(arguments));
 
       var lArrayArgs         = Array.prototype.slice.call(arguments);
@@ -266,7 +266,7 @@
 
   function loadScrollPosition(pNumTabId)//{{{
   {
-    console.log('loadScrollPosition', pNumTabId);
+    console.info('loadScrollPosition', pNumTabId);
 
     var lNumPos = 0;
 
@@ -293,7 +293,7 @@
 
   function purgingAllTabsExceptForTheActiveTab()//{{{
   {
-    console.log('purgingAllTabsExceptForTheActiveTab');
+    console.info('purgingAllTabsExceptForTheActiveTab');
 
     var lArrayPromise         = [];
     var lArrayNotReleasePages = [];
@@ -349,7 +349,7 @@
    */
   function isLackTheMemory(pCriteriaMemorySize)//{{{
   {
-    console.log('isLackTheMemory', pCriteriaMemorySize);
+    console.info('isLackTheMemory', pCriteriaMemorySize);
 
     var lNumRatio = 0;
 
@@ -381,7 +381,7 @@
   // Therefore, the callback function of setInterval is called.
   function intervalProcess(pIntervalTime)//{{{
   {
-    console.log('initializeIntervalProcess', pIntervalTime);
+    console.info('initializeIntervalProcess', pIntervalTime);
 
     var lStrIntervalName = 'main';
     var pIntervalId      = 0;
@@ -442,7 +442,7 @@
   
   function deleteOldDatabase()//{{{
   {
-    console.log('deleteOldDatabase');
+    console.info('deleteOldDatabase');
 
     var lArrayPromise = [];
 
@@ -461,7 +461,7 @@
 
   function deleteOldSession()//{{{
   {
-    console.log('deleteOldSession');
+    console.info('deleteOldSession');
 
     var lArrayDelKeys   = [];
     var lSetDate        = new Set();
@@ -519,7 +519,7 @@
 
   function deleteOldHistory()//{{{
   {
-    console.log('deleteOldHistory');
+    console.info('deleteOldHistory');
 
     var lDateNow       = new Date();
     var lNumMaxHistory = 0;
@@ -554,7 +554,7 @@
 
   function deleteNotUsePageInfo()//{{{
   {
-    console.log('deleteNotUsePageInfo');
+    console.info('deleteNotUsePageInfo');
 
     var lArrayPageInfos     = [];
     var lArrayHistories     = [];
@@ -629,7 +629,7 @@
 
   function deleteNotUseDataURI()//{{{
   {
-    console.log('deleteNotUseDataURI');
+    console.info('deleteNotUseDataURI');
 
     var lArrayPromise   = [];
     var lArrayDataURIs  = [];
@@ -676,7 +676,7 @@
 
   function writeSession(pUnloaded)//{{{
   {
-    console.log('writeSession', Object.assign({}, pUnloaded));
+    console.info('writeSession', Object.assign({}, pUnloaded));
 
     var lArraySessionWrites = [];
     var lArrayDelKeys       = [];
@@ -720,8 +720,8 @@
               lObjItem.url !== void 0 && lObjItem.url !== null &&
               lObjItem.url.length > 0) {
             lArraySessionWrites.push({
-              date: lNumNowTime,
-              url: lObjItem.url,
+              date:     lNumNowTime,
+              url:      lObjItem.url,
               windowId: lObjItem.windowId
             });
           } else {
@@ -748,12 +748,12 @@
   }//}}}
 
   var writeHistory = (function() {//{{{
-    console.log('create closure of writeHistory');
+    console.info('create closure of writeHistory');
 
     var lSetWrite     = new Set();
 
     return function(pTab) {
-      console.log('writeHistory', Object.assign({}, pTab));
+      console.info('writeHistory', Object.assign({}, pTab));
 
       var lDateNow         = new Date();
       var lDateBegin       = new Date();
@@ -795,7 +795,6 @@
           return db.delete({ name: gStrDbHistoryName, keys: lArrayDelKeys });
         })
         .then(() => {
-          // history
           return db.add({
             name: gStrDbHistoryName,
             data: {
@@ -879,7 +878,7 @@
 
   function deleteAllPurgedTabUrlFromHistory()//{{{
   {
-    console.log('deleteAllPurgedTabUrlFromHistory');
+    console.info('deleteAllPurgedTabUrlFromHistory');
 
     var lRegBlankUrl   = new RegExp(`^${gStrBlankUrl}`, 'i');
     var lArrayPromise  = [];
@@ -942,7 +941,7 @@
    */
   function isReleasePage(pUrl)//{{{
   {
-    console.log('isReleasePage', pUrl);
+    console.info('isReleasePage', pUrl);
     return pUrl.indexOf(gStrBlankUrl) === 0;
   }//}}}
 
@@ -971,7 +970,7 @@
   */
   function checkMatchUrlString(pUrl, pObjExclude)//{{{
   {
-    console.log('checkMatchUrlString', pUrl, Object.assign({}, pObjExclude));
+    console.info('checkMatchUrlString', pUrl, Object.assign({}, pObjExclude));
 
     var lRegExpUrl    = null;
     var lArrayExclude = pObjExclude.list.split('\n');
@@ -998,7 +997,7 @@
    */
   function getTargetExcludeList(pTarget)//{{{
   {
-    console.log('getTargetExcludeList', pTarget);
+    console.info('getTargetExcludeList', pTarget);
 
     switch (pTarget) {
       case 'chrome':
@@ -1056,7 +1055,7 @@
   */
   function checkExcludeList(pUrl)//{{{
   {
-    console.log('checkExcludeList');
+    console.info('checkExcludeList');
 
     if (pUrl === void 0 || pUrl === null || pUrl.length === 0) {
       return INVALID_EXCLUDE;
@@ -1098,7 +1097,7 @@
    */
   function reloadBrowserIcon(pTab)//{{{
   {
-    console.log('reloadBrowserIcon', Object.assign({}, pTab));
+    console.info('reloadBrowserIcon', Object.assign({}, pTab));
 
     var lNumChangeIcon = 0;
     var lStrTitle      = '';
@@ -1154,7 +1153,7 @@
   */
   function purge(pTabId)//{{{
   {
-    console.log('purge');
+    console.info('purge');
 
     var lArrayPromise        = [];
     var lObjTab              = {};
@@ -1261,7 +1260,7 @@
   */
   function unPurge(pTabId)//{{{
   {
-    console.log('unPurge', pTabId);
+    console.info('unPurge', pTabId);
 
     var lStrUrl = "";
 
@@ -1292,7 +1291,7 @@
   */
   function purgeToggle(pTabId)//{{{
   {
-    console.log('purgeToggle', pTabId);
+    console.info('purgeToggle', pTabId);
 
     return new Promise((resolve, reject) => {
       if (toType(pTabId) !== 'number') {
@@ -1314,7 +1313,7 @@
   */
   function tick(pTabId)//{{{
   {
-    console.log('tick', pTabId);
+    console.info('tick', pTabId);
 
     return new Promise((resolve, reject) => {
       if (toType(pTabId) !== 'number' || sObjUnloaded.hasOwnProperty(pTabId)) {
@@ -1348,7 +1347,7 @@
   */
   function deleteTick(pTabId)//{{{
   {
-    console.log('deleteTick');
+    console.info('deleteTick');
 
     if (sMapTicked.has(pTabId)) {
       clearInterval(sMapTicked.get(pTabId));
@@ -1364,7 +1363,7 @@
   */
   function setTick(pTabId)//{{{
   {
-    console.log('setTick');
+    console.info('setTick');
 
     var lNumState = 0;
     var lNumTimer = 0;
@@ -1417,11 +1416,11 @@
   * @return {Promise} promiseが返る。
   */
   var restore = (function() {//{{{
-    console.log('create closure of restore.');
+    console.info('create closure of restore.');
 
     function restoreTab(pSession)//{{{
     {
-      console.log('restoreTab in closure of restore.', pSession);
+      console.info('restoreTab in closure of restore.', pSession);
 
       return new Promise((resolve, reject) => {
         var rMapResults = new Map();
@@ -1453,7 +1452,7 @@
 
     function restoreWindow(pSessions)//{{{
     {
-      console.log('restoreWindow in closure of restore.', pSessions);
+      console.info('restoreWindow in closure of restore.', pSessions);
 
       return new Promise((resolve, reject) => {
         var lMapTempUrls = new Map();
@@ -1494,7 +1493,7 @@
     function restoreSessionsInCurrentOrOriginal(//{{{
       pNumWinId, pArraySessions, pStrRestoreType)
     {
-      console.log('restoreSessionsInCurrentOrOriginal in closure of restore.',
+      console.info('restoreSessionsInCurrentOrOriginal in closure of restore.',
         Array.prototype.slice.call(arguments));
 
       return new Promise((resolve, reject) => {
@@ -1540,7 +1539,7 @@
 
     function restoreSessions(pNumWinId, pArraySessions, pStrRestoreType)//{{{
     {
-      console.log(
+      console.info(
         'restoreSessions in closure if restore',
         pNumWinId, pArraySessions.slice(), pStrRestoreType);
       var lArrayArgs = Array.prototype.slice.call(arguments);
@@ -1589,7 +1588,7 @@
     }//}}}
 
     return function(pArraySessions, pStrRestoreType) {//{{{
-      console.log('restore', Array.prototype.slice.call(arguments));
+      console.info('restore', Array.prototype.slice.call(arguments));
 
       return new Promise((resolve, reject) => {
         var lArrayList                      = [];
@@ -1661,7 +1660,7 @@
 
   function switchTempRelease(pUrl)//{{{
   {
-    console.log('switchTempRelease', pUrl);
+    console.info('switchTempRelease', pUrl);
 
     (() =>
       sMapTempRelease.has(pUrl) ? sMapTempRelease.delete(pUrl) :
@@ -1675,7 +1674,7 @@
   */
   function tempReleaseToggle(pTab)//{{{
   {
-    console.log('tempReleaseToggle', Object.assign({}, pTab));
+    console.info('tempReleaseToggle', Object.assign({}, pTab));
 
     return new Promise((resolve, reject) => {
       switchTempRelease(pTab.url);
@@ -1696,7 +1695,7 @@
   */
   function searchUnloadedTabNearPosition(pTab)//{{{
   {
-    console.log('searchUnloadedTabNearPosition', Object.assign({}, pTab));
+    console.info('searchUnloadedTabNearPosition', Object.assign({}, pTab));
 
     return new Promise((resolve, reject) => {
       var lArrayTabs       = [];
@@ -1736,7 +1735,7 @@
    */
   function onInstall()//{{{
   {
-    console.log('Extension Installed.');
+    console.info('Extension Installed.');
 
     return new Promise(resolve => {
       chrome.runtime.openOptionsPage(resolve);
@@ -1745,7 +1744,7 @@
 
   function restoreSessionBeforeUpdate(pPreviousSessionTime)//{{{
   {
-    console.log('restoreSessionBeforeUpdate', pPreviousSessionTime);
+    console.info('restoreSessionBeforeUpdate', pPreviousSessionTime);
 
     return new Promise((resolve, reject) => {
       var lArrayRestoreSessions = [];
@@ -1835,7 +1834,7 @@
    */
   function onUpdate()//{{{
   {
-    console.log('Extension Updated.');
+    console.info('Extension Updated.');
 
     return new Promise((resolve, reject) => {
       whenVersionUpOptionFix()
@@ -1858,14 +1857,14 @@
    */
   function getVersion()//{{{
   {
-    console.log('getVersion');
+    console.info('getVersion');
     var lObjDetails= chrome.app.getDetails();
     return lObjDetails.version;
   }//}}}
 
   function versionCheckAndUpdate()//{{{
   {
-    console.log('versionCheckUpdate');
+    console.info('versionCheckUpdate');
 
     return new Promise((resolve, reject) => {
       var lNumCurrentVersion  = 0;
@@ -1928,7 +1927,7 @@
    */
   function getInitAndLoadOptions()//{{{
   {
-    console.log('getInitAndLoadOptions');
+    console.info('getInitAndLoadOptions');
 
     return new Promise((resolve, reject) => {
       var lArrayRemoveKeys = [];
@@ -1972,7 +1971,7 @@
 
   function initializeUseOptions(pMapOptions)//{{{
   {
-    console.log('initializeUseOptions', new Map(pMapOptions));
+    console.info('initializeUseOptions', new Map(pMapOptions));
 
     return new Promise((resolve, reject) => {
       if (toType(pMapOptions) !== 'map') {
@@ -1991,7 +1990,7 @@
   }//}}}
 
   var initializeAlreadyPurgedTabs = (function() {//{{{
-    console.log('create closure of initializeAlreadyPurgedTabs.');
+    console.info('create closure of initializeAlreadyPurgedTabs.');
 
     function toAdd(pObjCurrent)
     {
@@ -2013,7 +2012,7 @@
     }
 
     return function() {
-      console.log('initializeAlreadyPurgedTabs');
+      console.info('initializeAlreadyPurgedTabs');
 
       var lArrayPromise = [];
       var i = 0;
@@ -2081,7 +2080,7 @@
   }//}}}
 
   var switchDisableTimerState = (function() {//{{{
-    console.log('create closure of switchDisableTimerState');
+    console.info('create closure of switchDisableTimerState');
 
     function lastProcess()
     {
@@ -2092,7 +2091,7 @@
     }
 
     return function() {
-      console.log('switchDisableTimerState');
+      console.info('switchDisableTimerState');
 
       var lNumResult = 0;
       var lObjValue  = {};
@@ -2144,7 +2143,7 @@
    */
   function onActivatedFunc(pTabId)//{{{
   {
-    console.log('onActivatedFunc', pTabId);
+    console.info('onActivatedFunc', pTabId);
 
     return new Promise((resolve, reject) => {
       chrome.tabs.get(pTabId, pTab => {
@@ -2180,7 +2179,7 @@
 
   function updateCheck()//{{{
   {
-    console.log('updateCheck');
+    console.info('updateCheck');
 
     return new Promise(resolve => {
       chrome.runtime.requestUpdateCheck((pStrStatus, pStrVersion) => {
@@ -2205,7 +2204,7 @@
 
   function initializeIntervalUpdateCheck(pNumCheckTime)//{{{
   {
-    console.log('initializeIntervalUpdateCheck', pNumCheckTime);
+    console.info('initializeIntervalUpdateCheck', pNumCheckTime);
 
     var lStrIntervalName = 'updateCheck';
     var lStrIntervalId = '';
@@ -2264,7 +2263,7 @@
   }//}}}
 
   chrome.webRequest.onBeforeRequest.addListener(pObjDetails => {//{{{
-    console.log('webRequest.onBeforeRequest', pObjDetails);
+    console.info('webRequest.onBeforeRequest', pObjDetails);
 
     if (sMapOptions.get('new_tab_opens_with_purged_tab')) {
       if (sNumCurrentTabId !== pObjDetails.tabId) {
@@ -2276,7 +2275,7 @@
   ["blocking"]);//}}}
 
   chrome.tabs.onActivated.addListener(pObjActiveInfo => {//{{{
-    console.log('chrome.tabs.onActivated.', pObjActiveInfo);
+    console.info('chrome.tabs.onActivated.', pObjActiveInfo);
 
     sNumCurrentTabId = pObjActiveInfo.tabId;
     if (sObjUnloaded.hasOwnProperty(pObjActiveInfo.tabId) &&
@@ -2291,27 +2290,27 @@
   });//}}}
 
   chrome.tabs.onCreated.addListener(pTab => {//{{{
-    console.log('chrome.tabs.onCreated.', pTab);
+    console.info('chrome.tabs.onCreated.', pTab);
 
     sSetCreateTabId.add(pTab.id);
     setTick(pTab.id).catch(e => console.error(e));
   });//}}}
 
   chrome.tabs.onRemoved.addListener(pTabId => {//{{{
-    console.log('chrome.tabs.onRemoved.', pTabId);
+    console.info('chrome.tabs.onRemoved.', pTabId);
 
     delete sObjUnloaded[pTabId];
     sMapIconState.delete(pTabId);
   });//}}}
 
   chrome.tabs.onAttached.addListener(pTabId => {//{{{
-    console.log('chrome.tabs.onAttached.', pTabId);
+    console.info('chrome.tabs.onAttached.', pTabId);
 
     setTick(pTabId).catch(e => console.error(e));
   });//}}}
 
   chrome.tabs.onDetached.addListener(pTabId => {//{{{
-    console.log('chrome.tabs.onDetached.', pTabId);
+    console.info('chrome.tabs.onDetached.', pTabId);
 
     delete sObjUnloaded[pTabId];
     sMapIconState.delete(pTabId);
@@ -2319,14 +2318,14 @@
 
   chrome.tabs.onUpdated.addListener((pTabId, pObjChangeInfo, pTab) => {//{{{
     if (pObjChangeInfo.status === 'loading') {
-      console.log(
+      console.info(
         'chrome.tabs.onUpdated. loading.', pTabId, pObjChangeInfo, pTab);
 
       if (!isReleasePage(pTab.url) && sObjUnloaded.hasOwnProperty(pTabId)) {
         delete sObjUnloaded[pTabId];
       }
     } else {
-      console.log(
+      console.info(
         'chrome.tabs.onUpdated. complete.', pTabId, pObjChangeInfo, pTab);
 
       loadScrollPosition(pTabId)
@@ -2336,13 +2335,13 @@
   });//}}}
 
   chrome.windows.onRemoved.addListener(pNumWindowId => {//{{{
-    console.log('chrome.windows.onRemoved.', pNumWindowId);
+    console.info('chrome.windows.onRemoved.', pNumWindowId);
     sMapOldActiveIds.delete(pNumWindowId);
   });//}}}
 
   chrome.runtime.onMessage.addListener(//{{{
     (pObjMessage, pObjSender, pFuncSendResponse) => {
-      console.log('chrome.runtime.onMessage.', pObjMessage, pObjSender);
+      console.info('chrome.runtime.onMessage.', pObjMessage, pObjSender);
 
       var lArrayPromise   = [];
       var lArrayTarget    = [];
@@ -2481,14 +2480,14 @@
   );//}}}
 
   chrome.runtime.onUpdateAvailable.addListener(pObjDetails => {//{{{
-    console.log("runtime.onUpdateAvailable", pObjDetails);
+    console.info("runtime.onUpdateAvailable", pObjDetails);
     showUpdateConfirmationDialog()
     .catch(e => console.error(e));
   });//}}}
 
   chrome.notifications.onButtonClicked.addListener(//{{{
     (pStrNotificationId, pButtonIndex) => {
-      console.log(
+      console.info(
         'nortifications.onButtonClicked', pStrNotificationId, pButtonIndex);
 
       switch (pStrNotificationId) {

@@ -5,7 +5,7 @@
   /* for this script. */
   function setObjectProperty(pObj, pStrName, pValue)//{{{
   {
-    console.log('setObjectProperty in common.js', pObj, pStrName, pValue);
+    console.info('setObjectProperty in common.js', pObj, pStrName, pValue);
     if (pObj.hasOwnProperty(pStrName)) {
       throw new Error('Already contain to pObj', pStrName, pValue);
     }

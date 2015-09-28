@@ -1,17 +1,17 @@
 (function(window) {
   "use strict";
 
-  var Database = function(databaseName, version) {
+  var Database = function(databaseName, version) {//{{{
     // When database is opened and fail the onupgradeneeded function,
     // Its database is saved empty at version 1.
     // Therefore, I have set version 2 at here.
     this.version      = version      || 2;
     this.databaseName = databaseName || "database";
     this.db           = null;
-  };
+  };//}}}
 
-  Database.prototype.open = function(pObjCreateProperties) {
-    console.log(
+  Database.prototype.open = function(pObjCreateProperties) {//{{{
+    console.info(
       'called open function of Database class.', pObjCreateProperties);
 
     var $this = this;
@@ -19,7 +19,7 @@
       var req = indexedDB.open($this.databaseName, $this.version);
 
       req.onupgradeneeded = function(pEvent) {
-        console.log('be running onupgradeneeded.');
+        console.info('be running onupgradeneeded.');
 
         var db            = null;
         var lDBStore      = null;
@@ -68,10 +68,10 @@
 
       req.onerror = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.addOrPut = function(pObjArgs, pStrType) {
-    console.log('called addOrPut function of Database class.', pObjArgs);
+  Database.prototype.addOrPut = function(pObjArgs, pStrType) {//{{{
+    console.info('called addOrPut function of Database class.', pObjArgs);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -123,22 +123,22 @@
 
       Promise.all(lArrayPromise)
       .then(resolve)
-      .catch(e => reject(e.target.error));
+      .catch(pErr => reject(pErr));
     });
-  };
+  };//}}}
 
-  Database.prototype.add = function(lObjArgs) {
-    console.log('called add function of Database class.', lObjArgs);
+  Database.prototype.add = function(lObjArgs) {//{{{
+    console.info('called add function of Database class.', lObjArgs);
     return this.addOrPut(lObjArgs, 'add');
-  };
+  };//}}}
 
-  Database.prototype.put = function(lObjArgs) {
-    console.log('called put function of Database class.', lObjArgs);
+  Database.prototype.put = function(lObjArgs) {//{{{
+    console.info('called put function of Database class.', lObjArgs);
     return this.addOrPut(lObjArgs, 'put');
-  };
+  };//}}}
 
-  Database.prototype.get = function(lObjArgs) {
-    console.log('called get function of Database class.', lObjArgs);
+  Database.prototype.get = function(lObjArgs) {//{{{
+    console.info('called get function of Database class.', lObjArgs);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -167,9 +167,9 @@
       };
       lDBRequest.onerror = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.getAll = function(lObjArgs) {
+  Database.prototype.getAll = function(lObjArgs) {//{{{
     var $this = this;
     return new Promise((resolve, reject) => {
       var lArrayResult  = [];
@@ -203,15 +203,15 @@
       };
       lDBReq.onerror = reject;
     });
-  };
+  };//}}}
 
   // http://www.htmlhifive.com/conts/web/view/library/indexed-db-overview#H890765704EF653D65F973059308B58345408
   // range is that return value of IDBKeyRange.
   // You use these that bound, lowerBound, only, and upperBound in IDBKeyRange.
   //
   // When indexName was error, this function isn't use it.
-  Database.prototype.getCursor = function(lObjArgs) {
-    console.log('called getCursor function of Database class.', lObjArgs);
+  Database.prototype.getCursor = function(lObjArgs) {//{{{
+    console.info('called getCursor function of Database class.', lObjArgs);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -249,10 +249,10 @@
       };
       lDBRequest.onerror = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.update = function(pObjArgs) {
-    console.log('called update function of Database class.', pObjArgs);
+  Database.prototype.update = function(pObjArgs) {//{{{
+    console.info('called update function of Database class.', pObjArgs);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -305,10 +305,10 @@
       };
       lDBRequest.onerror = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.delete = function(pObjArgs) {
-    console.log('called delete function of Database class.', pObjArgs);
+  Database.prototype.delete = function(pObjArgs) {//{{{
+    console.info('called delete function of Database class.', pObjArgs);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -337,10 +337,10 @@
 
       Promise.all(lArrayPromise).then(resolve, e => reject(e.target.error));
     });
-  };
+  };//}}}
 
-  Database.prototype.clear = function(pStrStoreName) {
-    console.log('called clear function of Database class.', pStrStoreName);
+  Database.prototype.clear = function(pStrStoreName) {//{{{
+    console.info('called clear function of Database class.', pStrStoreName);
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -353,10 +353,10 @@
       lDBClear.onsuccess = resolve;
       lDBClear.onerror   = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.deleteDatabase = function() {
-    console.log('called deleteAll function of Database class.');
+  Database.prototype.deleteDatabase = function() {//{{{
+    console.info('called deleteAll function of Database class.');
 
     var $this = this;
     return new Promise((resolve, reject) => {
@@ -364,10 +364,10 @@
       lDBRequest.onsuccess = resolve;
       lDBRequest.onerror   = reject;
     });
-  };
+  };//}}}
 
-  Database.prototype.close = function() {
-    console.log('called close function of Database class.');
+  Database.prototype.close = function() {//{{{
+    console.info('called close function of Database class.');
 
     var $this = this;
     return new Promise((resolve) => {
@@ -376,12 +376,12 @@
       }
       resolve();
     });
-  };
+  };//}}}
 
-  Database.prototype.isOpened = function() {
-    console.log('called isOpened function of Database class.');
+  Database.prototype.isOpened = function() {//{{{
+    console.info('called isOpened function of Database class.');
     return (this.db !== null) ? true : false;
-  };
+  };//}}}
 
   setObjectProperty(window, 'Database', Database);
 })(this);

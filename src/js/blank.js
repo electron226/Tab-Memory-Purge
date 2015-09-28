@@ -22,6 +22,8 @@
 
   function navigateToPageBeforePurged()//{{{
   {
+    console.info(`${navigateToPageBeforePurged.name}`);
+
     var lObjArgs = getQueryString(document);
     if (lObjArgs.url) {
       window.location.replace(lObjArgs.url);
@@ -30,6 +32,8 @@
 
   function getDataOfBeforeToPurge(pNumRecorsiveCount)//{{{
   {
+    console.info(`${getDataOfBeforeToPurge.name}`, pNumRecorsiveCount);
+
     var lStrUrl      = "";
     var lStrNewTitle = "";
     var lElFavicon   = document.createDocumentFragment();
@@ -78,6 +82,8 @@
 
   function loadPurgedTabInfo(pNumRecorsiveCount)
   {
+    console.info(`${loadPurgedTabInfo.name}`, pNumRecorsiveCount);
+
     var lObjArgs    = {};
     var lStrUrl     = '';
     var lStrName    = '';
@@ -141,8 +147,7 @@
           (() => {
             lStrName = 'get_title_when_does_not_title';
             chrome.storage.local.get(lStrName, items => {
-              if (items.hasOwnProperty(lStrName) &&
-                  items[lStrName] === true &&
+              if (items[lStrName] === true &&
                   sNumMaxRecorsiveCount >= 0) {
                 console.log('MaxRecorsiveCount is ', sNumMaxRecorsiveCount);
 
@@ -193,13 +198,17 @@
 
   document.addEventListener('click', navigateToPageBeforePurged, true);
 
-  document.addEventListener('keydown', e => {//{{{
-    if (gObjF5Key === generateKeyString(keyCheck(e))) {
+  document.addEventListener('keydown', pEvent => {//{{{
+    console.info('keydown', pEvent);
+
+    if (gObjF5Key === generateKeyString(keyCheck(pEvent))) {
       navigateToPageBeforePurged();
     }
   }, true);//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
+    console.info('DOMContentLoaded');
+
     (() => {
       db = new Database(gStrDbName, gNumDbVersion);
       return db.open(gObjDbCreateStores);
@@ -208,17 +217,18 @@
   });//}}}
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{
-      switch (message.event) {
-        case 'location_replace':
-          var lStrUrl = document.getElementById('url');
-          if (lStrUrl.textContent.length === 0) {
-            sendResponse(true);
-          } else {
-            window.location.replace(lStrUrl.textContent);
-            sendResponse(false);
-          }
-          break;
-      }
+    console.info('runtime.onMessage', message, sender, sendResponse);
+
+    switch (message.event) {
+      case 'location_replace':
+        var lStrUrl = document.getElementById('url');
+        if (lStrUrl.textContent.length === 0) {
+          sendResponse(true);
+        } else {
+          window.location.replace(lStrUrl.textContent);
+          sendResponse(false);
+        }
+        break;
     }
-  );//}}}
+  });//}}}
 })(this, this.document);

@@ -125,7 +125,7 @@
 
   function getHostName(pStrUrl)//{{{
   {
-    console.log('getHostName', pStrUrl);
+    console.info('getHostName', pStrUrl);
 
     var lArrayResult = /\/\/([\w-.~]*)\//i.exec(pStrUrl);
     if (lArrayResult) {
@@ -541,7 +541,7 @@
    */
   function setObjectProperty()//{{{
   {
-    console.log('setObjectProperty', arguments);
+    console.info('setObjectProperty', arguments);
 
     var lArrayArgs = Array.prototype.slice.call(arguments);
     if (lArrayArgs.length < 2) {
