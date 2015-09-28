@@ -479,8 +479,7 @@
         name: gStrDbSessionName,
       })
       .then(rHistories => {
-        // -1 is the current session.
-        lNumMaxSessions = parseInt(sMapOptions.get('max_sessions'), 10) - 1;
+        lNumMaxSessions = parseInt(sMapOptions.get('max_sessions'), 10);
 
         lSetDate = new Set();
         i = 0;
