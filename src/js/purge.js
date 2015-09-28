@@ -235,14 +235,14 @@
    * @param {object} pDetails - A object to get from a function of webRequest.
    * @return {object} return object for webRequest.
    */
-  function redirectPurgedTabWhenCreateNewTab(pDetails)//{{{
+  function redirectPurgedTabWhenCreateNewTab(pObjDetails)//{{{
   {
     var lNumTabId = 0;
     var lStrUrl = "";
 
-    if (pDetails.type === 'main_frame') {
-      lNumTabId = pDetails.tabId;
-      lStrUrl   = pDetails.url;
+    if (pObjDetails.type === 'main_frame') {
+      lNumTabId = pObjDetails.tabId;
+      lStrUrl   = pObjDetails.url;
 
       if (sSetCreateTabId.has(lNumTabId)) {
         sSetCreateTabId.delete(lNumTabId);
