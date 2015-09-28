@@ -24,7 +24,7 @@
   var sMapTempScrollPos = new Map();
 
   // the string that represents the temporary exclusion list
-  var sMapTempRelease = new Set();
+  var sSetTempRelease = new Set();
 
   // Before selecting the active tab, and the user has been selected tab.
   var sMapOldActiveIds = new Map() ;
@@ -1011,6 +1011,12 @@
           options:     'i',
           returnValue: EXTENSION_EXCLUDE,
         };
+      case 'temp':
+        return {
+          list:        Array.from(sSetTempRelease).join('\\n'),
+          options:     'i',
+          returnValue: TEMP_EXCLUDE,
+        };
       case 'keybind':
         if (sMapOptions.size !== 0) {
           return {
@@ -1079,14 +1085,20 @@
       return lNumResult | lNumKeybind;
     }
 
+    // Check to the temporary exclude list.
+    lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList('temp'));
+    if (lNumResult) {
+      return lNumResult | lNumKeybind;
+    }
+
     // Check the normal exclude list.
     lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList());
     if (lNumResult) {
       return lNumResult | lNumKeybind;
     }
 
-    // Check to the temporary exclude list or don't match the exclude lists.
-    return (sMapTempRelease.has(pUrl) ? TEMP_EXCLUDE : NORMAL) | lNumKeybind;
+    // don't match the exclude lists.
+    return NORMAL | lNumKeybind;
   }//}}}
 
   function reloadBrowserIconInAllActiveTab()//{{{
@@ -1672,32 +1684,30 @@
     };//}}}
   })();//}}}
 
-  function switchTempRelease(pUrl)//{{{
+  function switchTempRelease(pUrl, type)//{{{
   {
     console.info('switchTempRelease', pUrl);
 
-    (() =>
-      sMapTempRelease.has(pUrl) ? sMapTempRelease.delete(pUrl) :
-                                  sMapTempRelease.add(pUrl)
-    )();
-  }//}}}
+    var lRegexUrlInArg  = new RegExp();
+    var lRegexUrlInTemp = new RegExp();
+    var lArrayDelKeys = [];
 
-  /**
-  * 非解放・非解放解除を交互に行う
-  * @param {object} pTab 対象のタブオブジェクト.
-  */
-  function tempReleaseToggle(pTab)//{{{
-  {
-    console.info('tempReleaseToggle', Object.assign({}, pTab));
-
-    return new Promise((resolve, reject) => {
-      switchTempRelease(pTab.url);
-
-      setTick(pTab.id)
-      .then(reloadBrowserIconInAllActiveTab)
-      .then(resolve)
-      .catch(reject);
+    lRegexUrlInArg = new RegExp(pUrl);
+    lArrayDelKeys = [];
+    Array.from(sSetTempRelease).forEach(pValue => {
+      lRegexUrlInTemp = new RegExp(pValue);
+      if (lRegexUrlInTemp.test(pUrl) || lRegexUrlInArg.test(pValue)) {
+        lArrayDelKeys.push(pValue);
+      }
     });
+
+    if (lArrayDelKeys.length > 0) {
+      lArrayDelKeys.forEach(pValue => sSetTempRelease.delete(pValue));
+    }
+
+    if (lArrayDelKeys.length === 0 || type === 'add') {
+      sSetTempRelease.add(pUrl);
+    }
   }//}}}
 
   /**
@@ -2373,7 +2383,12 @@
           break;
         case 'switch_not_release':
           getCurrentTab()
-          .then(tempReleaseToggle)
+          .then(pTab => {
+            switchTempRelease(pTab.url);
+
+            return setTick(pTab.id);
+          })
+          .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
         case 'all_purge':
@@ -2414,15 +2429,10 @@
         case 'add_to_temp_exclude_list':
           getCurrentTab()
           .then(pObjTab => {
-            if (!sMapTempRelease.has(pObjTab.url)) {
-              sMapTempRelease.add(pObjTab.url);
-
-              return setTick(pObjTab.id)
-                     .then(reloadBrowserIconInAllActiveTab);
-            } else {
-              return;
-            }
+            switchTempRelease(pObjMessage.url, 'add');
+            return setTick(pObjTab.id);
           })
+          .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
         case 'reload_option_value':
