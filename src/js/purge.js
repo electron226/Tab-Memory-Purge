@@ -421,13 +421,13 @@
         }
 
         if (!sBoolDisableAutoPurge) {
-          if (sMapOptions.get('purging_all_tabs_except_active')) {
+          if (sMapOptions.get('purging_all_tabs_except_active') === true) {
             exclusiveProcessForFunc(
               'purgingAllTabs', purgingAllTabsExceptForTheActiveTab)
             .catch(e => console.error(e));
           }
 
-          if (sMapOptions.get('enable_auto_purge')) {
+          if (sMapOptions.get('enable_auto_purge') === true) {
             exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck)
             .catch(e => console.error(e));
           }
@@ -1342,7 +1342,7 @@
           return;
         }
 
-        if (sMapOptions.get('not_purge_playsound_tab') &&
+        if (sMapOptions.get('not_purge_playsound_tab') === true &&
             isPlayingSound(rTab)) {
           reject(new Error(`the tab have been playing sound: ${pTabId}`));
           return;
@@ -2269,7 +2269,7 @@
   chrome.webRequest.onBeforeRequest.addListener(pObjDetails => {//{{{
     console.info('webRequest.onBeforeRequest', pObjDetails);
 
-    if (sMapOptions.get('new_tab_opens_with_purged_tab')) {
+    if (sMapOptions.get('new_tab_opens_with_purged_tab') === true) {
       if (sNumCurrentTabId !== pObjDetails.tabId) {
         return redirectPurgedTabWhenCreateNewTab(pObjDetails);
       }
