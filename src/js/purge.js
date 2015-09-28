@@ -1089,6 +1089,21 @@
     return (sMapTempRelease.has(pUrl) ? TEMP_EXCLUDE : NORMAL) | lNumKeybind;
   }//}}}
 
+  function reloadBrowserIconInAllActiveTab()//{{{
+  {
+    console.info('reloadBrowserIconInAllActiveTab');
+
+    return new Promise((resolve, reject) => {
+      chrome.tabs.query({ active: true }, pArrayTabs => {
+        pArrayTabs.forEach(pTab => {
+          reloadBrowserIcon(pTab)
+          .then(resolve)
+          .catch(reject);
+        });
+      });
+    });
+  }//}}}
+
   /**
    * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
    * @param {Tab} pTab 対象のタブ.
@@ -1679,7 +1694,7 @@
       switchTempRelease(pTab.url);
 
       setTick(pTab.id)
-      .then(reloadBrowserIcon(pTab))
+      .then(reloadBrowserIconInAllActiveTab)
       .then(resolve)
       .catch(reject);
     });
@@ -2413,7 +2428,7 @@
               sMapTempRelease.add(pObjTab.url);
 
               return setTick(pObjTab.id)
-                     .then(reloadBrowserIcon(pObjTab));
+                     .then(reloadBrowserIconInAllActiveTab);
             } else {
               return;
             }
@@ -2422,6 +2437,7 @@
           break;
         case 'reload_option_value':
           updateOptionValues()
+          .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
         case 'load_options_and_reload_current_tab':
@@ -2429,10 +2445,9 @@
           lArrayPromise.push( getCurrentTab() );
           lArrayPromise.push( updateOptionValues() );
           Promise.all(lArrayPromise).then(pArrayResults => {
-            var lObjTab = pArrayResults[0];
-            setTick(lObjTab.id)
-            .then(reloadBrowserIcon(lObjTab));
+            return setTick(pArrayResults[0].id);
           })
+          .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
         case 'restore':
