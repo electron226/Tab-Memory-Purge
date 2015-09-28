@@ -134,8 +134,6 @@
     console.info('purgeCheck() in closureAutoPurgeCheck');
 
     var gNumRemaimingMemory = 0;
-    var iter                = sMapTicked.entries();
-    var i                   = iter.next();
 
     return new Promise((resolve, reject) => {
       gNumRemaimingMemory = sMapOptions.get('remaiming_memory');
@@ -150,13 +148,12 @@
         /* for-of is slow. this writing is fastest.
          * https://jsperf.com/es6-map-vs-object-properties/10
          * */
-        iter = sMapTicked.entries();
-        for (i = iter.next(); !i.done; i = iter.next()) {
-          tick(i.value[0])
+        sMapTicked.forEach((pValue, pKey) => {
+          tick(pKey)
           .then(isLackTheMemory(gNumRemaimingMemory))
           .then(result => (result === false) ? resolve() : () => {})
           .catch(reject);
-        }
+        });
       })
       .then(resolve)
       .catch(reject);
@@ -300,7 +297,6 @@
     var lNumAlreadyPurged     = 0;
     var lNumMaxOpeningTabs    = 0;
     var lNumMaxPurgeLength    = 0;
-    var i                     = 0;
 
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, pTabs => {
@@ -329,10 +325,10 @@
           v => !v.active && (checkExcludeList(v.url) & NORMAL) !== 0);
 
         lArrayPromise = [];
-        i = 0;
-        while (i < lArrayNotReleasePages.length && i < lNumMaxPurgeLength) {
+        for (var i = 0;
+             i < lArrayNotReleasePages.length && i < lNumMaxPurgeLength;
+             i = (i + 1) | 0) {
           lArrayPromise.push( tick(lArrayNotReleasePages[i].id) );
-          ++i;
         }
 
         Promise.all(lArrayPromise).then(resolve).catch(reject);
@@ -347,13 +343,19 @@
    * @param {number} pCriteriaMemorySize - criteria memory size(MByte).
    * @return {promise} promiseが返る。
    */
-  function isLackTheMemory(pCriteriaMemorySize)//{{{
+  function isLackTheMemory(pNumCriteriaMemorySize)//{{{
   {
-    console.info('isLackTheMemory', pCriteriaMemorySize);
+    console.info('isLackTheMemory', pNumCriteriaMemorySize);
 
     var lNumRatio = 0;
 
     return new Promise((resolve, reject) => {
+      if (toType(pNumCriteriaMemorySize) !== 'number') {
+        reject(new Error(
+          "Invalid arugments. pNumCriteriaMemorySize is not number type."));
+        return;
+      }
+
       chrome.system.memory.getInfo(info => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -362,7 +364,7 @@
 
         lNumRatio = info.availableCapacity / Math.pow(1024.0, 2);
         console.log('availableCapacity(MByte):', lNumRatio);
-        resolve(lNumRatio < parseFloat(pCriteriaMemorySize));
+        resolve(lNumRatio < parseFloat(pNumCriteriaMemorySize));
       });
     });
   }//}}}
@@ -379,13 +381,19 @@
   // These processes are If you called at normal function,
   // May called multiple times at the same time.
   // Therefore, the callback function of setInterval is called.
-  function intervalProcess(pIntervalTime)//{{{
+  function intervalProcess(pNumIntervalTime)//{{{
   {
-    console.info('initializeIntervalProcess', pIntervalTime);
+    console.info('initializeIntervalProcess', pNumIntervalTime);
 
     var lStrIntervalName = 'main';
     var pIntervalId      = 0;
     return new Promise((resolve, reject) => {
+      if (toType(pNumIntervalTime) !== 'number') {
+        reject(new Error("Invalid arugment. pNumIntervalTime is not number: " +
+               `${toType(pNumIntervalTime)}`));
+        return;
+      }
+
       pIntervalId = sMapContinueRun.get(lStrIntervalName);
       if (pIntervalId !== void 0 || pIntervalId !== null) {
         console.warn(
@@ -432,7 +440,7 @@
             .catch(e => console.error(e));
           }
         }
-      }, pIntervalTime * 1000);//}}}
+      }, pNumIntervalTime * 1000);//}}}
 
       sMapContinueRun.set(lStrIntervalName, pIntervalId);
 
@@ -467,7 +475,6 @@
     var lSetDate        = new Set();
     var lDBRange        = null;
     var lNumMaxSessions = 0;
-    var i               = 0;
 
     return new Promise((resolve, reject) => {
       if (sMapOptions.size === 0) {
@@ -482,11 +489,9 @@
         lNumMaxSessions = parseInt(sMapOptions.get('max_sessions'), 10);
 
         lSetDate = new Set();
-        i = 0;
-        while (i < rHistories.length) {
-          lSetDate.add(rHistories[i].date);
-          ++i;
-        }
+        rHistories.forEach(pValue => {
+          lSetDate.add(pValue.date);
+        });
 
         return (lSetDate.size < lNumMaxSessions) ?
                 null :
@@ -562,9 +567,7 @@
     var lArrayPromise       = [];
     var lArrayPromise2      = [];
     var lArrayDelKeys       = [];
-    var lObjValue           = {};
     var lBoolResult         = false;
-    var i                   = 0;
 
     return new Promise((resolve, reject) => {
       function check(pArray, pObjTarget)//{{{
@@ -594,24 +597,20 @@
           lArraySavedSessions = results[3];
 
           lArrayPromise = [];
-          i = 0;
-          while (i < lArrayPageInfos.length) {
-            lObjValue = lArrayPageInfos[i];
-
+          lArrayPageInfos.forEach(pValue => {
             lArrayPromise.push(
               new Promise(resolve3 => {
                 lArrayPromise2 = [];
-                lArrayPromise2.push( check(lArrayHistories, lObjValue) );
-                lArrayPromise2.push( check(lArraySessions, lObjValue) );
-                lArrayPromise2.push( check(lArraySavedSessions, lObjValue) );
+                lArrayPromise2.push( check(lArrayHistories, pValue) );
+                lArrayPromise2.push( check(lArraySessions, pValue) );
+                lArrayPromise2.push( check(lArraySavedSessions, pValue) );
                 Promise.all(lArrayPromise2).then(
-                  () => resolve3(lObjValue.url),
+                  () => resolve3(pValue.url),
                   () => resolve3(null)
                 );
               })
             );
-            ++i;
-          }
+          });
 
           Promise.all(lArrayPromise).then(results2 => {
             lArrayDelKeys = results2.filter(v => (v !== null));
@@ -634,8 +633,6 @@
     var lArrayDataURIs  = [];
     var lArrayPageInfos = [];
     var lArrayDelKeys   = [];
-    var lObjValue       = {};
-    var i               = 0;
     var lBoolResult     = false;
 
     return new Promise((resolve, reject) => {
@@ -649,19 +646,15 @@
         lArrayPageInfos = results[1];
 
         lArrayPromise = [];
-        i = 0;
-        while (i < lArrayDataURIs.length) {
-          lObjValue = lArrayDataURIs[i];
-
+        lArrayDataURIs.forEach(pValue => {
           lArrayPromise.push(
             new Promise(resolve3 => {
               lBoolResult =
-                lArrayPageInfos.some(v2 => (v2.host === lObjValue.host));
-              resolve3(lBoolResult ? null : lObjValue.host);
+                lArrayPageInfos.some(v2 => (v2.host === pValue.host));
+              resolve3(lBoolResult ? null : pValue.host);
             })
           );
-          ++i;
-        }
+        });
 
         return Promise.all(lArrayPromise).then(results2 => {
           lArrayDelKeys = results2.filter(v => (v !== null));
@@ -883,27 +876,22 @@
     var lArrayPromise  = [];
     var lStrUrl        = "";
     var lSetDeleteUrls = new Set();
-    var iter           = lSetDeleteUrls.entries();
-    var i              = 0;
 
     return new Promise((resolve, reject) => {
       chrome.history.search({ text: '' }, histories => {
         lSetDeleteUrls = new Set();
-        i = 0;
-        while (i < histories.length) {
-          lStrUrl = histories[i].url;
+        histories.forEach(pValue => {
+          lStrUrl = pValue.url;
           if (lRegBlankUrl.test(lStrUrl)) {
             lSetDeleteUrls.add(lStrUrl);
           }
-          ++i;
-        }
+        });
 
         lArrayPromise = [];
-        iter = lSetDeleteUrls.entries();
-        for (i = iter.next(); !i.done; i = iter.next()) {
+        lSetDeleteUrls.forEach(pValue => {
           lArrayPromise.push(new Promise(
-            resolve => chrome.history.deleteUrl({ url: i.value[1] }, resolve)));
-        }
+            resolve => chrome.history.deleteUrl({ url: pValue }, resolve)));
+        });
 
         Promise.all(lArrayPromise).then(resolve).catch(reject);
       });
@@ -955,6 +943,7 @@
    */
   function isPlayingSound(pTab)//{{{
   {
+    console.info('isPlayingSound', pTab);
     return pTab.audible === true;
   }//}}}
 
@@ -973,17 +962,16 @@
 
     var lRegExpUrl    = null;
     var lArrayExclude = pObjExclude.list.split('\n');
-    var i             = 0;
 
-    while (i < lArrayExclude.length) {
+    for (var i = 0; i < lArrayExclude.length; i = (i + 1) | 0) {
       if (lArrayExclude[i].length !== 0) {
         lRegExpUrl = new RegExp(lArrayExclude[i].trim(), pObjExclude.options);
         if (lRegExpUrl.test(pUrl)) {
           return pObjExclude.returnValue;
         }
       }
-      ++i;
     }
+
     return null;
   }//}}}
 
@@ -1403,6 +1391,7 @@
       }
 
       if (sBoolDisableAutoPurge) {
+        console.log("Extension is disabled automatic purge.");
         resolve();
         return;
       }
@@ -1485,8 +1474,6 @@
         var rMapResults  = new Map();
         var lStrUrl      = "";
         var lArrayUrls   = [];
-        var i            = 0;
-        var v            = {};
 
         pSessions.forEach(v => {
           lStrUrl = getPurgeURL(v.url);
@@ -1501,16 +1488,13 @@
           }
 
           rMapResults = new Map();
-          i = 0;
-          while (i < win.tabs.length) {
-            v = win.tabs[i];
-            rMapResults.set(v.id, {
-              url            : lMapTempUrls.get(v.url),
-              windowId       : v.windowId,
+          win.tabs.forEach(pValue => {
+            rMapResults.set(pValue.id, {
+              url            : lMapTempUrls.get(pValue.url),
+              windowId       : pValue.windowId,
               scrollPosition : { x : 0 , y : 0 },
             });
-            ++i;
-          }
+          });
           resolve(rMapResults);
         });
       });
@@ -1523,39 +1507,27 @@
         Array.prototype.slice.call(arguments));
 
       return new Promise((resolve, reject) => {
-        var lObjSession   = {};
         var lArrayPromise = [];
         var rMapResult    = new Map();
-        var iter          = rMapResult.entries();
-        var iterPos       = iter.next();
-        var i             = 0;
 
         // restore tab to window of winId.
         lArrayPromise = [];
-        i = 0;
-        while (i < pArraySessions.length) {
-          lObjSession          = pArraySessions[i];
+        pArraySessions.forEach(pValue => {
           if (pStrRestoreType === 'restore_to_original_window') {
-            lObjSession.windowId = pNumWinId;
+            pValue.windowId = pNumWinId;
           } else {
-            delete lObjSession.windowId;
+            delete pValue.windowId;
           }
-          lArrayPromise.push( restoreTab(lObjSession) );
-          ++i;
-        }
+          lArrayPromise.push( restoreTab(pValue) );
+        });
 
         Promise.all(lArrayPromise).then(results => {
           rMapResult = new Map();
-          i = 0;
-          while (i < results.length) {
-            iter      = results[i].entries();
-            iterPos   = iter.next();
-            while (!iterPos.done) {
-              rMapResult.set(iterPos.value[0], iterPos.value[1]);
-              iterPos = iter.next();
-            }
-            ++i;
-          }
+          results.forEach(pValue => {
+            pValue.forEach((pValueJ, pKeyJ) => {
+              rMapResult.set(pKeyJ, pValueJ);
+            });
+          });
           return rMapResult;
         })
         .then(resolve)
@@ -1618,15 +1590,10 @@
 
       return new Promise((resolve, reject) => {
         var lArrayList                      = [];
-        var lArraySession                   = {};
         var lArrayPromise                   = [];
         var lStrRestoreTypeOptName          = "";
         var lNumWinId                       = 0;
-        var lNumTabId                       = 0;
         var lMapEachWindow                  = new Map();
-        var iter                            = lMapEachWindow.entries();
-        var iterPos                         = iter.next();
-        var i                               = 0;
 
         if (pStrRestoreType === void 0 || pStrRestoreType === null) {
           lStrRestoreTypeOptName = 'restored_type';
@@ -1640,43 +1607,30 @@
             `${toType(pStrRestoreType)}`);
         }
 
-        i = 0;
-        while (i < pArraySessions.length) {
-          lArraySession = pArraySessions[i];
-          lNumWinId     = lArraySession.windowId;
+        pArraySessions.forEach(pValue => {
+          lNumWinId     = pValue.windowId;
           lArrayList    = lMapEachWindow.get(lNumWinId) || [];
-          lArrayList.push(lArraySession);
+          lArrayList.push(pValue);
           lMapEachWindow.set(lNumWinId, lArrayList);
-          ++i;
-        }
+        });
 
         lArrayPromise = [];
-        iter          = lMapEachWindow.entries();
-        iterPos       = iter.next();
-        while (!iterPos.done) {
-          lArrayPromise.push(restoreSessions(
-              iterPos.value[0], iterPos.value[1], pStrRestoreType));
-          iterPos = iter.next();
-        }
+        lMapEachWindow.forEach((pValue, pKey) => {
+          lArrayPromise.push(restoreSessions(pKey, pValue, pStrRestoreType));
+        });
 
         Promise.all(lArrayPromise)
         .then(rResults => {
-          i = 0;
-          while (i < rResults.length) {
-            iter    = rResults[i].entries();
-            iterPos = iter.next();
-            while (!iterPos.done) {
-              lNumTabId = iterPos.value[0];
-              if (!sObjUnloaded.hasOwnProperty(lNumTabId)) {
-                sObjUnloaded[lNumTabId] = iterPos.value[1];
+          rResults.forEach(pValue => {
+            pValue.forEach((pValueJ, pNumTabId) => {
+              if (!sObjUnloaded.hasOwnProperty(pNumTabId)) {
+                sObjUnloaded[pNumTabId] = pValueJ;
               } else {
                 console.error(
-                  'same tabId is found in sObjUnloaded object.', lNumTabId);
+                  'same tabId is found in sObjUnloaded object.', pNumTabId);
               }
-              iterPos = iter.next();
-            }
-            ++i;
-          }
+            });
+          });
         })
         .then(resolve)
         .catch(reject);
@@ -1694,7 +1648,7 @@
 
     lRegexUrlInArg = new RegExp(pUrl);
     lArrayDelKeys = [];
-    Array.from(sSetTempRelease).forEach(pValue => {
+    sSetTempRelease.forEach(pValue => {
       lRegexUrlInTemp = new RegExp(pValue);
       if (lRegexUrlInTemp.test(pUrl) || lRegexUrlInArg.test(pValue)) {
         lArrayDelKeys.push(pValue);
@@ -1772,10 +1726,6 @@
 
     return new Promise((resolve, reject) => {
       var lArrayRestoreSessions = [];
-      var lObjItem = {};
-      var lObjData = {};
-      var i        = 0;
-      var j        = 0;
 
       if (pPreviousSessionTime === void 0 ||
           pPreviousSessionTime === null) {
@@ -1790,20 +1740,13 @@
         }
 
         lArrayRestoreSessions = [];
-        i = 0;
-        j = 0;
-        while (i < sessions.length) {
-          lObjItem = sessions[i];
-          j = 0;
-          while (j < lObjItem.data.length) {
-            lObjData = lObjItem.data[j];
-            if (pPreviousSessionTime === lObjData.date) {
-              lArrayRestoreSessions.push({ url: lObjData.url });
+        sessions.forEach(pValue => {
+          pValue.data.forEach(pValueJ => {
+            if (pPreviousSessionTime === pValueJ.date) {
+              lArrayRestoreSessions.push({ url: pValueJ.url });
             }
-            ++j;
-          }
-          ++i;
-        }
+          });
+        });
 
         if (lArrayRestoreSessions.length > 0) {
           return restore(lArrayRestoreSessions);
@@ -2039,7 +1982,6 @@
       console.info('initializeAlreadyPurgedTabs');
 
       var lArrayPromise = [];
-      var i = 0;
 
       return new Promise((resolve, reject) => {
         chrome.tabs.query({}, pTabs => {
@@ -2050,11 +1992,9 @@
 
           // If already purging tab, be adding the object of purging tab.
           lArrayPromise = [];
-          i = 0;
-          while (i < pTabs.length) {
-            lArrayPromise.push( toAdd(pTabs[i]) );
-            ++i;
-          }
+          pTabs.forEach(pValue => {
+            lArrayPromise.push( toAdd(pValue) );
+          });
 
           Promise.all(lArrayPromise).then(resolve).catch(reject);
         });
@@ -2110,9 +2050,6 @@
       console.info('switchDisableTimerState');
 
       var lNumResult = 0;
-      var lObjValue  = {};
-      var iter       = null;
-      var i          = null;
 
       return new Promise((resolve, reject) => {
         if (sBoolDisableAutoPurge) {
@@ -2122,24 +2059,20 @@
               return;
             }
 
-            i = 0;
-            while (i < pTabs.length) {
-              lObjValue  = pTabs[i];
-              lNumResult = checkExcludeList(lObjValue.url);
-              if (lNumResult & NORMAL && !isReleasePage(lObjValue.url)) {
-                setTick(lObjValue.id);
+            pTabs.forEach(pValue => {
+              lNumResult = checkExcludeList(pValue.url);
+              if (lNumResult & NORMAL && !isReleasePage(pValue.url)) {
+                setTick(pValue.id);
               }
-              ++i;
-            }
+            });
 
             sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
             resolve();
           });
         } else {
-          iter = sMapTicked.entries();
-          for (i = iter.next(); !i.done; i = iter.next()) {
-            clearInterval(i.value[1]);
-          }
+          sMapTicked.forEach(pValue => {
+            clearInterval(pValue);
+          });
           sMapTicked.clear();
 
           sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;

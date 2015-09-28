@@ -141,10 +141,8 @@
             } else {
               Array.prototype.slice.call(lElSelect).forEach(pValue => {
                 if (pValue.getAttribute('value') === pStrValue) {
-                  console.log('select set', pStrValue);
                   pValue.selected = true;
                 } else {
-                  console.log('select not set', pStrValue);
                   pValue.selected = false;
                 }
               });
@@ -219,9 +217,6 @@
     var $this         = this;
     var lArrayPromise = [];
     var lMapNew       = new Map();
-
-    var iter          = lMapNew.entries();
-    var i             = iter.next();
     var key           = "";
 
     return new Promise((resolve, reject) => {
@@ -229,26 +224,21 @@
       .then(rOptions => {
         switch (toType(pObjOpts)) {
         case 'map':
-          rOptions = pObjOpts;
+          lMapNew = pObjOpts;
           break;
         case 'object':
           lMapNew = new Map();
-          for (key in pObjOpts) {
-            if (pObjOpts.hasOwnProperty(key)) {
-              lMapNew.set(key, pObjOpts[key]);
-            }
-          }
-          rOptions = lMapNew;
+          Object.keys(pObjOpts).forEach(pKey => {
+            lMapNew.set(key, pObjOpts[pKey]);
+          });
           break;
+        default:
+          lMapNew = rOptions;
         }
 
-        lArrayPromise = [];
-        iter = rOptions.entries();
-        i    = iter.next();
-        while (!i.done) {
-          lArrayPromise.push($this.set(pElement, i.value[0], i.value[1]));
-          i = iter.next();
-        }
+        lMapNew.forEach((pValue, pKey) => {
+          lArrayPromise.push($this.set(pElement, pKey, pValue));
+        });
 
         return Promise.all(lArrayPromise);
       })
@@ -288,8 +278,6 @@
     this.strClassNameWhenSelect = pClassNameWhenSelect;
   };
   ShowMenuSelection.prototype.showMenu = function(pStrSelector) {//{{{
-    var i = 0;
-
     return function(pIdName) {
       var lElShowMenu = document.querySelector(`${pStrSelector}#${pIdName}`);
       var lElDoesNotShowMenu = document.querySelectorAll(
@@ -297,12 +285,9 @@
 
       removeStringFromAttributeOfElement(
         lElShowMenu, 'style', sStrStyleDisplayNone);
-      i = 0;
-      while (i < lElDoesNotShowMenu.length) {
-        addStringToAttributeOfElement(
-          lElDoesNotShowMenu[i], 'style', sStrStyleDisplayNone);
-        ++i;
-      }
+      Array.prototype.slice.call(lElDoesNotShowMenu).forEach(pValue => {
+        addStringToAttributeOfElement(pValue, 'style', sStrStyleDisplayNone);
+      });
     };
   };//}}}
   ShowMenuSelection.prototype.changeSelectionButtonColor = //{{{
@@ -462,9 +447,6 @@
     var lObjNew         = pObj;
     var lObjType        = toType(pObj);
     var lDeleteKeysType = toType(pDeleteKeys);
-    var iter;
-    var i   = 0;
-    var key = "";
 
     if (lObjType !== 'object' &&
         lObjType !== 'set' &&
@@ -477,28 +459,23 @@
     }
 
     if (lDeleteKeysType === 'object') {
-      for (key in pDeleteKeys) {
-        if (pDeleteKeys.hasOwnProperty(key)) {
-          if (lObjType === 'object') {
-            delete lObjNew[ pDeleteKeys[key] ];
-          } else {
-            lObjNew.delete(pDeleteKeys[key]);
-          }
+      Object.keys(pDeleteKeys).forEach(pKey => {
+        if (lObjType === 'object') {
+          delete lObjNew[ pDeleteKeys[pKey] ];
+        } else {
+          lObjNew.delete(pDeleteKeys[pKey]);
         }
-      }
+      });
     } else {
       // the deleteKeysType is Array, map, or set.
-      iter = pDeleteKeys.keys();
-      i = iter.next();
-      while (!i.done) {
+      pDeleteKeys.forEach((pValue, pKey) => {
         if (lObjType === 'object') {
-          delete lObjNew[ i.value ];
+          delete lObjNew[ pKey ];
         } else {
           // the objType is map or set.
-          lObjNew.delete(i.value);
+          lObjNew.delete(pKey);
         }
-        i = iter.next();
-      }
+      });
     }
 
     return lObjNew;
@@ -507,21 +484,16 @@
   function showOptionValuesToOperateSettingsPage()//{{{
   {
     var lElExport = document.querySelector(`#${sStrIdNameOfExport}`);
-    var lNewOpts = {};
-    var lObj = {};
-    var iter;
-    var i;
+    var lNewOpts  = {};
+    var lObj      = {};
 
     return new Promise(resolve => {
       operateOption.export()
-      .then(options => {
+      .then(pMapOptions => {
         lObj = {};
-        iter = options.entries();
-        i = iter.next();
-        while (!i.done) {
-          lObj[ i.value[0] ] = i.value[1];
-          i = iter.next();
-        }
+        pMapOptions.forEach((pValue, pKey) => {
+          lObj[ pKey ] = pValue;
+        });
         lNewOpts        = deleteKeyItemFromObject(lObj, sMapExcludeKeyNames);
         lElExport.value = JSON.stringify(lNewOpts, null, '    ');
 
@@ -552,32 +524,25 @@
 
     var lElKeybindOptions =
       document.querySelectorAll(`.${sStrClassNameOfKeybindOption}`);
-    var lElKeybind  = document.createDocumentFragment();
     var lObjKeyJson = {};
     var lStrKey     = '';
-    var i = 0;
 
-    i = 0;
-    while (i < lElKeybindOptions.length) {
-      lElKeybind  = lElKeybindOptions[i];
-      lObjKeyJson = lElKeybind.querySelector(`.${sStrClassNameOfKeybindValue}`);
-      lStrKey     = lElKeybind.querySelector(`.${sStrClassNameOfShowKeybind}`);
+    Array.prototype.slice.call(lElKeybindOptions).forEach(pValue => {
+      lObjKeyJson = pValue.querySelector(`.${sStrClassNameOfKeybindValue}`);
+      lStrKey     = pValue.querySelector(`.${sStrClassNameOfShowKeybind}`);
       try {
         if (lObjKeyJson.value === '{}' ||
             lObjKeyJson.value === ''   ||
             lObjKeyJson.value === null ||
             lObjKeyJson.value === void 0) {
-            ++i;
-            continue;
+          return;
         }
 
         lStrKey.value = generateKeyString(JSON.parse(lObjKeyJson.value));
       } catch (e) {
         console.warn(e, lObjKeyJson.value);
       }
-
-      ++i;
-    }
+    });
   }//}}}
 
   function setKeybindOption(pClassName, pKeyInfo)//{{{
@@ -767,44 +732,35 @@
       }
 
       var lMapUrlsOfEachWin = new Map();
-      var iter              = lMapUrlsOfEachWin.entries();
-      var j                 = iter.next();
-      var i                 = 0;
       var lNumWinId         = 0;
       var arrayNewSessions  = [];
       var lArrayUrls        = [];
       var lStrItemUrl       = sObjOptsForCreateHistoryItem.itemUrl;
-      var lElField          = document.createDocumentFragment();
       var lElItemUrlList    = document.createDocumentFragment();
       var lDateNow          = Date.now();
 
-      while (i < lElShowField.length) {
-        lElField       = lElShowField[i];
-        lNumWinId      = lElField.getAttribute(sStrAttrNameOfWindowId);
-        lElItemUrlList = lElField.querySelectorAll(`.${lStrItemUrl}`);
+      Array.prototype.slice.call(lElShowField).forEach(pValue => {
+        lNumWinId      = pValue.getAttribute(sStrAttrNameOfWindowId);
+        lElItemUrlList = pValue.querySelectorAll(`.${lStrItemUrl}`);
         lArrayUrls     = [];
         Array.prototype.slice.call(lElItemUrlList)
           .forEach(v => lArrayUrls.push(v.href));
         lMapUrlsOfEachWin.set(lNumWinId, lArrayUrls);
-        ++i;
-      }
+      });
 
       lDateNow         = Date.now();
       arrayNewSessions = [];
-      iter             = lMapUrlsOfEachWin.entries();
-      j                = iter.next();
-      while (!j.done) {
+      lMapUrlsOfEachWin.forEach((pValue, pKey) => {
         arrayNewSessions = arrayNewSessions.concat(
-          j.value[1].map(v => {
+          pValue.map(v => {
             return {
               date: lDateNow,
               url: v,
-              windowId: parseInt(j.value[0]) || 0
+              windowId: parseInt(pKey) || 0
             };
           })
         );
-        j = iter.next();
-      }
+      });
 
       db.put({
         name: gStrDbSavedSessionName,
@@ -825,40 +781,33 @@
       var lArrayPromise   = [];
       var lArraySessions  = [];
       var lArrayDelKeys   = [];
-      var i               = 0;
 
-      i = 0;
-      while (i < lArrayDbNames.length) {
+      lArrayDbNames.forEach(pValue => {
         lArrayPromise.push(
           db.getCursor({
-            name: lArrayDbNames[i],
+            name: pValue,
             range: IDBKeyRange.only(lNumDate),
             indexName: 'date',
           })
         );
-        ++i;
-      }
+      });
 
       Promise.all(lArrayPromise)
       .then(results => {
-        i = 0;
-        while (i < results.length) {
-          lArraySessions = lArraySessions.concat(results[i]);
-          ++i;
-        }
+        results.forEach(pValue => {
+          lArraySessions = lArraySessions.concat(pValue);
+        });
 
         lArrayPromise   = [];
         lArrayDelKeys = lArraySessions.map(v => v.id);
-        i = 0;
-        while (i < lArrayDbNames.length) {
+        lArrayDbNames.forEach(pValue => {
           lArrayPromise.push(
             db.delete({
-              name: lArrayDbNames[i],
+              name: pValue,
               keys: lArrayDelKeys,
             })
           );
-          ++i;
-        }
+        });
 
         return Promise.all(lArrayPromise);
       })
@@ -877,21 +826,16 @@
       return;
     }
 
-    var lElField      = document.createDocumentFragment();
     var lElA          = document.createElement('a');
     var lArrayRestore = [];
     var lNumWindowId  = 0;
-    var i             = 0;
 
-    i = 0;
-    while (i < lElShowField.length) {
-      lElField      = lElShowField[i];
-      lNumWindowId  = parseInt(lElField.getAttribute(sStrAttrNameOfWindowId));
-      lElA  = lElField.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
+    Array.prototype.slice.call(lElShowField).forEach(pValue => {
+      lNumWindowId  = parseInt(pValue.getAttribute(sStrAttrNameOfWindowId));
+      lElA  = pValue.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
       Array.prototype.slice.call(lElA).forEach(
         v => lArrayRestore.push({ url: v.href, windowId: lNumWindowId }));
-      ++i;
-    }
+    });
 
     chrome.runtime.sendMessage({ event: 'restore', session: lArrayRestore });
   }//}}}
@@ -921,34 +865,28 @@
       var lStrName     = lElTarget.getAttribute('name');
       var lElList      = lElTarget.parentNode;
       var lStrListName = lElList.getAttribute('id');
-      var lElShowLists     =
+      var lElShowLists      =
         lElToAddItemList.querySelectorAll(`fieldset[name="${lStrName}"]`);
-      var lElNotShowLists  =
+      var lElNotShowLists   =
         lElToAddItemList.querySelectorAll(`fieldset:not([name="${lStrName}"])`);
-      var lElSessionSave   =
+      var lElSessionSave    =
         document.querySelector(`#${sStrIdNameOfSessionSave}`);
       var lElDateList      = document.querySelector(`#${sStrIdNameOfDateList}`);
-      var lElSelectDates   = lElDateList.querySelector(`[name="${lStrName}"]`);
+      var lElSelectDates    = lElDateList.querySelector(`[name="${lStrName}"]`);
       var lElNotSelectDates =
         lElDateList.querySelectorAll(`:not([name="${lStrName}"])`);
-      var lElSessionTitle  =
+      var lElSessionTitle   =
         document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      var i = 0;
 
       // select which is showed a list of a session date.
-      i = 0;
-      while (i < lElShowLists.length) {
+      Array.prototype.slice.call(lElShowLists).forEach(pValue => {
         removeStringFromAttributeOfElement(
-          lElShowLists[i], 'class', sStrClassNameOfDoesNot);
-        ++i;
-      }
+          pValue, 'class', sStrClassNameOfDoesNot);
+      });
 
-      i = 0;
-      while (i < lElNotShowLists.length) {
-        addStringToAttributeOfElement(
-          lElNotShowLists[i], 'class', sStrClassNameOfDoesNot);
-        ++i;
-      }
+      Array.prototype.slice.call(lElNotShowLists).forEach(pValue => {
+        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
+      });
 
       changeSessionIconControlState(true);
 
@@ -968,12 +906,10 @@
       lElSessionTitle.setAttribute('name', lStrName);
       lElSessionTitle.textContent = lElSelectDates.textContent;
 
-      i = 0;
-      while (i < lElNotSelectDates.length) {
+      Array.prototype.slice.call(lElNotSelectDates).forEach(pValue => {
         removeStringFromAttributeOfElement(
-          lElNotSelectDates[i], 'class', sStrClassNameWhenSelect);
-        ++i;
-      }
+          pValue, 'class', sStrClassNameWhenSelect);
+      });
     }//}}}
 
     function closureCreateSessionDate()//{{{
@@ -1011,38 +947,28 @@
       var lObjOpts = {
         date: false,
       };
-      var lElItem    = document.createDocumentFragment();
       var lArrayList = [];
-      var i          = 0;
 
-      i = 0;
-      while (i < pArrayItems.length) {
-        lElItem = lCreateHistoryItem(pArrayItems[i], lObjOpts);
-        lArrayList.push(lElItem);
-        ++i;
-      }
+      pArrayItems.forEach(pValue => {
+        lArrayList.push(lCreateHistoryItem(pValue, lObjOpts));
+      });
 
       return lArrayList;
     }//}}}
 
     function getDictSplitEachSession(pArraySessions, pStrAttrName)//{{{
     {
-      var lObjData   = {};
       var lAnyAttr   = null;
       var lAnyValue  = null;
       var lMapResult = new Map();
-      var i          = 0;
 
-      i = 0;
-      while (i < pArraySessions.length) {
-        lObjData  = pArraySessions[i];
-        lAnyAttr  = lObjData[pStrAttrName];
+      pArraySessions.forEach(pValue => {
+        lAnyAttr  = pValue[pStrAttrName];
         lAnyValue = lMapResult.get(lAnyAttr) || [];
-        lAnyValue.push(lObjData);
+        lAnyValue.push(pValue);
         lMapResult.set(lAnyAttr, lAnyValue);
+      });
 
-        ++i;
-      }
       return lMapResult;
     }//}}}
 
@@ -1053,25 +979,19 @@
           deleteFunc: removeSessionHistoryWindow,
         })
       );
-      var lNumWindowId         = 0;
       var lNumCount            = 0;
       var lElField             = document.createDocumentFragment();
       var lElArticle           = document.createDocumentFragment();
       var lElWindowTitle       = document.createDocumentFragment();
       var lElHistoryItemDelete = document.createDocumentFragment();
       var lArrayList           = [];
-      var iter                 = null;
-      var i                    = null;
 
       lArrayList = [];
       lNumCount  = 0;
-      iter       = lMapWindow.entries();
-      i          = iter.next();
-      while (!i.done) {
-        lNumWindowId = i.value[0];
+      lMapWindow.forEach((pValue, pNumWindowId) => {
         lElField     = lCreateHistoryDate({ date: lNumTime });
         addStringToAttributeOfElement(
-          lElField, sStrAttrNameOfWindowId, lNumWindowId);
+          lElField, sStrAttrNameOfWindowId, pNumWindowId);
         addStringToAttributeOfElement(
           lElField, 'class', sStrClassNameOfDoesNot);
 
@@ -1082,19 +1002,18 @@
         lElHistoryItemDelete =
           lElField.querySelector(`.${sStrClassNameOfHistoryItemDelete}`);
         addStringToAttributeOfElement(
-            lElHistoryItemDelete, sStrAttrNameOfWindowId, lNumWindowId);
+            lElHistoryItemDelete, sStrAttrNameOfWindowId, pNumWindowId);
 
         lElArticle =
           lElField.querySelector(`.${sObjOptsForCreateHistoryDate.itemList}`);
 
-        createSessionDateListItem(i.value[1])
+        createSessionDateListItem(pValue)
         .forEach(v => lElArticle.appendChild(v));
 
         lArrayList.push(lElField);
 
         ++lNumCount;
-        i = iter.next();
-      }
+      });
 
       return lArrayList;
     }//}}}
@@ -1107,28 +1026,17 @@
       var lArrayDateList          = [];
       var lArrayItemList          = [];
       var lArrayItem              = [];
-      var i                       = 0;
-      var j                       = null;
-      var iter                    = null;
 
-      i = 0;
-      while (i < pArraySessions.length) {
-        lMapSessionEachDate =
-          getDictSplitEachSession(pArraySessions[i].data, 'date');
-        iter = lMapSessionEachDate.entries();
-        j    = iter.next();
-        while (!j.done) {
-          lArrayDateList.push( lCreateSessionDate(j.value[0]) );
+      pArraySessions.forEach(pValue => {
+        lMapSessionEachDate = getDictSplitEachSession(pValue.data, 'date');
+        lMapSessionEachDate.forEach((pValue, pKey) => {
+          lArrayDateList.push( lCreateSessionDate(pKey) );
           lMapSessionEachWindowId =
-            getDictSplitEachSession(j.value[1], sStrAttrNameOfWindowId);
-          lArrayItem =
-            createSessionWindowList(j.value[0], lMapSessionEachWindowId);
+            getDictSplitEachSession(pValue, sStrAttrNameOfWindowId);
+          lArrayItem = createSessionWindowList(pKey, lMapSessionEachWindowId);
           lArrayItemList = lArrayItemList.concat(lArrayItem);
-
-          j = iter.next();
-        }
-        ++i;
-      }
+        });
+      });
 
       lArrayDateList.forEach(v => lElToAddDateList.appendChild(v));
       lArrayItemList.forEach(v => lElToAddItemList.appendChild(v));
@@ -1298,13 +1206,10 @@
       document.querySelector(`#${sStrIdNameOfSearchHistoryDateList}`);
     var lElAutocompleteDateList =
       addAutocompleteDateList(lElSearchHistoryDateList);
-    var i = 0;
 
-    i = 0;
-    while (i < pArrayHistories.length) {
-      lElAutocompleteDateList(pArrayHistories[i].date);
-      ++i;
-    }
+    pArrayHistories.forEach(pValue => {
+      lElAutocompleteDateList(pValue.date);
+    });
   }//}}}
 
   function removeHistoryDate(pEvent)//{{{
@@ -1383,21 +1288,18 @@
         `fieldset:not(.${sStrClassNameOfDoesNot})`);
     };
     var lElShowField = getShowField();
-    var lElItemList;
-    var i = 0;
+    var lElItemList  = document.createDocumentFragment();
 
     return new Promise((resolve, reject) => {
       removeHistoryItem(event)
       .then(() => {
-        i = 0;
-        while (i < lElShowField.length) {
+        Array.prototype.slice.call(lElShowField).forEach(pValue => {
           lElItemList =
-            lElShowField[i].querySelector(`.${sStrClassNameOfHistoryItemList}`);
+            pValue.querySelector(`.${sStrClassNameOfHistoryItemList}`);
           if (lElItemList.childNodes.length === 0) {
-            lElSessionList.removeChild(lElShowField[i]);
+            lElSessionList.removeChild(pValue);
           }
-          ++i;
-        }
+        });
 
         return (getShowField().length === 0) ? initSessionHistory() : null;
       })
@@ -1422,32 +1324,27 @@
     var lArraySessions = [];
     var lArrayDelKeys  = [];
     var lNumWindowIdOfField = 0;
-    var i                   = 0;
 
     return new Promise((resolve, reject) => {
       // get from all the databases of a session history.
       lArrayPromise  = [];
-      i = 0;
-      while (i < lArrayDbName.length) {
+      lArrayDbName.forEach(pValue => {
         lArrayPromise.push(
           db.getCursor({
-            name:      lArrayDbName[i],
+            name:      pValue,
             range:     IDBKeyRange.only(lDateTime),
             indexName: 'date',
           })
         );
-        ++i;
-      }
+      });
 
       Promise.all(lArrayPromise)
       .then(rResults => {
         // create the array for to delete session history from database.
         lArraySessions = [];
-        i              = 0;
-        while (i < rResults.length) {
-          lArraySessions = lArraySessions.concat(rResults[i]);
-          ++i;
-        }
+        rResults.forEach(pValue => {
+          lArraySessions = lArraySessions.concat(pValue);
+        });
         lArrayDelKeys = lArraySessions.filter(v => {
           return lNumWindowId ? v.windowId === lNumWindowId : true;
         })
@@ -1455,31 +1352,27 @@
 
         // delete specified window from the databases of a session history.
         lArrayPromise = [];
-        i = 0;
-        while (i < lArrayDbName.length) {
+        lArrayDbName.forEach(pValue => {
           lArrayPromise.push(
             db.delete({
-              name: lArrayDbName[i],
+              name: pValue,
               keys: lArrayDelKeys,
             })
           );
-          ++i;
-        }
+        });
 
         return Promise.all(lArrayPromise);
       })
       .then(() => {
         // deletes the deleted window item from DOM.
         lElShowField = getShowField();
-        i = 0;
-        while (i < lElShowField.length) {
+        Array.prototype.slice.call(lElShowField).forEach(pValue => {
           lNumWindowIdOfField =
-            parseInt(lElShowField[i].getAttribute(sStrAttrNameOfWindowId));
+            parseInt(pValue.getAttribute(sStrAttrNameOfWindowId));
           if (lNumWindowIdOfField === lNumWindowId) {
-            lElSessionList.removeChild(lElShowField[i]);
+            lElSessionList.removeChild(pValue);
           }
-          ++i;
-        }
+        });
 
         // If the session history of the same Date in empty, deletes the field.
         return (getShowField().length === 0) ? initSessionHistory() : null;
@@ -1717,10 +1610,6 @@
     var lElCreateHistoryDate = null;
     var lElCreateHistoryItem = null;
     var lArrayList = [];
-    var lObjData   = {};
-    var i          = 0;
-    var j          = 0;
-    var z          = 0;
 
     return new Promise((resolve, reject) => {
       getAllHistory()
@@ -1738,31 +1627,23 @@
             Object.assign(sObjOptsForCreateHistoryItem,
               { databaseName: gStrDbHistoryName }));
 
-        i = 0;
-        while (i < historyArray.length) {
-          lObjData       = historyArray[i];
-          lElHistoryDate = lElCreateHistoryDate(lObjData);
+        historyArray.forEach(pValue => {
+          lElHistoryDate = lElCreateHistoryDate(pValue);
 
           lArrayList = [];
-          j = 0;
-          while (j < lObjData.data.length) {
-            lArrayList.push( lElCreateHistoryItem(lObjData.data[j]) );
-            j++;
-          }
+          pValue.data.forEach(pValueJ => {
+            lArrayList.push( lElCreateHistoryItem(pValueJ) );
+          });
           lArrayList = lArrayList.reverse();
 
           lElHistoryItemList =
             lElHistoryDate.querySelector(`.${sStrClassNameOfHistoryItemList}`);
-          z = 0;
-          while (z < lArrayList.length) {
-            lElHistoryItemList.appendChild(lArrayList[z]);
-            ++z;
-          }
+          lArrayList.forEach(pValueZ => {
+            lElHistoryItemList.appendChild(pValueZ);
+          });
 
           lElHistoryDateList.appendChild(lElHistoryDate);
-
-          ++i;
-        }
+        });
 
         resolve();
       })
@@ -1797,16 +1678,12 @@
     var lRegItem        = new RegExp(lElSearchHistoryItemValue, 'ig');
     var lElDateList     =
       document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
-    var lElField        = document.createDocumentFragment();
     var lElHistoryItems = document.createDocumentFragment();
-    var lElItem         = document.createDocumentFragment();
     var lElItemTitle    = document.createDocumentFragment();
     var lElItemUrl      = document.createDocumentFragment();
     var lArrayMatch    = [];
     var lDate          = new Date();
     var lDateSearch    = new Date();
-    var i              = 0;
-    var j              = 0;
     var lNumCount      = 0;
     var lNumSearchTime = 0;
 
@@ -1817,55 +1694,45 @@
       lNumSearchTime = lDateSearch.getTime();
     }
 
-    i = 0;
-    while (i < lElDateList.length) {
-      lElField = lElDateList[i];
-      lDate    = new Date(parseInt(lElField.name));
+    Array.prototype.slice.call(lElDateList).forEach(pValue => {
+      lDate    = new Date(parseInt(pValue.name));
 
       if (lStrSearchHistoryValueLen === 0 ||
           lDate.getTime() === lNumSearchTime) {
         removeStringFromAttributeOfElement(
-          lElField, 'class', sStrClassNameOfDoesNot);
+          pValue, 'class', sStrClassNameOfDoesNot);
       } else {
-        addStringToAttributeOfElement(
-          lElField, 'class', sStrClassNameOfDoesNot);
-        ++i;
-        continue;
+        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
+        return;
       }
 
       lElHistoryItems =
-        lElField.querySelectorAll(`.${sStrClassNameOfHistoryItem}`);
+        pValue.querySelectorAll(`.${sStrClassNameOfHistoryItem}`);
       lNumCount = 0;
-      j         = 0;
-      while (j < lElHistoryItems.length) {
-        lElItem = lElHistoryItems[j];
+      Array.prototype.slice.call(lElHistoryItems).forEach(pValueJ => {
         lElItemTitle =
-          lElItem.querySelector(`.${sStrClassNameOfHistoryItemTitle}`);
+          pValueJ.querySelector(`.${sStrClassNameOfHistoryItemTitle}`);
         lElItemUrl   =
-          lElItem.querySelector(`.${sStrClassNameOfHistoryItemUrl}`);
+          pValueJ.querySelector(`.${sStrClassNameOfHistoryItemUrl}`);
         if (lElSearchHistoryItemValueLen === 0 ||
             lRegItem.test(lElItemTitle.textContent) ||
             lRegItem.test(lElItemUrl.href)) {
           removeStringFromAttributeOfElement(
-            lElItem, 'class', sStrClassNameOfDoesNot);
+            pValueJ, 'class', sStrClassNameOfDoesNot);
         } else {
           addStringToAttributeOfElement(
-            lElItem, 'class', sStrClassNameOfDoesNot);
+            pValueJ, 'class', sStrClassNameOfDoesNot);
           ++lNumCount;
         }
-        ++j;
-      }
+      });
 
       if (lNumCount === lElHistoryItems.length) {
-        addStringToAttributeOfElement(
-          lElField, 'class', sStrClassNameOfDoesNot);
+        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
       } else {
         removeStringFromAttributeOfElement(
-          lElField, 'class', sStrClassNameOfDoesNot);
+          pValue, 'class', sStrClassNameOfDoesNot);
       }
-
-      ++i;
-    }
+    });
   }//}}}
 
   function changeMenu(pStrName)//{{{
@@ -1986,16 +1853,13 @@
   function initSectionBarEvent(pEvent)//{{{
   {
     var lElButton = document.createDocumentFragment();
-    var i = 0;
 
     return new Promise((resolve, reject) => {
       try {
         lElButton = pEvent.querySelectorAll(`.${sStrClassNameOfButton}`);
-        i = 0;
-        while (i < lElButton.length) {
-          lElButton[i].addEventListener('click', sectionButtonClicked, true);
-          ++i;
-        }
+        Array.prototype.slice.call(lElButton).forEach(pValue => {
+          pValue.addEventListener('click', sectionButtonClicked, true);
+        });
         resolve();
       } catch (rError) {
         reject(rError);
@@ -2008,35 +1872,25 @@
     var lElInput    = document.createDocumentFragment();
     var lElTextarea = document.createDocumentFragment();
     var lElSelect   = document.createDocumentFragment();
-    var lElItem     = document.createDocumentFragment();
-    var i           = 0;
 
     return new Promise(resolve => {
       lElInput    = pEvent.querySelectorAll("input");
       lElTextarea = pEvent.querySelectorAll("textarea");
       lElSelect   = pEvent.querySelectorAll("select");
 
-      i = 0;
-      while (i < lElInput.length) {
-        lElItem = lElInput[i];
-        lElItem.addEventListener('keyup', updateOptionValueToStorage, true);
-        lElItem.addEventListener('change', updateOptionValueToStorage, true);
-        ++i;
-      }
+      Array.prototype.slice.call(lElInput).forEach(pValue => {
+        pValue.addEventListener('keyup', updateOptionValueToStorage, true);
+        pValue.addEventListener('change', updateOptionValueToStorage, true);
+      });
 
-      i = 0;
-      while (i < lElTextarea.length) {
-        lElItem = lElTextarea[i];
-        lElItem.addEventListener('keyup', updateOptionValueToStorage, true);
-        ++i;
-      }
+      Array.prototype.slice.call(lElTextarea).forEach(pValue => {
+        pValue.addEventListener('keyup', updateOptionValueToStorage, true);
+      });
 
-      i = 0;
-      while (i < lElSelect.length) {
-        lElItem = lElSelect[i];
-        lElItem.addEventListener('change', updateOptionValueToStorage, true);
-        ++i;
-      }
+      Array.prototype.slice.call(lElSelect).forEach(pValue => {
+        pValue.addEventListener('change', updateOptionValueToStorage, true);
+      });
+
       resolve();
     });
   }//}}}
@@ -2053,11 +1907,9 @@
   {
     return new Promise(resolve => {
       var lElButtons = pEvent.querySelectorAll('button');
-      var i = 0;
-      while (i < lElButtons.length) {
-        lElButtons[i].addEventListener('click', buttonClicked, true);
-        ++i;
-      }
+      Array.prototype.slice.call(lElButtons).forEach(pValue => {
+        pValue.addEventListener('click', buttonClicked, true);
+      });
 
       resolve();
     });

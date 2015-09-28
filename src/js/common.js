@@ -15,7 +15,7 @@
   setObjectProperty(window, 'gStrVersionKey', 'version');
   setObjectProperty(window, 'gStrPreviousSessionTimeKey', 'previous_session_time');
 
-  function closureExtensionOption()//{{{
+  function initializeDefaultConfigOfExtension()//{{{
   {
     /*jshint -W069*/
     var lStrKeybindDefault = JSON.stringify({});
@@ -55,33 +55,10 @@
     lMapConfig.set(window['gStrVersionKey'], chrome.app.getDetails());
     lMapConfig.set(window['gStrPreviousSessionTimeKey'], null);
 
-    return {
-      get: function(pKey) { return lMapConfig.get(pKey); },
-      replace: function(pKey, pValue) {
-        if (lMapConfig.has(pKey)) {
-          lMapConfig.set(pKey, pValue);
-        }
-        throw new Error(`Doesn't exist pKey: ${pKey}`);
-      },
-      forEach: function(pCallback, pThisArgs) {
-        if (toType(pCallback) !== 'function') {
-          throw new Error("pCallback isn't function");
-        }
-        var iter = lMapConfig.entries();
-        var i = iter.next();
-        while (!i.done) {
-          pCallback.call(pThisArgs, i.value[1], i.value[0], lMapConfig);
-          i = iter.next();
-        }
-      },
-      has:     function(pKey) { return lMapConfig.has(pKey); },
-      entries: function()    { return lMapConfig.entries(); },
-      keys:    function()    { return lMapConfig.keys(); },
-      values:  function()    { return lMapConfig.values(); },
-    };
+    return lMapConfig;
   }//}}}
 
-  setObjectProperty(window, 'gMapDefaultValues', closureExtensionOption());
+  setObjectProperty(window, 'gMapDefaultValues', initializeDefaultConfigOfExtension());
 
   setObjectProperty(window, 'gStrDbName', 'TMP_DB');
   setObjectProperty(window, 'gNumDbVersion', 2);
@@ -167,11 +144,9 @@
     'EXTENSION_ICON_48', // 512
     'EXTENSION_ICON_128', // 1024
   ];
-  var i = 0;
-  while (i < lArrayExcludeValues.length) {
-    setObjectProperty(window, lArrayExcludeValues[i], 1 << i);
-    ++i;
-  }
+  lArrayExcludeValues.forEach((pValue, i) => {
+    setObjectProperty(window, pValue, 1 << i);
+  });
 
   // the path of icons.
   // defined NORMAL etc... in common.js.
@@ -186,27 +161,20 @@
 
   var lStrIconDir           = 'img/icons/';
   var lStrKeybindIconSuffix = '_with_keybind';
-  var iter = lMapIconNumbers.entries();
-  i    = iter.next();
-  while (!i.done) {
-    lMapIcons.set(i.value[0], chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}.png`));
-    lMapIcons.set(i.value[0] | KEYBIND_EXCLUDE,
-      chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}${lStrKeybindIconSuffix}.png`));
-    i = iter.next();
-  }
+  lMapIconNumbers.forEach((pValue, pKey) => {
+    lMapIcons.set(pKey, chrome.runtime.getURL(`${lStrIconDir}${pValue}.png`));
+    lMapIcons.set(pKey | KEYBIND_EXCLUDE,
+      chrome.runtime.getURL(`${lStrIconDir}${pValue}${lStrKeybindIconSuffix}.png`));
+  });
 
   var lMapMainIcons = new Map();
   lMapMainIcons.set(EXTENSION_ICON_38, 'icon_038');
   lMapMainIcons.set(EXTENSION_ICON_48, 'icon_048');
   lMapMainIcons.set(EXTENSION_ICON_128, 'icon_128');
 
-  iter = lMapMainIcons.entries();
-  i    = iter.next();
-  while (!i.done) {
-    lMapIcons.set(i.value[0], chrome.runtime.getURL(`${lStrIconDir}${i.value[1]}.png`));
-    i = iter.next();
-  }
-
+  lMapMainIcons.forEach((pValue, pKey) => {
+    lMapIcons.set(pKey, chrome.runtime.getURL(`${lStrIconDir}${pValue}.png`));
+  });
   setObjectProperty(window, 'gMapIcons', lMapIcons);
 
   setObjectProperty(window, 'gStrBlankUrl', gStrBlankUrl);

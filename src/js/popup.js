@@ -108,30 +108,25 @@
     var lStrUrl       = "";
     var lStrClassName = "";
     var lStrId        = "";
-    var i             = 0;
 
     lStrId = pEvent.target.getAttribute('id');
     switch (lStrId) {
     case 'option_prev':
       lElMenu = document.querySelectorAll('.menu');
 
-      i = 0;
-      while (i < lElMenu.length) {
-        lStrClassName = lElMenu[i].getAttribute('class')
+      Array.prototype.slice.call(lElMenu).forEach(pValue => {
+        lStrClassName = pValue.getAttribute('class')
                         .replace('option_menu_show', '').trim();
-        lElMenu[i].setAttribute('class', lStrClassName);
-        ++i;
-      }
+        pValue.setAttribute('class', lStrClassName);
+      });
       return; // return.
     case 'option_menu':
       lElMenu = document.querySelectorAll('.menu');
 
-      i = 0;
-      while (i < lElMenu.length) {
-        lStrClassName = lElMenu[i].getAttribute('class');
-        lElMenu[i].setAttribute('class', `${lStrClassName} option_menu_show`);
-        ++i;
-      }
+      Array.prototype.slice.call(lElMenu).forEach(pValue => {
+        lStrClassName = pValue.getAttribute('class');
+        pValue.setAttribute('class', `${lStrClassName} option_menu_show`);
+      });
       return; // return.
     case 'restore_release':
       chrome.runtime.sendMessage({ event: 'release' });
@@ -176,28 +171,20 @@
   {
     return new Promise(resolve => {
       var lElButtons = document.createDocumentFragment();
-      var lElement   = document.createDocumentFragment();
       var lElInAll   = document.createDocumentFragment();
-      var i = 0;
-      var j = 0;
 
       lElButtons = document.querySelectorAll('div.btn');
-      i = 0;
-      while (i < lElButtons.length) {
-        lElement = lElButtons[i];
-        lElement.addEventListener('click', buttonClicked, true);
+      Array.prototype.slice.call(lElButtons).forEach(pValue => {
+        pValue.addEventListener('click', buttonClicked, true);
 
         // The elements of the all are setting id into item.
-        lElInAll = lElement.querySelectorAll('*');
-        j = 0;
-        while (j < lElInAll.length) {
-          if (!(lElInAll[j].getAttribute('id'))) {
-            lElInAll[j].setAttribute('id', lElement.getAttribute('id'));
+        lElInAll = pValue.querySelectorAll('*');
+        Array.prototype.slice.call(lElInAll).forEach(pValueJ => {
+          if (!(pValueJ.getAttribute('id'))) {
+            pValueJ.setAttribute('id', pValue.getAttribute('id'));
           }
-          ++j;
-        }
-        ++i;
-      }
+        });
+      });
       resolve();
     });
   }//}}}

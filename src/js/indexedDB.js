@@ -23,42 +23,36 @@
 
         var db            = null;
         var lDBStore      = null;
-        var lStrStoreName = "";
         var lObjProperty  = {};
         var lObjIndexs    = {};
-        var lStrIndexName = "";
         var lObjItem      = {};
 
         pEvent.target.transaction.onerror = reject;
 
         db = pEvent.target.result;
 
-        for (lStrStoreName in pObjCreateProperties) {
-          if (pObjCreateProperties.hasOwnProperty(lStrStoreName)) {
-            // delete previous object store in database.
-            if (db.objectStoreNames.contains(lStrStoreName)) {
-              db.deleteObjectStore(lStrStoreName);
-            }
-
-            lObjProperty = pObjCreateProperties[lStrStoreName].property;
-            lDBStore     = db.createObjectStore(lStrStoreName, lObjProperty);
-            if (pObjCreateProperties[lStrStoreName].hasOwnProperty('indexs')) {
-              lObjIndexs = pObjCreateProperties[lStrStoreName].indexs;
-
-              for (lStrIndexName in lObjIndexs) {
-                if (lObjIndexs.hasOwnProperty(lStrIndexName)) {
-                  lObjItem = lObjIndexs[lStrIndexName];
-                  lDBStore.createIndex(
-                    lStrIndexName,
-                    lObjItem.targets.length === 1 ?
-                      lObjItem.targets[0] : lObjItem.targets,
-                    lObjItem.property
-                  );
-                }
-              }
-            }
+        Object.keys(pObjCreateProperties).forEach(pStrStoreName => {
+          // delete previous object store in database.
+          if (db.objectStoreNames.contains(pStrStoreName)) {
+            db.deleteObjectStore(pStrStoreName);
           }
-        }
+
+          lObjProperty = pObjCreateProperties[pStrStoreName].property;
+          lDBStore     = db.createObjectStore(pStrStoreName, lObjProperty);
+          if (pObjCreateProperties[pStrStoreName].hasOwnProperty('indexs')) {
+            lObjIndexs = pObjCreateProperties[pStrStoreName].indexs;
+
+            Object.keys(lObjIndexs).forEach(pStrIndexName => {
+              lObjItem = lObjIndexs[pStrIndexName];
+              lDBStore.createIndex(
+                pStrIndexName,
+                lObjItem.targets.length === 1 ?
+                  lObjItem.targets[0] : lObjItem.targets,
+                lObjItem.property
+              );
+            });
+          }
+        });
       };
 
       req.onsuccess = function(pEvent) {
@@ -76,18 +70,17 @@
     var $this = this;
     return new Promise((resolve, reject) => {
       var lStrStoreName  = "";
-      var lObjData       = {};
+      var lArrayData     = [];
       var lDBTransaction = null;
       var lDBStore       = null;
       var lArrayPromise  = [];
-      var i              = 0;
 
       if (pStrType === void 0 || pStrType === null) {
         pStrType = 'add';
       }
 
       lStrStoreName = pObjArgs.name;
-      lObjData      = (toType(pObjArgs.data) === 'object') ?
+      lArrayData      = (toType(pObjArgs.data) === 'object') ?
                         [ pObjArgs.data ] : pObjArgs.data;
 
       lDBTransaction = $this.db.transaction(lStrStoreName, 'readwrite');
@@ -102,12 +95,11 @@
 
       lDBStore      = lDBTransaction.objectStore(lStrStoreName);
       lArrayPromise = [];
-      i = 0;
-      while (i < lObjData.length) {
+      lArrayData.forEach(pValue => {
         lArrayPromise.push(
           new Promise((resolve, reject) => {
             var lDBRequest = (pStrType === 'add') ?
-                      lDBStore.add(lObjData[i]) : lDBStore.put(lObjData[i]);
+                      lDBStore.add(pValue) : lDBStore.put(pValue);
             lDBRequest.onsuccess = resolve;
             lDBRequest.onerror   = function(pErr) {
               var newError = new Error(
@@ -118,8 +110,7 @@
             };
           })
         );
-        ++i;
-      }
+      });
 
       Promise.all(lArrayPromise)
       .then(resolve)
@@ -285,18 +276,16 @@
       }
 
       lDBRequest.onsuccess = function() {
-        var lStrKey    = "";
         var lObjData   = {};
         var lObjCursor = this.result;
         if (lObjCursor) {
           lObjData = lObjCursor.value;
 
-          for (lStrKey in lObjData) {
-            if (lObjData.hasOwnProperty(lStrKey) &&
-                lObjUpdate.hasOwnProperty(lStrKey)) {
-              lObjData[lStrKey] = lObjUpdate[lStrKey];
+          Object.keys(lObjData).forEach(pKey => {
+            if (lObjUpdate.hasOwnProperty(pKey)) {
+              lObjData[pKey] = lObjUpdate[pKey];
             }
-          }
+          });
           lObjCursor.update(lObjData);
           lObjCursor.continue();
         } else {
@@ -323,17 +312,15 @@
       var lDBStore = lDBTransaction.objectStore(lStrStoreName);
 
       var lArrayPromise = [];
-      var i = 0;
-      while (i < lArrayKeys.length) {
+      lArrayKeys.forEach(pValue => {
         lArrayPromise.push(
           new Promise((resolve, reject) => {
-            var del       = lDBStore.delete(lArrayKeys[i]);
+            var del       = lDBStore.delete(pValue);
             del.onsuccess = resolve;
             del.onerror   = reject;
           })
         );
-        ++i;
-      }
+      });
 
       Promise.all(lArrayPromise).then(resolve, e => reject(e.target.error));
     });

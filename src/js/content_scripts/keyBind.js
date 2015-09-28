@@ -6,7 +6,6 @@
     return new Promise((resolve, reject) => {
       var lMapKeys    = new Map();
       var lObjKeyInfo = {};
-      var lStrKeyName = "";
 
       chrome.storage.local.get(null, pObjItems => {
         if (chrome.runtime.lastError) {
@@ -15,22 +14,21 @@
         }
 
         lMapKeys = new Map();
-        for (lStrKeyName in pObjItems) {
-          if (pObjItems.hasOwnProperty(lStrKeyName) &&
-              lStrKeyName.indexOf('keybind_') !== -1) {
+        Object.keys(pObjItems).forEach(pKey => {
+          if (pKey.indexOf('keybind_') !== -1) {
             try {
-              lObjKeyInfo = JSON.parse(pObjItems[lStrKeyName]);
+              lObjKeyInfo = JSON.parse(pObjItems[pKey]);
               if (toType(lObjKeyInfo) !== 'object') {
-                continue;
+                return;
               }
 
-              lMapKeys.set(lStrKeyName,
-                pObjItems[lStrKeyName] || gMapDefaultValues.get(lStrKeyName));
+              lMapKeys.set(
+                pKey, pObjItems[pKey] || gMapDefaultValues.get(pKey));
             } catch (e) {
-              continue;
+              return;
             }
           }
-        }
+        });
 
         resolve(lMapKeys);
       });
@@ -49,22 +47,17 @@
       { event: 'keybind_check_exclude_list', location: window.location },
       pBoolResult => {
         var pushKey = "";
-        var iter    = null;
-        var i       = null;
 
         if (pBoolResult) {
           getKeyBinds()
           .then(pMapKeys => {
             pushKey = JSON.stringify(keyCheck(pEvent));
-            iter    = pMapKeys.entries();
-            i       = iter.next();
-            while (!i.done) {
-              if (i.value[1] === pushKey) {
+            pMapKeys.forEach((pValue, pKey) => {
+              if (pValue === pushKey) {
                 chrome.runtime.sendMessage(
-                  { event: i.value[0].replace(/^keybind_/, '') });
+                  { event: pKey.replace(/^keybind_/, '') });
               }
-              i = iter.next();
-            }
+            });
           })
           .catch(eErr => console.error(eErr));
         } else {

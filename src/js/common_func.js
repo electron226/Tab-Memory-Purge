@@ -104,15 +104,12 @@
           lElementSnapshot =
             pElement.evaluate('//*[@translation]', pElement, null, 7, null);
 
-          i = 0;
-          while (i < lElementSnapshot.snapshotLength) {
+          for (i = 0; i < lElementSnapshot.snapshotLength; i = (i + 1) | 0) {
             lElItem      = lElementSnapshot.snapshotItem(i);
             lStrTextName = lElItem.getAttribute('translation');
             if (lStrTarget.hasOwnProperty(lStrTextName)) {
               lElItem.textContent = chrome.i18n.getMessage(lStrTextName);
             }
-
-            ++i;
           }
           resolve();
         } else {
@@ -151,45 +148,33 @@
       var lObjDataURI  = {};
       var lObjPage     = {};
       var lObjAdd      = {};
-      var lObjValue    = {};
-      var i            = 0;
 
       histories = pArraySessions[0];
       pageInfos = pArraySessions[1];
       dataURIs  = pArraySessions[2];
 
       lObjPageInfo = {};
-      i = 0;
-      while (i < pageInfos.length) {
-        lObjValue = pageInfos[i];
-        lObjPageInfo[lObjValue.url] =
-          { title: lObjValue.title, host: lObjValue.host };
-        ++i;
-      }
+      pageInfos.forEach(pValue => {
+        lObjPageInfo[pValue.url] = { title: pValue.title, host: pValue.host };
+      });
 
       lObjDataURI = {};
-      i = 0;
-      while (i < dataURIs.length) {
-        lObjValue = dataURIs[i];
-        lObjDataURI[lObjValue.host] = lObjValue.dataURI;
-        ++i;
-      }
+      dataURIs.forEach(pValue => {
+        lObjDataURI[pValue.host] = pValue.dataURI;
+      });
 
       rListResult = [];
       lListData   = [];
       lDateTemp   = null;
-      i = 0;
-      while (i < histories.length) {
-        lObjValue = histories[i];
-        lObjPage = lObjPageInfo[lObjValue.url];
+      histories.forEach(pValue => {
+        lObjPage = lObjPageInfo[pValue.url];
         if (lObjPage === void 0 || lObjPage === null) {
           console.warn(
-            "Don't find data in pageInfo of indexedDB.", lObjValue.url);
-          ++i;
-          continue;
+            "Don't find data in pageInfo of indexedDB.", pValue.url);
+          return;
         }
 
-        lDate = new Date(lObjValue.date);
+        lDate = new Date(pValue.date);
         if (!lDateTemp) {
           lDateTemp = lDate;
         }
@@ -206,18 +191,17 @@
         }
 
         lObjAdd = {
-          date    : lObjValue.date,
-          url     : lObjValue.url,
+          date    : pValue.date,
+          url     : pValue.url,
           title   : lObjPage.title,
           host    : lObjPage.host,
           dataURI : lObjDataURI[lObjPage.host] || gMapIcons.get(NORMAL),
         };
-        if (lObjValue.id) { lObjAdd.id = lObjValue.id; }
-        if (lObjValue.windowId) { lObjAdd.windowId = lObjValue.windowId; }
+        if (pValue.id) { lObjAdd.id = pValue.id; }
+        if (pValue.windowId) { lObjAdd.windowId = pValue.windowId; }
 
         lListData.push(lObjAdd);
-        ++i;
-      }
+      });
 
       if (lListData.length > 0) {
         lDateAdd = new Date(lDateTemp.getFullYear(),
@@ -274,21 +258,18 @@
       var i              = 0;
 
       i = 0;
-      while (i < parameters.length) {
-        lArrayElement = parameters[i].split('=');
+      parameters.forEach(pValue => {
+        lArrayElement = pValue.split('=');
         if (lArrayElement[0] === '' ||
             lArrayElement[1] === undefined ||
             lArrayElement[1] === null) {
-          ++i;
-          continue;
+          return;
         }
 
         lStrParamName             = lArrayElement[0];
         lStrParamValue            = decodeURIComponent(lArrayElement[1]);
         rObjResult[lStrParamName] = lStrParamValue;
-
-        ++i;
-      }
+      });
 
       return rObjResult;
     }
@@ -339,10 +320,8 @@
             lStrDataType   = getDataType(lU8ArrayBytes);
             lStrBinaryData = '';
 
-            i = 0;
-            while (i < lU8ArrayBytes.byteLength) {
+            for (i = 0; i < lU8ArrayBytes.byteLength; i = (i + 1) | 0) {
               lStrBinaryData += String.fromCharCode(lU8ArrayBytes[i]);
-              ++i;
             }
 
             resolve(
@@ -529,11 +508,9 @@
     if (pStrFormat.match(/S/g)) {
       lStrMilliSeconds = ('00' + pDate.getMilliseconds()).slice(-3);
       lNumLength = pStrFormat.match(/S/g).length;
-      i = 0;
-      while (i < lNumLength) {
+      for (i = 0; i < lNumLength; i = (i + 1) | 0) {
         pStrFormat =
           pStrFormat.replace(/S/, lStrMilliSeconds.substring(i, i + 1));
-        ++i;
       }
     }
     return pStrFormat;

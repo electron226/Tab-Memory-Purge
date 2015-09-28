@@ -18,18 +18,14 @@
     var lElementSnapshot = null;
     var lStrKeyName      = "";
     var lValue           = null;
-    var iter             = lSetRestored.keys();
     var i                = 0;
-    var j                = null;
 
     lElementSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
-    i = 0;
-    while (i < lElementSnapshot.snapshotLength) {
+    for (i = 0; i < lElementSnapshot.snapshotLength; i = (i + 1) | 0) {
       lElement = lElementSnapshot.snapshotItem(i);
       if (lElement.name === void 0 ||
           lElement.name === null ||
           checkSkipType(lElement.type)) {
-        ++i;
         continue;
       }
 
@@ -37,7 +33,6 @@
       lValue      = sessionStorage.getItem(lStrKeyName);
       lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : lValue;
       if (lValue === void 0 || lValue === null || lValue.length === 0) {
-        ++i;
         continue;
       }
 
@@ -54,15 +49,9 @@
       }
 
       lSetRestored.add(lStrKeyName);
-      ++i;
     }
 
-    iter = lSetRestored.keys();
-    j    = iter.next();
-    while (!j.done) {
-      sessionStorage.removeItem(j.value);
-      j = iter.next();
-    }
+    lSetRestored.forEach(pValue => sessionStorage.removeItem(pValue));
   })();//}}}
 
   chrome.runtime.onMessage.addListener(//{{{
@@ -73,16 +62,13 @@
       var lElSnapshot = null;
       var lStrKeyName = "";
       var lValue      = null;
-      var i           = 0;
 
       lElSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
-      i = 0;
-      while (i < lElSnapshot.snapshotLength) {
+      for (var i = 0; i < lElSnapshot.snapshotLength; i = (i + 1) | 0) {
         lElement = lElSnapshot.snapshotItem(i);
         if (lElement.name === void 0 || lElement.name === null ||
             lElement.value === void 0 || lElement.value === null ||
             lElement.value === '' || checkSkipType(lElement.type)) {
-            ++i;
           continue;
         }
 
@@ -90,7 +76,6 @@
         case 'checkbox':
         case 'radio':
           if (!lElement.checked) {
-            ++i;
             continue;
           }
           break;
@@ -102,7 +87,6 @@
 
         lValue.push(lElement.lValue);
         sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
-        ++i;
       }
 
       pFuncSendResponse();
