@@ -139,6 +139,9 @@
   function getListAfterJoinHistoryDataOnDB(pArraySessions)//{{{
   {
     return new Promise(function(resolve) {
+      var histories    = [];
+      var pageInfos    = [];
+      var dataURIs     = [];
       var lDate        = new Date();
       var lDateTemp    = new Date();
       var lDateAdd     = new Date();
@@ -151,9 +154,9 @@
       var lObjValue    = {};
       var i            = 0;
 
-      var histories = pArraySessions[0];
-      var pageInfos = pArraySessions[1];
-      var dataURIs  = pArraySessions[2];
+      histories = pArraySessions[0];
+      pageInfos = pArraySessions[1];
+      dataURIs  = pArraySessions[2];
 
       lObjPageInfo = {};
       i = 0;
@@ -174,6 +177,7 @@
 
       rListResult = [];
       lListData   = [];
+      lDateTemp   = null;
       i = 0;
       while (i < histories.length) {
         lObjValue = histories[i];
