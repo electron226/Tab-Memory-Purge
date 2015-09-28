@@ -38,7 +38,7 @@
     lMapConfig.set('max_opening_tabs', 5);
     lMapConfig.set('interval_timing', 5);
     lMapConfig.set('new_tab_opens_with_purged_tab', false);
-    lMapConfig.set('get_title_when_does_not_title', false);
+    lMapConfig.set('get_title_when_does_not_title', true);
     lMapConfig.set('not_purge_playsound_tab', true);
 
     lMapConfig.set('restored_type', 'restore_to_current_window');
