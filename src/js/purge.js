@@ -2096,14 +2096,6 @@
   var switchDisableTimerState = (function() {//{{{
     console.info('create closure of switchDisableTimerState');
 
-    function lastProcess()
-    {
-      sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
-
-      return getCurrentTab()
-      .then(reloadBrowserIcon);
-    }
-
     return function() {
       console.info('switchDisableTimerState');
 
@@ -2130,9 +2122,8 @@
               ++i;
             }
 
-            lastProcess()
-            .then(resolve)
-            .catch(reject);
+            sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
+            resolve();
           });
         } else {
           iter = sMapTicked.entries();
@@ -2141,9 +2132,8 @@
           }
           sMapTicked.clear();
 
-          lastProcess()
-          .then(resolve)
-          .catch(reject);
+          sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
+          resolve();
         }
       });
     };
@@ -2477,6 +2467,7 @@
           break;
         case 'switchTimerState':
           switchDisableTimerState()
+          .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
         case 'excludeDialogMenu':
