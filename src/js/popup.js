@@ -105,9 +105,9 @@
   function buttonClicked(pEvent)//{{{
   {
     var lElMenu       = document.createDocumentFragment();
-    var lStrUrl       = "";
     var lStrClassName = "";
     var lStrId        = "";
+    var lObjCreateTab = {};
 
     lStrId = pEvent.target.getAttribute('id');
     switch (lStrId) {
@@ -153,11 +153,15 @@
     case 'information':
     case 'operate_settings':
       chrome.tabs.query({ url: gStrOptionPage + '*' }, results => {
-        lStrUrl = `${gStrOptionPage}?page=${lStrId}`;
+        lObjCreateTab = {
+          url:    `${gStrOptionPage}?page=${lStrId}`,
+          active: true,
+        };
+
         if (results.length === 0) {
-          chrome.tabs.create({ url: lStrUrl }, popupClose);
+          chrome.tabs.create(lObjCreateTab, popupClose);
         } else {
-          chrome.tabs.update(results[0].tabId, { url: lStrUrl }, popupClose);
+          chrome.tabs.update(results[0].id, lObjCreateTab, popupClose);
         }
       });
       break;
