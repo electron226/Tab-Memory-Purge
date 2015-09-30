@@ -51,6 +51,7 @@
     "keyCheck":                           true,
     "generateKeyString":                  true,
     "toType":                             true,
+    "checkFunctionArguments":             true,
     "setObjectProperty":                  true,
 
     "gObjDbCreateStores":     true,

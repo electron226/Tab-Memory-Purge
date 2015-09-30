@@ -481,6 +481,88 @@
   }//}}}
 
   /**
+   * checkFunctionArguments
+   *
+   * Function confirm that type of received the arguments.
+   *
+   * @param {arguments or array} pArguments -
+   *     you want to confirm the arguments of function.
+   * @param {array of array of string} pArrayTypes -
+   *     you want to confirm the array of
+   *     the string represent the type of the arguments of the function.
+   *     String of Array acknowledge the type of arguments.
+   *
+   *     If array of string is empty, it admit all type.
+   *
+   *     If array of string is function,
+   *     When return value is true, it determines to match.
+   *     Arguments of Function are
+   *        1: one of a value of arguments.
+   *        2 or later: none;
+   * @param {boolean} [pBoolLenAllow] -
+   *     Whether admitting that the length of
+   *     pArguments and pArrayTypes do not match.
+   *     default is false.
+   * @return {string or boolean}
+   *     If exist an error, to return the string.
+   *     return false of boolean if doesn't exist the error.
+   */
+  function checkFunctionArguments(pArguments, pArrayTypes, pBoolLenAllow)//{{{
+  {
+    var lArrayArgs        = (toType(pArguments) === 'array') ?
+                            pArguments :
+                            Array.prototype.slice.call(pArguments);
+    var rStrError         = '';
+    var lStrErr           = '';
+    var lStrType          = '';
+    var lBoolResultOfFunc = true;
+    var lNumMatchToAll    = 0;
+    var lBoolLengthAllow  = pBoolLenAllow || false;
+
+    if (lBoolLengthAllow === false &&
+        lArrayArgs.length !== pArrayTypes.length) {
+      throw new Error(
+        "The value of the arguments is not same length: " +
+        `first: ${lArrayArgs.length}, second: ${pArrayTypes.length}`);
+    }
+
+    lArrayArgs.forEach((pValue, i) => {
+      lStrErr = '';
+      lNumMatchToAll = 0;
+
+      lStrType = toType(pArrayTypes[i]);
+      switch (lStrType) {
+      case 'function':
+        lBoolResultOfFunc = pArrayTypes[i](pValue);
+        if (lBoolResultOfFunc === void 0 || lBoolResultOfFunc === null) {
+          throw new Error("Function is not return the boolean.");
+        } else if (lBoolResultOfFunc === true) {
+          lStrErr += `Arg ${i}: The result of the function was error.\n`;
+          ++lNumMatchToAll;
+        }
+        break;
+      case 'array':
+        pArrayTypes[i].forEach(pStrType => {
+          if (toType(pValue) !== pStrType) {
+            lStrErr += `Arg ${i}: isn't ${pStrType} type\n`;
+            ++lNumMatchToAll;
+          }
+        });
+        break;
+      default:
+        throw new Error(
+          "Invalid arugments. pArrayTypes is not array or function.");
+      }
+
+      if (lNumMatchToAll === pArrayTypes[i].length) {
+        rStrError += lStrErr;
+      }
+    });
+
+    return rStrError.length > 0 ? rStrError : false;
+  }//}}}
+
+  /**
    * 日付をフォーマットする
    * http://qiita.com/osakanafish/items/c64fe8a34e7221e811d0
    * @param  {Date}   pDate     日付
@@ -574,6 +656,7 @@
   setObjectProperty(window, 'keyCheck',          keyCheck);
   setObjectProperty(window, 'generateKeyString', generateKeyString);
   setObjectProperty(window, 'toType',            toType);
+  setObjectProperty(window, 'checkFunctionArguments', checkFunctionArguments);
   setObjectProperty(window, 'formatDate',        formatDate);
   setObjectProperty(window, 'setObjectProperty', setObjectProperty);
   //}}}

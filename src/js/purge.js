@@ -83,8 +83,34 @@
     sBoolUnloadedChange = true;
   });//}}}
 
+  /**
+   * setUnloaded
+   *
+   * Adds to sObjUnloaded.
+   *
+   * @param {any} pStrKey -
+   *     You want to add the key name.
+   *     normally, the id of the tab.
+   * @param {string} pStrUrl - You want to add the url.
+   * @param {number} pNumWindowId - You want to add the windowId of tab.
+   * @param {object} [pObjPos] -
+   *     You want to add scrollPosition of the page of the tab.
+   * @return {undefined}
+   */
   function setUnloaded(pStrKey, pStrUrl, pNumWindowId, pObjPos)//{{{
   {
+    console.info('setUnloaded', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ ],
+      [ 'string' ],
+      [ 'number' ],
+      [ 'object', 'null', 'undefined' ],
+    ], true);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     sObjUnloaded[pStrKey] = {
       url            : pStrUrl,
       windowId       : pNumWindowId,
@@ -95,16 +121,24 @@
   /**
    * Return the split object of the arguments of the url.
    *
-   * @param {String} pUrl -  the url of getting parameters.
-   * @param {String} pName -  the target parameter name.
+   * @param {String} pStrUrl -  the url of getting parameters.
+   * @param {String} pStrName -  the target parameter name.
    * @return {String} the string of a parameter.
    */
-  function getParameterByName(pUrl, pName)//{{{
+  function getParameterByName(pStrUrl, pStrName)//{{{
   {
-    console.info('getParameterByName', pUrl, pName);
+    console.info('getParameterByName', Array.prototype.slice.call(arguments));
 
-    var lRegParameter = new RegExp(`[\\?&]${pName}\s*=\s*([^&#]*)`);
-    var lStrResults   = lRegParameter.exec(decodeURIComponent(pUrl));
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    var lRegParameter = new RegExp(`[\\?&]${pStrName}\s*=\s*([^&#]*)`);
+    var lStrResults   = lRegParameter.exec(decodeURIComponent(pStrUrl));
     return lStrResults === null ?
            "" : decodeURIComponent(lStrResults[1].replace(/\+/g, "%20"));
   }//}}}
@@ -112,16 +146,23 @@
   /**
    * When purged tabs, return the url for reloading tab.
    *
-   * @param {Object} pUrl - the url of the tab.
+   * @param {string} pStrUrl - the url of the tab.
    * @return {Promise} return the promise object.
    *                   When be resolved, return the url for to purge.
    */
-  function getPurgeURL(pUrl)//{{{
+  function getPurgeURL(pStrUrl)//{{{
   {
-    console.info('getPurgeURL', pUrl);
+    console.info('getPurgeURL', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     var lStrPage = gStrBlankUrl;
-    var lStrArgs = '&url=' + encodeURIComponent(pUrl).replace(/%20/g, '+');
+    var lStrArgs = '&url=' + encodeURIComponent(pStrUrl).replace(/%20/g, '+');
     return encodeURI(lStrPage) + '?' + encodeURIComponent(lStrArgs);
   }//}}}
 
@@ -182,8 +223,19 @@
       var lStrName           = "";
       var lFuncCallback      = null;
       var lArrayCallbackArgs = [];
+      var lStrErrMsg         = '';
 
       return new Promise((resolve, reject) => {
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'string' ],
+          [ 'function' ],
+          [ ],
+        ], true);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
         if (lArrayArgs.length < 2) {
           reject(
             new Error(`Number of arguments is not enough:` +
@@ -200,13 +252,6 @@
         if (lSetLocks.has(lStrName)) {
           console.warn(`Already running process of: ${lStrName}`);
           resolve();
-          return;
-        }
-
-        if (toType(lFuncCallback) !== 'function') {
-          reject(new Error(
-            'Invalid arguments. lFuncCallback is not function: ' +
-            toType(lFuncCallback)));
           return;
         }
 
@@ -229,11 +274,22 @@
   /**
    * redirectPurgedTabWhenCreateNewTab
    *
-   * @param {object} pDetails - A object to get from a function of webRequest.
+   * @param {object} pObjDetails -
+   *     A object to get from a function of webRequest.
    * @return {object} return object for webRequest.
    */
   function redirectPurgedTabWhenCreateNewTab(pObjDetails)//{{{
   {
+    console.info('redirectPurgedTabWhenCreateNewTab',
+                 Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'object' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     var lNumTabId = 0;
     var lStrUrl = "";
 
@@ -263,11 +319,21 @@
 
   function loadScrollPosition(pNumTabId)//{{{
   {
-    console.info('loadScrollPosition', pNumTabId);
+    console.info('loadScrollPosition', Array.prototype.slice.call(arguments));
 
+    var lArrayArgs = Array.prototype.slice.call(arguments);
     var lNumPos = 0;
+    var lStrErrMsg = '';
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       if (sMapTempScrollPos.has(pNumTabId)) {
         lNumPos = sMapTempScrollPos.get(pNumTabId);
 
@@ -345,14 +411,18 @@
    */
   function isLackTheMemory(pNumCriteriaMemorySize)//{{{
   {
-    console.info('isLackTheMemory', pNumCriteriaMemorySize);
+    console.info('isLackTheMemory', Array.prototype.slice.call(arguments));
 
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+    var lStrErrMsg = '';
     var lNumRatio = 0;
 
     return new Promise((resolve, reject) => {
-      if (toType(pNumCriteriaMemorySize) !== 'number') {
-        reject(new Error(
-          "Invalid arugments. pNumCriteriaMemorySize is not number type."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -383,14 +453,19 @@
   // Therefore, the callback function of setInterval is called.
   function intervalProcess(pNumIntervalTime)//{{{
   {
-    console.info('initializeIntervalProcess', pNumIntervalTime);
+    console.info('initializeIntervalProcess',
+      Array.prototype.slice.call(arguments));
 
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+    var lStrErrMsg       = '';
     var lStrIntervalName = 'main';
     var pIntervalId      = 0;
     return new Promise((resolve, reject) => {
-      if (toType(pNumIntervalTime) !== 'number') {
-        reject(new Error("Invalid arugment. pNumIntervalTime is not number: " +
-               `${toType(pNumIntervalTime)}`));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -567,21 +642,33 @@
     var lArrayPromise       = [];
     var lArrayPromise2      = [];
     var lArrayDelKeys       = [];
-    var lBoolResult         = false;
 
+    function check(pArray, pObjTarget)//{{{
+    {
+      var lStrErrMsg  = '';
+      var lArrayArgs  = Array.prototype.slice.call(arguments);
+      var lBoolResult = false;
+
+      return new Promise((resolve3, reject3) => {
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'array' ],
+          [ 'object' ],
+        ]);
+        if (lStrErrMsg) {
+          reject3(new Error(lStrErrMsg));
+          return;
+        }
+
+        lBoolResult = pArray.some(v => (v.url === pObjTarget.url));
+        if (lBoolResult) {
+          reject3();
+        } else {
+          resolve3();
+        }
+      });
+    }//}}}
+    
     return new Promise((resolve, reject) => {
-      function check(pArray, pObjTarget)//{{{
-      {
-        return new Promise((resolve3, reject3) => {
-          lBoolResult = pArray.some(v => (v.url === pObjTarget.url));
-          if (lBoolResult) {
-            reject3();
-          } else {
-            resolve3();
-          }
-        });
-      }//}}}
-
       lArrayPromise = [];
       lArrayPromise.push( db.getAll({ name: gStrDbPageInfoName     } ) );
       lArrayPromise.push( db.getAll({ name: gStrDbHistoryName      } ) );
@@ -666,9 +753,9 @@
     });
   }//}}}
 
-  function writeSession(pUnloaded)//{{{
+  function writeSession(pObjUnloaded)//{{{
   {
-    console.info('writeSession', Object.assign({}, pUnloaded));
+    console.info('writeSession', Array.prototype.slice.call(arguments));
 
     var lArraySessionWrites = [];
     var lArrayDelKeys       = [];
@@ -676,8 +763,18 @@
     var lObjItem            = {};
     var lDate               = new Date();
     var lNumNowTime         = lDate.getTime();
+    var lStrErrMsg          = '';
+    var lArrayArgs          = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'object' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       lDate       = new Date();
       lNumNowTime = lDate.getTime();
 
@@ -706,8 +803,8 @@
         });
       })().then(() => {
         lArraySessionWrites = [];
-        Object.keys(pUnloaded).forEach(rTabId => {
-          lObjItem = pUnloaded[rTabId];
+        Object.keys(pObjUnloaded).forEach(rTabId => {
+          lObjItem = pObjUnloaded[rTabId];
           if (lObjItem !== void 0 && lObjItem !== null &&
               lObjItem.url !== void 0 && lObjItem.url !== null &&
               lObjItem.url.length > 0) {
@@ -744,8 +841,8 @@
 
     var lSetWrite     = new Set();
 
-    return function(pTab) {
-      console.info('writeHistory', Object.assign({}, pTab));
+    return function(pObjTab) {
+      console.info('writeHistory', Array.prototype.slice.call(arguments));
 
       var lDateNow         = new Date();
       var lDateBegin       = new Date();
@@ -758,9 +855,19 @@
       var lStrUnknownTitle = 'Unknown';
       var lArrayDelKeys    = [];
       var lArrayPromise    = [];
+      var lStrErrMsg       = '';
+      var lArrayArgs       = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
-        lStrTabUrl = pTab.url;
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'object' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
+        lStrTabUrl = pObjTab.url;
 
         if (lSetWrite.has(lStrTabUrl)) {
           console.warn(
@@ -798,7 +905,7 @@
         .then(() => {
           return new Promise((resolve, reject) => {
             if (sMapOptions.get('get_title_when_does_not_title') === true &&
-                !pTab.title) {
+                !pObjTab.title) {
               ajax({ url:lStrTabUrl, responseType: 'document' })
               .then(pObjResult => {
                 if (pObjResult.status === 200) {
@@ -810,7 +917,7 @@
                 }
               });
             } else {
-              resolve(pTab.title || lStrUnknownTitle);
+              resolve(pObjTab.title || lStrUnknownTitle);
               return;
             }
           });
@@ -835,8 +942,8 @@
           // dataURI.
           lArrayPromise.push(
             new Promise((resolve3, reject3) => {
-              if (pTab.favIconUrl) {
-                getDataURI(pTab.favIconUrl)
+              if (pObjTab.favIconUrl) {
+                getDataURI(pObjTab.favIconUrl)
                 .then(dataURI => {
                   return db.add({
                     name: gStrDbDataURIName,
@@ -849,7 +956,7 @@
                 .then(resolve3)
                 .catch(reject3);
               } else {
-                console.warn("Don't find favIconUrl.", pTab);
+                console.warn("Don't find favIconUrl.", pObjTab);
                 resolve3();
               }
             })
@@ -922,14 +1029,22 @@
   /**
    * check If the url has contained the release pages.
    *
-   * @param {String} pUrl - the target url.
+   * @param {String} pStrUrl - the target url.
    * @return {Boolean} If the url is contained, return true.
    *                   if the different, return false.
    */
-  function isReleasePage(pUrl)//{{{
+  function isReleasePage(pStrUrl)//{{{
   {
-    console.info('isReleasePage', pUrl);
-    return pUrl.indexOf(gStrBlankUrl) === 0;
+    console.info('isReleasePage', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    return pStrUrl.indexOf(gStrBlankUrl) === 0;
   }//}}}
 
   /**
@@ -937,28 +1052,45 @@
    *
    * Whether it is playing sound that given the tab.
    *
-   * @param {Object} rTab - The tab object of chrome.tabs.
+   * @param {Object} pObjTab - The tab object of chrome.tabs.
    * @return {Boolean} If the tab have been playing sound, True.
    *     haven't playing sound if False.
    */
-  function isPlayingSound(pTab)//{{{
+  function isPlayingSound(pObjTab)//{{{
   {
-    console.info('isPlayingSound', pTab);
-    return pTab.audible === true;
+    console.info('isPlayingSound', pObjTab);
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'object' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    return pObjTab.audible === true;
   }//}}}
 
   /**
   * Check whether the user matches that set the exclusion list.
-  * @param {String} pUrl - the url to check whether matches.
+  * @param {String} pStrUrl - the url to check whether matches.
   * @param {Object} pObjExclude - the object represent exclusion list settings.
   *     list    - 除外リストの値。複数のものは\nで区切る.
   *     options - 正規表現のオプション.
   *     returnValue - 一致したときに返す返り値
   * @return {Number} 引数にはnullかreturnValueの値が入る
   */
-  function checkMatchUrlString(pUrl, pObjExclude)//{{{
+  function checkMatchUrlString(pStrUrl, pObjExclude)//{{{
   {
-    console.info('checkMatchUrlString', pUrl, Object.assign({}, pObjExclude));
+    console.info('checkMatchUrlString',
+      Array.prototype.slice.call(pObjExclude));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+      [ 'object' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     var lRegExpUrl    = null;
     var lArrayExclude = pObjExclude.list.split('\n');
@@ -966,7 +1098,7 @@
     for (var i = 0; i < lArrayExclude.length; i = (i + 1) | 0) {
       if (lArrayExclude[i].length !== 0) {
         lRegExpUrl = new RegExp(lArrayExclude[i].trim(), pObjExclude.options);
-        if (lRegExpUrl.test(pUrl)) {
+        if (lRegExpUrl.test(pStrUrl)) {
           return pObjExclude.returnValue;
         }
       }
@@ -978,15 +1110,22 @@
   /**
    * return the exclusion list have been set argument,
    *
-   * @param {String} pTarget - the name of the target list.
+   * @param {String} pStrTarget - the name of the target list.
    *                   If the value is undefined, return normal exlusion list.
    * @return {Object} the object of the list relation.
    */
-  function getTargetExcludeList(pTarget)//{{{
+  function getTargetExcludeList(pStrTarget)//{{{
   {
-    console.info('getTargetExcludeList', pTarget);
+    console.info('getTargetExcludeList', Array.prototype.slice.call(arguments));
 
-    switch (pTarget) {
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'undefined', 'null', 'string' ],
+    ], true);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    switch (pStrTarget) {
       case 'chrome':
         return {
           list:        gStrChromeExcludeUrl,
@@ -1028,13 +1167,13 @@
         }
     }
 
-    console.error('getTargetExcludeList was error.', pTarget);
+    console.error('getTargetExcludeList was error.', pStrTarget);
     return { list: '', options: '', returnValue: null };
   }//}}}
 
   /**
   * 与えられたURLが全ての除外リストに一致するか検索する。
-  * @param {String} pUrl - 対象のURL.
+  * @param {String} pStrUrl - 対象のURL.
   * @return {Value} If be ran resolve function, return value is following.
   *               CHROME_EXCLUDE = chrome関係の除外リストと一致
   *               EXTENSION_EXCLUDE = 拡張機能関係のアドレスと一致
@@ -1046,11 +1185,18 @@
   *
   *             When you compare these values, you should use bit addition.
   */
-  function checkExcludeList(pUrl)//{{{
+  function checkExcludeList(pStrUrl)//{{{
   {
-    console.info('checkExcludeList');
+    console.info('checkExcludeList', Array.prototype.slice.call(arguments));
 
-    if (pUrl === void 0 || pUrl === null || pUrl.length === 0) {
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string', 'null', 'undefined' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    if (pStrUrl === void 0 || pStrUrl === null || pStrUrl.length === 0) {
       return INVALID_EXCLUDE;
     }
 
@@ -1059,28 +1205,29 @@
 
     // Check the keybind exclude list.
     lNumKeybind =
-      checkMatchUrlString(pUrl, getTargetExcludeList('keybind')) || 0;
+      checkMatchUrlString(pStrUrl, getTargetExcludeList('keybind')) || 0;
 
     // Check the exclude list for the extension.
-    lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList('extension'));
+    lNumResult = checkMatchUrlString(
+      pStrUrl, getTargetExcludeList('extension'));
     if (lNumResult) {
       return lNumResult | lNumKeybind;
     }
 
     // Check the exclude list for Google Chrome.
-    lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList('chrome'));
+    lNumResult = checkMatchUrlString(pStrUrl, getTargetExcludeList('chrome'));
     if (lNumResult) {
       return lNumResult | lNumKeybind;
     }
 
     // Check to the temporary exclude list.
-    lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList('temp'));
+    lNumResult = checkMatchUrlString(pStrUrl, getTargetExcludeList('temp'));
     if (lNumResult) {
       return lNumResult | lNumKeybind;
     }
 
     // Check the normal exclude list.
-    lNumResult = checkMatchUrlString(pUrl, getTargetExcludeList());
+    lNumResult = checkMatchUrlString(pStrUrl, getTargetExcludeList());
     if (lNumResult) {
       return lNumResult | lNumKeybind;
     }
@@ -1106,26 +1253,37 @@
 
   /**
    * 指定したタブの状態に合わせ、ブラウザアクションのアイコンを変更する。
-   * @param {Tab} pTab 対象のタブ.
+   * @param {object} pObjTab 対象のタブ.
    * @param {Promise} promiseが返る。
    */
-  function reloadBrowserIcon(pTab)//{{{
+  function reloadBrowserIcon(pObjTab)//{{{
   {
-    console.info('reloadBrowserIcon', Object.assign({}, pTab));
+    console.info('reloadBrowserIcon', Array.prototype.slice.call(pObjTab));
 
     var lNumChangeIcon = 0;
     var lStrTitle      = '';
+    var lStrErrMsg     = '';
+    var lArrayArgs     = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lNumChangeIcon =
-        sBoolDisableAutoPurge ? DISABLE_AUTOPURGE : checkExcludeList(pTab.url);
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'object' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lNumChangeIcon = sBoolDisableAutoPurge ?
+                       DISABLE_AUTOPURGE :
+                       checkExcludeList(pObjTab.url);
       chrome.browserAction.setIcon(
-        { path: gMapIcons.get(lNumChangeIcon), tabId: pTab.id }, () => {
+        { path: gMapIcons.get(lNumChangeIcon), tabId: pObjTab.id }, () => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
             return;
           }
-          sMapIconState.set(pTab.id, lNumChangeIcon);
+          sMapIconState.set(pObjTab.id, lNumChangeIcon);
 
           lStrTitle = 'Tab Memory Purge\n';
           if (lNumChangeIcon & DISABLE_AUTOPURGE) {
@@ -1153,7 +1311,8 @@
               "\nAnd also included in the exclude list of key bindings.";
           }
 
-          chrome.browserAction.setTitle({ tabId: pTab.id, title: lStrTitle });
+          chrome.browserAction.setTitle(
+            { tabId: pObjTab.id, title: lStrTitle });
           resolve(lNumChangeIcon);
         }
       );
@@ -1174,10 +1333,15 @@
     var lArrayScrollPosition = [];
     var lNumState            = 0;
     var lStrUrl              = "";
+    var lStrErrMsg           = '';
+    var lArrayArgs           = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (toType(pTabId) !== 'number') {
-        reject(new Error("tabId is not number."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -1269,27 +1433,32 @@
 
   /**
   * 解放したタブを復元します。
-  * @param {Number} pTabId 復元するタブのID.
+  * @param {Number} pNumId 復元するタブのID.
   * @return {Promise} promiseが返る。
   */
-  function unPurge(pTabId)//{{{
+  function unPurge(pNumId)//{{{
   {
-    console.info('unPurge', pTabId);
+    console.info('unPurge', pNumId);
 
     var lStrUrl = "";
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (toType(pTabId) !== 'number') {
-        reject(new Error("pTabId is not number."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
-      lStrUrl = sObjUnloaded[pTabId].url;
-      chrome.tabs.sendMessage(pTabId,
+      lStrUrl = sObjUnloaded[pNumId].url;
+      chrome.tabs.sendMessage(pNumId,
         { event: 'location_replace' }, useChrome => {
           // If the lStrUrl is empty in purge page.
           if (useChrome) {
-            chrome.tabs.update(pTabId, { url: lStrUrl }, resolve);
+            chrome.tabs.update(pNumId, { url: lStrUrl }, resolve);
           } else {
             resolve();
           }
@@ -1300,21 +1469,27 @@
 
   /**
   * 解放状態・解放解除を交互に行う
-  * @param {Number} pTabId 対象のタブのID.
+  * @param {Number} pNumId 対象のタブのID.
   * @return {Promise} promiseが返る。
   */
-  function purgeToggle(pTabId)//{{{
+  function purgeToggle(pNumId)//{{{
   {
-    console.info('purgeToggle', pTabId);
+    console.info('purgeToggle', pNumId);
+
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (toType(pTabId) !== 'number') {
-        reject(new Error("pTabId is not number."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
       (() =>
-        sObjUnloaded.hasOwnProperty(pTabId) ? unPurge(pTabId) : purge(pTabId))()
+        sObjUnloaded.hasOwnProperty(pNumId) ? unPurge(pNumId) : purge(pNumId))()
       .then(resolve)
       .catch(reject);
     });
@@ -1322,34 +1497,44 @@
 
   /**
   * 定期的に実行される関数。アンロードするかどうかを判断。
-  * @param {Number} pTabId 処理を行うタブのID.
+  * @param {Number} pNumId 処理を行うタブのID.
   * @return {Promise} Promiseが返る。
   */
-  function tick(pTabId)//{{{
+  function tick(pNumId)//{{{
   {
-    console.info('tick', pTabId);
+    console.info('tick', pNumId);
+
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (toType(pTabId) !== 'number' || sObjUnloaded.hasOwnProperty(pTabId)) {
-        reject(new Error(
-          "pTabId isn't number or added to sObjUnloaded already: " + pTabId));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
-      chrome.tabs.get(pTabId, rTab => {
+      if (sObjUnloaded.hasOwnProperty(pNumId)) {
+        reject(new Error("pNumId added to sObjUnloaded already: " + pNumId));
+        return;
+      }
+
+      chrome.tabs.get(pNumId, rTab => {
         if (chrome.runtime.lastError) {
-          reject(new Error(`tick function is skipped: ${pTabId}`));
+          reject(new Error(`tick function is skipped: ${pNumId}`));
           return;
         }
 
         if (sMapOptions.get('not_purge_playsound_tab') === true &&
             isPlayingSound(rTab)) {
-          reject(new Error(`the tab have been playing sound: ${pTabId}`));
+          reject(new Error(`the tab have been playing sound: ${pNumId}`));
           return;
         }
 
         // If a tab is activated, updates unload time of a tab.
-        (() => rTab.active ? setTick(pTabId) : purge(pTabId))()
+        (() => rTab.active ? setTick(pNumId) : purge(pNumId))()
         .then(resolve).catch(reject);
       });
     });
@@ -1357,36 +1542,52 @@
 
   /**
   * 定期的な処理を停止
-  * @param {Number} pTabId 停止するタブのID.
+  * @param {Number} pNumId 停止するタブのID.
   */
-  function deleteTick(pTabId)//{{{
+  function deleteTick(pNumId)//{{{
   {
     console.info('deleteTick');
 
-    if (sMapTicked.has(pTabId)) {
-      clearInterval(sMapTicked.get(pTabId));
-      sMapTicked.delete(pTabId);
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'number' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    if (sMapTicked.has(pNumId)) {
+      clearInterval(sMapTicked.get(pNumId));
+      sMapTicked.delete(pNumId);
     }
   }//}}}
 
   /**
   * 定期的に解放処理の判断が行われるよう設定します。
   * 既に設定済みなら時間を延長します。
-  * @param {Number} pTabId 設定するタブのID.
+  * @param {Number} pNumTabId 設定するタブのID.
   * @return {Promise} Promiseが返る。
   */
-  function setTick(pTabId)//{{{
+  function setTick(pNumTabId)//{{{
   {
     console.info('setTick');
 
-    var lNumState = 0;
-    var lNumTimer = 0;
-    var lNumIVal  = 0;
+    var lNumState  = 0;
+    var lNumTimer  = 0;
+    var lNumIVal   = 0;
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (sMapOptions.size === 0 || toType(pTabId) !== 'number') {
-        reject(
-          new Error('sMapOptions is not loaded yet. or pTabId is not number.'));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      if (sMapOptions.size === 0) {
+        reject(new Error('sMapOptions is not loaded yet.'));
         return;
       }
 
@@ -1396,7 +1597,7 @@
         return;
       }
 
-      chrome.tabs.get(pTabId, rTab => {
+      chrome.tabs.get(pNumTabId, rTab => {
         if (chrome.runtime.lastError) {
           console.log('setTick function is skipped.');
           resolve();
@@ -1410,11 +1611,11 @@
           lNumTimer = parseInt(sMapOptions.get('timer'), 10) * 60 * 1000;
 
           // Update.
-          deleteTick(pTabId);
-          lNumIVal = setInterval(() => tick(pTabId), lNumTimer);
-          sMapTicked.set(pTabId, lNumIVal);
+          deleteTick(pNumTabId);
+          lNumIVal = setInterval(() => tick(pNumTabId), lNumTimer);
+          sMapTicked.set(pNumTabId, lNumIVal);
         } else { // include exclude list
-          deleteTick(pTabId);
+          deleteTick(pNumTabId);
         }
 
         resolve();
@@ -1433,15 +1634,31 @@
   var restore = (function() {//{{{
     console.info('create closure of restore.');
 
-    function restoreTab(pSession)//{{{
+    function restoreTab(pObjSession)//{{{
     {
-      console.info('restoreTab in closure of restore.', pSession);
+      console.info('restoreTab in closure of restore.',
+        Array.prototype.slice.call(arguments));
+
+      var rMapResults = new Map();
+      var lNumWinId   = 0;
+      var lStrUrl     = "";
+      var lObjOpts    = {};
+      var lStrErrMsg  = '';
+      var lArrayArgs  = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
-        var rMapResults = new Map();
-        var lNumWinId   = pSession.windowId;
-        var lStrUrl     = pSession.url;
-        var lObjOpts    = { url: getPurgeURL(lStrUrl), active: false };
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'object' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
+        rMapResults = new Map();
+        lNumWinId   = pObjSession.windowId;
+        lStrUrl     = pObjSession.url;
+        lObjOpts    = { url: getPurgeURL(lStrUrl), active: false };
 
         if (lNumWinId) {
           lObjOpts.windowId = lNumWinId;
@@ -1465,17 +1682,30 @@
       });
     }//}}}
 
-    function restoreWindow(pSessions)//{{{
+    function restoreWindow(pArraySessions)//{{{
     {
-      console.info('restoreWindow in closure of restore.', pSessions);
+      console.info('restoreWindow in closure of restore.',
+        Array.prototype.slice.call(arguments));
+
+      var rMapResults  = new Map();
+      var lMapTempUrls = new Map();
+      var lStrUrl      = "";
+      var lArrayUrls   = [];
+      var lStrErrMsg   = '';
+      var lArrayArgs   = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
-        var lMapTempUrls = new Map();
-        var rMapResults  = new Map();
-        var lStrUrl      = "";
-        var lArrayUrls   = [];
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'array' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
 
-        pSessions.forEach(v => {
+        lMapTempUrls = new Map();
+        lArrayUrls   = [];
+        pArraySessions.forEach(v => {
           lStrUrl = getPurgeURL(v.url);
           lMapTempUrls.set(lStrUrl, v.url);
           lArrayUrls.push(lStrUrl);
@@ -1506,9 +1736,21 @@
       console.info('restoreSessionsInCurrentOrOriginal in closure of restore.',
         Array.prototype.slice.call(arguments));
 
+      var rMapResult    = new Map();
+      var lArrayPromise = [];
+      var lStrErrMsg    = '';
+      var lArrayArgs    = Array.prototype.slice.call(arguments);
+
       return new Promise((resolve, reject) => {
-        var lArrayPromise = [];
-        var rMapResult    = new Map();
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'number' ],
+          [ 'array' ],
+          [ 'string' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
 
         // restore tab to window of winId.
         lArrayPromise = [];
@@ -1537,12 +1779,23 @@
 
     function restoreSessions(pNumWinId, pArraySessions, pStrRestoreType)//{{{
     {
-      console.info(
-        'restoreSessions in closure if restore',
-        pNumWinId, pArraySessions.slice(), pStrRestoreType);
+      console.info('restoreSessions in closure if restore',
+        Array.prototype.slice.call(arguments));
+
+      var lStrErrMsg = '';
       var lArrayArgs = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'number' ],
+          [ 'array' ],
+          [ 'string' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
         switch (pStrRestoreType) {
         case 'restore_to_current_window':
           restoreSessionsInCurrentOrOriginal.apply(null, lArrayArgs)
@@ -1551,7 +1804,18 @@
           break;
         case 'restore_to_original_window':
           (function(pWindowId) {
+            var lStrErrMsg = '';
+            var lArrayArgs = Array.prototype.slice.call(arguments);
+
             return new Promise((resolve, reject) => {
+              lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+                [ 'number', 'null', 'undefined' ],
+              ], true);
+              if (lStrErrMsg) {
+                reject(new Error(lStrErrMsg));
+                return;
+              }
+
               if (pWindowId) {
                 chrome.tabs.query({ windowId: pWindowId }, rTabs => {
                   if (chrome.runtime.lastError) {
@@ -1588,12 +1852,23 @@
     return function(pArraySessions, pStrRestoreType) {//{{{
       console.info('restore', Array.prototype.slice.call(arguments));
 
+      var lMapEachWindow         = new Map();
+      var lArrayList             = [];
+      var lArrayPromise          = [];
+      var lStrRestoreTypeOptName = "";
+      var lNumWinId              = 0;
+      var lStrErrMsg             = '';
+      var lArrayArgs             = Array.prototype.slice.call(arguments);
+
       return new Promise((resolve, reject) => {
-        var lArrayList                      = [];
-        var lArrayPromise                   = [];
-        var lStrRestoreTypeOptName          = "";
-        var lNumWinId                       = 0;
-        var lMapEachWindow                  = new Map();
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'array' ],
+          [ 'null', 'undefined', 'string' ],
+        ], true);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
 
         if (pStrRestoreType === void 0 || pStrRestoreType === null) {
           lStrRestoreTypeOptName = 'restored_type';
@@ -1601,12 +1876,8 @@
                              gMapDefaultValues.get(lStrRestoreTypeOptName));
         }
 
-        if (toType(pStrRestoreType) !== 'string') {
-          throw new Error(
-            "Invalid arguments, pStrRestoreType isn't string type: " +
-            `${toType(pStrRestoreType)}`);
-        }
-
+        lMapEachWindow = new Map();
+        lArrayList     = [];
         pArraySessions.forEach(pValue => {
           lNumWinId     = pValue.windowId;
           lArrayList    = lMapEachWindow.get(lNumWinId) || [];
@@ -1638,19 +1909,27 @@
     };//}}}
   })();//}}}
 
-  function switchTempRelease(pUrl, type)//{{{
+  function switchTempRelease(pStrUrl, pStrType)//{{{
   {
-    console.info('switchTempRelease', pUrl);
+    console.info('switchTempRelease', Array.prototype.slice.call(arguments));
 
     var lRegexUrlInArg  = new RegExp();
     var lRegexUrlInTemp = new RegExp();
-    var lArrayDelKeys = [];
+    var lArrayDelKeys   = [];
 
-    lRegexUrlInArg = new RegExp(pUrl);
-    lArrayDelKeys = [];
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lRegexUrlInArg = new RegExp(pStrUrl);
+    lArrayDelKeys  = [];
     sSetTempRelease.forEach(pValue => {
       lRegexUrlInTemp = new RegExp(pValue);
-      if (lRegexUrlInTemp.test(pUrl) || lRegexUrlInArg.test(pValue)) {
+      if (lRegexUrlInTemp.test(pStrUrl) || lRegexUrlInArg.test(pValue)) {
         lArrayDelKeys.push(pValue);
       }
     });
@@ -1659,8 +1938,8 @@
       lArrayDelKeys.forEach(pValue => sSetTempRelease.delete(pValue));
     }
 
-    if (lArrayDelKeys.length === 0 || type === 'add') {
-      sSetTempRelease.add(pUrl);
+    if (lArrayDelKeys.length === 0 || pStrType === 'add') {
+      sSetTempRelease.add(pStrUrl);
     }
   }//}}}
 
@@ -1668,20 +1947,31 @@
   * 指定されたタブに最も近い未解放のタブをアクティブにする。
   * 右側から探索され、見つからなかったら左側を探索する。
   * 何も見つからなければ新規タブを作成してそのタブをアクティブにする。
-  * @param {object} pTab 基準点となるタブ.
+  * @param {object} pObjTab 基準点となるタブ.
   * @return {Promise} promiseが返る。
   */
-  function searchUnloadedTabNearPosition(pTab)//{{{
+  function searchUnloadedTabNearPosition(pObjTab)//{{{
   {
-    console.info('searchUnloadedTabNearPosition', Object.assign({}, pTab));
+    console.info('searchUnloadedTabNearPosition',
+      Array.prototype.slice.call(arguments));
+
+    var lArrayTabs       = [];
+    var lArrayTarget     = [];
+    var lNumTargetLength = 0;
+    var lStrErrMsg       = '';
+    var lArrayArgs       = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      var lArrayTabs       = [];
-      var lArrayTarget     = [];
-      var lNumTargetLength = 0;
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'object' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
 
       // 現在のタブの左右の未解放のタブを選択する
-      chrome.windows.get(pTab.windowId, { populate: true }, pWin => {
+      chrome.windows.get(pObjTab.windowId, { populate: true }, pWin => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -1689,10 +1979,10 @@
 
         lArrayTabs   = pWin.tabs.filter(v =>
           !sObjUnloaded.hasOwnProperty(v.id) && !isReleasePage(v.url));
-        lArrayTarget = lArrayTabs.filter(v => (v.index > pTab.index));
+        lArrayTarget = lArrayTabs.filter(v => (v.index > pObjTab.index));
         lNumTargetLength = 0;
         if (lArrayTarget.length === 0) {
-          lArrayTarget     = lArrayTabs.filter(v => (v.index < pTab.index));
+          lArrayTarget     = lArrayTabs.filter(v => (v.index < pObjTab.index));
           lNumTargetLength = lArrayTarget.length - 1;
         }
 
@@ -1722,14 +2012,19 @@
 
   function restoreSessionBeforeUpdate(pPreviousSessionTime)//{{{
   {
-    console.info('restoreSessionBeforeUpdate', pPreviousSessionTime);
+    console.info('restoreSessionBeforeUpdate',
+      Array.prototype.slice.call(arguments));
+
+    var lArrayRestoreSessions = [];
+    var lStrErrMsg            = '';
+    var lArrayArgs            = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      var lArrayRestoreSessions = [];
-
-      if (pPreviousSessionTime === void 0 ||
-          pPreviousSessionTime === null) {
-        reject(new Error("pPreviousSessionTime is invalidation."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -1938,11 +2233,17 @@
 
   function initializeUseOptions(pMapOptions)//{{{
   {
-    console.info('initializeUseOptions', new Map(pMapOptions));
+    console.info('initializeUseOptions', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (toType(pMapOptions) !== 'map') {
-        reject(new Error("Invalid arugments. pMapOptions is not map type"));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'map' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -1961,8 +2262,20 @@
 
     function toAdd(pObjCurrent)
     {
+      var lNumResult = 0;
+      var lStrErrMsg = '';
+      var lArrayArgs = Array.prototype.slice.call(arguments);
+
       return new Promise((resolve, reject) => {
-        var lNumResult = checkExcludeList(pObjCurrent.url);
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          [ 'object' ],
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
+        lNumResult = checkExcludeList(pObjCurrent.url);
         if (lNumResult ^ (NORMAL & INVALID_EXCLUDE)) {
           if (isReleasePage(pObjCurrent.url)) {
             setUnloaded(
@@ -2085,15 +2398,26 @@
   /**
    * onActivatedFunc
    *
-   * @param pTabId the id of the tab.
+   * @param {number} pNumTabId the id of the tab.
    * @return {Promise} promiseが返る。
    */
-  function onActivatedFunc(pTabId)//{{{
+  function onActivatedFunc(pNumTabId)//{{{
   {
-    console.info('onActivatedFunc', pTabId);
+    console.info('onActivatedFunc', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      chrome.tabs.get(pTabId, pTab => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      chrome.tabs.get(pNumTabId, pTab => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -2103,7 +2427,7 @@
         if (sMapOldActiveIds.has(pTab.WindowId)) {
           setTick(sMapOldActiveIds.get(pTab.windowId));
         }
-        sMapOldActiveIds.set(pTab.windowId, pTabId);
+        sMapOldActiveIds.set(pTab.windowId, pNumTabId);
 
         // アイコンの状態を変更
         reloadBrowserIcon(pTab).then(resolve).catch(reject);
@@ -2151,12 +2475,23 @@
 
   function initializeIntervalUpdateCheck(pNumCheckTime)//{{{
   {
-    console.info('initializeIntervalUpdateCheck', pNumCheckTime);
+    console.info('initializeIntervalUpdateCheck',
+      Array.prototype.slice.call(pNumCheckTime));
 
     var lStrIntervalName = 'updateCheck';
-    var lStrIntervalId = '';
+    var lStrIntervalId   = '';
+    var lStrErrMsg       = '';
+    var lArrayArgs       = Array.prototype.slice.call(arguments);
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       lStrIntervalId = sMapContinueRun.get(lStrIntervalName);
       if (lStrIntervalId !== void 0 && lStrIntervalId !== null) {
         console.warn('already be running the update check process, ' +
