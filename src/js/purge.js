@@ -213,7 +213,7 @@
   var exclusiveProcessForFunc = (function() {//{{{
     console.info('create closure of exclusiveProcessForFunc');
 
-    var lSetLocks          = new Set();
+    var lSetLocks  = new Set();
 
     return function() {
       console.info('exclusiveProcessForFunc',
@@ -611,7 +611,7 @@
       }
 
       lNumMaxHistory = parseInt(sMapOptions.get('max_history'), 10);
-      lDateNow = new Date();
+      lDateNow       = new Date();
       db.getCursor({
         name: gStrDbHistoryName,
         range: IDBKeyRange.upperBound(
@@ -1094,8 +1094,9 @@
 
     var lRegExpUrl    = null;
     var lArrayExclude = pObjExclude.list.split('\n');
+    var i             = 0;
 
-    for (var i = 0; i < lArrayExclude.length; i = (i + 1) | 0) {
+    for (i = 0; i < lArrayExclude.length; i = (i + 1) | 0) {
       if (lArrayExclude[i].length !== 0) {
         lRegExpUrl = new RegExp(lArrayExclude[i].trim(), pObjExclude.options);
         if (lRegExpUrl.test(pStrUrl)) {
