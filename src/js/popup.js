@@ -1,10 +1,10 @@
 (function(window, document) {
   "use strict";
 
-  var sElRelease          = document.querySelector('#release');
-  var sElRestore          = document.querySelector('#restore_release');
-  var sElNotRelease       = document.querySelector('#not_release');
-  var sElRemoveNotRelease = document.querySelector('#remove_not_release');
+  const sElRelease          = document.querySelector('#release');
+  const sElRestore          = document.querySelector('#restore_release');
+  const sElNotRelease       = document.querySelector('#not_release');
+  const sElRemoveNotRelease = document.querySelector('#remove_not_release');
 
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()

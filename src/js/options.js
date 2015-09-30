@@ -4,58 +4,58 @@
   //{{{ variables
   var db = null; // indexedDB class.
 
-  var sStrDefaultMenu = "normal";
+  const sStrDefaultMenu = "normal";
 
-  var sStrClassNameOfDoesNot  = 'doNotShow';
-  var sStrStyleDisplayNone    = 'display: none;';
+  const sStrClassNameOfDoesNot  = 'doNotShow';
+  const sStrStyleDisplayNone    = 'display: none;';
 
-  var sStrClassNameOfMenu   = 'sectionMenu';
-  var sStrClassNameOfButton = 'sectionButton';
-  var sStrClassNameWhenSelect = 'select';
+  const sStrClassNameOfMenu   = 'sectionMenu';
+  const sStrClassNameOfButton = 'sectionButton';
+  const sStrClassNameWhenSelect = 'select';
 
-  var sStrClassNameOfCopyBtn  = 'copy';
-  var sStrClassNameOfApplyBtn = 'apply';
+  const sStrClassNameOfCopyBtn  = 'copy';
+  const sStrClassNameOfApplyBtn = 'apply';
 
-  var sStrClassNameOfSetKeybindButton   = 'keybind_set';
-  var sStrClassNameOfClearKeybindButton = 'keybind_clear';
-  var sStrClassNameOfKeybindOption      = 'keyOption';
-  var sStrClassNameOfShowKeybind        = 'pressKey';
-  var sStrClassNameOfKeybindValue       = 'keybindValue';
+  const sStrClassNameOfSetKeybindButton   = 'keybind_set';
+  const sStrClassNameOfClearKeybindButton = 'keybind_clear';
+  const sStrClassNameOfKeybindOption      = 'keyOption';
+  const sStrClassNameOfShowKeybind        = 'pressKey';
+  const sStrClassNameOfKeybindValue       = 'keybindValue';
 
-  var sStrClassNameOfHistoryItem       = 'historyItem';
-  var sStrClassNameOfHistoryDate       = 'historyDate';
-  var sStrClassNameOfHistoryItemDelete = 'itemDelete';
-  var sStrClassNameOfHistoryItemIcon   = 'itemIcon';
-  var sStrClassNameOfHistoryItemUrl    = 'itemUrl';
-  var sStrClassNameOfHistoryItemDate   = 'itemDate';
-  var sStrClassNameOfHistoryItemTitle  = 'itemTitle';
-  var sStrClassNameOfHistoryItemList   = 'itemList';
-  var sStrAttrNameOfWindowId           = 'windowId';
-  var sStrAttrNameOfDatabase           = 'database';
-  var sStrAttrNameOfItemId             = 'historyItemId';
+  const sStrClassNameOfHistoryItem       = 'historyItem';
+  const sStrClassNameOfHistoryDate       = 'historyDate';
+  const sStrClassNameOfHistoryItemDelete = 'itemDelete';
+  const sStrClassNameOfHistoryItemIcon   = 'itemIcon';
+  const sStrClassNameOfHistoryItemUrl    = 'itemUrl';
+  const sStrClassNameOfHistoryItemDate   = 'itemDate';
+  const sStrClassNameOfHistoryItemTitle  = 'itemTitle';
+  const sStrClassNameOfHistoryItemList   = 'itemList';
+  const sStrAttrNameOfWindowId           = 'windowId';
+  const sStrAttrNameOfDatabase           = 'database';
+  const sStrAttrNameOfItemId             = 'historyItemId';
 
-  var sStrIdNameOfHistoryList             = 'historyList';
-  var sStrIdNameOfSearchHistoryDate       = 'searchHistoryDate';
-  var sStrIdNameOfSearchHistoryItem       = 'searchHistoryItem';
-  var sStrIdNameOfSearchHistoryDateList   = 'historyDateList';
+  const sStrIdNameOfHistoryList             = 'historyList';
+  const sStrIdNameOfSearchHistoryDate       = 'searchHistoryDate';
+  const sStrIdNameOfSearchHistoryItem       = 'searchHistoryItem';
+  const sStrIdNameOfSearchHistoryDateList   = 'historyDateList';
 
-  var sStrIdNameOfDateListNav             = 'dateListNav';
-  var sStrIdNameOfDateList                = 'dateList';
-  var sStrIdNameOfAddSavedSessionDateList = 'savedSessionDateList';
-  var sStrIdNameOfSessionDateList         = 'sessionDateList';
-  var sStrIdNameOfSessionNotFound         = 'sessionNotFound';
-  var sStrIdNameOfSavedSessionDateTitle   = 'savedSessionDateTitle';
-  var sStrIdNameOfSessionList             = 'sessionList';
-  var sStrIdNameOfSessionTitle            = 'sessionTitle';
-  var sStrIdNameOfSessionSave             = 'sessionSave';
-  var sStrIdNameOfSessionDelete           = 'sessionDelete';
-  var sStrIdNameOfSessionRestore          = 'sessionRestore';
-  var sStrIdNameOfSessionIconControl      = 'sessionIconControl';
-  var sStrIdNameOfChangeHistory           = 'change_history';
-  var sStrIdNameOfExport                  = 'export';
-  var sStrIdNameOfImport                  = 'import';
+  const sStrIdNameOfDateListNav             = 'dateListNav';
+  const sStrIdNameOfDateList                = 'dateList';
+  const sStrIdNameOfAddSavedSessionDateList = 'savedSessionDateList';
+  const sStrIdNameOfSessionDateList         = 'sessionDateList';
+  const sStrIdNameOfSessionNotFound         = 'sessionNotFound';
+  const sStrIdNameOfSavedSessionDateTitle   = 'savedSessionDateTitle';
+  const sStrIdNameOfSessionList             = 'sessionList';
+  const sStrIdNameOfSessionTitle            = 'sessionTitle';
+  const sStrIdNameOfSessionSave             = 'sessionSave';
+  const sStrIdNameOfSessionDelete           = 'sessionDelete';
+  const sStrIdNameOfSessionRestore          = 'sessionRestore';
+  const sStrIdNameOfSessionIconControl      = 'sessionIconControl';
+  const sStrIdNameOfChangeHistory           = 'change_history';
+  const sStrIdNameOfExport                  = 'export';
+  const sStrIdNameOfImport                  = 'import';
 
-  var sObjOptsForCreateHistoryDate = {
+  const sObjOptsForCreateHistoryDate = {
     className:  sStrClassNameOfHistoryDate,
     deleteFunc: function(pEvent) {
       return removeHistoryDate(pEvent)
@@ -68,7 +68,7 @@
     itemDate:   sStrClassNameOfHistoryItemDate,
     itemList:   sStrClassNameOfHistoryItemList,
   };
-  var sObjOptsForCreateHistoryItem = {
+  const sObjOptsForCreateHistoryItem = {
     attrNameOfDatabase: sStrAttrNameOfDatabase,
     deleteFunc: function(pEvent) {
       return removeHistoryItem(pEvent);
@@ -424,9 +424,9 @@
   }, true);//}}}
 
   //{{{ A variable of a function of using closure.
-  var operateOption = new OperateOptionValue();
-  var keybindTrace  = new KeyTrace();
-  var menuToggle    = new ShowMenuSelection(
+  const operateOption = new OperateOptionValue();
+  const keybindTrace  = new KeyTrace();
+  const menuToggle    = new ShowMenuSelection(
     {
       menu:   `.${sStrClassNameOfMenu}`,
       button: `.${sStrClassNameOfButton}`,
@@ -843,7 +843,7 @@
   function closureCreateSessionDateList(pObjOpts)//{{{
   {
     //{{{ local variable.
-    const gStrDbName       = pObjOpts.databaseName;
+    const lStrDbName       = pObjOpts.databaseName;
     const lElToAddDateList = pObjOpts.dateList;
     const lElToAddItemList = pObjOpts.itemList;
     const lNumCurrentTime  = pObjOpts.currentTime;
@@ -940,7 +940,7 @@
     {
       var lCreateHistoryItem = closureCreateHistoryItem(
         Object.assign(sObjOptsForCreateHistoryItem, {
-          databaseName: gStrDbName,
+          databaseName: lStrDbName,
           deleteFunc:   removeSessionHistoryItem,
         })
       );
@@ -1391,12 +1391,12 @@
     }
 
     //{{{ local variables.
-    var lFuncDelete                    = pObjOpts.deleteFunc;
-    var lStrClassNameOfHistoryDateItem = pObjOpts.className || 'historyDate';
-    var lStrClassNameOfDeleteButton    = pObjOpts.itemDelete || 'itemDelete';
+    const lFuncDelete                    = pObjOpts.deleteFunc;
+    const lStrClassNameOfHistoryDateItem = pObjOpts.className || 'historyDate';
+    const lStrClassNameOfDeleteButton    = pObjOpts.itemDelete || 'itemDelete';
     // itemDate also be used as DateTitle.
-    var lStrClassNameOfHistoryDate     = pObjOpts.itemDate || 'itemDate';
-    var lStrClassNameToAddHistoryItem  = pObjOpts.itemList || 'itemList';
+    const lStrClassNameOfHistoryDate     = pObjOpts.itemDate || 'itemDate';
+    const lStrClassNameToAddHistoryItem  = pObjOpts.itemList || 'itemList';
     //}}}
 
     function createPrototype()//{{{
@@ -1486,16 +1486,16 @@
     }
 
     //{{{ local variable
-    var gStrDbName                  = pObj.databaseName;
-    var lFuncDelete                 = pObj.deleteFunc;
-    var lStrAttrNameOfDatabase      = pObj.attrNameOfDatabase || 'database';
-    var lStrClassNameOfHistoryItem  = pObj.className || 'historyItem';
-    var lStrClassNameOfDeleteButton = pObj.itemDelete || 'itemDelete';
-    var lStrClassNameOfPageIcon     = pObj.itemIcon || 'itemIcon';
-    var lStrClassNameOfTitle        = pObj.itemTitle || 'itemTitle';
-    var lStrClassNameOfDate         = pObj.itemDate || 'itemDate';
-    var lStrClassNameOfLink         = pObj.itemUrl || 'itemUrl';
-    var lStrAttrNameOfItemId        = pObj.attrNameOfItemId || 'historyItemId';
+    const gStrDbName  = pObjOpts.databaseName;
+    const lFuncDelete = pObjOpts.deleteFunc;
+    const lStrAttrNameOfDatabase = pObjOpts.attrNameOfDatabase || 'database';
+    const lStrClassNameOfHistoryItem  = pObjOpts.className || 'historyItem';
+    const lStrClassNameOfDeleteButton = pObjOpts.itemDelete || 'itemDelete';
+    const lStrClassNameOfPageIcon     = pObjOpts.itemIcon || 'itemIcon';
+    const lStrClassNameOfTitle = pObjOpts.itemTitle || 'itemTitle';
+    const lStrClassNameOfDate  = pObjOpts.itemDate || 'itemDate';
+    const lStrClassNameOfLink  = pObjOpts.itemUrl || 'itemUrl';
+    const lStrAttrNameOfItemId = pObjOpts.attrNameOfItemId || 'historyItemId';
     //}}}
 
     function createPrototype()//{{{
