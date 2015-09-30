@@ -1168,8 +1168,7 @@
         }
     }
 
-    console.error('getTargetExcludeList was error.', pStrTarget);
-    return { list: '', options: '', returnValue: null };
+    throw new Error('getTargetExcludeList was error: ${pStrTarget}');
   }//}}}
 
   /**
@@ -1383,7 +1382,8 @@
 
         if (lObjTab.status !== 'complete') {
           reject(new Error(
-            `The target tab has not been completed loading yet: ${lObjTab}`));
+            "The target tab has not been completed loading yet: " +
+            `${JSON.stringify(lObjTab)}`));
           return;
         }
 
@@ -1518,7 +1518,7 @@
       }
 
       if (sObjUnloaded.hasOwnProperty(pNumId)) {
-        reject(new Error("pNumId added to sObjUnloaded already: " + pNumId));
+        reject(new Error(`pNumId added to sObjUnloaded already: ${pNumId}`));
         return;
       }
 
