@@ -22,7 +22,7 @@
 
   function navigateToPageBeforePurged()//{{{
   {
-    console.info(`${navigateToPageBeforePurged.name}`);
+    console.info('navigateToPageBeforePurged');
 
     var lObjArgs = getQueryString(document);
     if (lObjArgs.url) {
@@ -32,7 +32,15 @@
 
   function getDataOfBeforeToPurge(pNumRecorsiveCount)//{{{
   {
-    console.info(`${getDataOfBeforeToPurge.name}`, pNumRecorsiveCount);
+    console.info('getDataOfBeforeToPurge',
+      Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'number' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     var lStrUrl      = "";
     var lStrNewTitle = "";
@@ -82,24 +90,26 @@
 
   function loadPurgedTabInfo(pNumRecorsiveCount)
   {
-    console.info(`${loadPurgedTabInfo.name}`, pNumRecorsiveCount);
-
-    var lObjArgs    = {};
-    var lStrUrl     = '';
-    var lStrName    = '';
-    var lStrFavicon = '';
+    console.info('loadPurgedTabInfo', Array.prototype.slice.call(arguments));
 
     var lElSpan = document.createDocumentFragment();
     var lElA    = document.createDocumentFragment();
     var lElHead = document.createDocumentFragment();
     var lElLink = document.createDocumentFragment();
 
+    var lObjArgs    = {};
+    var lStrUrl     = '';
+    var lStrName    = '';
+    var lStrFavicon = '';
+    var lStrErrMsg  = '';
+    var lArrayArgs  = Array.prototype.slice.call(arguments);
+
     return new Promise((resolve, reject) => {
-      if (pNumRecorsiveCount !== void 0 && pNumRecorsiveCount !== null) {
-        pNumRecorsiveCount = sNumMaxRecorsiveCount;
-      } else if (toType(pNumRecorsiveCount) !== 'number') {
-        reject(
-          new Error("Invalid arguments. pNumRecorsiveCount is not number."));
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number', 'null', 'undefined' ],
+      ], true);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
         return;
       }
 
@@ -215,7 +225,7 @@
       db = new Database(gStrDbName, gNumDbVersion);
       return db.open(gObjDbCreateStores);
     })()
-    .then(loadPurgedTabInfo);
+    .then(loadPurgedTabInfo());
   });//}}}
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{

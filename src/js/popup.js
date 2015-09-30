@@ -6,6 +6,14 @@
   const sElNotRelease       = document.querySelector('#not_release');
   const sElRemoveNotRelease = document.querySelector('#remove_not_release');
 
+  if (typeof sElRelease !== 'object' ||
+      typeof sElRestore !== 'object' ||
+      typeof sElNotRelease !== 'object' ||
+      typeof sElRemoveNotRelease !== 'object') {
+    throw new Error(
+      "Doesn't find the elements that want to use in the script.");
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()
     .then(loadTranslation(document, gStrTranslationPath))
@@ -20,7 +28,7 @@
       chrome.tabs.query(
         { active: true, currentWindow: true }, tabs => {
           if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError));
+            reject(new Error(chrome.runtime.lastError.message));
             return;
           }
 
@@ -40,15 +48,9 @@
 
   function updatePurgeOrRestoreButton()//{{{
   {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       getCurrentIconState()
       .then(pNumIconValue => {
-        if (sElRelease === null || sElRestore === null) {
-          reject(new Error("fail updatePurgeOrRestoreButton function. " +
-                 "Doesn't find release and restore."));
-          return;
-        }
-
         if (pNumIconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
           sElRelease.style.display = 'block';
           sElRestore.style.display = 'none';
@@ -71,13 +73,7 @@
       getCurrentIconState()
       .then(pNumIconValue => {
         if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError));
-          return;
-        }
-
-        if (sElNotRelease === null || sElRemoveNotRelease === null) {
-          reject("fail updateNotReleaseButton function. " +
-                 "Doesn't find sElNotRelease and sElRemoveNotRelease.");
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
@@ -105,9 +101,17 @@
   function buttonClicked(pEvent)//{{{
   {
     var lElMenu       = document.createDocumentFragment();
+    var lObjCreateTab = {};
     var lStrClassName = "";
     var lStrId        = "";
-    var lObjCreateTab = {};
+    var lStrErrMsg    = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     lStrId = pEvent.target.getAttribute('id');
     switch (lStrId) {

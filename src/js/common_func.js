@@ -660,4 +660,4 @@
   setObjectProperty(window, 'formatDate',        formatDate);
   setObjectProperty(window, 'setObjectProperty', setObjectProperty);
   //}}}
-})(window);
+})(this);

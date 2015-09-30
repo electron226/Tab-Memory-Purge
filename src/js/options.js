@@ -58,6 +58,15 @@
   const sObjOptsForCreateHistoryDate = {
     className:  sStrClassNameOfHistoryDate,
     deleteFunc: function(pEvent) {
+      var lStrErrMsg = "";
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
       return removeHistoryDate(pEvent)
              .then(getAllHistory)
              .then(historyArray => {
@@ -71,6 +80,15 @@
   const sObjOptsForCreateHistoryItem = {
     attrNameOfDatabase: sStrAttrNameOfDatabase,
     deleteFunc: function(pEvent) {
+      var lStrErrMsg = "";
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
       return removeHistoryItem(pEvent);
     },
     className:  sStrClassNameOfHistoryItem,
@@ -89,23 +107,55 @@
   var OperateOptionValue = function() {//{{{
   };
   OperateOptionValue.prototype.get = function(pElement, pStrName) {//{{{
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     return this.call(pElement, pStrName, null, 'get');
   };//}}}
   OperateOptionValue.prototype.set =//{{{
     function(pElement, pStrName, pStrValue) {
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+      [ 'string' ],
+      [],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     return this.call(pElement, pStrName, pStrValue, 'set');
   };//}}}
   OperateOptionValue.prototype.call =//{{{
     function(pElement, pStrName, pStrValue, pStrType) {
-    var $this    = this;
-    var lObjOpts = {};
-    var lElement = document.createDocumentFragment();
-    var lElSelect = document.createDocumentFragment();
+    var $this      = this;
+    var lObjOpts   = {};
+    var lElement   = document.createDocumentFragment();
+    var lElSelect  = document.createDocumentFragment();
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      if (pStrType === void 0 || pStrType === null) {
-        pStrType = 'get';
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+        [ 'string' ],
+        [ ],
+        [ 'string', 'null', 'undefined' ],
+      ], true);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
       }
+
+      pStrType = pStrType || 'get';
 
       lElement = pElement.querySelector(`[name="${pStrName}"`);
       if (lElement) {
@@ -164,23 +214,40 @@
       }
 
       if (!sMapExcludeKeyNames.has(pStrName)) {
-        console.warn("Doesn't find the elememt name.", pStrName);
+        console.warn(`Doesn't find the elememt name: ${pStrName}`);
       }
       resolve();
     });
   };//}}}
   OperateOptionValue.prototype._call = function(pObj) {//{{{
-    var lElement      = pObj.element;
-    var lStrValue     = pObj.value;
-    var lStrType      = pObj.type;
-    var lStrProperty  = pObj.property;
-    var lStrValueType = pObj.valueType;
-    var lAnyVal       = (lStrType === 'get') ?
-                        lElement[lStrProperty] : lStrValue;
+    var lElement      = document.createDocumentFragment();
+    var lStrValue     = "";
+    var lStrType      = "";
+    var lStrProperty  = "";
+    var lStrValueType = "";
+    var lAnyVal       = "";
     var lNumMax       = 0;
     var lNumMin       = 0;
+    var lStrErrMsg    = '';
+    var lArrayArgs    = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'object' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lElement      = pObj.element;
+      lStrValue     = pObj.value;
+      lStrType      = pObj.type;
+      lStrProperty  = pObj.property;
+      lStrValueType = pObj.valueType;
+      lAnyVal       = (lStrType === 'get') ?
+                      lElement[lStrProperty] : lStrValue;
+
       if (lStrValueType === 'number') {
         lNumMin = parseInt(lElement.getAttribute('min'));
         lNumMax = parseInt(lElement.getAttribute('max'));
@@ -211,15 +278,33 @@
     });
   };//}}}
   OperateOptionValue.prototype.init = function(pElement) {//{{{
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     return this.load(pElement, gMapDefaultValues);
   };//}}}
   OperateOptionValue.prototype.load = function(pElement, pObjOpts) {//{{{
     var $this         = this;
-    var lArrayPromise = [];
     var lMapNew       = new Map();
+    var lArrayPromise = [];
     var key           = "";
+    var lStrErrMsg    = '';
+    var lArrayArgs    = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+        [ 'object', 'map', 'null', 'undefined' ],
+      ], true);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       $this.export()
       .then(rOptions => {
         switch (toType(pObjOpts)) {
@@ -260,9 +345,20 @@
     });
   };//}}}
   OperateOptionValue.prototype.import = function(pElement, pObjOpts) {//{{{
-    var $this = this;
+    var $this      = this;
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+        [ 'object' ],
+      ], true);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       $this.load(pElement, pObjOpts)
       .then(resolve(pObjOpts))
       .catch(reject);
@@ -273,15 +369,44 @@
   var ShowMenuSelection = function(pStrSelectors, pClassNameWhenSelect) {//{{{
     ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
 
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'object' ],
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     this.strMenuSelector        = pStrSelectors.menu;
     this.strButtonSelector      = pStrSelectors.button;
     this.strClassNameWhenSelect = pClassNameWhenSelect;
   };
   ShowMenuSelection.prototype.showMenu = function(pStrSelector) {//{{{
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     return function(pIdName) {
-      var lElShowMenu = document.querySelector(`${pStrSelector}#${pIdName}`);
-      var lElDoesNotShowMenu = document.querySelectorAll(
-        `${pStrSelector}:not(#${pIdName})`);
+      var lElShowMenu        = document.createDocumentFragment();
+      var lElDoesNotShowMenu = document.createDocumentFragment();
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'string' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lElShowMenu = document.querySelector(`${pStrSelector}#${pIdName}`);
+      lElDoesNotShowMenu =
+        document.querySelectorAll(`${pStrSelector}:not(#${pIdName})`);
 
       removeStringFromAttributeOfElement(
         lElShowMenu, 'style', sStrStyleDisplayNone);
@@ -292,11 +417,28 @@
   };//}}}
   ShowMenuSelection.prototype.changeSelectionButtonColor = //{{{
     function(pStrSelector) {
-    var $this         = this;
-    var lElPrevSelect = document.createDocumentFragment();
-    var lElNewSelect  = document.createDocumentFragment();
+
+    var $this      = this;
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     return function(pName) {
+      var lElPrevSelect = document.createDocumentFragment();
+      var lElNewSelect  = document.createDocumentFragment();
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'string' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
       lElPrevSelect = document.querySelector(
         `${pStrSelector}.${$this.strClassNameWhenSelect}`);
       if (lElPrevSelect !== null) {
@@ -310,6 +452,15 @@
     };
   };//}}}
   ShowMenuSelection.prototype.show = function(pName) {//{{{
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     var showMenuArea     = this.showMenu(this.strMenuSelector);
     var selectMenuButton =
       this.changeSelectionButtonColor(this.strButtonSelector);
@@ -324,17 +475,31 @@
   //}}}
 
   var KeyTrace = function(pId) {//{{{
-    this.id     = pId || null;
+    this.id        = pId || null;
     this.objResult = null;
   };
   KeyTrace.prototype.start = function(pId) {//{{{
-    if (pId === null || pId === void 0) {
-      throw new Error("Doesn't set the id of arguments.");
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return pValue === void 0 || pValue === null; },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
     }
 
     this.id = pId;
   };//}}}
   KeyTrace.prototype.traceEvent = function(pEvent) {//{{{
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     if (this.id === null || this.id === void 0) {
       throw new Error("Doesn't set the id in this instance yet.");
     }
@@ -355,12 +520,21 @@
     return this.id !== void 0 && this.id !== null;
   };//}}}
   KeyTrace.prototype.getResult = function() {//{{{
-    return this.objResult;
+    return Object.assign({}, this.objResult);
   };//}}}
   //}}}
 
   function processAfterMenuSelection(name)//{{{
   {
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     return new Promise((resolve, reject) => {
       switch (name) {
       case 'normal':
@@ -417,12 +591,6 @@
     });
   }//}}}
 
-  window.addEventListener('popstate', e => {//{{{
-    if (e.state) {
-      menuToggle.show(e.state || sStrDefaultMenu);
-    }
-  }, true);//}}}
-
   //{{{ A variable of a function of using closure.
   const operateOption = new OperateOptionValue();
   const keybindTrace  = new KeyTrace();
@@ -433,9 +601,24 @@
     },
     sStrClassNameWhenSelect);
   //}}}
+  //
+  window.addEventListener('popstate', e => {//{{{
+    if (e.state) {
+      menuToggle.show(e.state || sStrDefaultMenu);
+    }
+  }, true);//}}}
 
   function clearItemInElement(pNode)//{{{
   {
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     while(pNode.firstChild) {
       pNode.removeChild(pNode.firstChild);
     }
@@ -444,19 +627,22 @@
 
   function deleteKeyItemFromObject(pObj, pDeleteKeys)//{{{
   {
-    var lObjNew         = pObj;
-    var lObjType        = toType(pObj);
-    var lDeleteKeysType = toType(pDeleteKeys);
+    var lObjNew         = null;
+    var lObjType        = "";
+    var lDeleteKeysType = "";
+    var lStrErrMsg      = "";
 
-    if (lObjType !== 'object' &&
-        lObjType !== 'set' &&
-        lObjType !== 'map' ||
-        lDeleteKeysType !== 'Array' &&
-        lDeleteKeysType !== 'object' &&
-        lDeleteKeysType !== 'map' &&
-        lDeleteKeysType !== 'set') {
-      throw new Error('Invalid arguments.');
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'object', 'set', 'map' ],
+      [ 'array', 'object', 'map', 'set' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
     }
+
+    lObjNew         = pObj;
+    lObjType        = toType(pObj);
+    lDeleteKeysType = toType(pDeleteKeys);
 
     if (lDeleteKeysType === 'object') {
       Object.keys(pDeleteKeys).forEach(pKey => {
@@ -522,37 +708,49 @@
   {
     console.log('showAllKeybindString');
 
-    var lElKeybindOptions =
-      document.querySelectorAll(`.${sStrClassNameOfKeybindOption}`);
-    var lObjKeyJson = {};
-    var lStrKey     = '';
+    var lElKeybindOptions = document.createDocumentFragment();
+    var lElKeyJson        = document.createDocumentFragment();
+    var lElKey            = document.createDocumentFragment();
 
+    lElKeybindOptions =
+      document.querySelectorAll(`.${sStrClassNameOfKeybindOption}`);
     Array.prototype.slice.call(lElKeybindOptions).forEach(pValue => {
-      lObjKeyJson = pValue.querySelector(`.${sStrClassNameOfKeybindValue}`);
-      lStrKey     = pValue.querySelector(`.${sStrClassNameOfShowKeybind}`);
+      lElKeyJson = pValue.querySelector(`.${sStrClassNameOfKeybindValue}`);
+      lElKey     = pValue.querySelector(`.${sStrClassNameOfShowKeybind}`);
       try {
-        if (lObjKeyJson.value === '{}' ||
-            lObjKeyJson.value === ''   ||
-            lObjKeyJson.value === null ||
-            lObjKeyJson.value === void 0) {
+        if (lElKeyJson.value === '{}' ||
+            lElKeyJson.value === ''   ||
+            lElKeyJson.value === null ||
+            lElKeyJson.value === void 0) {
           return;
         }
 
-        lStrKey.value = generateKeyString(JSON.parse(lObjKeyJson.value));
+        lElKey.value = generateKeyString(JSON.parse(lElKeyJson.value));
       } catch (e) {
-        console.warn(e, lObjKeyJson.value);
+        console.warn(e, lElKeyJson.value);
       }
     });
   }//}}}
 
   function setKeybindOption(pClassName, pKeyInfo)//{{{
   {
-    var lElOpt = document.querySelector(
+    var lElOpt          = document.createDocumentFragment();
+    var lElKeybindValue = document.createDocumentFragment();
+    var lElShowKeybind  = document.createDocumentFragment();
+    var lStrErrMsg      = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'string' ],
+      [ 'object' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElOpt = document.querySelector(
       `.${pClassName}.${sStrClassNameOfKeybindOption}`);
-    var lElKeybindValue =
-      lElOpt.querySelector(`.${sStrClassNameOfKeybindValue}`);
-    var lElShowKeybind =
-      lElOpt.querySelector(`.${sStrClassNameOfShowKeybind}`);
+    lElKeybindValue = lElOpt.querySelector(`.${sStrClassNameOfKeybindValue}`);
+    lElShowKeybind = lElOpt.querySelector(`.${sStrClassNameOfShowKeybind}`);
 
     lElKeybindValue.value = JSON.stringify(pKeyInfo);
     try {
@@ -567,6 +765,14 @@
     var lObjInfo       = {};
     var lEventNew      = document.createEvent('HTMLEvents');
     var lElTraceTarget = document.createDocumentFragment();
+    var lStrErrMsg     = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
 
     if (keybindTrace.isRun()) {
       lObjInfo = keybindTrace.traceEvent(pEvent);
@@ -584,25 +790,38 @@
 
   function buttonClicked(pEvent)//{{{
   {
-    var lElTarget    = pEvent.target;
-    var lElClassName = lElTarget.getAttribute('class');
-    var lEventNew    = document.createEvent('HTMLEvents');
-    var lElement     = document.createDocumentFragment();
-    var lElExport    = document.createDocumentFragment();
-    var lElImport    = document.createDocumentFragment();
-    var lStrMsg      = "";
-    var lStrValue    = "";
-    var lBoolResult  = false;
+    var lElTarget             = document.createDocumentFragment();
+    var lElement              = document.createDocumentFragment();
+    var lElExport             = document.createDocumentFragment();
+    var lElImport             = document.createDocumentFragment();
+    var lEventNew             = document.createEvent('HTMLEvents');
+    var lStrClassName         = "";
+    var lStrClassNameOfParent = "";
+    var lStrOptionName        = "";
+    var lStrMsg               = "";
+    var lStrValue             = "";
+    var lStrErrMsg            = "";
+    var lBoolResult           = false;
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElTarget    = pEvent.target;
+    lStrClassName = lElTarget.getAttribute('class');
 
     // keybind only.
-    var lStrClassNameOfParent = lElTarget.parentNode.getAttribute('class');
-    var lStrOptionName        = "";
+    lStrClassNameOfParent = lElTarget.parentNode.getAttribute('class');
+    lStrOptionName        = "";
     if (lStrClassNameOfParent) {
       lStrOptionName = lStrClassNameOfParent.replace(
         sStrClassNameOfKeybindOption, '').trim();
     }
 
-    switch (lElClassName) {
+    switch (lStrClassName) {
     case sStrClassNameOfSetKeybindButton:
       if (keybindTrace.isRun()) {
         keybindTrace.stop();
@@ -660,8 +879,19 @@
 
   function addAutocompleteDateList(pElement)//{{{
   {
-    var lElAutoComp = pElement;
-    var lElOption = document.createElement('option');
+    var lElAutoComp = document.createDocumentFragment();
+    var lElOption   = document.createDocumentFragment();
+    var lStrErrMsg  = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElAutoComp = pElement;
+    lElOption   = document.createElement('option');
 
     while (lElAutoComp.firstChild) {
       lElAutoComp.removeChild(lElAutoComp.firstChild);
@@ -677,7 +907,19 @@
   function getFormatEachLanguages(pTime, pObjFormat)//{{{
   {
     var lStrFormatType = "";
-    var lStrLang       = chrome.i18n.getUILanguage();
+    var lStrLang       = "";
+    var lStrErrMsg     = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'number', 'date' ],
+      [ 'object', 'undefined', 'null' ],
+    ], true);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lStrFormatType = "";
+    lStrLang       = chrome.i18n.getUILanguage();
 
     if (pTime === void 0 || pTime === null) {
       throw new Error(`Invalid arguments is pTime: ${pTime}`);
@@ -698,7 +940,17 @@
 
   function changeSessionIconControlState(pState)//{{{
   {
-    var lElSessionIconControl =
+    var lElSessionIconControl = document.createDocumentFragment();
+    var lStrErrMsg            = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'boolean' ]
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElSessionIconControl =
       document.querySelector(`#${sStrIdNameOfSessionIconControl}`);
     if (pState) {
       removeStringFromAttributeOfElement(
@@ -712,8 +964,9 @@
   function clearSessionTitleInSessionControlBar()//{{{
   {
     return new Promise(resolve => {
-      var lElSessionTitle =
-        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      var lElSessionTitle = document.createDocumentFragment();
+
+      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
       lElSessionTitle.textContent = '';
       resolve();
     });
@@ -722,22 +975,27 @@
   function saveSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var lElAddLocationWhereSessionList =
+      var lElAddLocationWhereSessionList = document.createDocumentFragment();
+      var lElShowField                   = document.createDocumentFragment();
+      var lElItemUrlList                 = document.createDocumentFragment();
+      var lMapUrlsOfEachWin              = new Map();
+      var arrayNewSessions               = [];
+      var lArrayUrls                     = [];
+      var lStrItemUrl                    = "";
+      var lNumWinId                      = 0;
+      var lDateNow                       = Date.now();
+
+      lElAddLocationWhereSessionList =
         document.querySelector(`#${sStrIdNameOfSessionList}`);
-      var lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
+      lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
         `fieldset:not(.${sStrClassNameOfDoesNot})`);
       if (lElShowField.length === 0) {
         resolve();
         return;
       }
 
-      var lMapUrlsOfEachWin = new Map();
-      var lNumWinId         = 0;
-      var arrayNewSessions  = [];
-      var lArrayUrls        = [];
-      var lStrItemUrl       = sObjOptsForCreateHistoryItem.itemUrl;
-      var lElItemUrlList    = document.createDocumentFragment();
-      var lDateNow          = Date.now();
+      lMapUrlsOfEachWin = new Map();
+      lStrItemUrl       = sObjOptsForCreateHistoryItem.itemUrl;
 
       Array.prototype.slice.call(lElShowField).forEach(pValue => {
         lNumWinId      = pValue.getAttribute(sStrAttrNameOfWindowId);
@@ -774,14 +1032,18 @@
   function deleteSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var lElSessionTitle =
-        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      var lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
-      var lArrayDbNames   = [ gStrDbSessionName, gStrDbSavedSessionName ];
+      var lElSessionTitle = document.createDocumentFragment();
+      var lNumDate        = 0;
+      var lArrayDbNames   = [];
       var lArrayPromise   = [];
       var lArraySessions  = [];
       var lArrayDelKeys   = [];
 
+      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
+      lArrayDbNames   = [ gStrDbSessionName, gStrDbSavedSessionName ];
+
+      lArrayPromise   = [];
       lArrayDbNames.forEach(pValue => {
         lArrayPromise.push(
           db.getCursor({
@@ -794,6 +1056,7 @@
 
       Promise.all(lArrayPromise)
       .then(results => {
+        lArraySessions  = [];
         results.forEach(pValue => {
           lArraySessions = lArraySessions.concat(pValue);
         });
@@ -818,18 +1081,22 @@
 
   function restoreSession()//{{{
   {
-    var lElAddLocationWhereSessionList =
+    var lElAddLocationWhereSessionList = document.createDocumentFragment();
+    var lElShowField                   = document.createDocumentFragment();
+    var lElA                           = document.createDocumentFragment();
+    var lArrayRestore                  = [];
+    var lNumWindowId                   = 0;
+
+    lElAddLocationWhereSessionList =
       document.querySelector(`#${sStrIdNameOfSessionList}`);
-    var lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
+    lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
       `fieldset:not(.${sStrClassNameOfDoesNot})`);
     if (lElShowField.length === 0) {
+      console.warn('The length of lElShowField in restoreSession is zero.');
       return;
     }
 
-    var lElA          = document.createElement('a');
-    var lArrayRestore = [];
-    var lNumWindowId  = 0;
-
+    lArrayRestore = [];
     Array.prototype.slice.call(lElShowField).forEach(pValue => {
       lNumWindowId  = parseInt(pValue.getAttribute(sStrAttrNameOfWindowId));
       lElA  = pValue.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
@@ -842,11 +1109,19 @@
 
   function closureCreateSessionDateList(pObjOpts)//{{{
   {
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'object' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     //{{{ local variable.
     const lStrDbName       = pObjOpts.databaseName;
     const lElToAddDateList = pObjOpts.dateList;
     const lElToAddItemList = pObjOpts.itemList;
     const lNumCurrentTime  = pObjOpts.currentTime;
+
     if (lElToAddDateList === void 0 || lElToAddDateList === null) {
       throw new Error("dateList isn't found in arguments");
     }
@@ -861,22 +1136,40 @@
 
     function onClicked(pEvent)//{{{
     {
-      var lElTarget    = pEvent.target;
-      var lStrName     = lElTarget.getAttribute('name');
-      var lElList      = lElTarget.parentNode;
-      var lStrListName = lElList.getAttribute('id');
-      var lElShowLists      =
+      var lElTarget         = document.createDocumentFragment();
+      var lElList           = document.createDocumentFragment();
+      var lElShowLists      = document.createDocumentFragment();
+      var lElNotShowLists   = document.createDocumentFragment();
+      var lElSessionSave    = document.createDocumentFragment();
+      var lElDateList       = document.createDocumentFragment();
+      var lElSelectDates    = document.createDocumentFragment();
+      var lElNotSelectDates = document.createDocumentFragment();
+      var lElSessionTitle   = document.createDocumentFragment();
+      var lStrName          = "";
+      var lStrListName      = "";
+      var lStrErrMsg        = "";
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lElTarget       = pEvent.target;
+      lElList         = lElTarget.parentNode;
+      lStrListName    = lElList.getAttribute('id');
+      lStrName        = lElTarget.getAttribute('name');
+      lElDateList     = document.querySelector(`#${sStrIdNameOfDateList}`);
+      lElSessionSave  = document.querySelector(`#${sStrIdNameOfSessionSave}`);
+      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
+      lElShowLists      =
         lElToAddItemList.querySelectorAll(`fieldset[name="${lStrName}"]`);
-      var lElNotShowLists   =
+      lElNotShowLists   =
         lElToAddItemList.querySelectorAll(`fieldset:not([name="${lStrName}"])`);
-      var lElSessionSave    =
-        document.querySelector(`#${sStrIdNameOfSessionSave}`);
-      var lElDateList      = document.querySelector(`#${sStrIdNameOfDateList}`);
-      var lElSelectDates    = lElDateList.querySelector(`[name="${lStrName}"]`);
-      var lElNotSelectDates =
+      lElSelectDates    = lElDateList.querySelector(`[name="${lStrName}"]`);
+      lElNotSelectDates =
         lElDateList.querySelectorAll(`:not([name="${lStrName}"])`);
-      var lElSessionTitle   =
-        document.querySelector(`#${sStrIdNameOfSessionTitle}`);
 
       // select which is showed a list of a session date.
       Array.prototype.slice.call(lElShowLists).forEach(pValue => {
@@ -916,19 +1209,27 @@
     {
       var lElDiv = document.createElement('div');
 
-      return function(pTime) {
+      return function(pNumTime) {
         var lElDivRet = lElDiv.cloneNode(true);
-        var lStrText;
+        var lStrText  = "";
+        var lStrErrMsg = "";
+
+        lStrErrMsg = checkFunctionArguments(arguments, [
+          [ 'number' ],
+        ]);
+        if (lStrErrMsg) {
+          throw new Error(lStrErrMsg);
+        }
 
         if (lNumCurrentTime !== void 0 &&
             lNumCurrentTime !== undefined &&
-            lNumCurrentTime === parseInt(pTime)) {
+            lNumCurrentTime === parseInt(pNumTime)) {
           lStrText = 'Current Session';
         } else {
-          lStrText = getFormatEachLanguages(pTime);
+          lStrText = getFormatEachLanguages(pNumTime);
         }
 
-        lElDivRet.setAttribute('name', pTime);
+        lElDivRet.setAttribute('name', pNumTime);
         lElDivRet.textContent = lStrText;
         lElDivRet.addEventListener('click', onClicked, true);
 
@@ -938,16 +1239,28 @@
 
     function createSessionDateListItem(pArrayItems)//{{{
     {
-      var lCreateHistoryItem = closureCreateHistoryItem(
+      var lCreateHistoryItem = null;
+      var lObjOpts           = {};
+      var lArrayList         = [];
+      var lStrErrMsg         = "";
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'array' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lCreateHistoryItem = closureCreateHistoryItem(
         Object.assign(sObjOptsForCreateHistoryItem, {
           databaseName: lStrDbName,
           deleteFunc:   removeSessionHistoryItem,
         })
       );
-      var lObjOpts = {
+      lObjOpts = {
         date: false,
       };
-      var lArrayList = [];
+      lArrayList = [];
 
       pArrayItems.forEach(pValue => {
         lArrayList.push(lCreateHistoryItem(pValue, lObjOpts));
@@ -961,7 +1274,17 @@
       var lAnyAttr   = null;
       var lAnyValue  = null;
       var lMapResult = new Map();
+      var lStrErrMsg = "";
 
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'array' ],
+        [ 'string' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lMapResult = new Map();
       pArraySessions.forEach(pValue => {
         lAnyAttr  = pValue[pStrAttrName];
         lAnyValue = lMapResult.get(lAnyAttr) || [];
@@ -974,22 +1297,33 @@
 
     function createSessionWindowList(lNumTime, lMapWindow)//{{{
     {
-      var lCreateHistoryDate = closureCreateHistoryDate(
-        Object.assign(sObjOptsForCreateHistoryDate, {
-          deleteFunc: removeSessionHistoryWindow,
-        })
-      );
-      var lNumCount            = 0;
       var lElField             = document.createDocumentFragment();
       var lElArticle           = document.createDocumentFragment();
       var lElWindowTitle       = document.createDocumentFragment();
       var lElHistoryItemDelete = document.createDocumentFragment();
       var lArrayList           = [];
+      var lStrErrMsg           = "";
+      var lNumCount            = 0;
+      var lCreateHistoryDate   = null;
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'number' ],
+        [ 'map' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lCreateHistoryDate = closureCreateHistoryDate(
+        Object.assign(sObjOptsForCreateHistoryDate, {
+          deleteFunc: removeSessionHistoryWindow,
+        })
+      );
 
       lArrayList = [];
       lNumCount  = 0;
       lMapWindow.forEach((pValue, pNumWindowId) => {
-        lElField     = lCreateHistoryDate({ date: lNumTime });
+        lElField = lCreateHistoryDate({ date: lNumTime });
         addStringToAttributeOfElement(
           lElField, sStrAttrNameOfWindowId, pNumWindowId);
         addStringToAttributeOfElement(
@@ -1020,12 +1354,24 @@
 
     function createSessionDateList(pArraySessions)//{{{
     {
-      var lCreateSessionDate      = closureCreateSessionDate();
       var lMapSessionEachDate     = new Map();
       var lMapSessionEachWindowId = new Map();
       var lArrayDateList          = [];
       var lArrayItemList          = [];
       var lArrayItem              = [];
+      var lCreateSessionDate      = null;
+      var lStrErrMsg              = "";
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        [ 'array' ],
+      ]);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lCreateSessionDate = closureCreateSessionDate();
+      lArrayDateList     = [];
+      lArrayItemList     = [];
 
       pArraySessions.forEach(pValue => {
         lMapSessionEachDate = getDictSplitEachSession(pValue.data, 'date');
@@ -1048,9 +1394,12 @@
   function selectCurrentSession()//{{{
   {
     var lElLocationWhereToAddSessionDateList =
-      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
+            document.createDocumentFragment();
     var lElCurrentSessionItem  = document.createDocumentFragment();
     var lNumCurrentSessionTime = 0;
+
+    lElLocationWhereToAddSessionDateList =
+      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
 
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(rObjItems => {
@@ -1078,23 +1427,30 @@
 
   function showAllSessionHistory()//{{{
   {
-    var lElAddSavedSessionDateListLocation =
+    var lElAddSavedSessionDateListLocation = document.createDocumentFragment();
+    var lElAddSessionDateListLocation      = document.createDocumentFragment();
+    var lElAddLocationWhereSessionList     = document.createDocumentFragment();
+    var lElSavedSessionDateTitle           = document.createDocumentFragment();
+    var lElDateListNav                     = document.createDocumentFragment();
+    var lElSessionNotFound                 = document.createDocumentFragment();
+    var lArraySavedSessions                = [];
+    var lArraySessions                     = [];
+    var lNumCurrentTime                    = 0;
+    var lCreateSavedSessionDateList        = null;
+    var lCreateSessionDateList             = null;
+
+    lElAddSavedSessionDateListLocation =
       document.querySelector(`#${sStrIdNameOfAddSavedSessionDateList}`);
-    var lElAddSessionDateListLocation      =
+    lElAddSessionDateListLocation      =
       document.querySelector(`#${sStrIdNameOfSessionDateList}`);
-    var lElAddLocationWhereSessionList     =
+    lElAddLocationWhereSessionList     =
       document.querySelector(`#${sStrIdNameOfSessionList}`);
-    var lElSavedSessionDateTitle           =
+    lElSavedSessionDateTitle           =
       document.querySelector(`#${sStrIdNameOfSavedSessionDateTitle}`);
-    var lElDateListNav                     =
+    lElDateListNav                     =
       document.querySelector(`#${sStrIdNameOfDateListNav}`);
-    var lElSessionNotFound                 =
+    lElSessionNotFound                 =
       document.querySelector(`#${sStrIdNameOfSessionNotFound}`);
-    var lArraySavedSessions         = [];
-    var lArraySessions              = [];
-    var lNumCurrentTime             = 0;
-    var lCreateSavedSessionDateList = null;
-    var lCreateSessionDateList      = null;
 
     return new Promise((resolve, reject) => {
       getAllSessionHistory()
@@ -1202,10 +1558,19 @@
 
   function showAutoCompleteDateList(pArrayHistories)//{{{
   {
-    var lElSearchHistoryDateList =
+    var lElSearchHistoryDateList = document.createDocumentFragment();
+    var lElAutocompleteDateList  = document.createDocumentFragment();
+    var lStrErrMsg = "";
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'array' ],
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElSearchHistoryDateList =
       document.querySelector(`#${sStrIdNameOfSearchHistoryDateList}`);
-    var lElAutocompleteDateList =
-      addAutocompleteDateList(lElSearchHistoryDateList);
+    lElAutocompleteDateList = addAutocompleteDateList(lElSearchHistoryDateList);
 
     pArrayHistories.forEach(pValue => {
       lElAutocompleteDateList(pValue.date);
@@ -1214,32 +1579,54 @@
 
   function removeHistoryDate(pEvent)//{{{
   {
+    var lELTarget            = document.createDocumentFragment();
+    var lElHistoryDateLegend = document.createDocumentFragment();
+    var lElHistoryDateField  = document.createDocumentFragment();
+    var lElHistoryList       = document.createDocumentFragment();
+    var lDateNow             = new Date();
+    var lDateBegin           = new Date();
+    var lDateEnd             = new Date();
+    var lNumFullYear         = 0;
+    var lNumMonth            = 0;
+    var lNumDay              = 0;
+    var lArrayDelKeys        = [];
+    var lStrErrMsg           = "";
+    var lArrayArgs           = Array.prototype.slice.call(arguments);
+
     return new Promise((resolve, reject) => {
-      var lTarget   = pEvent.target;
-      var lDate     = new Date( parseInt(lTarget.getAttribute('name')) );
-      var lFullYear = lDate.getFullYear();
-      var lMonth    = lDate.getMonth();
-      var lDay      = lDate.getDate();
-      var lBegin    = new Date(lFullYear, lMonth, lDay, 0, 0, 0, 0);
-      var lEnd      = new Date(lFullYear, lMonth, lDay, 23, 59, 59, 999);
-      var lDelKeys  = [];
-      var lHistoryDateLegend = lTarget.parentNode;
-      var lHistoryDateField  = lHistoryDateLegend.parentNode;
-      var lHistoryList       = lHistoryDateField.parentNode;
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lELTarget            = pEvent.target;
+      lElHistoryDateLegend = lELTarget.parentNode;
+      lElHistoryDateField  = lElHistoryDateLegend.parentNode;
+      lElHistoryList       = lElHistoryDateField.parentNode;
+
+      lDateNow     = new Date( parseInt(lELTarget.getAttribute('name')) );
+      lNumFullYear = lDateNow.getFullYear();
+      lNumMonth    = lDateNow.getMonth();
+      lNumDay      = lDateNow.getDate();
+      lDateBegin = new Date(lNumFullYear, lNumMonth, lNumDay, 0, 0, 0, 0);
+      lDateEnd   = new Date(lNumFullYear, lNumMonth, lNumDay, 23, 59, 59, 999);
 
       db.getCursor({
         name:  gStrDbHistoryName,
-        range: IDBKeyRange.bound(lBegin.getTime(), lEnd.getTime()),
+        range: IDBKeyRange.bound(lDateBegin.getTime(), lDateEnd.getTime()),
       })
       .then(histories => {
-        lDelKeys = histories.map(v => v.date);
+        lArrayDelKeys = histories.map(v => v.date);
         return db.delete({
           name: gStrDbHistoryName,
-          keys: lDelKeys,
+          keys: lArrayDelKeys,
         });
       })
       .then(ret => {
-        lHistoryList.removeChild(lHistoryDateField);
+        lElHistoryList.removeChild(lElHistoryDateField);
         return ret;
       })
       .then(resolve)
@@ -1252,17 +1639,33 @@
 
   function removeHistoryItem(pEvent)//{{{
   {
-    var lTarget          = pEvent.target;
-    var lHistoryItem     = lTarget.parentNode;
-    var lHistoryItemList = lHistoryItem.parentNode;
-    // indexedDB name.
-    var lDbName = lTarget.getAttribute(sStrAttrNameOfDatabase);
-    // session item only.
-    var lItemId = parseInt(lTarget.getAttribute(sStrAttrNameOfItemId), 10);
-    // this value is new Date().getTime().
-    var lTime   = parseInt(lTarget.getAttribute('name'), 10);
+    var lTarget          = document.createDocumentFragment();
+    var lHistoryItem     = document.createDocumentFragment();
+    var lHistoryItemList = document.createDocumentFragment();
+    var lDbName          = ""; // indexedDB name.
+    var lItemId          = 0; // session item only.
+    var lTime            = 0; // this value is new Date().getTime().
+    var lStrErrMsg       = "";
+    var lArrayArgs       = Array.prototype.slice.call(arguments);
+
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lTarget          = pEvent.target;
+      lHistoryItem     = lTarget.parentNode;
+      lHistoryItemList = lHistoryItem.parentNode;
+
+      lDbName = lTarget.getAttribute(sStrAttrNameOfDatabase);
+      lItemId = parseInt(lTarget.getAttribute(sStrAttrNameOfItemId), 10);
+      lTime   = parseInt(lTarget.getAttribute('name'), 10);
+
       db.delete({
         name: lDbName,
         keys: lItemId ? lItemId : lTime,
@@ -1281,16 +1684,29 @@
 
   function removeSessionHistoryItem(event)//{{{
   {
-    var lElSessionList =
-      document.querySelector(`#${sStrIdNameOfSessionList}`);
-    var getShowField = function(){
-      return lElSessionList.querySelectorAll(
-        `fieldset:not(.${sStrClassNameOfDoesNot})`);
-    };
-    var lElShowField = getShowField();
-    var lElItemList  = document.createDocumentFragment();
+    var lElSessionList = document.createDocumentFragment();
+    var lElItemList    = document.createDocumentFragment();
+    var lElShowField   = document.createDocumentFragment();
+    var lStrErrMsg     = "";
+    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    var lFuncGetShowField   = null;
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
+      lFuncGetShowField = function(){
+        return lElSessionList.querySelectorAll(
+          `fieldset:not(.${sStrClassNameOfDoesNot})`);
+      };
+      lElShowField = lFuncGetShowField();
+
       removeHistoryItem(event)
       .then(() => {
         Array.prototype.slice.call(lElShowField).forEach(pValue => {
@@ -1301,7 +1717,7 @@
           }
         });
 
-        return (getShowField().length === 0) ? initSessionHistory() : null;
+        return (lFuncGetShowField().length === 0) ? initSessionHistory() : null;
       })
       .then(resolve)
       .catch(reject);
@@ -1310,29 +1726,46 @@
 
   function removeSessionHistoryWindow(event)//{{{
   {
-    var lTarget        = event.target;
-    var lElShowField   = document.createDocumentFragment();
-    var lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
-    var getShowField = function(){
-      return lElSessionList.querySelectorAll(
-        `fieldset:not(.${sStrClassNameOfDoesNot})`);
-    };
-    var lNumWindowId   = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId));
-    var lDateTime      = parseInt(lTarget.getAttribute('name'));
-    var lArrayDbName   = [ gStrDbSessionName, gStrDbSavedSessionName ];
-    var lArrayPromise  = [];
-    var lArraySessions = [];
-    var lArrayDelKeys  = [];
+    var lTarget             = document.createDocumentFragment();
+    var lElShowField        = document.createDocumentFragment();
+    var lElSessionList      = document.createDocumentFragment();
+    var lArrayDbName        = [];
+    var lArrayPromise       = [];
+    var lArraySessions      = [];
+    var lArrayDelKeys       = [];
+    var lNumWindowId        = 0;
+    var lNumDateTime        = 0;
     var lNumWindowIdOfField = 0;
+    var getShowField        = null;
+    var lStrErrMsg          = "";
+    var lArrayArgs          = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
+      getShowField = function(){
+        return lElSessionList.querySelectorAll(
+          `fieldset:not(.${sStrClassNameOfDoesNot})`);
+      };
+      lTarget        = event.target;
+      lNumWindowId   = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId));
+      lNumDateTime   = parseInt(lTarget.getAttribute('name'));
+      lArrayDbName   = [ gStrDbSessionName, gStrDbSavedSessionName ];
+
       // get from all the databases of a session history.
       lArrayPromise  = [];
       lArrayDbName.forEach(pValue => {
         lArrayPromise.push(
           db.getCursor({
             name:      pValue,
-            range:     IDBKeyRange.only(lDateTime),
+            range:     IDBKeyRange.only(lNumDateTime),
             indexName: 'date',
           })
         );
@@ -1384,10 +1817,14 @@
 
   function closureCreateHistoryDate(pObjOpts)//{{{
   {
-    if (pObjOpts === void 0 ||
-        pObjOpts === null ||
-        !pObjOpts.hasOwnProperty('deleteFunc')) {
-      throw new Error("Invalid arugments. Doesn't find object.");
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) {
+        return toType(pValue) !== 'object' &&
+               !pObjOpts.hasOwnProperty(pObjOpts);
+      },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
     }
 
     //{{{ local variables.
@@ -1432,38 +1869,64 @@
       return lElFieldset;
     }//}}}
 
-    function createHistoryDate(pItem, pOpts)//{{{
+    function createHistoryDate(pItem, pObjOpts)//{{{
     {
-      if (!pItem.hasOwnProperty('date')) {
-        throw new Error("the property of 'date' is not found.");
-      }
-
-      var lElProto        = createPrototype();
-      var lElHistoryDate  = lElProto.cloneNode(true);
-      var lElDeleteButton =
-        lElHistoryDate.querySelector(`.${lStrClassNameOfDeleteButton}`);
-        var lElDateTitle  =
-        lElHistoryDate.querySelector(`.${lStrClassNameOfHistoryDate}`);
+      var lElProto        = document.createDocumentFragment();
+      var lElHistoryDate  = document.createDocumentFragment();
+      var lElDeleteButton = document.createDocumentFragment();
+      var lElDateTitle    = document.createDocumentFragment();
       var lNumTime        = 0;
-      var lObjOpts = { // default options.
+      var lObjDefaultOpts = {}; // default options.
+      var lStrErrMsg      = "";
+
+      lObjDefaultOpts = {
         deleteButton: true,
         date:         true,
         title:        true,
       };
 
-      if (pOpts !== void 0 && pOpts !== null) {
-        Object.keys(pOpts).forEach(v => lObjOpts[v] = pOpts[v]);
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        function(pValue) {
+          return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
+        },
+        function(pValue) {
+          if (toType(pValue) !== 'object') {
+            return true;
+          }
+
+          var rBoolResult = false;
+          Object.keys(pValue).forEach(pKey => {
+            if (!lObjDefaultOpts.hasOwnProperty(pKey)) {
+              rBoolResult = true;
+            }
+          });
+          return rBoolResult;
+        },
+      ], true);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
+      }
+
+      lElProto        = createPrototype();
+      lElHistoryDate  = lElProto.cloneNode(true);
+      lElDeleteButton =
+        lElHistoryDate.querySelector(`.${lStrClassNameOfDeleteButton}`);
+      lElDateTitle  =
+        lElHistoryDate.querySelector(`.${lStrClassNameOfHistoryDate}`);
+
+      if (pObjOpts !== void 0 && pObjOpts !== null) {
+        Object.keys(pObjOpts).forEach(v => lObjDefaultOpts[v] = pObjOpts[v]);
       }
 
       lNumTime       = new Date(pItem.date).getTime();
       addStringToAttributeOfElement(lElHistoryDate, 'name', lNumTime);
 
-      if (lObjOpts.deleteButton) {
+      if (lObjDefaultOpts.deleteButton) {
         addStringToAttributeOfElement(lElDeleteButton, 'name', lNumTime);
         lElDeleteButton.addEventListener('click', lFuncDelete, true);
       }
 
-      if (lObjOpts.title || lObjOpts.date) {
+      if (lObjDefaultOpts.title || lObjDefaultOpts.date) {
         lElDateTitle.textContent = getFormatEachLanguages(pItem.date, {
           'ja':      'YYYY/MM/DD',
           'default': 'MM/DD/YYYY',
@@ -1476,13 +1939,17 @@
     return createHistoryDate;
   }//}}}
 
-  function closureCreateHistoryItem(pObj)//{{{
+  function closureCreateHistoryItem(pObjOpts)//{{{
   {
-    if (pObj === void 0 ||
-        pObj === null ||
-        !pObj.hasOwnProperty('databaseName') ||
-        !pObj.hasOwnProperty('deleteFunc')) {
-      throw new Error("Invalid arguments.");
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) {
+        return toType(pValue) !== 'object' &&
+               !pValue.hasOwnProperty('databaseName') &&
+               !pValue.hasOwnProperty('deleteFunc');
+      },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
     }
 
     //{{{ local variable
@@ -1542,57 +2009,86 @@
       return lElSection;
     }//}}}
 
-    function createHistoryItem(pItem, pOpts)//{{{
+    function createHistoryItem(pObjItem, pObjOpts)//{{{
     {
-      if (!pItem.hasOwnProperty('date')) {
-        throw new Error("the property of 'date' is not found.");
-      }
+      var lElProto        = document.createDocumentFragment();
+      var lElItem         = document.createDocumentFragment();
+      var lElDeleteButton = document.createDocumentFragment();
+      var lElDate         = document.createDocumentFragment();
+      var lElLink         = document.createDocumentFragment();
+      var lElIcon         = document.createDocumentFragment();
+      var lElTitle        = document.createDocumentFragment();
+      var lObjDefaultOpts = {}; // default options.
+      var lStrErrMsg      = "";
 
-      var lElProto        = createPrototype();
-      var lElItem         = lElProto.cloneNode(true);
-      var lElDeleteButton =
-        lElItem.querySelector(`.${lStrClassNameOfDeleteButton}`);
-      var lElDate         = lElItem.querySelector(`.${lStrClassNameOfDate}`);
-      var lElLink         = lElItem.querySelector(`.${lStrClassNameOfLink}`);
-      var lElIcon         =
-        lElItem.querySelector(`.${lStrClassNameOfPageIcon}`);
-      var lElTitle        = lElItem.querySelector(`.${lStrClassNameOfTitle}`);
-      var lObjOpts = { // default.
+      lObjDefaultOpts = { // default.
         deleteButton: true,
         date:         true,
         link:         true,
         title:        true,
         icon:         true,
       };
-      if (pOpts !== void 0 && pOpts !== null) {
-        Object.keys(pOpts).forEach(v => lObjOpts[v] = pOpts[v]);
+
+      lStrErrMsg = checkFunctionArguments(arguments, [
+        function(pValue) {
+          return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
+        },
+        function(pValue) {
+          if (toType(pValue) !== 'object') {
+            return true;
+          }
+
+          var rBoolResult = false;
+          Object.keys(pObjOpts).forEach(pKey => {
+            if (!lObjDefaultOpts.hasOwnProperty(pKey)) {
+              rBoolResult = true;
+            }
+          });
+          return rBoolResult;
+        },
+      ], true);
+      if (lStrErrMsg) {
+        throw new Error(lStrErrMsg);
       }
 
-      lElItem.setAttribute('name', pItem.date);
+      lElProto        = createPrototype();
+      lElItem         = lElProto.cloneNode(true);
+      lElDeleteButton =
+        lElItem.querySelector(`.${lStrClassNameOfDeleteButton}`);
+      lElDate         = lElItem.querySelector(`.${lStrClassNameOfDate}`);
+      lElLink         = lElItem.querySelector(`.${lStrClassNameOfLink}`);
+      lElIcon         = lElItem.querySelector(`.${lStrClassNameOfPageIcon}`);
+      lElTitle        = lElItem.querySelector(`.${lStrClassNameOfTitle}`);
 
-      if (lObjOpts.deleteButton) {
-        lElDeleteButton.setAttribute('name', pItem.date);
+      if (pObjOpts !== void 0 && pObjOpts !== null) {
+        Object.keys(pObjOpts).forEach(v => lObjDefaultOpts[v] = pObjOpts[v]);
+      }
+
+      lElItem.setAttribute('name', pObjItem.date);
+
+      if (lObjDefaultOpts.deleteButton) {
+        lElDeleteButton.setAttribute('name', pObjItem.date);
         lElDeleteButton.setAttribute(lStrAttrNameOfDatabase, gStrDbName);
         lElDeleteButton.addEventListener('click', lFuncDelete, true);
-        if (pItem.hasOwnProperty('id')) {
-          lElDeleteButton.setAttribute(lStrAttrNameOfItemId, pItem.id);
+        if (pObjItem.hasOwnProperty('id')) {
+          lElDeleteButton.setAttribute(lStrAttrNameOfItemId, pObjItem.id);
         }
       }
 
-      if (lObjOpts.date !== false) {
-        lElDate.textContent = formatDate(new Date(pItem.date), 'hh:mm:ss');
+      if (lObjDefaultOpts.date !== false) {
+        lElDate.textContent = formatDate(new Date(pObjItem.date), 'hh:mm:ss');
       }
 
-      if (pItem.hasOwnProperty('url') && lObjOpts.link) {
-        lElLink.setAttribute('href', pItem.url);
+      if (pObjItem.hasOwnProperty('url') && lObjDefaultOpts.link) {
+        lElLink.setAttribute('href', pObjItem.url);
       }
 
-      if (pItem.hasOwnProperty('dataURI') && lObjOpts.icon) {
-        lElIcon.setAttribute('src', pItem.dataURI);
+      if (pObjItem.hasOwnProperty('dataURI') && lObjDefaultOpts.icon) {
+        lElIcon.setAttribute('src', pObjItem.dataURI);
       }
 
-      if (pItem.hasOwnProperty('title') && lObjOpts.title) {
-        lElTitle.textContent = pItem.title;
+      if (pObjItem.hasOwnProperty('title') && lObjDefaultOpts.title) {
+        lElTitle.textContent = pObjItem.title;
       }
 
       return lElItem;
@@ -1603,18 +2099,19 @@
 
   function showAllHistory()//{{{
   {
-    var lElHistoryDateList   =
-      document.querySelector(`#${sStrIdNameOfHistoryList}`);
+    var lElHistoryDateList   = document.createDocumentFragment();
     var lElHistoryItemList   = document.createDocumentFragment();
     var lElHistoryDate       = document.createDocumentFragment();
     var lElCreateHistoryDate = null;
     var lElCreateHistoryItem = null;
-    var lArrayList = [];
+    var lArrayList           = [];
 
     return new Promise((resolve, reject) => {
       getAllHistory()
       .then(historyArray => {
         historyArray = historyArray.reverse();
+        lElHistoryDateList =
+          document.querySelector(`#${sStrIdNameOfHistoryList}`);
 
         showAutoCompleteDateList(historyArray);
 
@@ -1667,27 +2164,35 @@
 
   function showSpecificHistoryDateAndItem()//{{{
   {
-    var lElSearchHistoryDate         =
-      document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
-    var lStrSearchHistoryValue       = lElSearchHistoryDate.value;
-    var lStrSearchHistoryValueLen    = lStrSearchHistoryValue.length;
-    var lElSearchHistoryItem         =
-      document.querySelector(`#${sStrIdNameOfSearchHistoryItem}`);
-    var lElSearchHistoryItemValue    = lElSearchHistoryItem.value.trim();
-    var lElSearchHistoryItemValueLen = lElSearchHistoryItemValue.length;
-    var lRegItem        = new RegExp(lElSearchHistoryItemValue, 'ig');
-    var lElDateList     =
-      document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
-    var lElHistoryItems = document.createDocumentFragment();
-    var lElItemTitle    = document.createDocumentFragment();
-    var lElItemUrl      = document.createDocumentFragment();
-    var lArrayMatch    = [];
-    var lDate          = new Date();
-    var lDateSearch    = new Date();
-    var lNumCount      = 0;
-    var lNumSearchTime = 0;
+    var lElSearchHistoryDate          = document.createDocumentFragment();
+    var lElSearchHistoryItem          = document.createDocumentFragment();
+    var lElDateList                   = document.createDocumentFragment();
+    var lElHistoryItems               = document.createDocumentFragment();
+    var lElItemTitle                  = document.createDocumentFragment();
+    var lElItemUrl                    = document.createDocumentFragment();
+    var lStrSearchHistoryValue        = '';
+    var lStrSearchHistoryItemValue    = "";
+    var lNumSearchHistoryValueLen     = 0;
+    var lNumSearchHistoryItemValueLen = 0;
+    var lDate                         = new Date();
+    var lDateSearch                   = new Date();
+    var lRegItem                      = null;
+    var lArrayMatch                   = [];
+    var lNumCount                     = 0;
+    var lNumSearchTime                = 0;
 
-    if (lStrSearchHistoryValueLen > 0) {
+    lElSearchHistoryDate          = document.querySelector(
+                                      `#${sStrIdNameOfSearchHistoryDate}`);
+    lStrSearchHistoryValue        = lElSearchHistoryDate.value;
+    lNumSearchHistoryValueLen     = lStrSearchHistoryValue.length;
+    lElSearchHistoryItem          = document.querySelector(
+                                      `#${sStrIdNameOfSearchHistoryItem}`);
+    lStrSearchHistoryItemValue    = lElSearchHistoryItem.value.trim();
+    lNumSearchHistoryItemValueLen = lStrSearchHistoryItemValue.length;
+    lElDateList = document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
+    lRegItem    = new RegExp(lStrSearchHistoryItemValue, 'ig');
+
+    if (lNumSearchHistoryValueLen > 0) {
       lArrayMatch = lStrSearchHistoryValue.match(/(\d+)-(\d+)-(\d+)/);
       lDateSearch =
         new Date(lArrayMatch[1], lArrayMatch[2] - 1, lArrayMatch[3]);
@@ -1697,7 +2202,7 @@
     Array.prototype.slice.call(lElDateList).forEach(pValue => {
       lDate    = new Date(parseInt(pValue.name));
 
-      if (lStrSearchHistoryValueLen === 0 ||
+      if (lNumSearchHistoryValueLen === 0 ||
           lDate.getTime() === lNumSearchTime) {
         removeStringFromAttributeOfElement(
           pValue, 'class', sStrClassNameOfDoesNot);
@@ -1714,7 +2219,7 @@
           pValueJ.querySelector(`.${sStrClassNameOfHistoryItemTitle}`);
         lElItemUrl   =
           pValueJ.querySelector(`.${sStrClassNameOfHistoryItemUrl}`);
-        if (lElSearchHistoryItemValueLen === 0 ||
+        if (lNumSearchHistoryItemValueLen === 0 ||
             lRegItem.test(lElItemTitle.textContent) ||
             lRegItem.test(lElItemUrl.href)) {
           removeStringFromAttributeOfElement(
@@ -1737,7 +2242,18 @@
 
   function changeMenu(pStrName)//{{{
   {
+    var lStrErrMsg = "";
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'string' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       menuToggle.show(pStrName)
       .then(processAfterMenuSelection(pStrName))
       .then(resolve)
@@ -1747,7 +2263,17 @@
 
   function sectionButtonClicked(pEvent)//{{{
   {
-    var lElTarget = pEvent.target;
+    var lElTarget = document.createDocumentFragment();
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElTarget = pEvent.target;
     if (lElTarget.getAttribute('class') !== sStrClassNameOfButton) {
       return;
     }
@@ -1766,16 +2292,28 @@
 
   function updateOptionValueToStorage(pEvent)//{{{
   {
-    var lElTarget = pEvent.target;
-    var lStrName = lElTarget.getAttribute('name');
+    var lElTarget  = document.createDocumentFragment();
+    var lObjWrite  = {};
+    var lStrName   = "";
+    var lStrErrMsg = "";
+
+    lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return (typeof pValue !== 'object'); },
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    lElTarget = pEvent.target;
+    lStrName = lElTarget.getAttribute('name');
     if (lStrName === void 0 || lStrName === null || lStrName.length === 0) {
       return;
     }
-    var lObjWrite = {};
 
     operateOption.get(document, lStrName)
     .then(rItem => {
       return new Promise(resolve => {
+        lObjWrite = {};
         lObjWrite[lStrName] = rItem;
         chrome.storage.local.set(lObjWrite, () => {
           console.log(
@@ -1801,15 +2339,28 @@
   }//}}}
 
   var initSessionHistoryEvent = (function() {//{{{
-    var lElSessionSave =
-      document.querySelector(`#${sStrIdNameOfSessionSave}`);
-    var lElSessionDelete =
-      document.querySelector(`#${sStrIdNameOfSessionDelete}`);
-    var lElSessionRestore =
-      document.querySelector(`#${sStrIdNameOfSessionRestore}`);
+    var lElSessionSave    = document.createDocumentFragment();
+    var lElSessionDelete  = document.createDocumentFragment();
+    var lElSessionRestore = document.createDocumentFragment();
+
+    lElSessionSave   = document.querySelector(`#${sStrIdNameOfSessionSave}`);
+    lElSessionDelete = document.querySelector(`#${sStrIdNameOfSessionDelete}`);
+    lElSessionRestore =
+        document.querySelector(`#${sStrIdNameOfSessionRestore}`);
 
     var commonFunc = function(pEvent) {//{{{
+      var lStrErrMsg = "";
+      var lArrayArgs = Array.prototype.slice.call(arguments);
+
       return new Promise((resolve, reject)=> {
+        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+          function(pValue) { return (typeof pValue !== 'object'); },
+        ]);
+        if (lStrErrMsg) {
+          reject(new Error(lStrErrMsg));
+          return;
+        }
+
         (() => {
           var lStrIdName = pEvent.target.getAttribute('id');
           if (lStrIdName === lElSessionSave.getAttribute('id')) {
@@ -1836,10 +2387,13 @@
 
   function initHistoryEvent()//{{{
   {
+    var lElSearchHistoryDate = document.createDocumentFragment();
+    var lElSearchHistoryItem = document.createDocumentFragment();
+
     return new Promise(resolve => {
-      var lElSearchHistoryDate =
+      lElSearchHistoryDate =
         document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
-      var lElSearchHistoryItem =
+      lElSearchHistoryItem =
         document.querySelector(`#${sStrIdNameOfSearchHistoryItem}`);
 
       lElSearchHistoryDate.addEventListener(
@@ -1853,8 +2407,18 @@
   function initSectionBarEvent(pEvent)//{{{
   {
     var lElButton = document.createDocumentFragment();
+    var lStrErrMsg = "";
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       try {
         lElButton = pEvent.querySelectorAll(`.${sStrClassNameOfButton}`);
         Array.prototype.slice.call(lElButton).forEach(pValue => {
@@ -1872,8 +2436,18 @@
     var lElInput    = document.createDocumentFragment();
     var lElTextarea = document.createDocumentFragment();
     var lElSelect   = document.createDocumentFragment();
+    var lStrErrMsg = "";
+    var lArrayArgs = Array.prototype.slice.call(arguments);
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       lElInput    = pEvent.querySelectorAll("input");
       lElTextarea = pEvent.querySelectorAll("textarea");
       lElSelect   = pEvent.querySelectorAll("select");
@@ -1897,7 +2471,18 @@
 
   function initKeybindEvent(pEvent)//{{{
   {
-    return new Promise(resolve => {
+    var lStrErrMsg = "";
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+
+    return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
       pEvent.addEventListener('keyup', keyupEvent, true);
       resolve();
     });
@@ -1905,8 +2490,20 @@
 
   function initButtonEvent(pEvent)//{{{
   {
-    return new Promise(resolve => {
-      var lElButtons = pEvent.querySelectorAll('button');
+    var lElButtons = document.createDocumentFragment();
+    var lStrErrMsg = "";
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+
+    return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        function(pValue) { return (typeof pValue !== 'object'); },
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lElButtons = pEvent.querySelectorAll('button');
       Array.prototype.slice.call(lElButtons).forEach(pValue => {
         pValue.addEventListener('click', buttonClicked, true);
       });
