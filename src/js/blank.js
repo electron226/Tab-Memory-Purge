@@ -5,7 +5,7 @@
   // variables.//{{{
   var db = null;
 
-  var sNumMaxRecorsiveCount = 3;
+  const sNumMaxRecorsiveCount = 3;
 
   const sElementIcon  = document.querySelector('#favicon');
   const sElementTitle = document.querySelector('#title');
@@ -103,6 +103,8 @@
         return;
       }
 
+      pNumRecorsiveCount = pNumRecorsiveCount || sNumMaxRecorsiveCount;
+
       lObjArgs = getQueryString(document);
 
       (() => {
@@ -135,7 +137,7 @@
         });
       })
       .then(pageInfo => {
-        if (sNumMaxRecorsiveCount < 0) {
+        if (pNumRecorsiveCount < 0) {
           reject(new Error("Doesn't get a title of a purged tab."));
           return;
         }
@@ -148,8 +150,8 @@
             lStrName = 'get_title_when_does_not_title';
             chrome.storage.local.get(lStrName, items => {
               if (items[lStrName] === true &&
-                  sNumMaxRecorsiveCount >= 0) {
-                console.log('MaxRecorsiveCount is ', sNumMaxRecorsiveCount);
+                  pNumRecorsiveCount >= 0) {
+                console.log('RecorsiveCount is ', pNumRecorsiveCount);
 
                 getDataOfBeforeToPurge(pNumRecorsiveCount)
                 .then(resolve)
