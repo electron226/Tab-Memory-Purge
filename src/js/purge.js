@@ -1689,16 +1689,16 @@
           lObjOpts.windowId = lNumWinId;
         }
 
-        chrome.tabs.create(lObjOpts, rTab => {
+        chrome.tabs.create(lObjOpts, rObjTab => {
             if (chrome.runtime.lastError) {
               reject(new Error(chrome.runtime.lastError.message));
               return;
             }
 
             rMapResults = new Map();
-            rMapResults.set(rTab.id, {
+            rMapResults.set(rObjTab.id, {
               url            : lStrUrl,
-              windowId       : rTab.windowId,
+              windowId       : rObjTab.windowId,
               scrollPosition : { x : 0 , y : 0 },
             });
             resolve(rMapResults);
@@ -1768,7 +1768,7 @@
 
       return new Promise((resolve, reject) => {
         lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-          [ 'number' ],
+          [ 'number', 'undefined', 'null' ],
           [ 'array' ],
           [ 'string' ],
         ]);
@@ -1812,7 +1812,7 @@
 
       return new Promise((resolve, reject) => {
         lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-          [ 'number' ],
+          [ 'number', 'null', 'undefined' ],
           [ 'array' ],
           [ 'string' ],
         ]);
@@ -1842,12 +1842,12 @@
               }
 
               if (pWindowId) {
-                chrome.tabs.query({ windowId: pWindowId }, rTabs => {
+                chrome.tabs.query({ windowId: pWindowId }, pArrayTabs => {
                   if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message));
                     return;
                   }
-                  resolve(rTabs.length !== 0);
+                  resolve(pArrayTabs.length !== 0);
                 });
               } else {
                 resolve(false);
@@ -1870,6 +1870,9 @@
           .then(resolve)
           .catch(reject);
           break;
+        default:
+          reject(new Error("pStrRestoreType is invalid."));
+          return;
         }
       });
     }//}}}
@@ -2046,8 +2049,8 @@
 
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        [ 'number' ],
-      ]);
+        [ 'number', 'null', 'undefined' ],
+      ], true);
       if (lStrErrMsg) {
         reject(new Error(lStrErrMsg));
         return;
@@ -2062,8 +2065,11 @@
         lArrayRestoreSessions = [];
         sessions.forEach(pValue => {
           pValue.data.forEach(pValueJ => {
-            if (pPreviousSessionTime === pValueJ.date) {
-              lArrayRestoreSessions.push({ url: pValueJ.url });
+            if (pPreviousSessionTime !== void 0 &&
+                pPreviousSessionTime !== null &&
+                pPreviousSessionTime === pValueJ.date) {
+              lArrayRestoreSessions.push(
+                { url: pValueJ.url, windowId: pValueJ.windowId });
             }
           });
         });
