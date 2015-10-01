@@ -2570,7 +2570,7 @@
   }//}}}
 
   chrome.webRequest.onBeforeRequest.addListener(pObjDetails => {//{{{
-    console.info('webRequest.onBeforeRequest', pObjDetails);
+    // console.info('webRequest.onBeforeRequest', pObjDetails);
 
     if (sMapOptions.get('new_tab_opens_with_purged_tab') === true) {
       if (sNumCurrentTabId !== pObjDetails.tabId) {

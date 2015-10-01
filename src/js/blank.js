@@ -260,7 +260,7 @@
   });//}}}
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{
-    console.info('runtime.onMessage', message, sender, sendResponse);
+    console.info('runtime.onMessage', Array.prototype.slice.call(arguments));
 
     switch (message.event) {
       case 'location_replace':
