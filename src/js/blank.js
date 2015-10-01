@@ -53,12 +53,6 @@
       if (pObjResult.status === 200) {
         lStrNewTitle = pObjResult.response.title;
         if (lStrNewTitle) {
-          document.title            = lStrNewTitle;
-          sElementTitle.textContent = lStrNewTitle;
-          sElementTitle.removeAttribute('style');
-
-          lElFavicon =
-            pObjResult.response.querySelector('link[rel="shortcut icon"]');
           lStrHost   = getHostName(lStrUrl);
 
           db.add({
@@ -69,6 +63,9 @@
               host:  lStrHost,
             },
           });
+
+          lElFavicon =
+            pObjResult.response.querySelector('link[rel="shortcut icon"]');
 
           if (lElFavicon) {
             getDataURI(lElFavicon.href)
@@ -83,7 +80,7 @@
             });
           }
         }
-        return loadPurgedTabInfo(--pNumRecorsiveCount);
+        return loadPurgedTabInfo(pNumRecorsiveCount);
       }
     });
   }//}}}
@@ -92,10 +89,11 @@
   {
     console.info('loadPurgedTabInfo', Array.prototype.slice.call(arguments));
 
-    var lElSpan = document.createDocumentFragment();
-    var lElA    = document.createDocumentFragment();
-    var lElHead = document.createDocumentFragment();
-    var lElLink = document.createDocumentFragment();
+    var lElSpan    = document.createDocumentFragment();
+    var lElA       = document.createDocumentFragment();
+    var lElHead    = document.createDocumentFragment();
+    var lElLink    = document.createDocumentFragment();
+    var lElFavicon = document.createDocumentFragment();
 
     var lObjArgs    = {};
     var lStrUrl     = '';
@@ -115,7 +113,16 @@
 
       pNumRecorsiveCount = pNumRecorsiveCount || sNumMaxRecorsiveCount;
 
+      if (pNumRecorsiveCount < 0) {
+        reject(new Error("Doesn't get a title of a purged tab."));
+        return;
+      }
+
       lObjArgs = getQueryString(document);
+      if (!lObjArgs.hasOwnProperty('url') || lObjArgs.url.length === 0) {
+        reject(new Error("Doesn't get a url of arguments on web page."));
+        return;
+      }
 
       (() => {
         return new Promise(resolve => {
@@ -147,56 +154,74 @@
         });
       })
       .then(pageInfo => {
-        if (pNumRecorsiveCount < 0) {
-          reject(new Error("Doesn't get a title of a purged tab."));
-          return;
-        }
-
-        if (pageInfo === void 0 || pageInfo === null) {
-          document.title = sElementUrl.textContent;
-          sElementTitle.setAttribute('style', 'display: none');
-
-          (() => {
+        return (() => {
+          return new Promise(resolve2 => {
             lStrName = 'get_title_when_does_not_title';
             chrome.storage.local.get(lStrName, items => {
-              if (items[lStrName] === true &&
-                  pNumRecorsiveCount >= 0) {
-                console.log('RecorsiveCount is ', pNumRecorsiveCount);
-
-                getDataOfBeforeToPurge(pNumRecorsiveCount)
-                .then(resolve)
-                .catch(reject);
+              if (items[lStrName] === true) {
+                resolve2(true);
               } else {
-                reject(new Error("Doesn't get a title of a purged tab."));
-                return;
+                resolve2(false);
               }
             });
-          })();
-        } else if (!pageInfo.hasOwnProperty('title') ||
-                    pageInfo.title === 'Unknown') {
-          db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
-          .then(getDataOfBeforeToPurge(pNumRecorsiveCount))
-          .then(resolve)
-          .catch(reject);
-        } else {
-          document.title            = pageInfo.title;
-          sElementTitle.textContent = pageInfo.title;
-
-          return db.get({
-            name : gStrDbDataURIName,
-            key  : pageInfo.host,
           });
-        }
+        })()
+        .then(option => {
+          if (pageInfo === void 0 ||
+              pageInfo === null ||
+              !pageInfo.hasOwnProperty('title') ||
+              pageInfo.title === 'Unknown') {
+            if (option === true) {
+              document.title = sElementUrl.textContent;
+              sElementTitle.setAttribute('style', 'display: none');
+
+              console.log('RecorsiveCount is ', pNumRecorsiveCount);
+
+              (() => {
+                return new Promise((resolve2, reject2) => {
+                  if (pageInfo.hasOwnProperty('url') &&
+                      pageInfo.url.length > 0) {
+                    db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
+                    .then(resolve2)
+                    .catch(reject2);
+                  } else {
+                    resolve();
+                  }
+                });
+              })()
+              .then(getDataOfBeforeToPurge(--pNumRecorsiveCount))
+              .then(resolve)
+              .catch(reject);
+            } else {
+              reject(new Error("Doesn't get a title of a purged tab."));
+              return;
+            }
+          } else {
+            document.title            = pageInfo.title;
+            sElementTitle.textContent = pageInfo.title;
+            sElementTitle.removeAttribute('style');
+
+            return db.get({
+              name : gStrDbDataURIName,
+              key  : pageInfo.host,
+            });
+          }
+        });
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
           lStrFavicon  = dataURIInfo.dataURI;
 
-          lElHead      = document.querySelector('head');
-          lElLink      = document.createElement('link');
-          lElLink.rel  = 'shortcut icon';
-          lElLink.href = decodeURIComponent(lStrFavicon);
-          lElHead.appendChild(lElLink);
+          lElFavicon = document.querySelector('link[rel="shortcut icon"]');
+          if (lElFavicon) {
+            lElFavicon.src = lStrFavicon;
+          } else {
+            lElHead      = document.querySelector('head');
+            lElLink      = document.createElement('link');
+            lElLink.rel  = 'shortcut icon';
+            lElLink.href = decodeURIComponent(lStrFavicon);
+            lElHead.appendChild(lElLink);
+          }
 
           sElementIcon.src = lStrFavicon;
           removeStringFromAttributeOfElement(
