@@ -303,7 +303,8 @@
         if (checkExcludeList(lStrUrl) & NORMAL) {
           if (sObjUnloaded.hasOwnProperty(lNumTabId)) {
             throw new Error(
-              "TabId has already existed into sObjUnloaded." + lNumTabId);
+              "TabId has already existed into sObjUnloaded: " +
+              `${pObjDetails}`);
           }
 
           chrome.tabs.get(lNumTabId, tab => {
@@ -1058,7 +1059,7 @@
    */
   function isPlayingSound(pObjTab)//{{{
   {
-    console.info('isPlayingSound', pObjTab);
+    console.info('isPlayingSound', Array.prototype.slice.call(arguments));
 
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'object' ],
@@ -1081,8 +1082,7 @@
   */
   function checkMatchUrlString(pStrUrl, pObjExclude)//{{{
   {
-    console.info('checkMatchUrlString',
-      Array.prototype.slice.call(pObjExclude));
+    console.info('checkMatchUrlString', Array.prototype.slice.call(arguments));
 
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'string' ],
@@ -1179,6 +1179,7 @@
   *               EXTENSION_EXCLUDE = 拡張機能関係のアドレスと一致
   *               USE_EXCLUDE    = ユーザー指定の除外アドレスと一致
   *               TEMP_EXCLUDE   = 一時的な非解放リストと一致
+  *               KEYBIND_EXCLUDE = キーバインドの除外リストと一致
   *               NORMAL = 一致しなかった。
   *             And if match the exclusion list of key bindings,
   *             make a bit addition of KEYBIND_EXCLUDE.
@@ -1258,7 +1259,7 @@
    */
   function reloadBrowserIcon(pObjTab)//{{{
   {
-    console.info('reloadBrowserIcon', Array.prototype.slice.call(pObjTab));
+    console.info('reloadBrowserIcon', Array.prototype.slice.call(arguments));
 
     var lNumChangeIcon = 0;
     var lStrTitle      = '';
@@ -1352,12 +1353,12 @@
 
       lArrayPromise.push(
         new Promise((resolve2, reject2) => {
-          chrome.tabs.get(pTabId, rTab => {
+          chrome.tabs.get(pTabId, rObjTab => {
             if (chrome.runtime.lastError) {
               reject2(new Error(chrome.runtime.lastError.message));
               return;
             }
-            resolve2(rTab);
+            resolve2(rObjTab);
           });
         })
       );
@@ -1439,7 +1440,7 @@
   */
   function unPurge(pNumId)//{{{
   {
-    console.info('unPurge', pNumId);
+    console.info('unPurge', Array.prototype.slice.call(arguments));
 
     var lStrUrl = "";
     var lStrErrMsg = '';
@@ -1475,7 +1476,7 @@
   */
   function purgeToggle(pNumId)//{{{
   {
-    console.info('purgeToggle', pNumId);
+    console.info('purgeToggle', Array.prototype.slice.call(arguments));
 
     var lStrErrMsg = '';
     var lArrayArgs = Array.prototype.slice.call(arguments);
@@ -1503,7 +1504,7 @@
   */
   function tick(pNumTabId)//{{{
   {
-    console.info('tick', pNumTabId);
+    console.info('tick', Array.prototype.slice.call(arguments));
 
     var lNumState  = 0;
     var lStrErrMsg = '';
@@ -1536,15 +1537,17 @@
         lNumState = checkExcludeList(rObjTab.url);
         if (!(lNumState & NORMAL) && !isReleasePage(rObjTab.url)) {
           // 除外アドレスに含まれている場合
-          reject(new Error("the tab includes to the exclusion list: " +
-                 ` ${JSON.stringify(rObjTab)}`));
+          console.warn("the tab includes to the exclusion list: " +
+                       ` ${JSON.stringify(rObjTab)}`);
+          resolve();
           return;
         }
 
         if (sMapOptions.get('not_purge_playsound_tab') === true &&
             isPlayingSound(rObjTab)) {
-          reject(new Error(
-            `the tab have been playing sound: ${JSON.stringify(rObjTab)}`));
+          console.warn(
+            `the tab have been playing sound: ${JSON.stringify(rObjTab)}`);
+          resolve();
           return;
         }
 
@@ -1584,7 +1587,7 @@
   */
   function setTick(pNumTabId)//{{{
   {
-    console.info('setTick');
+    console.info('setTick', Array.prototype.slice.call(arguments));
 
     var lNumTimer  = 0;
     var lNumIVal   = 0;
@@ -1613,7 +1616,6 @@
 
       // 分(設定) * 秒数 * ミリ秒
       lNumTimer = parseInt(sMapOptions.get('timer'), 10) * 60 * 1000;
-      console.info('setTick', lNumTimer);
 
       // Update.
       deleteTick(pNumTabId);
@@ -2128,7 +2130,7 @@
         if (pOptions.get(gStrPreviousSessionTimeKey)) {
           return showDialogOfRestoreSessionBeforeUpdate();
         } else {
-          return;
+          return Promise.resolve();
         }
       })
       .then(resolve)
@@ -2218,7 +2220,7 @@
       var lArrayRemoveKeys = [];
       var lMapOptions      = new Map();
 
-      chrome.storage.local.get(null, pItems => {
+      chrome.storage.local.get(pItems => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -2488,7 +2490,7 @@
   function initializeIntervalUpdateCheck(pNumCheckTime)//{{{
   {
     console.info('initializeIntervalUpdateCheck',
-      Array.prototype.slice.call(pNumCheckTime));
+      Array.prototype.slice.call(arguments));
 
     var lStrIntervalName = 'updateCheck';
     var lStrIntervalId   = '';
@@ -2612,15 +2614,15 @@
 
   chrome.tabs.onUpdated.addListener((pTabId, pObjChangeInfo, pTab) => {//{{{
     if (pObjChangeInfo.status === 'loading') {
-      console.info(
-        'chrome.tabs.onUpdated. loading.', pTabId, pObjChangeInfo, pTab);
+      console.info('chrome.tabs.onUpdated. loading.',
+                   Array.prototype.slice.call(arguments));
 
       if (!isReleasePage(pTab.url) && sObjUnloaded.hasOwnProperty(pTabId)) {
         delete sObjUnloaded[pTabId];
       }
     } else {
-      console.info(
-        'chrome.tabs.onUpdated. complete.', pTabId, pObjChangeInfo, pTab);
+      console.info('chrome.tabs.onUpdated. complete.',
+                   Array.prototype.slice.call(arguments));
 
       loadScrollPosition(pTabId)
       .then(reloadBrowserIcon(pTab))
@@ -2635,7 +2637,8 @@
 
   chrome.runtime.onMessage.addListener(//{{{
     (pObjMessage, pObjSender, pFuncSendResponse) => {
-      console.info('chrome.runtime.onMessage.', pObjMessage, pObjSender);
+      console.info('chrome.runtime.onMessage.',
+                   Array.prototype.slice.call(arguments));
 
       var lArrayPromise   = [];
       var lArrayTarget    = [];
@@ -2782,8 +2785,8 @@
 
   chrome.notifications.onButtonClicked.addListener(//{{{
     (pStrNotificationId, pButtonIndex) => {
-      console.info(
-        'nortifications.onButtonClicked', pStrNotificationId, pButtonIndex);
+      console.info('nortifications.onButtonClicked',
+                   Array.prototype.slice.call(arguments));
 
       switch (pStrNotificationId) {
       case UPDATE_CONFIRM_DIALOG:

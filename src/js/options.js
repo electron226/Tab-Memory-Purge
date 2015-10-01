@@ -351,7 +351,7 @@
 
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        function(pValue) { return (typeof pValue !== 'object'); },
+        function(pValue) { return typeof pValue !== 'object'; },
         [ 'object' ],
       ], true);
       if (lStrErrMsg) {
@@ -2181,12 +2181,12 @@
     var lNumCount                     = 0;
     var lNumSearchTime                = 0;
 
-    lElSearchHistoryDate          = document.querySelector(
-                                      `#${sStrIdNameOfSearchHistoryDate}`);
-    lStrSearchHistoryValue        = lElSearchHistoryDate.value;
-    lNumSearchHistoryValueLen     = lStrSearchHistoryValue.length;
-    lElSearchHistoryItem          = document.querySelector(
-                                      `#${sStrIdNameOfSearchHistoryItem}`);
+    lElSearchHistoryDate      = document.querySelector(
+                                  `#${sStrIdNameOfSearchHistoryDate}`);
+    lStrSearchHistoryValue    = lElSearchHistoryDate.value;
+    lNumSearchHistoryValueLen = lStrSearchHistoryValue.length;
+    lElSearchHistoryItem      = document.querySelector(
+                                  `#${sStrIdNameOfSearchHistoryItem}`);
     lStrSearchHistoryItemValue    = lElSearchHistoryItem.value.trim();
     lNumSearchHistoryItemValueLen = lStrSearchHistoryItemValue.length;
     lElDateList = document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
