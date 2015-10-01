@@ -1944,8 +1944,8 @@
 
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'string' ],
-      [ 'string' ],
-    ]);
+      [ 'string', 'undefined', 'null' ],
+    ], true);
     if (lStrErrMsg) {
       throw new Error(lStrErrMsg);
     }
