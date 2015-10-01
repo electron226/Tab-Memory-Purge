@@ -306,7 +306,7 @@
           if (sObjUnloaded.hasOwnProperty(lNumTabId)) {
             throw new Error(
               "TabId has already existed into sObjUnloaded: " +
-              `${pObjDetails}`);
+              `${JSON.stringify(pObjDetails)}`);
           }
 
           chrome.tabs.get(lNumTabId, tab => {
@@ -2236,6 +2236,8 @@
 
   function deletePreviousSessionTime()//{{{
   {
+    console.info('deletePreviousSessionTime');
+
     return new Promise((resolve, reject) => {
       // delete old current session time.
       chrome.storage.local.remove(gStrPreviousSessionTimeKey, () => {

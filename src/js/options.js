@@ -1651,7 +1651,6 @@
     var lStrErrMsg       = "";
     var lArrayArgs       = Array.prototype.slice.call(arguments);
 
-
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
         function(pValue) { return (typeof pValue !== 'object'); },
