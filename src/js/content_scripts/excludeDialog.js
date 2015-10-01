@@ -166,7 +166,10 @@
         for (i = 0; i < lNumValueLength; i = (i + 1) | 0) {
           lStrPathName += '/' + sArrayPaths[i];
         }
-        lStrPathName += (i !== 0 && lElPage.max > lNumValueLength) ? '/*' : '';
+        lStrPathName +=
+          (i !== 0 && lElPage.max > lNumValueLength) ?
+          '/*' :
+          (location.pathname[location.pathname.length - 1] === '/' ? '/' : '');
         lElUrl.textContent = lStrHostName + lStrPathName;
       });
 
