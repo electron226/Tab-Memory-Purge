@@ -32,7 +32,7 @@
   var sMapOldActiveIds = new Map() ;
 
   var db                     = null; // indexedDB.
-  var sNumCurrentSessoinTime = 0;
+  var sNumCurrentSessionTime = 0;
 
   /// key: tabId, value: represent an icon.
   var sMapIconState          = new Map();
@@ -762,7 +762,6 @@
 
     var lArraySessionWrites = [];
     var lArrayDelKeys       = [];
-    var lObjWrite           = {};
     var lObjItem            = {};
     var lDate               = new Date();
     var lNumNowTime         = lDate.getTime();
@@ -781,16 +780,14 @@
       lDate       = new Date();
       lNumNowTime = lDate.getTime();
 
-      // sNumCurrentSessoinTimeの処理
+      // sNumCurrentSessionTimeの処理
       (() => {
         return new Promise((resolve2, reject2) => {
-          console.log('sNumCurrentSessoinTime', sNumCurrentSessoinTime);
-
-          if (sNumCurrentSessoinTime) {
+          if (sNumCurrentSessionTime) {
             // previous current session is delete.
             db.getCursor({
               name:      gStrDbSessionName,
-              range:     IDBKeyRange.only(sNumCurrentSessoinTime),
+              range:     IDBKeyRange.only(sNumCurrentSessionTime),
               indexName: 'date',
             })
             .then(rHistories => {
@@ -824,13 +821,19 @@
         return db.add({ name: gStrDbSessionName, data: lArraySessionWrites });
       })
       .then(() => {
-        sNumCurrentSessoinTime = lNumNowTime;
+        return new Promise((resolve2, reject2) => {
+          if (lArraySessionWrites.length > 0) {
+            sNumCurrentSessionTime = lNumNowTime;
 
-        lObjWrite = {};
-        lObjWrite[gStrPreviousSessionTimeKey] = lNumNowTime;
-        chrome.storage.local.set(lObjWrite, () => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
+            updatePreviousSessionTime(lNumNowTime)
+            .then(resolve2)
+            .catch(reject2);
+          } else {
+            sNumCurrentSessionTime = 0;
+
+            deletePreviousSessionTime()
+            .then(resolve2)
+            .catch(reject2);
           }
         });
       })
@@ -2058,14 +2061,18 @@
 
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        [ 'number', 'null', 'undefined' ],
+        [ 'number' ],
       ], true);
       if (lStrErrMsg) {
         reject(new Error(lStrErrMsg));
         return;
       }
 
-      getHistoryListFromIndexedDB(db, gStrDbSessionName)
+      db.getCursor({
+        name:      gStrDbSessionName,
+        range:     IDBKeyRange.only(pPreviousSessionTime),
+        indexName: 'date',
+      })
       .then(sessions => {
         if (sessions.length === 0) {
           return;
@@ -2073,14 +2080,8 @@
 
         lArrayRestoreSessions = [];
         sessions.forEach(pValue => {
-          pValue.data.forEach(pValueJ => {
-            if (pPreviousSessionTime !== void 0 &&
-                pPreviousSessionTime !== null &&
-                pPreviousSessionTime === pValueJ.date) {
-              lArrayRestoreSessions.push(
-                { url: pValueJ.url, windowId: pValueJ.windowId });
-            }
-          });
+          lArrayRestoreSessions.push(
+            { url: pValue.url, windowId: pValue.windowId });
         });
 
         if (lArrayRestoreSessions.length > 0) {
@@ -2199,6 +2200,36 @@
         } else {
           resolve();
         }
+      });
+    });
+  }//}}}
+
+  function updatePreviousSessionTime(pNumTime)//{{{
+  {
+    console.info('updatePreviousSessionTime',
+      Array.prototype.slice.call(arguments));
+
+    var lObjWrite = {};
+    var lStrErrMsg = '';
+    var lArrayArgs = Array.prototype.slice.call(arguments);
+
+    return new Promise((resolve, reject) => {
+      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        [ 'number' ],
+      ]);
+      if (lStrErrMsg) {
+        reject(new Error(lStrErrMsg));
+        return;
+      }
+
+      lObjWrite = {};
+      lObjWrite[gStrPreviousSessionTimeKey] = pNumTime;
+      chrome.storage.local.set(lObjWrite, () => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        resolve();
       });
     });
   }//}}}
@@ -2823,9 +2854,10 @@
       case RESTORE_PREVIOUS_SESSION:
         if (pButtonIndex === 0) {
           getInitAndLoadOptions()
-          .then(pObjOptions =>
-              restoreSessionBeforeUpdate(
-                  pObjOptions.get(gStrPreviousSessionTimeKey)))
+          .then(pObjOptions => {
+            return restoreSessionBeforeUpdate(
+              pObjOptions.get(gStrPreviousSessionTimeKey));
+          })
           .then(deletePreviousSessionTime)
           .catch(e => console.error(e));
         } else {
