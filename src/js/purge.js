@@ -1505,6 +1505,7 @@
   {
     console.info('tick', pNumId);
 
+    var lNumState  = 0;
     var lStrErrMsg = '';
     var lArrayArgs = Array.prototype.slice.call(arguments);
 
@@ -1522,20 +1523,30 @@
         return;
       }
 
-      chrome.tabs.get(pNumId, rTab => {
+      chrome.tabs.get(pNumId, rObjTab => {
         if (chrome.runtime.lastError) {
-          reject(new Error(`tick function is skipped: ${pNumId}`));
+          reject(
+            new Error(`tick function is skipped: ${JSON.stringify(rObjTab)}`));
+          return;
+        }
+
+        // 全ての除外アドレス一覧と比較
+        lNumState = checkExcludeList(rObjTab.url);
+        if (!(lNumState & NORMAL)) { // 除外アドレスに含まれている場合
+          reject(new Error("the tab includes to the exclusion list: " +
+                 ` ${JSON.stringify(rObjTab)}`));
           return;
         }
 
         if (sMapOptions.get('not_purge_playsound_tab') === true &&
-            isPlayingSound(rTab)) {
-          reject(new Error(`the tab have been playing sound: ${pNumId}`));
+            isPlayingSound(rObjTab)) {
+          reject(new Error(
+            `the tab have been playing sound: ${JSON.stringify(rObjTab)}`));
           return;
         }
 
         // If a tab is activated, updates unload time of a tab.
-        (() => rTab.active ? setTick(pNumId) : purge(pNumId))()
+        (() => rObjTab.active ? setTick(pNumId) : purge(pNumId))()
         .then(resolve).catch(reject);
       });
     });
@@ -1572,7 +1583,6 @@
   {
     console.info('setTick');
 
-    var lNumState  = 0;
     var lNumTimer  = 0;
     var lNumIVal   = 0;
     var lStrErrMsg = '';
@@ -1598,29 +1608,16 @@
         return;
       }
 
-      chrome.tabs.get(pNumTabId, rTab => {
-        if (chrome.runtime.lastError) {
-          console.log('setTick function is skipped.');
-          resolve();
-          return;
-        }
+      // 分(設定) * 秒数 * ミリ秒
+      lNumTimer = parseInt(sMapOptions.get('timer'), 10) * 60 * 1000;
+      console.info('setTick', lNumTimer);
 
-        // 全ての除外アドレス一覧と比較
-        lNumState = checkExcludeList(rTab.url);
-        if (lNumState & NORMAL) { // 除外アドレスに含まれていない場合
-          // 分(設定) * 秒数 * ミリ秒
-          lNumTimer = parseInt(sMapOptions.get('timer'), 10) * 60 * 1000;
+      // Update.
+      deleteTick(pNumTabId);
+      lNumIVal = setInterval(() => tick(pNumTabId), lNumTimer);
+      sMapTicked.set(pNumTabId, lNumIVal);
 
-          // Update.
-          deleteTick(pNumTabId);
-          lNumIVal = setInterval(() => tick(pNumTabId), lNumTimer);
-          sMapTicked.set(pNumTabId, lNumIVal);
-        } else { // include exclude list
-          deleteTick(pNumTabId);
-        }
-
-        resolve();
-      });
+      resolve();
     });
   }//}}}
 
