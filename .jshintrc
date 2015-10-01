@@ -39,6 +39,7 @@
     
     "ajax":                               true,
     "loadTranslation":                    true,
+    "closureCreateBeep":                  true,
     "getSplitURI":                        true,
     "getHostName":                        true,
     "getListAfterJoinHistoryDataOnDB":    true,

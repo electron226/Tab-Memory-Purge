@@ -2,6 +2,8 @@
   "use strict";
 
   //{{{ variables.
+  var sFuncBeep = closureCreateBeep().bind(null, 100, 800, 0.5, 'triangle');
+
   var sMapOptions = new Map();
 
   /**
@@ -2547,7 +2549,10 @@
             { title: 'No' },
           ],
         },
-        resolve
+        pResult => {
+          sFuncBeep();
+          resolve(pResult);
+        }
       );
     });
   }//}}}
@@ -2566,7 +2571,10 @@
             { title: 'Later' },
           ],
         },
-        resolve
+        pResult => {
+          sFuncBeep();
+          resolve(pResult);
+        }
       );
     });
   }//}}}

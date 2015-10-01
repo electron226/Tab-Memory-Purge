@@ -120,6 +120,52 @@
     });
   }//}}}
 
+  // base program.
+  // https://stackoverflow.com/questions/879152/how-do-i-make-javascript-beep
+  function closureCreateBeep(pAudioCtx)//{{{
+  {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const lAudioCtx = pAudioCtx || new AudioContext();
+
+    /**
+     * beep
+     *
+     * sound the beep.
+     *
+     * @param {number} [pNumDuration] -
+     *     duration of the tone in milliseconds. Default is 500.
+     * @param {number} [pNumFurequency] -
+     *     frequency of the tone is hertz. default is 440.
+     * @param {number} [pNumVolume] -
+     *     volume of the tone. default is 1, off is 0.
+     * @param {string} [pStrType] -
+     *     type of tone.
+     *     Possible values are sine, square, sawtooth, triangle, and custom.
+     *     default is sine.
+     * @return {promise} the promise object.
+     */
+    function beep(pNumDuration, pNumFurequency, pNumVolume, pStrType) {
+      return new Promise(resolve => {
+        var lAudioOscillator = lAudioCtx.createOscillator();
+        var lAudioGainNode   = lAudioCtx.createGain();
+
+        lAudioOscillator.connect(lAudioGainNode);
+        lAudioGainNode.connect(lAudioCtx.destination);
+
+        lAudioGainNode.gain.value        = pNumVolume || 500;
+        lAudioOscillator.frequency.value = pNumFurequency || 440;
+        lAudioOscillator.type            = pStrType || 'sine';
+        lAudioOscillator.onended         = resolve;
+
+        lAudioOscillator.start();
+        setTimeout(
+          () => lAudioOscillator.stop(), (pNumDuration ? pNumDuration : 500));
+      });
+    }
+
+    return beep;
+  }//}}}
+
   function getSplitURI(pStrUrl)//{{{
   {
     var lArrayResult =
@@ -656,6 +702,7 @@
   setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(window, 'closureCreateBeep', closureCreateBeep);
   setObjectProperty(window, 'getSplitURI',       getSplitURI);
   setObjectProperty(window, 'getHostName',       getHostName);
   setObjectProperty(
