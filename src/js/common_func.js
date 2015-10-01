@@ -82,8 +82,8 @@
           xhr:      lXmlHttpReq,
         });
       };
-      lXmlHttpReq.onerror = function(e) {
-        reject(new Error(e));
+      lXmlHttpReq.onerror = function(pErr) {
+        reject(new Error(JSON.stringify(pErr)));
       };
       lXmlHttpReq.send(lData);
     });

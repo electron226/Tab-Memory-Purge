@@ -1381,9 +1381,9 @@
         lArrayScrollPosition = rResults[1];
 
         if (lObjTab.status !== 'complete') {
-          reject(new Error(
-            "The target tab has not been completed loading yet: " +
-            `${JSON.stringify(lObjTab)}`));
+          console.warn("The target tab has not been completed loading yet: " +
+                       `${JSON.stringify(lObjTab)}`);
+          resolve();
           return;
         }
 
@@ -1621,6 +1621,28 @@
       sMapTicked.set(pNumTabId, lNumIVal);
 
       resolve();
+    });
+  }//}}}
+
+  function updateAllTickIntervalOfTabs()//{{{
+  {
+    console.info('unloadedAllTickIntervalOfTabs');
+
+    var lNumTabId = 0;
+
+    return new Promise((resolve, reject) => {
+      lNumTabId = 0;
+
+      chrome.tabs.query({}, pArrayTabs => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+
+        pArrayTabs.forEach(pValue => setTick(pValue.id));
+
+        resolve();
+      });
     });
   }//}}}
 
@@ -2363,33 +2385,19 @@
     return function() {
       console.info('switchDisableTimerState');
 
-      var lNumResult = 0;
-
       return new Promise((resolve, reject) => {
         if (sBoolDisableAutoPurge) {
-          chrome.tabs.query({}, pTabs => {
-            if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError.message));
-              return;
-            }
-
-            pTabs.forEach(pValue => {
-              lNumResult = checkExcludeList(pValue.url);
-              if (lNumResult & NORMAL && !isReleasePage(pValue.url)) {
-                setTick(pValue.id);
-              }
-            });
-
-            sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
-            resolve();
-          });
+          updateAllTickIntervalOfTabs()
+          .then(() => {
+            sBoolDisableAutoPurge = false;
+          })
+          .then(resolve)
+          .catch(reject);
         } else {
-          sMapTicked.forEach(pValue => {
-            clearInterval(pValue);
-          });
+          sMapTicked.forEach(pValue => clearInterval(pValue));
           sMapTicked.clear();
 
-          sBoolDisableAutoPurge = sBoolDisableAutoPurge ? false : true;
+          sBoolDisableAutoPurge = true;
           resolve();
         }
       });
@@ -2438,12 +2446,15 @@
 
   function updateOptionValues()//{{{
   {
+    console.info('updateOptionValues');
+
     return new Promise((resolve, reject) => {
       getInitAndLoadOptions()
       .then(pOptions => {
         sMapOptions = pOptions;
-        return initializeIntervalProcess();
       })
+      .then(updateAllTickIntervalOfTabs)
+      .then(initializeIntervalProcess)
       .then(resolve)
       .catch(reject);
     });
