@@ -291,7 +291,6 @@
     var $this         = this;
     var lMapNew       = new Map();
     var lArrayPromise = [];
-    var key           = "";
     var lStrErrMsg    = '';
     var lArrayArgs    = Array.prototype.slice.call(arguments);
 
@@ -314,7 +313,7 @@
         case 'object':
           lMapNew = new Map();
           Object.keys(pObjOpts).forEach(pKey => {
-            lMapNew.set(key, pObjOpts[pKey]);
+            lMapNew.set(pKey, pObjOpts[pKey]);
           });
           break;
         default:
