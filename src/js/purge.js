@@ -1498,12 +1498,12 @@
 
   /**
   * 定期的に実行される関数。アンロードするかどうかを判断。
-  * @param {Number} pNumId 処理を行うタブのID.
+  * @param {Number} pNumTabId 処理を行うタブのID.
   * @return {Promise} Promiseが返る。
   */
-  function tick(pNumId)//{{{
+  function tick(pNumTabId)//{{{
   {
-    console.info('tick', pNumId);
+    console.info('tick', pNumTabId);
 
     var lNumState  = 0;
     var lStrErrMsg = '';
@@ -1518,21 +1518,24 @@
         return;
       }
 
-      if (sObjUnloaded.hasOwnProperty(pNumId)) {
-        reject(new Error(`pNumId added to sObjUnloaded already: ${pNumId}`));
+      if (sObjUnloaded.hasOwnProperty(pNumTabId)) {
+        deleteTick(pNumTabId);
+        reject(new Error(
+          `pNumTabId added to sObjUnloaded already: ${pNumTabId}`));
         return;
       }
 
-      chrome.tabs.get(pNumId, rObjTab => {
+      chrome.tabs.get(pNumTabId, rObjTab => {
         if (chrome.runtime.lastError) {
           reject(
             new Error(`tick function is skipped: ${JSON.stringify(rObjTab)}`));
           return;
         }
 
-        // 全ての除外アドレス一覧と比較
+        // 全ての除外アドレス一覧と解放用のページと比較
         lNumState = checkExcludeList(rObjTab.url);
-        if (!(lNumState & NORMAL)) { // 除外アドレスに含まれている場合
+        if (!(lNumState & NORMAL) && !isReleasePage(rObjTab.url)) {
+          // 除外アドレスに含まれている場合
           reject(new Error("the tab includes to the exclusion list: " +
                  ` ${JSON.stringify(rObjTab)}`));
           return;
@@ -1546,7 +1549,7 @@
         }
 
         // If a tab is activated, updates unload time of a tab.
-        (() => rObjTab.active ? setTick(pNumId) : purge(pNumId))()
+        (() => rObjTab.active ? setTick(pNumTabId) : purge(pNumTabId))()
         .then(resolve).catch(reject);
       });
     });
