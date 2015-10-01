@@ -876,6 +876,7 @@
           resolve => chrome.storage.local.set(writeOptions, resolve));
       })
       .then(showOptionValuesToOperateSettingsPage)
+      .then(applyNewOptionToExtensionProcess)
       .catch(e => console.error(e));
       break;
     }
