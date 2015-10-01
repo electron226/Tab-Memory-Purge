@@ -1322,12 +1322,12 @@
 
   /**
   * タブの解放を行います。
-  * @param {Number} pTabId タブのID.
+  * @param {Number} pNumTabId タブのID.
   * @param {Promise} promiseが返る。
   */
-  function purge(pTabId)//{{{
+  function purge(pNumTabId)//{{{
   {
-    console.info('purge');
+    console.info('purge', Array.prototype.slice.call(arguments));
 
     var lArrayPromise        = [];
     var lObjTab              = {};
@@ -1346,14 +1346,14 @@
         return;
       }
 
-      if (sObjUnloaded.hasOwnProperty(pTabId)) {
-        reject(new Error(`Already purging. ${pTabId}`));
+      if (sObjUnloaded.hasOwnProperty(pNumTabId)) {
+        reject(new Error(`Already purging. ${pNumTabId}`));
         return;
       }
 
       lArrayPromise.push(
         new Promise((resolve2, reject2) => {
-          chrome.tabs.get(pTabId, rObjTab => {
+          chrome.tabs.get(pNumTabId, rObjTab => {
             if (chrome.runtime.lastError) {
               reject2(new Error(chrome.runtime.lastError.message));
               return;
@@ -1366,7 +1366,7 @@
       lArrayPromise.push(
         new Promise((resolve2, reject2) => {
           chrome.tabs.executeScript(
-            pTabId, { file: gStrGetScrollPosScript }, rScrollPosition => {
+            pNumTabId, { file: gStrGetScrollPosScript }, rScrollPosition => {
               if (chrome.runtime.lastError) {
                 reject2(new Error(chrome.runtime.lastError.message));
                 return;
@@ -1392,23 +1392,24 @@
         if (lNumState & (CHROME_EXCLUDE | EXTENSION_EXCLUDE)) {
           reject(new Error(
             'The tabId have been included the exclusion list' +
-            ` of extension and chrome: ${pTabId}`));
+            ` of extension and chrome: ${pNumTabId}`));
           return;
         } else if (lNumState & INVALID_EXCLUDE) {
-          reject(new Error(`Don't get the url of the tab: ${pTabId}`));
+          reject(new Error(`Don't get the url of the tab: ${pNumTabId}`));
           return;
         }
 
         (() => {
           return new Promise(resolve2 => {
-            chrome.tabs.sendMessage(pTabId, { event: 'form_cache' }, resolve2);
+            chrome.tabs.sendMessage(
+              pNumTabId, { event: 'form_cache' }, resolve2);
           });
         })()
         .then(() => {
           return new Promise((resolve3, reject3) => {
             lStrUrl = getPurgeURL(lObjTab.url);
 
-            chrome.tabs.executeScript(pTabId, {
+            chrome.tabs.executeScript(pNumTabId, {
               code: `window.location.replace("${lStrUrl}");` }, () => {
                 if (chrome.runtime.lastError) {
                   reject3(chrome.runtime.lastError);
@@ -1421,7 +1422,7 @@
         })
         .then(() => {
           setUnloaded(
-            pTabId, lObjTab.url, lObjTab.windowId, lArrayScrollPosition[0]);
+            pNumTabId, lObjTab.url, lObjTab.windowId, lArrayScrollPosition[0]);
 
           return exclusiveProcessForFunc(
             'deleteAllPurgedTabUrlFromHistory',
