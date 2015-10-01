@@ -139,15 +139,13 @@
 
   function getHostName(pStrUrl)//{{{
   {
-    console.info('getHostName', pStrUrl);
-
     var lArrayResult = /\/\/([\w-.~]*)\//i.exec(pStrUrl);
-    if (lArrayResult) {
-      return lArrayResult[1];
-    } else {
-      console.error("Don't get hostname.", pStrUrl);
-      return null;
+
+    if (lArrayResult === null) {
+      throw new Error(`Doesn't get hostname: ${pStrUrl}`);
     }
+
+    return lArrayResult[1];
   }//}}}
 
   function getListAfterJoinHistoryDataOnDB(pArraySessions)//{{{
