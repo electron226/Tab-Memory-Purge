@@ -270,4 +270,9 @@
     gulp.watch('src/**/*.js', ['jshint']);
     gulp.watch('src/**/*.scss', ['sass-debug']);
   });
+  gulp.task('watch-build', () => {
+    gulp.watch('src/manifest_base.json', ['replace-build']);
+    gulp.watch('src/**/*.js', ['js-build']);
+    gulp.watch('src/**/*.scss', ['sass-build']);
+  });
 })();
