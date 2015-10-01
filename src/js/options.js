@@ -58,6 +58,7 @@
   const sObjOptsForCreateHistoryDate = {
     className:  sStrClassNameOfHistoryDate,
     deleteFunc: function(pEvent) {
+      var lElSearchHistoryDate = document.createDocumentFragment();
       var lStrErrMsg = "";
 
       lStrErrMsg = checkFunctionArguments(arguments, [
@@ -70,6 +71,10 @@
       return removeHistoryDate(pEvent)
              .then(getAllHistory)
              .then(historyArray => {
+               lElSearchHistoryDate =
+                 document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
+               lElSearchHistoryDate.value = null;
+
                return showAutoCompleteDateList(historyArray.reverse());
              });
     },
