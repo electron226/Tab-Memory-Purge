@@ -2,8 +2,8 @@
   "use strict";
 
   //{{{ the variables in this script.
-  var sStrPrefix = 'TMP_';
-  var sStrXPath  = '//input | //textarea';
+  const sStrPrefix = 'TMP_';
+  const sStrXPath  = '//input | //textarea';
   //}}}
 
   function checkSkipType(pStrType)//{{{
@@ -16,8 +16,8 @@
     var lSetRestored     = new Set();
     var lElement         = document.createDocumentFragment();
     var lElementSnapshot = null;
-    var lStrKeyName      = "";
     var lValue           = null;
+    var lStrKeyName      = "";
     var i                = 0;
 
     lElementSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
@@ -85,7 +85,7 @@
         lValue      = sessionStorage.getItem(lStrKeyName);
         lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : [];
 
-        lValue.push(lElement.lValue);
+        lValue.push(lElement.value);
         sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
       }
 
