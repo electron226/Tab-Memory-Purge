@@ -31,7 +31,7 @@
   const sStrClassNameOfHistoryItemTitle  = 'itemTitle';
   const sStrClassNameOfHistoryItemList   = 'itemList';
   const sStrAttrNameOfWindowId           = 'windowId';
-  const sStrAttrNameOfDatabase           = 'database';
+  const sStrAttrNameOfDatabase           = 'databaseName';
   const sStrAttrNameOfItemId             = 'historyItemId';
 
   const sStrIdNameOfHistoryList             = 'historyList';
@@ -1039,45 +1039,33 @@
     return new Promise((resolve, reject) => {
       var lElSessionTitle = document.createDocumentFragment();
       var lNumDate        = 0;
-      var lArrayDbNames   = [];
-      var lArrayPromise   = [];
-      var lArraySessions  = [];
+      var lStrDbName      = "";
       var lArrayDelKeys   = [];
 
       lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
       lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
-      lArrayDbNames   = [ gStrDbSessionName, gStrDbSavedSessionName ];
+      lStrDbName      = lElSessionTitle.getAttribute(sStrAttrNameOfDatabase);
 
-      lArrayPromise   = [];
-      lArrayDbNames.forEach(pValue => {
-        lArrayPromise.push(
-          db.getCursor({
-            name: pValue,
-            range: IDBKeyRange.only(lNumDate),
-            indexName: 'date',
-          })
-        );
-      });
+      if (toType(lNumDate) !== 'number' ||
+          toType(lStrDbName) !== 'string' ||
+          lStrDbName.length === 0) {
+        reject(new Error(
+          `Doesn't get lNumDate: ${lNumDate} or` +
+          ` lStrDbName: ${lStrDbName} correctly.`));
+        return;
+      }
 
-      Promise.all(lArrayPromise)
-      .then(results => {
-        lArraySessions  = [];
-        results.forEach(pValue => {
-          lArraySessions = lArraySessions.concat(pValue);
+      db.getCursor({
+        name: lStrDbName,
+        range: IDBKeyRange.only(lNumDate),
+        indexName: 'date',
+      })
+      .then(pArrayResults => {
+        lArrayDelKeys = pArrayResults.map(v => v.id);
+        return db.delete({
+          name: lStrDbName,
+          keys: lArrayDelKeys,
         });
-
-        lArrayPromise   = [];
-        lArrayDelKeys = lArraySessions.map(v => v.id);
-        lArrayDbNames.forEach(pValue => {
-          lArrayPromise.push(
-            db.delete({
-              name: pValue,
-              keys: lArrayDelKeys,
-            })
-          );
-        });
-
-        return Promise.all(lArrayPromise);
       })
       .then(resolve)
       .catch(reject);
@@ -1122,11 +1110,18 @@
     }
 
     //{{{ local variable.
-    const lStrDbName       = pObjOpts.databaseName;
-    const lElToAddDateList = pObjOpts.dateList;
-    const lElToAddItemList = pObjOpts.itemList;
-    const lNumCurrentTime  = pObjOpts.currentTime;
+    const lStrDbName             = pObjOpts.databaseName;
+    const lStrAttrNameOfDatabase = pObjOpts.attrNameOfDatabase || 'database';
+    const lElToAddDateList       = pObjOpts.dateList;
+    const lElToAddItemList       = pObjOpts.itemList;
+    const lNumCurrentTime        = pObjOpts.currentTime;
 
+    if (toType(lStrDbName) !== 'string') {
+      throw new Error("lStrDbName isn't correctly.");
+    }
+    if (toType(lStrAttrNameOfDatabase) !== 'string') {
+      throw new Error("lStrAttrNameOfDatabase isn't correctly.");
+    }
     if (lElToAddDateList === void 0 || lElToAddDateList === null) {
       throw new Error("dateList isn't found in arguments");
     }
@@ -1202,6 +1197,7 @@
         lElSelectDates, 'class', sStrClassNameWhenSelect);
 
       lElSessionTitle.setAttribute('name', lStrName);
+      lElSessionTitle.setAttribute(lStrAttrNameOfDatabase, lStrDbName);
       lElSessionTitle.textContent = lElSelectDates.textContent;
 
       Array.prototype.slice.call(lElNotSelectDates).forEach(pValue => {
@@ -1476,9 +1472,10 @@
             lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
 
           lCreateSavedSessionDateList = closureCreateSessionDateList({
-            databaseName: gStrDbSavedSessionName,
-            dateList:     lElAddSavedSessionDateListLocation,
-            itemList:     lElAddLocationWhereSessionList,
+            databaseName:       gStrDbSavedSessionName,
+            attrNameOfDatabase: sStrAttrNameOfDatabase,
+            dateList:           lElAddSavedSessionDateListLocation,
+            itemList:           lElAddLocationWhereSessionList,
           });
           lCreateSavedSessionDateList(lArraySavedSessions);
         }
@@ -1489,10 +1486,11 @@
 
           // new
           lCreateSessionDateList = closureCreateSessionDateList({
-            databaseName: gStrDbSessionName,
-            dateList:     lElAddSessionDateListLocation,
-            itemList:     lElAddLocationWhereSessionList,
-            currentTime:  lNumCurrentTime,
+            databaseName:       gStrDbSessionName,
+            attrNameOfDatabase: sStrAttrNameOfDatabase,
+            dateList:           lElAddSessionDateListLocation,
+            itemList:           lElAddLocationWhereSessionList,
+            currentTime:        lNumCurrentTime,
           });
           lCreateSessionDateList(lArraySessions);
 
