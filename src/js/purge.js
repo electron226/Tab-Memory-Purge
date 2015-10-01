@@ -1533,8 +1533,10 @@
 
       chrome.tabs.get(pNumTabId, rObjTab => {
         if (chrome.runtime.lastError) {
+          deleteTick(pNumTabId);
           reject(
-            new Error(`tick function is skipped: ${JSON.stringify(rObjTab)}`));
+            new Error(`tick function is skipped: ${pNumTabId}. message: ` +
+              chrome.runtime.lastError.message));
           return;
         }
 
@@ -2607,6 +2609,7 @@
     console.info('chrome.tabs.onRemoved.', pTabId);
 
     delete sObjUnloaded[pTabId];
+    deleteTick(pTabId);
     sMapIconState.delete(pTabId);
   });//}}}
 
@@ -2620,6 +2623,7 @@
     console.info('chrome.tabs.onDetached.', pTabId);
 
     delete sObjUnloaded[pTabId];
+    deleteTick(pTabId);
     sMapIconState.delete(pTabId);
   });//}}}
 
