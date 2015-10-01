@@ -182,7 +182,6 @@
         'tmp/js/options.js',
         'tmp/js/popup.js',
         'tmp/js/purge.js',
-        'tmp/js/load_scripts/getScrollPosition.js',
       ], { base: 'tmp' })
           .pipe($.plumber())
           .pipe($.stripDebug())
