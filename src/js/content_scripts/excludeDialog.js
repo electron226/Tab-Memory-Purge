@@ -116,7 +116,7 @@
     lElUrl.setAttribute('id', sStrIdNameOfTargetUrl);
     lElUrl.style.fontSize = '1.5em';
     lElUrl.style.padding  = '2em 0';
-    lElUrl.textContent    = sStrHostName + '/*';
+    lElUrl.textContent    = sStrHostName + sStrPathName;
 
     lElMessage1.textContent    = chrome.i18n.getMessage('exclude_dialog_mes1');
 
@@ -126,16 +126,16 @@
     lElSpanHost.style.padding = "0 1.5em;";
     lElSpanHost.textContent   = "Host:";
 
-    lStrHostName   = sStrHostName;
-
     lElInputHost   = sElInput.cloneNode();
     lElInputHost.min   = 0;
     lElInputHost.max   = sArrayHosts.length-1;
     lElInputHost.value = 0;
     lElInputHost.addEventListener('change', pEvent => {
+      lStrHostName = sStrHostName;
+
       for (var i = 0; i < pEvent.target.value; i = (i + 1) | 0) {
         lStrHostName =
-          lStrHostName.replace(new RegExp(`${sArrayHosts[i]}[.]*`), '*');
+          lStrHostName.replace(new RegExp(`${sArrayHosts[i]}[.]+`), '*');
       }
       lElUrl.textContent = lStrHostName + lStrPathName;
     });
@@ -159,12 +159,14 @@
       lElPage.max   = sArrayPaths.length;
       lElPage.value = 0;
       lElPage.addEventListener('change', pEvent => {
+        var lNumValueLength = pEvent.target.value;
+        var i = 0;
         lStrPathName = '';
 
-        for (var i = 0; i < pEvent.target.value; i = (i + 1) | 0) {
+        for (i = 0; i < lNumValueLength; i = (i + 1) | 0) {
           lStrPathName += '/' + sArrayPaths[i];
         }
-        lStrPathName += (lElPage.max > pEvent.target.value) ? '/*' : '/';
+        lStrPathName += (i !== 0 && lElPage.max > lNumValueLength) ? '/*' : '';
         lElUrl.textContent = lStrHostName + lStrPathName;
       });
 
@@ -183,10 +185,7 @@
     var lStrAddUri = "";
 
     lElAddUrl  = sElParent.querySelector(`#${sStrIdNameOfTargetUrl}`);
-    lStrAddUri = lElAddUrl.textContent
-                          .replace(/\*/g, '')
-                          .replace(/\/$/g, '')
-                          .replace(/^\./, '');
+    lStrAddUri = lElAddUrl.textContent.replace(/\*/g, '');
 
     return lStrAddUri;
   }//}}}
@@ -258,7 +257,7 @@
   var sStrBorderColor            = '#727272';
 
   var sStrHostName = window.location.hostname;
-  var sStrPathName = '/*';
+  var sStrPathName = '';
 
   var sArrayHosts = getHosts();
   var sArrayPaths = getPathNames();
