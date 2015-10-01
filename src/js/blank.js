@@ -20,6 +20,13 @@
   });
   //}}}
 
+  function getFaviconOfCurrentPage(pElement)//{{{
+  {
+    var lXPathIcon = document.evaluate(
+      '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
+    return (lXPathIcon.snapshotLength > 0) ? lXPathIcon.snapshotItem(0) : null;
+  }//}}}
+
   function navigateToPageBeforePurged()//{{{
   {
     console.info('navigateToPageBeforePurged');
@@ -42,10 +49,11 @@
       throw new Error(lStrErrMsg);
     }
 
-    var lStrUrl      = "";
-    var lStrNewTitle = "";
-    var lElFavicon   = document.createDocumentFragment();
-    var lStrHost     = "";
+    var lStrUrl        = "";
+    var lStrNewTitle   = "";
+    var lStrFaviconUrl = "";
+    var lElFavicon     = document.createDocumentFragment();
+    var lStrHost       = "";
 
     lStrUrl = sElementUrl.textContent;
     return ajax({ url: lStrUrl, responseType: 'document' })
@@ -64,21 +72,19 @@
             },
           });
 
-          lElFavicon =
-            pObjResult.response.querySelector('link[rel="shortcut icon"]');
-
-          if (lElFavicon) {
-            getDataURI(lElFavicon.href)
-            .then(pStrIconDataURI => {
-              db.add({
-                name: gStrDbDataURIName,
-                data: {
-                  host:    lStrHost,
-                  dataURI: pStrIconDataURI,
-                }
-              });
+          lElFavicon = getFaviconOfCurrentPage(pObjResult.response);
+          lStrFaviconUrl = lElFavicon ? lElFavicon.href :
+                                        window.location.origin + '/favicon.ico';
+          getDataURI(lStrFaviconUrl)
+          .then(pStrIconDataURI => {
+            db.add({
+              name: gStrDbDataURIName,
+              data: {
+                host:    lStrHost,
+                dataURI: pStrIconDataURI,
+              }
             });
-          }
+          });
         }
         return loadPurgedTabInfo(pNumRecorsiveCount);
       }
@@ -212,16 +218,16 @@
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
           lStrFavicon  = dataURIInfo.dataURI;
 
-          lElFavicon = document.querySelector('link[rel="shortcut icon"]');
+          lElHead      = document.querySelector('head');
+          lElLink      = document.createElement('link');
+          lElLink.rel  = 'shortcut icon';
+          lElLink.href = decodeURIComponent(lStrFavicon);
+
+          lElFavicon   = getFaviconOfCurrentPage(document);
           if (lElFavicon) {
-            lElFavicon.src = lStrFavicon;
-          } else {
-            lElHead      = document.querySelector('head');
-            lElLink      = document.createElement('link');
-            lElLink.rel  = 'shortcut icon';
-            lElLink.href = decodeURIComponent(lStrFavicon);
-            lElHead.appendChild(lElLink);
+            lElHead.removeChild(lElFavicon);
           }
+          lElHead.appendChild(lElLink);
 
           sElementIcon.src = lStrFavicon;
           removeStringFromAttributeOfElement(

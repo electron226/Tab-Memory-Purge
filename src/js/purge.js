@@ -852,8 +852,9 @@
       var lNumDay          = 0;
       var lStrTabUrl       = "";
       var lStrTabTitle     = "";
-      var lStrHost         = "";
+      var lStrFaviconUrl   = "";
       var lStrUnknownTitle = 'Unknown';
+      var lObjUri         = "";
       var lArrayDelKeys    = [];
       var lArrayPromise    = [];
       var lStrErrMsg       = '';
@@ -911,12 +912,12 @@
               .then(pObjResult => {
                 if (pObjResult.status === 200) {
                   resolve(pObjResult.response.title || lStrUnknownTitle);
-                  return;
                 } else {
                   reject(new Error("Doesn't get title with ajax."));
-                  return;
                 }
-              });
+              })
+              .then(resolve)
+              .catch(reject);
             } else {
               resolve(pObjTab.title || lStrUnknownTitle);
               return;
@@ -925,7 +926,7 @@
         })
         .then(pStrTitle => {
           lStrTabTitle = pStrTitle;
-          lStrHost     = getHostName(lStrTabUrl);
+          lObjUri      = getSplitURI(lStrTabUrl);
 
           lArrayPromise = [];
 
@@ -936,30 +937,33 @@
               data: {
                 url:   lStrTabUrl,
                 title: lStrTabTitle,
-                host:  lStrHost,
+                host:  lObjUri.hostname,
               },
             })
           );
           // dataURI.
           lArrayPromise.push(
-            new Promise((resolve3, reject3) => {
-              if (pObjTab.favIconUrl) {
-                getDataURI(pObjTab.favIconUrl)
-                .then(dataURI => {
-                  return db.add({
-                    name: gStrDbDataURIName,
-                    data: {
-                      host:    lStrHost,
-                      dataURI: dataURI,
-                    }
-                  });
-                })
-                .then(resolve3)
-                .catch(reject3);
-              } else {
+            new Promise(resolve3 => {
+              lStrFaviconUrl =
+                pObjTab.favIconUrl ||
+                `${lObjUri.scheme}://${lObjUri.hostname}/favicon.ico`;
+
+              getDataURI(lStrFaviconUrl)
+              .then(dataURI => {
+                return db.add({
+                  name: gStrDbDataURIName,
+                  data: {
+                    host:    lObjUri.hostname,
+                    dataURI: dataURI,
+                  }
+                });
+              })
+              .then(resolve3)
+              .catch((pErr) => {
+                console.warn(pErr);
                 console.warn("Don't find favIconUrl.", pObjTab);
                 resolve3();
-              }
+              });
             })
           );
           // If Promise was error, it is transaction error.

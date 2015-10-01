@@ -120,6 +120,23 @@
     });
   }//}}}
 
+  function getSplitURI(pStrUrl)//{{{
+  {
+    var lArrayResult =
+      /(\w+):\/+([\w-.~]+[:\d]*)(\/[\w-.~]*)\?*(.*)/i.exec(pStrUrl);
+
+    if (lArrayResult === null) {
+      throw new Error(`pStrUri is not uri: ${pStrUrl}`);
+    }
+
+    return {
+      scheme:   lArrayResult[1] || null,
+      hostname: lArrayResult[2] || null,
+      path:     lArrayResult[3] || null,
+      params:   lArrayResult[4] || null,
+    };
+  }//}}}
+
   function getHostName(pStrUrl)//{{{
   {
     console.info('getHostName', pStrUrl);
@@ -641,6 +658,7 @@
   setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
+  setObjectProperty(window, 'getSplitURI',       getSplitURI);
   setObjectProperty(window, 'getHostName',       getHostName);
   setObjectProperty(
     window, 'getHistoryListFromIndexedDB',       getHistoryListFromIndexedDB);
