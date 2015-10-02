@@ -30,24 +30,31 @@
   gulp.task('copy-build', () => {
     return merge(
       gulp.src('src/_locales/**/*.json', { base: 'src' })
-      .pipe($.plumber())
+      .pipe($.plumber({
+        errorHandler: $.notify.onError('Error: <%= error.message %>')
+      }))
       .pipe(gulp.dest('dist')),
       gulp.src([
         'src/img/icons/**/*.+(png|svg)',
         '!src/img/icons/icon.svg',
-        '!**/*.+(md|pdf)'],
-        { base: 'src' })
-      .pipe($.plumber())
+        '!**/*.+(md|pdf)'], { base: 'src' })
+      .pipe($.plumber({
+        errorHandler: $.notify.onError('Error: <%= error.message %>')
+      }))
       .pipe(gulp.dest('dist')),
       gulp.src('src/History.txt', { base: 'src' })
-      .pipe($.plumber())
+      .pipe($.plumber({
+        errorHandler: $.notify.onError('Error: <%= error.message %>')
+      }))
       .pipe(gulp.dest('dist'))
     );
   });
 
   gulp.task('compass-debug', () => {
     return gulp.src('src/sass/*.scss', { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.compass({
              css:         'src/css',
              sass:        'src/sass',
@@ -59,7 +66,9 @@
 
   gulp.task('compass-build', () => {
     return gulp.src('src/sass/*.scss', { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.compass({
              css:         'src/css',
              sass:        'src/sass',
@@ -70,7 +79,9 @@
 
   gulp.task('autoprefixer', () => {
     return gulp.src(['src/css/*.css', '!src/**/*.min.css'], { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.autoprefixer({
              browsers: [ 'last 2 Chrome versions' ],
            })
@@ -79,54 +90,66 @@
 
   gulp.task('csscomb', () => {
     return gulp.src(['src/css/*.css', '!src/**/*.min.css'], { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.csscomb())
            .pipe(gulp.dest('src'));
   });
 
   gulp.task('clean-css', () => {
     return gulp.src('src/css/*.css', { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.minifyCss())
            .pipe(gulp.dest('src'));
   });
 
   gulp.task('replace-debug', () => {
     return gulp.src('src/manifest_base.json')
-    .pipe($.plumber())
-    .pipe($.replace('@@extensionTitleDebug', ' Debug'))
-    .pipe($.replace('@@backgroundScripts',
-      '["js/common.js", "js/common_func.js",' +
-      ' "js/indexedDB.js", "js/purge.js"]'))
-    .pipe($.replace('@@contentScripts',
-      '["js/common.js", "js/common_func.js", ' +
-      '"js/content_scripts/keybind.js", ' +
-      '"js/content_scripts/excludeDialog.js", ' +
-      '"js/content_scripts/formCache.js"]'))
-    .pipe($.rename('manifest.json'))
-    .pipe(gulp.dest('src'));
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.replace('@@extensionTitleDebug', ' Debug'))
+           .pipe($.replace('@@backgroundScripts',
+             '["js/common.js", "js/common_func.js",' +
+             ' "js/indexedDB.js", "js/purge.js"]'))
+           .pipe($.replace('@@contentScripts',
+             '["js/common.js", "js/common_func.js", ' +
+             '"js/content_scripts/keybind.js", ' +
+             '"js/content_scripts/excludeDialog.js", ' +
+             '"js/content_scripts/formCache.js"]'))
+           .pipe($.rename('manifest.json'))
+           .pipe(gulp.dest('src'));
   });
 
   gulp.task('replace-build', () => {
     return gulp.src('src/manifest_base.json')
-    .pipe($.plumber())
-    .pipe($.replace('@@extensionTitleDebug', ''))
-    .pipe($.replace('@@backgroundScripts',
-      '["js/commons.min.js", "js/indexedDB.min.js", "js/purge.min.js"]'))
-    .pipe($.replace('@@contentScripts',
-      '["js/commons.min.js", "js/content_scripts/content_scripts.min.js"]'))
-    .pipe($.rename('manifest.json'))
-    .pipe(gulp.dest('dist'));
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.replace('@@extensionTitleDebug', ''))
+           .pipe($.replace('@@backgroundScripts',
+             '["js/commons.min.js", "js/indexedDB.min.js", "js/purge.min.js"]'))
+           .pipe($.replace('@@contentScripts',
+             '["js/commons.min.js",' +
+             '"js/content_scripts/content_scripts.min.js"]'
+           ))
+           .pipe($.rename('manifest.json'))
+           .pipe(gulp.dest('dist'));
   });
 
   gulp.task('usemin-build', () => {
     return gulp.src('src/**/*.html', { base: 'src' })
-      .pipe($.plumber())
-      .pipe($.usemin({
-        css: [],
-        js: [],
-      }))
-      .pipe(gulp.dest('dist'));
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.usemin({
+             css: [],
+             js: [],
+           }))
+           .pipe(gulp.dest('dist'));
   });
 
   gulp.task('usemin', callback => {
@@ -135,34 +158,45 @@
 
   gulp.task('htmlhint', () => {
     return gulp.src('src/**.*.html')
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.htmlhint())
            .pipe($.htmlhint.failReporter());
   });
 
   gulp.task('minify-html', () => {
     return gulp.src('dist/**/*.html')
-    .pipe($.plumber())
-    .pipe($.minifyHtml())
-    .pipe(gulp.dest('dist'));
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.minifyHtml())
+           .pipe(gulp.dest('dist'));
   });
 
   gulp.task('jsonminify', () => {
     return gulp.src(['dist/**/*.json'], { base: 'dist' })
-    .pipe($.plumber())
-    .pipe($.jsonminify())
-    .pipe(gulp.dest('dist'));
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.jsonminify())
+           .pipe(gulp.dest('dist'));
   });
 
   gulp.task('jshint', () => {
     return gulp.src(['src/js/**/*.js', '!src/**/*.min.js'])
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.jshint({ lookup: '.jshintrc' }))
            .pipe($.jshint.reporter('jshint-stylish'));
   });
 
   gulp.task('babel', () => {
     return gulp.src(['src/js/**/*.js'], { base: 'src' })
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.babel({ blacklist: [ 'strict' ] }))
            .pipe(gulp.dest('tmp'));
   });
@@ -170,7 +204,9 @@
   gulp.task('uglify-build', () => {
     return merge(
       gulp.src(['tmp/js/common.js', 'tmp/js/common_func.js'], { base: 'tmp' })
-          .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
           .pipe($.concat('commons.min.js'))
           .pipe($.stripDebug())
           .pipe($.sourcemaps.init())
@@ -184,7 +220,9 @@
         'tmp/js/popup.js',
         'tmp/js/purge.js',
       ], { base: 'tmp' })
-          .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
           .pipe($.stripDebug())
           .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
@@ -196,7 +234,9 @@
       gulp.src([
         'tmp/js/load_scripts/getScrollPosition.js',
       ], { base: 'tmp' })
-          .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
           .pipe($.stripDebug())
           .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
@@ -207,7 +247,9 @@
         'tmp/js/content_scripts/formCache.js',
         'tmp/js/content_scripts/keybind.js',
       ], { base: 'tmp' })
-          .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
           .pipe($.concat('content_scripts.min.js'))
           .pipe($.stripDebug())
           .pipe($.sourcemaps.init())
@@ -232,7 +274,9 @@
 
   gulp.task('zip', () => {
     return gulp.src(['dist/**', '!**/*.map'])
-           .pipe($.plumber())
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
            .pipe($.zip('archive.zip'))
            .pipe(gulp.dest('.'));
   });
@@ -263,12 +307,15 @@
   });
   gulp.task('watch', () => {
     gulp.watch('src/manifest_base.json', ['replace-debug']);
+    gulp.watch('src/*.html', ['htmlhint']);
     gulp.watch('src/**/*.js', ['jshint']);
     gulp.watch('src/**/*.scss', ['sass-debug']);
   });
   gulp.task('watch-build', () => {
-    gulp.watch('src/manifest_base.json', ['replace-build']);
+    gulp.watch('src/**/*.json', ['copy-build', 'jsonminify']);
+    gulp.watch('src/manifest_base.json', ['replace-build', 'jsonminify']);
+    gulp.watch('src/*.html', ['htmlhint', 'usemin', 'minify-html']);
     gulp.watch('src/**/*.js', ['js-build']);
-    gulp.watch('src/**/*.scss', ['sass-build']);
+    gulp.watch('src/**/*.scss', ['sass-build', 'usemin']);
   });
 })();
