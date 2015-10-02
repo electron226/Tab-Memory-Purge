@@ -801,7 +801,8 @@
             resolve2();
           }
         });
-      })().then(() => {
+      })()
+      .then(() => {
         lArraySessionWrites = [];
         Object.keys(pObjUnloaded).forEach(rTabId => {
           lObjItem = pObjUnloaded[rTabId];
@@ -964,7 +965,7 @@
                 });
               })
               .then(resolve3)
-              .catch((pErr) => {
+              .catch(pErr => {
                 console.warn(pErr);
                 console.warn("Don't find favIconUrl.", pObjTab);
                 resolve3();
@@ -2711,9 +2712,7 @@
           .then(pObjTab => {
             return new Promise((resolve, reject) => {
               purgeToggle(pObjTab.id)
-              .then(() => {
-                resolve(pObjTab);
-              })
+              .then(resolve(pObjTab))
               .catch(reject);
             });
           })
