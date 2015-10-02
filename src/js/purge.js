@@ -2070,47 +2070,6 @@
     });
   }//}}}
 
-  function whenVersionUpOptionFix()//{{{
-  {
-    return new Promise((resolve, reject) => {
-      var lObjWrite   = {};
-      var lStrKeybind = "";
-
-      chrome.storage.local.get(pItems => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
-
-        lObjWrite   = {};
-        lStrKeybind = pItems.keybind;
-        if (lStrKeybind) {
-          Object.keys(lStrKeybind).forEach(key => {
-            lObjWrite[`keybind_${key}`] = lStrKeybind[key];
-          });
-        } else {
-          resolve();
-          return;
-        }
-
-        chrome.storage.local.set(lObjWrite, () => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
-            return;
-          }
-
-          chrome.storage.local.remove('keybind', () => {
-            if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError.message));
-              return;
-            }
-            resolve();
-          });
-        });
-      });
-    });
-  }//}}}
-
   /**
    * 拡張機能がアップデートされたときの処理
    */
@@ -2119,8 +2078,7 @@
     console.info('Extension Updated.');
 
     return new Promise((resolve, reject) => {
-      whenVersionUpOptionFix()
-      .then(getInitAndLoadOptions)
+      getInitAndLoadOptions()
       .then(pOptions => {
         if (pOptions.get(gStrPreviousSessionTimeKey)) {
           return showDialogOfRestoreSessionBeforeUpdate();
