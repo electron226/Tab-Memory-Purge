@@ -43,6 +43,16 @@
   var sSetCreateTabId        = new Set();
   //}}}
 
+  function getOpts(pAnyKey)//{{{
+  {
+    if (sMapOptions.has(pAnyKey)) {
+      return sMapOptions.get(pAnyKey);
+    } else if (gMapDefaultValues.has(pAnyKey)) {
+      return gMapDefaultValues.get(pAnyKey);
+    }
+    throw new Error(`Doesn't get the options: ${pAnyKey}`);
+  }//}}}
+
   /**
    * The dict object contains the information
    * on the tab that ran the purging memory.
@@ -179,7 +189,7 @@
     var gNumRemaimingMemory = 0;
 
     return new Promise((resolve, reject) => {
-      gNumRemaimingMemory = sMapOptions.get('remaiming_memory');
+      gNumRemaimingMemory = getOpts('remaiming_memory');
 
       isLackTheMemory(gNumRemaimingMemory)
       .then(result => {
@@ -374,14 +384,9 @@
           return;
         }
 
-        if (sMapOptions.size === 0) {
-          reject(new Error('sMapOptions is not loaded yet.'));
-          return;
-        }
-
         lArrayNotReleasePages = pTabs.filter(v => !isReleasePage(v.url));
         lNumAlreadyPurged     = pTabs.length - lArrayNotReleasePages.length;
-        lNumMaxOpeningTabs    = sMapOptions.get('max_opening_tabs');
+        lNumMaxOpeningTabs    = getOpts('max_opening_tabs');
         lNumMaxPurgeLength =
           pTabs.length - lNumAlreadyPurged - lNumMaxOpeningTabs;
         if (lNumMaxPurgeLength <= 0) {
@@ -445,7 +450,7 @@
   function initializeIntervalProcess()//{{{
   {
     return new Promise((resolve, reject) => {
-      intervalProcess(sMapOptions.get('interval_timing') || 5)
+      intervalProcess(getOpts('interval_timing'))
       .then(resolve)
       .catch(reject);
     });
@@ -490,11 +495,6 @@
           return;
         }
 
-        if (sMapOptions.size === 0) {
-          reject(new Error('sMapOptions is not loaded yet.'));
-          return;
-        }
-
         if (sBoolUnloadedChange) {
           sBoolUnloadedChange = false;
 
@@ -507,13 +507,13 @@
         }
 
         if (!sBoolDisableAutoPurge) {
-          if (sMapOptions.get('purging_all_tabs_except_active') === true) {
+          if (getOpts('purging_all_tabs_except_active') === true) {
             exclusiveProcessForFunc(
               'purgingAllTabs', purgingAllTabsExceptForTheActiveTab)
             .catch(e => console.error(e));
           }
 
-          if (sMapOptions.get('enable_auto_purge') === true) {
+          if (getOpts('enable_auto_purge') === true) {
             exclusiveProcessForFunc('autoPurgeCheck', autoPurgeCheck)
             .catch(e => console.error(e));
           }
@@ -555,16 +555,11 @@
     var lNumMaxSessions = 0;
 
     return new Promise((resolve, reject) => {
-      if (sMapOptions.size === 0) {
-        reject(new Error('sMapOptions is not loaded yet.'));
-        return;
-      }
-
       db.getAll({
         name: gStrDbSessionName,
       })
       .then(rHistories => {
-        lNumMaxSessions = parseInt(sMapOptions.get('max_sessions'), 10);
+        lNumMaxSessions = parseInt(getOpts('max_sessions'), 10);
 
         lSetDate = new Set();
         rHistories.forEach(pValue => {
@@ -608,12 +603,7 @@
     var lArrayDelKeys  = [];
 
     return new Promise((resolve, reject) => {
-      if (sMapOptions.size === 0) {
-        reject(new Error('sMapOptions is not loaded yet.'));
-        return;
-      }
-
-      lNumMaxHistory = parseInt(sMapOptions.get('max_history'), 10);
+      lNumMaxHistory = parseInt(getOpts('max_history'), 10);
       lDateNow       = new Date();
       db.getCursor({
         name: gStrDbHistoryName,
@@ -912,7 +902,7 @@
         })
         .then(() => {
           return new Promise((resolve, reject) => {
-            if (sMapOptions.get('get_title_when_does_not_title') === true &&
+            if (getOpts('get_title_when_does_not_title') === true &&
                 !pObjTab.title) {
               ajax({ url:lStrTabUrl, responseType: 'document' })
               .then(pObjResult => {
@@ -1156,26 +1146,17 @@
           returnValue: TEMP_EXCLUDE,
         };
       case 'keybind':
-        if (sMapOptions.size !== 0) {
-          return {
-            list:       sMapOptions.get('keybind_exclude_url'),
-            options:    sMapOptions.get('keybind_regex_insensitive') ? 'i' : '',
-            returnValue: KEYBIND_EXCLUDE,
-          };
-        } else {
-          throw new Error("Doesn't initialize sMapOptions yet.");
-        }
-        break;
+        return {
+          list:       getOpts('keybind_exclude_url'),
+          options:    getOpts('keybind_regex_insensitive') ? 'i' : '',
+          returnValue: KEYBIND_EXCLUDE,
+        };
       default:
-        if (sMapOptions.size !== 0) {
-          return {
-            list:        sMapOptions.get('exclude_url'),
-            options:     sMapOptions.get('regex_insensitive') ? 'i' : '',
-            returnValue: USE_EXCLUDE,
-          };
-        } else {
-          throw new Error("Doesn't initialize sMapOptions yet.");
-        }
+        return {
+          list:        getOpts('exclude_url'),
+          options:     getOpts('regex_insensitive') ? 'i' : '',
+          returnValue: USE_EXCLUDE,
+        };
     }
 
     throw new Error('getTargetExcludeList was error: ${pStrTarget}');
@@ -1556,7 +1537,7 @@
           return;
         }
 
-        if (sMapOptions.get('not_purge_playsound_tab') === true &&
+        if (getOpts('not_purge_playsound_tab') === true &&
             isPlayingSound(rObjTab)) {
           console.warn(
             `the tab have been playing sound: ${JSON.stringify(rObjTab)}`);
@@ -1616,11 +1597,6 @@
         return;
       }
 
-      if (sMapOptions.size === 0) {
-        reject(new Error('sMapOptions is not loaded yet.'));
-        return;
-      }
-
       if (sBoolDisableAutoPurge) {
         console.log("Extension is disabled automatic purge.");
         resolve();
@@ -1628,7 +1604,7 @@
       }
 
       // 分(設定) * 秒数 * ミリ秒
-      lNumTimer = parseInt(sMapOptions.get('timer'), 10) * 60 * 1000;
+      lNumTimer = parseInt(getOpts('timer'), 10) * 60 * 1000;
 
       // Update.
       deleteTick(pNumTabId);
@@ -1913,8 +1889,7 @@
 
         if (pStrRestoreType === void 0 || pStrRestoreType === null) {
           lStrRestoreTypeOptName = 'restored_type';
-          pStrRestoreType = (sMapOptions.get(lStrRestoreTypeOptName) ||
-                             gMapDefaultValues.get(lStrRestoreTypeOptName));
+          pStrRestoreType = getOpts(lStrRestoreTypeOptName);
         }
 
         lMapEachWindow = new Map();
@@ -2636,7 +2611,7 @@
   chrome.webRequest.onBeforeRequest.addListener(pObjDetails => {//{{{
     // console.info('webRequest.onBeforeRequest', pObjDetails);
 
-    if (sMapOptions.get('new_tab_opens_with_purged_tab') === true) {
+    if (getOpts('new_tab_opens_with_purged_tab') === true) {
       if (sNumCurrentTabId !== pObjDetails.tabId) {
         return redirectPurgedTabWhenCreateNewTab(pObjDetails);
       }
@@ -2650,7 +2625,7 @@
 
     sNumCurrentTabId = pObjActiveInfo.tabId;
     if (sObjUnloaded.hasOwnProperty(pObjActiveInfo.tabId) &&
-        sMapOptions.get('no_release') === false) {
+        getOpts('no_release') === false) {
         unPurge(pObjActiveInfo.tabId)
         .then(onActivatedFunc(pObjActiveInfo.tabId))
         .catch(e => console.error(e));
