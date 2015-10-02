@@ -2113,6 +2113,9 @@
           Object.keys(lStrKeybind).forEach(key => {
             lObjWrite[`keybind_${key}`] = lStrKeybind[key];
           });
+        } else {
+          resolve();
+          return;
         }
 
         chrome.storage.local.set(lObjWrite, () => {
@@ -2147,8 +2150,22 @@
         if (pOptions.get(gStrPreviousSessionTimeKey)) {
           return showDialogOfRestoreSessionBeforeUpdate();
         } else {
-          return Promise.resolve();
+          return;
         }
+      })
+      .then(() => {
+        return new Promise((resolve2, reject2) => {
+          chrome.tabs.create({
+            url: `${gStrOptionPage}?page=change_history`,
+            active: true
+          }, () => {
+            if (chrome.runtime.lastError) {
+              reject2(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+            resolve2();
+          });
+        });
       })
       .then(resolve)
       .catch(reject);
@@ -2184,23 +2201,26 @@
         }
 
         lNumPreviousVersion = pStorages[gStrVersionKey];
-        if (lNumCurrentVersion !== lNumPreviousVersion) {
-          // この拡張機能でインストールしたかどうか
-          lFuncRun = (lNumPreviousVersion === void 0) ? onInstall : onUpdate;
-
-          (function(currVersion) {
-            return new Promise(resolve => {
-              lObjWrite = {};
-              lObjWrite[gStrVersionKey] = currVersion;
-              chrome.storage.local.set(lObjWrite, resolve);
-            });
-          })(lNumCurrentVersion)
-          .then(lFuncRun)
-          .then(resolve)
-          .catch(reject);
+        lFuncRun = null;
+        if (lNumCurrentVersion === void 0 || lNumCurrentVersion === null) {
+          lFuncRun = onInstall;
+        } else if (lNumCurrentVersion !== lNumPreviousVersion) {
+          lFuncRun = onUpdate;
         } else {
           resolve();
+          return;
         }
+
+        (() => {
+          return new Promise(resolve => {
+            lObjWrite = {};
+            lObjWrite[gStrVersionKey] = lNumCurrentVersion;
+            chrome.storage.local.set(lObjWrite, resolve);
+          });
+        })()
+        .then(lFuncRun)
+        .then(resolve)
+        .catch(reject);
       });
     });
   }//}}}
