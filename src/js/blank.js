@@ -185,7 +185,8 @@
 
               (() => {
                 return new Promise((resolve2, reject2) => {
-                  if (pageInfo.hasOwnProperty('url') &&
+                  if ((pageInfo !== void 0 && pageInfo !== null) ||
+                      pageInfo.hasOwnProperty('url') &&
                       pageInfo.url.length > 0) {
                     db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
                     .then(resolve2)
