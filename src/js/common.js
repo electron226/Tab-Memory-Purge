@@ -24,7 +24,7 @@
     lMapConfig.set('timer', 20);
     lMapConfig.set('exclude_url',
       '^https://\n' +
-      '^http*://(10.\\d{0,3}|172.(1[6-9]|2[0-9]|3[0-1])|192.168).\\d{1,3}.\\d{1,3}\n' +
+      '.*://(10|172|192).\d+.\d+.\d+\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
       'youtube.com'
