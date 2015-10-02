@@ -232,6 +232,10 @@
     "message": "Matched the temporary exclusion list and the exclusion list of key bindings.",
     "description": "A explanation in spec4 of specification."
   },
+  "spec_icon_disable_timer": {
+    "message": "The auto-purge process of Extension is disabled.",
+    "description": "A explanation in spec4 of specification."
+  },
   "warning": {
     "message": "Warning",
     "description": "A item in information of option page."

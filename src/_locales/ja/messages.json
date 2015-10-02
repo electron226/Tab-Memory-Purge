@@ -229,6 +229,10 @@
     "message": "一時的な除外リストとキーバインドの除外リストにマッチ",
     "description": "spec4の仕様の説明"
   },
+  "spec_icon_disable_timer": {
+    "message": "拡張機能の自動開放処理が無効になっています。",
+    "description": "spec4の仕様の説明"
+  },
   "warning": {
     "message": "注意",
     "description": "オプションページの情報ページの項目"
