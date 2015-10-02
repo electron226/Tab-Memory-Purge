@@ -277,7 +277,7 @@
     "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_mes2": {
-    "message": "The actual adding string deletes asterisk and the slash of the last.",
+    "message": "The actual adding string deletes asterisk.",
     "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_mes3": {

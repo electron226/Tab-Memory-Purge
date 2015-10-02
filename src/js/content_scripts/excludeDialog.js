@@ -303,12 +303,16 @@
   sElExcludeDialogButtons.style.textAlign = "right";
 
   sElExcludeButtonTemplate              = sElButton.cloneNode();
-  sElExcludeButtonTemplate.style.width  = '16em';
+  sElExcludeButtonTemplate.style.width  = '50%';
   sElExcludeButtonTemplate.style.margin = '0.16em';
 
   sElAddExcludeListButton        = sElExcludeButtonTemplate.cloneNode();
   sElAddKeybindExcludeListButton = sElExcludeButtonTemplate.cloneNode();
   sElAddTempExcludeListButton    = sElExcludeButtonTemplate.cloneNode();
+
+  sElCancelButton                = sElExcludeButtonTemplate.cloneNode();
+  sElCancelButton.textContent    = chrome.i18n.getMessage('cancel');
+  sElCancelButton.onclick        = parentClose;
 
   sElAddExcludeListButton.textContent =
     chrome.i18n.getMessage('exclude_dialog_add_to_exclude_list');
@@ -330,10 +334,6 @@
       { event: 'add_to_temp_exclude_list', url: lStrUri });
     parentClose();
   });
-
-  sElCancelButton             = sElExcludeButtonTemplate.cloneNode();
-  sElCancelButton.textContent = chrome.i18n.getMessage('cancel');
-  sElCancelButton.onclick     = parentClose;
 
   // be adding the elements to parent elements.
   sElParent = createParentElement();
