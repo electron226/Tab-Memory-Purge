@@ -2843,31 +2843,56 @@
     (pStrNotificationId, pButtonIndex) => {
       console.info('nortifications.onButtonClicked',
                    Array.prototype.slice.call(arguments));
+      (() => {
+        return new Promise((resolve, reject) => {
+          chrome.notifications.clear(pStrNotificationId, pWasCleared => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
 
-      switch (pStrNotificationId) {
-      case UPDATE_CONFIRM_DIALOG:
-        if (pButtonIndex === 0) {
-          writeSession(sObjUnloaded)
-          // reload the extension, and update the extension.
-          .then(() => chrome.runtime.reload())
-          .catch(e => console.error(e));
-        }
-        break;
-      case RESTORE_PREVIOUS_SESSION:
-        if (pButtonIndex === 0) {
-          getInitAndLoadOptions()
-          .then(pObjOptions => {
-            return restoreSessionBeforeUpdate(
-              pObjOptions.get(gStrPreviousSessionTimeKey));
-          })
-          .then(deletePreviousSessionTime)
-          .catch(e => console.error(e));
-        } else {
-          deletePreviousSessionTime()
-          .catch(e => console.error(e));
-        }
-        break;
-      }
+            if (pWasCleared) {
+              resolve();
+            } else {
+              reject(new Error(`Doesn't clear: ${UPDATE_CONFIRM_DIALOG}`));
+            }
+          });
+        });
+      })()
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          switch (pStrNotificationId) {
+          case UPDATE_CONFIRM_DIALOG:
+            if (pButtonIndex === 0) {
+              writeSession(sObjUnloaded)
+              // reload the extension, and update the extension.
+              .then(() => chrome.runtime.reload())
+              .then(resolve)
+              .catch(reject);
+            } else {
+              resolve();
+            }
+            break;
+          case RESTORE_PREVIOUS_SESSION:
+            if (pButtonIndex === 0) {
+              getInitAndLoadOptions()
+              .then(pObjOptions => {
+                return restoreSessionBeforeUpdate(
+                  pObjOptions.get(gStrPreviousSessionTimeKey));
+              })
+              .then(deletePreviousSessionTime)
+              .then(resolve)
+              .catch(reject);
+            } else {
+              deletePreviousSessionTime()
+              .then(resolve)
+              .catch(reject);
+            }
+            break;
+          }
+        });
+      })
+      .catch(e => console.error(e));
     }
   );//}}}
 
