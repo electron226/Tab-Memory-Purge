@@ -22,6 +22,16 @@
 
   function getFaviconOfCurrentPage(pElement)//{{{
   {
+    console.info('getFaviconOfCurrentPage',
+      Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      function(pValue) { return typeof pValue !== 'object'; }
+    ]);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
     var lXPathIcon = document.evaluate(
       '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
     return (lXPathIcon.snapshotLength > 0) ? lXPathIcon.snapshotItem(0) : null;
