@@ -1,7 +1,7 @@
 ﻿{
     "name"             : "__MSG_extName__@@extensionTitleDebug",
     "description"      : "__MSG_extDescription__",
-    "version"          : "2.4.1",
+    "version"          : "2.4.2",
     "manifest_version" : 2,
     "default_locale"   : "en",
     "incognito"        : "split",
