@@ -217,8 +217,8 @@
     );
   });
 
-  gulp.task('uglify', callback => {
-    runSequence('babel', 'uglify-build', 'clean-tmp', callback);
+  gulp.task('js-build', callback => {
+    runSequence('jshint', 'babel', 'uglify-build', 'clean-tmp', callback);
   });
 
   gulp.task('sass-debug', callback => {
@@ -228,10 +228,6 @@
   gulp.task('sass-build', callback => {
     runSequence(
       'compass-build', 'autoprefixer', 'csscomb', 'clean-css', callback);
-  });
-
-  gulp.task('js-build', callback => {
-    runSequence('jshint', 'uglify', callback);
   });
 
   gulp.task('zip', () => {
