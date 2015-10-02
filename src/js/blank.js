@@ -117,9 +117,9 @@
         return;
       }
 
-      pNumRecorsiveCount = pNumRecorsiveCount || sNumMaxRecorsiveCount;
-
-      if (pNumRecorsiveCount < 0) {
+      if (pNumRecorsiveCount === void 0 || pNumRecorsiveCount === null) {
+        pNumRecorsiveCount = sNumMaxRecorsiveCount;
+      } else if (pNumRecorsiveCount < 0) {
         reject(new Error("Doesn't get a title of a purged tab."));
         return;
       }
