@@ -1,3 +1,6 @@
+10/04/2015 ver 2.4.3
+Fixed: the translation of English and Japanese.
+
 10/03/2015 ver 2.4.0
 Changed: The design of Extension has been changed.
 Changed: The change of the option values immediately applies to Extension.
