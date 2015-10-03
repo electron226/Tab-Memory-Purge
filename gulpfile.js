@@ -306,16 +306,34 @@
     runSequence('build', 'zip', callback);
   });
   gulp.task('watch', () => {
-    gulp.watch('src/manifest_base.json', ['replace-debug']);
-    gulp.watch('src/*.html', ['htmlhint']);
-    gulp.watch('src/**/*.js', ['jshint']);
-    gulp.watch('src/**/*.scss', ['sass-debug']);
+    gulp.watch('src/manifest_base.json', () => {
+      runSequence('replace-debug');
+    });
+    gulp.watch('src/*.html', () => {
+      runSequence('htmlhint');
+    });
+    gulp.watch('src/**/*.js', () => {
+      runSequence('jshint');
+    });
+    gulp.watch('src/**/*.scss', () => {
+      runSequence('sass-debug');
+    });
   });
   gulp.task('watch-build', () => {
-    gulp.watch('src/**/*.json', ['copy-build', 'jsonminify']);
-    gulp.watch('src/manifest_base.json', ['replace-build', 'jsonminify']);
-    gulp.watch('src/*.html', ['htmlhint', 'usemin', 'minify-html']);
-    gulp.watch('src/**/*.js', ['js-build']);
-    gulp.watch('src/**/*.scss', ['sass-build', 'usemin']);
+    gulp.watch('src/**/*.json', () => {
+      runSequence('copy-build', 'jsonminify');
+    });
+    gulp.watch('src/manifest_base.json', () => {
+      runSequence('replace-build', 'jsonminify');
+    });
+    gulp.watch('src/*.html', () => {
+      runSequence('htmlhint', 'usemin', 'minify-html');
+    });
+    gulp.watch('src/**/*.js', () => {
+      runSequence('js-build');
+    });
+    gulp.watch('src/**/*.scss', () => {
+      runSequence('sass-build', 'usemin');
+    });
   });
 })();
