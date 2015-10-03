@@ -4,7 +4,7 @@
     "description": "Extension Name"
   },
   "extDescription": {
-    "message": "This extension releases the memory of inactive tabs after a specified time.",
+    "message": "Extension manages the tab along with the specified conditions to reduce the memory on Google Chrome.",
     "description": "Extension Work"
   },
   "optionPage": {
@@ -56,47 +56,23 @@
     "description": "Previous Session"
   },
   "setTimerTitle": {
-    "message": "The duration to unload inactive tabs",
-    "description": "Memory Release Time"
+    "message": "The purge interval of the inactive tabs",
+    "description": "Memory purge time"
   },
   "otherTitle": {
     "message": "Other",
     "description": "an option menu name"
   },
-  "release": {
-    "message": "Purge tab",
-    "description": "a menu in popup"
-  },
-  "not_release": {
-    "message": "Temporarily exclusion URL",
-    "description": "the menu in popup"
-  },
-  "remove_not_release": {
-    "message": "Cancel 'Temporarily exclusion URL'",
-    "description": "the menu in popup"
-  },
-  "all_purge": {
-    "message": "Purge all tabs",
-    "description": "a menu in popup"
-  },
-  "all_purge_without_exclude_list": {
-    "message": "Purge all tabs except exclusion",
-    "description": "a menu in popup"
-  },
-  "all_unpurge": {
-    "message": "Restore purged",
-    "description": "a menu in popup"
-  },
   "switch_not_release": {
-    "message": "Switch to temporarily exclusion purge or restore",
-    "description": "the menu in the options page"
+    "message": "Toggle the temporary exclusion",
+    "description": "the menu of the keybinds in the options page"
   },
   "no_release": {
-    "message": "Don't reload tabs automatiaclly",
+    "message": "Doesn't reload the purged tabs automatically",
     "description": "an option menu name in author"
   },
   "remaiming_memory": {
-    "message": "If remaining RAM is less than this, tabs purges automatically",
+    "message": "If remaining the memory of PC is less than this, purges the tabs automatically",
     "description": "another option in the options menu"
   },
   "max_history": {
@@ -148,7 +124,7 @@
     "description": "Purging all tabs except for the active tab."
   },
   "interval_timing": {
-    "message": "The current session and automatic purging process are interval to check",
+    "message": "The check interval for automatic purge processing and the session",
     "description": "the item of the options."
   },
   "new_tab_opens_with_purged_tab": {
@@ -156,7 +132,7 @@
     "description": "the item of the options."
   },
   "get_title_when_does_not_title": {
-    "message": "If the title wasn't able to get in a purged tab, Extension takes the title from the page on Internet.",
+    "message": "If the title wasn't able to get in a purged tab, takes the title of the page on the Internet.",
     "description": "the item of the options."
   },
   "not_purge_playsound_tab": {
@@ -164,11 +140,11 @@
     "description": "the item of the options."
   },
   "restore_to_current_window": {
-    "message": "Restore to current window",
+    "message": "Restore to the current window",
     "description": "The restored type of the session history."
   },
   "restore_to_new_window": {
-    "message": "Restore to a new window",
+    "message": "Restore to the new window",
     "description": "The restored type of the session history."
   },
   "restore_to_original_window": {
@@ -181,23 +157,23 @@
     "description": "A item in information of option page."
   },
   "spec1": {
-    "message": "Each tab is setting setInterval. If come specified unload time, The extension to judge run unload or not.",
+    "message": "Each the tab set the interval time. decide whether purge when came the specified time.",
     "description": "A explanation in specification."
   },
   "spec2": {
-    "message": "If a tab become active, its tab and previous tab are resetting time.",
+    "message": "If the tab was activated, resets the interval time of it.",
     "description": "A explanation in specification."
   },
   "spec3": {
-    "message": "If to unload a tab, the extension load the empty page, and purge memory.",
+    "message": "When have purged the tab, replace the page of it to the blank page and reduce the memory of Google Chrome.",
     "description": "A explanation in specification."
   },
   "spec4": {
-    "message": "If the current tab contains a exclusion list, the icon of extension is changed.",
+    "message": "When the current tab contains an exclusion list, changes the icon state on browserAction(Toolbar).",
     "description": "A explanation in specification."
   },
   "spec5": {
-    "message": "Display the number of tabs that are currently released to the icon of the extension.",
+    "message": "Display the count of the purged tab in the icon of browserAction(Toolbar).",
     "description": "A explanation in specification."
   },
   "spec_icon": {
@@ -249,7 +225,7 @@
     "description": "A item in information of option page."
   },
   "feedback_explanation": {
-    "message": "A bug report of this extension, and question, feature suggestions are from here.",
+    "message": "Bug reports, questions, suggestions of features here.",
     "description": "The explanation of feedback."
   },
   "feedback_send": {
@@ -266,18 +242,42 @@
   },
 
 
+  "release": {
+    "message": "Purge tab",
+    "description": "the item in the popup menu."
+  },
+  "not_release": {
+    "message": "Temporarily exclude URL",
+    "description": "the item in the popup menu."
+  },
+  "remove_not_release": {
+    "message": "Cancel 'Temporarily exclude URL'",
+    "description": "the item in the popup menu."
+  },
+  "all_purge": {
+    "message": "Purge all tabs",
+    "description": "the item in the popup menu."
+  },
+  "all_purge_without_exclude_list": {
+    "message": "Purge all tabs except exclusion",
+    "description": "the item in the popup menu."
+  },
+  "all_unpurge": {
+    "message": "Restore all purged",
+    "description": "the item in the popup menu."
+  },
   "switchTimer": {
-    "message": "The automatic purged to enable or disable.",
-    "description": "The menu item on the right click popup menu."
+    "message": "Toggle the automatic purging",
+    "description": "the item in the popup menu."
   },
   "add_current_tab_exclude_list": {
-    "message": "Add the current tab to the exclusion lists.",
-    "description": "The menu item on the right click popup menu."
+    "message": "Add to the exclusion list.",
+    "description": "the item in the popup menu."
   },
 
 
   "exclude_dialog_mes1": {
-    "message": "Tab Memory Purge won't run on any page matching:",
+    "message": "Please specify the address you want to add.",
     "description": "the message in the exclusion dialog of content scripts."
   },
   "exclude_dialog_mes2": {
@@ -306,7 +306,7 @@
   },
 
   "regex_insensitive": {
-    "message": "It is not case-sensitive.",
+    "message": "Not case-sensitive.",
     "description": "the option of the exclusion list in the option page."
   }
 }
