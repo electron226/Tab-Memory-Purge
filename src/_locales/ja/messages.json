@@ -108,11 +108,11 @@
     "description": "インポート"
   },
   "exclude_url": {
-    "message": "除外するアドレス(正規表現、部分一致)",
+    "message": "除外するアドレス(<a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>正規表現</a>、部分一致)",
     "description": "除外するアドレス"
   },
   "keybind_exclude_url": {
-    "message": "キーバインドを除外するアドレス(正規表現、部分一致)",
+    "message": "キーバインドを除外するアドレス(<a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>正規表現</a>、部分一致)",
     "description": "キーバインドを除外するアドレス"
   },
   "purging_all_tabs_except_active": {
