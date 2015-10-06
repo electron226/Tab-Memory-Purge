@@ -56,7 +56,7 @@
     "description": "Previous Session"
   },
   "setTimerTitle": {
-    "message": "The purge interval of the inactive tabs",
+    "message": "Purge idle tabs after",
     "description": "Memory purge time"
   },
   "otherTitle": {
@@ -68,19 +68,23 @@
     "description": "the menu of the keybinds in the options page"
   },
   "no_release": {
-    "message": "Doesn't reload the purged tabs automatically",
+    "message": "Do not automatically reload purged tabs when clicked on.",
     "description": "an option menu name in author"
   },
+  "not_purge_playsound_tab": {
+    "message": "Do not automatically purge the tab that is sounding a sound.",
+    "description": "the item of the options."
+  },
   "remaiming_memory": {
-    "message": "If remaining the memory of PC is less than this, purges the tabs automatically",
+    "message": "Start purging tabs when computer RAM is below the specified memory size:",
     "description": "another option in the options menu"
   },
   "max_history": {
-    "message": "Days to keep history of purged URLs",
+    "message": "Keep history of purged URLs for",
     "description": "another option in the options menu"
   },
   "max_sessions": {
-    "message": "The number of sessions to hold",
+    "message": "Extension remenbers",
     "description": "another option in the options menu"
   },
   "operateTitle": {
@@ -112,31 +116,27 @@
     "description": "Import"
   },
   "exclude_url": {
-    "message": "Exclude URLs (Regular expression and Partial Match)",
+    "message": "URLs to exclude from purges (Regular expressions allowed - <a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
     "description": "Exclude URL"
   },
   "keybind_exclude_url": {
-    "message": "Exclude URLs on Keybinds (Regular expression and Partial Match)",
+    "message": "URLs to disable key bindings (Regular expressions allowed - <a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
     "description": "Exclude URL on Keybinds"
   },
   "purging_all_tabs_except_active": {
-    "message": "Than set value more have opened tabs are purged except active tabs",
+    "message": "Purge all other tab except",
     "description": "Purging all tabs except for the active tab."
   },
   "interval_timing": {
-    "message": "The check interval for automatic purge processing and the session",
+    "message": "Save the session and automatically purge every",
     "description": "the item of the options."
   },
   "new_tab_opens_with_purged_tab": {
-    "message": "New tab opens with purged tab.",
+    "message": "Open a new tab in a state that has already been purged.",
     "description": "the item of the options."
   },
   "get_title_when_does_not_title": {
-    "message": "If the title wasn't able to get in a purged tab, takes the title of the page on the Internet.",
-    "description": "the item of the options."
-  },
-  "not_purge_playsound_tab": {
-    "message": "Doesn't purge the playing sound tab automatically.",
+    "message": "If purged tab had no title then get title from the live page.",
     "description": "the item of the options."
   },
   "restore_to_current_window": {

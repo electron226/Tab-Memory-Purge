@@ -108,7 +108,7 @@
             lElItem      = lElementSnapshot.snapshotItem(i);
             lStrTextName = lElItem.getAttribute('translation');
             if (lStrTarget.hasOwnProperty(lStrTextName)) {
-              lElItem.textContent = chrome.i18n.getMessage(lStrTextName);
+              lElItem.innerHTML = chrome.i18n.getMessage(lStrTextName);
             }
           }
           resolve();
