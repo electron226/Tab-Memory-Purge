@@ -208,7 +208,8 @@
         var lBoolExclude     = false;
 
         lStrAddUri = getAddUrl();
-        lStrItem   = pArrayItems[pStrStorageName];
+        lStrItem   = pArrayItems[pStrStorageName] ||
+                     gMapDefaultValues.get(pStrStorageName);
         lStrItem   = lStrItem.replace(/\n$/, '').trim();
 
         lArrayCheckItems = lStrItem.split('\n');
