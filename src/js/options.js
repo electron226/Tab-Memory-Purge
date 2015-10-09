@@ -695,13 +695,20 @@
   function showChangeHistory()//{{{
   {
     var lElChangeHistory = document.createDocumentFragment();
+    var lElPre           = document.createDocumentFragment();
 
     return new Promise(resolve => {
       ajax({ url: gStrChangeHistory, responseType: 'text' })
       .then(result => {
+        lElPre = document.createElement('pre');
+
         lElChangeHistory =
           document.querySelector(`#${sStrIdNameOfChangeHistory}`);
-        lElChangeHistory.innerText = result.response;
+        clearItemInElement(lElChangeHistory);
+
+        lElPre.textContent = result.response;
+
+        lElChangeHistory.appendChild(lElPre);
 
         resolve();
       });
