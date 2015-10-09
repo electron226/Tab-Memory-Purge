@@ -1,0 +1,312 @@
+﻿{
+  "extName": {
+    "message": "Tab Memory Purge",
+    "description": "확장기능명"
+  },
+  "extDescription": {
+    "message": "Google 크롬에서 특정 조건으로 탭을 관리하여 메모리를 절약하는 확장 기능입니다.",
+    "description": "확장 기능"
+  },
+  "optionPage": {
+    "message": "옵션 페이지",
+    "description": "옵션 페이지 문자열"
+  },
+  "option": {
+    "message": "옵션",
+    "description": "옵션 문자열"
+  },
+  "keybind": {
+    "message": "단축키 설정",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "history": {
+    "message": "내역",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "session_history": {
+    "message": "세션 내역",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "change_history": {
+    "message": "변경 내역",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "information": {
+    "message": "정보",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "operate_settings": {
+    "message": "불러오기/내보내기",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
+  "apply": {
+    "message": "적용",
+    "description": "적용 버튼"
+  },
+  "copy": {
+    "message": "복사",
+    "description": "복사 버튼"
+  },
+  "current_session": {
+    "message": "현재 세션",
+    "description": "현재 세션"
+  },
+  "previous_session": {
+    "message": "이전 세션",
+    "description": "이전 세션"
+  },
+  "setTimerTitle": {
+    "message": "비활성 탭에 대한 초기화 시간",
+    "description": "메모리 초기화 시간"
+  },
+  "otherTitle": {
+    "message": "기타",
+    "description": "옵션 메뉴명"
+  },
+  "switch_not_release": {
+    "message": "임시 예외 토글",
+    "description": "옵션 페이지의 단축키 설정 메뉴"
+  },
+  "no_release": {
+    "message": "초기화된 탭을 자동으로 새로고치지 않음",
+    "description": "옵션 메뉴명 제작자"
+  },
+  "remaiming_memory": {
+    "message": "해당 메모리보다 PC 메모리가 낮을 경우 모든 탭을 자동으로 메모리 초기화",
+    "description": "옵션 메뉴의 다른 옵션"
+  },
+  "max_history": {
+    "message": "초기화된 웹 주소 내역 보관 기간",
+    "description": "옵션 메뉴의 다른 옵션"
+  },
+  "max_sessions": {
+    "message": "고정할 세션 수",
+    "description": "옵션 메뉴의 다른 옵션"
+  },
+  "operateTitle": {
+    "message": "동작 설정값",
+    "description": "옵션 페이지의 제목"
+  },
+  "restore": {
+    "message": "복원",
+    "description": "복원"
+  },
+  "default": {
+    "message": "기본",
+    "description": "기본"
+  },
+  "second": {
+    "message": "초",
+    "description": "분"
+  },
+  "minute": {
+    "message": "분",
+    "description": "분"
+  },
+  "export": {
+    "message": "내보내기",
+    "description": "내보내기"
+  },
+  "import": {
+    "message": "불러오기",
+    "description": "불러오기"
+  },
+  "exclude_url": {
+    "message": "예외 주소 (정규식 또는 부분 매치)",
+    "description": "예외 주소"
+  },
+  "keybind_exclude_url": {
+    "message": "단축키 작동 시 예외 주소 (정규식 또는 부분 매치)",
+    "description": "단축키를 통한 예외 주소"
+  },
+  "purging_all_tabs_except_active": {
+    "message": "활성화 탭을 제외한 모든 열린 탭에 대한 초기화 개수",
+    "description": "모든 탭을 초기화 시 활성화 탭 제외"
+  },
+  "interval_timing": {
+    "message": "세션에 대한 자동 초기화 작업을 위한 확인 간격",
+    "description": "옵션 항목."
+  },
+  "new_tab_opens_with_purged_tab": {
+    "message": "초기화된 상태로 새 탭 열기.",
+    "description": "옵션 항목."
+  },
+  "get_title_when_does_not_title": {
+    "message": "초기화된 탭에 제목이 없을 경우 인터넷 페이지에서 제목 취득",
+    "description": "옵션 항목."
+  },
+  "not_purge_playsound_tab": {
+    "message": "소리가 재생될 경우 자동으로 초기화하지 않기.",
+    "description": "옵션 항목."
+  },
+  "restore_to_current_window": {
+    "message": "현재 창으로 복구",
+    "description": "세션 내역의 복구 항목."
+  },
+  "restore_to_new_window": {
+    "message": "새 창으로 복구",
+    "description": "세션 내역의 복구 항목."
+  },
+  "restore_to_original_window": {
+    "message": "원래 창으로 복구",
+    "description": "세션 내역의 복구 항목."
+  },
+
+  "specification": {
+    "message": "규약 설명 안내.",
+    "description": "옵션 페이지의 정보 항목."
+  },
+  "spec1": {
+    "message": "지정 시간을 통해 초기화가 결정될 각 탭에 대한 시간 간격입니다.",
+    "description": "규약 설명."
+  },
+  "spec2": {
+    "message": " 탭이 활성화될 경우 간격 시간이 다시 설정됩니다.",
+    "description": "규약 설명."
+  },
+  "spec3": {
+    "message": "탭이 초기화된 경우, 빈 페이지로 대체하여 Google 크롬에서 더 적은 메모리를 차지할 것입니다.",
+    "description": "규약 설명."
+  },
+  "spec4": {
+    "message": "해당 탭이 예외 항목에 있을 경우,  browserAction(Toolbar) 에서 상태 변경이 결정됩니다.",
+    "description": "규약 설명."
+  },
+  "spec5": {
+    "message": "browserAction(Toolbar) 를 통해 몇 개의 탭이 초기화되었는지 표시합니다.",
+    "description": "규약 설명."
+  },
+  "spec_icon": {
+    "message": "이 아이콘은 어떤 예외 항목에도 존재하지 않습니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_use": {
+    "message": "이 아이콘은 사용자가 지정한 예외 항목에 포함되어 있습니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_extension": {
+    "message": "확장에서 자체 지정된 예외 항목과 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_temp": {
+    "message": "임시 예외 항목과 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_with_keybind": {
+    "message": "단축키를 통한 예외 항목과 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_use_with_keybind": {
+    "message": "사용자가 지정한 예외 항목이나 단축키를 통한 예외 항목과 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_extension_with_keybind": {
+    "message": "확장에서 자체 지정된 예외 항목이나 단축키를 통한 예외 항목과 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_temp_with_keybind": {
+    "message": "임시 예외 항목과 일치하거나 단축키를 통한 초기화 예외 대상에 일치합니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "spec_icon_disable_timer": {
+    "message": "이 확장의 자동 초기화 과정이 비활성화 되었습니다.",
+    "description": "규약 중 spec4 설명."
+  },
+  "warning": {
+    "message": "주의",
+    "description": "옵션 페이지의 정보 항목."
+  },
+  "warn1": {
+    "message": "이 확장이 업데이트되거나 비활성화될 경우 Google 크롬에서 초기화된 탭을 닫을 것입니다. 이는 사용자가 옵션 페이지 중 세션 내역에서 이전 세션을 복구한 경우일 수 있습니다.",
+    "description": "옵션 부분에 대한 경고 설명."
+  },
+  "feedback": {
+    "message": "피드백",
+    "description": "옵션 페이지의 정보 항목."
+  },
+  "feedback_explanation": {
+    "message": "여기에 버그 보고, 질문, 기능 제안.",
+    "description": "피드백 설명."
+  },
+  "feedback_send": {
+    "message": "피드백 보내기",
+    "description": "피드백 보내기."
+  },
+  "infomation_other": {
+    "message": "기타",
+    "description": "옵션 페이지의 정보 항목."
+  },
+  "source_code": {
+    "message": "소스 코드",
+    "description": "옵션 페이지의 기타 정보 항목."
+  },
+
+
+  "release": {
+    "message": "탭 초기화",
+    "description": "팝업 메뉴 항목."
+  },
+  "not_release": {
+    "message": "임시 제외 URL",
+    "description": "팝업 메뉴 항목."
+  },
+  "remove_not_release": {
+    "message": "'임시 제외 URL' 취소",
+    "description": "팝업 메뉴 항목."
+  },
+  "all_purge": {
+    "message": "모든 탭 초기화",
+    "description": "팝업 메뉴 항목."
+  },
+  "all_purge_without_exclude_list": {
+    "message": "제외 항목 외 모두 초기화",
+    "description": "팝업 메뉴 항목."
+  },
+  "all_unpurge": {
+    "message": "초기화 복구",
+    "description": "팝업 메뉴 항목."
+  },
+  "switchTimer": {
+    "message": "자동 초기화 활성/비활성",
+    "description": "팝업 메뉴 항목."
+  },
+  "add_current_tab_exclude_list": {
+    "message": "제외 목록에 추가.",
+    "description": "팝업 메뉴 항목."
+  },
+
+
+  "exclude_dialog_mes1": {
+    "message": "넣고자 하는 주소를 적어 추가해 주세요.",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 메시지."
+  },
+  "exclude_dialog_mes2": {
+    "message": "실제 문자열에서는 에스터리스크(*)를 제거합니다.",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 메시지."
+  },
+  "exclude_dialog_mes3": {
+    "message": "주소 패턴 변경 시 아래와 같은 방법으로 변경 가능합니다.",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 메시지."
+  },
+  "exclude_dialog_add_to_exclude_list": {
+    "message": "예외 항목에 추가",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 버튼."
+  },
+  "exclude_dialog_add_to_keybind_exclude_list": {
+    "message": "단축키를 통한 예외 항목에 추가",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 버튼."
+  },
+  "exclude_dialog_add_to_temp_exclude_list": {
+    "message": "임시 예외 항목에 추가",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 버튼."
+  },
+  "cancel": {
+    "message": "취소",
+    "description": "콘텐트 스크립트 중 예외 대화 상자 버튼."
+  },
+
+  "regex_insensitive": {
+    "message": "대소문자 구분 무시.",
+    "description": "옵션 부분 중 예외 대화 상자에 대한 옵션 항목."
+  }
+}
