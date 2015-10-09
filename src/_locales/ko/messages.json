@@ -112,11 +112,11 @@
     "description": "불러오기"
   },
   "exclude_url": {
-    "message": "예외 주소 (정규식 또는 부분 매치)",
+    "message": "예외 주소 (<a href='https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>정규식</a> 또는 부분 매치)",
     "description": "예외 주소"
   },
   "keybind_exclude_url": {
-    "message": "단축키 작동 시 예외 주소 (정규식 또는 부분 매치)",
+    "message": "단축키 작동 시 예외 주소 (<a href='https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>정규식</a> 또는 부분 매치)",
     "description": "단축키를 통한 예외 주소"
   },
   "purging_all_tabs_except_active": {
