@@ -72,7 +72,7 @@
     "description": "an option menu name in author"
   },
   "not_purge_playsound_tab": {
-    "message": "Do not automatically purge the tab that is sounding a sound.",
+    "message": "Do not purge tabs that are actively playing sounds or videos.",
     "description": "the item of the options."
   },
   "remaiming_memory": {
@@ -124,15 +124,19 @@
     "description": "Exclude URL on Keybinds"
   },
   "purging_all_tabs_except_active": {
-    "message": "Purge all other tab except",
+    "message": "Purge all tabs except last ",
     "description": "Purging all tabs except for the active tab."
+  },
+  "supplementary_of_purging_all_tabs": {
+    "message": "(Starts purging from left to right.)",
+    "description": "supplementary of purging_all_tabs_except_active."
   },
   "interval_timing": {
     "message": "Save the session and automatically purge every",
     "description": "the item of the options."
   },
   "new_tab_opens_with_purged_tab": {
-    "message": "Open a new tab in a state that has already been purged.",
+    "message": "When opening a new tab, it is already purged.",
     "description": "the item of the options."
   },
   "get_title_when_does_not_title": {

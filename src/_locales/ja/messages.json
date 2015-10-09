@@ -119,6 +119,10 @@
     "message": "設定値を超えたアクティブタブ以外のタブを解放",
     "description": "Purging all tabs except for the active tab."
   },
+  "supplementary_of_purging_all_tabs": {
+    "message": "(左から右に解放していきます。)",
+    "description": "purging_all_tabs_except_activeの補足"
+  },
   "interval_timing": {
     "message": "現在のセッションや自動開放処理のチェック間隔",
     "description": "オプションの項目"
