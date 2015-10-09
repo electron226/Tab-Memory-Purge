@@ -2,7 +2,7 @@
 Added: The translation of Korean (Merge pull request #47 from composite/master).
            But user cannot expect language of support because Developer can't write and read.
 Fixed: Has fixed the translation of English based on the file of Steve Smith. Thank you!
-Fixed: When a user doesn't save the option value even once, occur the error when add the url that uses user use the exclude dialog.
+Fixed: When a user doesn't save the option value even once, Extension occurs the error when add the url that user uses the exclude dialog.
 
 10/04/2015 ver 2.4.3
 Fixed: the translation of English and Japanese.
