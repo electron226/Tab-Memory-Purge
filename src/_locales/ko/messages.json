@@ -123,6 +123,10 @@
     "message": "활성화 탭을 제외한 모든 열린 탭에 대한 초기화 개수",
     "description": "모든 탭을 초기화 시 활성화 탭 제외"
   },
+  "supplementary_of_purging_all_tabs": {
+    "message": "(왼쪽에서 오른쪽으로 풀어갑니다.)",
+    "description": "purging_all_tabs_except_active 보충"
+  },
   "interval_timing": {
     "message": "세션에 대한 자동 초기화 작업을 위한 확인 간격",
     "description": "옵션 항목."
