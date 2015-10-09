@@ -116,11 +116,11 @@
     "description": "Import"
   },
   "exclude_url": {
-    "message": "URLs to exclude from purges (Regular expressions allowed - <a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
+    "message": "URLs to exclude from purges (Regular expressions allowed - <a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
     "description": "Exclude URL"
   },
   "keybind_exclude_url": {
-    "message": "URLs to disable key bindings (Regular expressions allowed - <a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
+    "message": "URLs to disable key bindings (Regular expressions allowed - <a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
     "description": "Exclude URL on Keybinds"
   },
   "purging_all_tabs_except_active": {
