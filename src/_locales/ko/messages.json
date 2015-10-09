@@ -103,6 +103,22 @@
     "message": "분",
     "description": "분"
   },
+  "day": {
+    "message": "일",
+    "description": "일"
+  },
+  "session": {
+    "message": "세션",
+    "description": "세션"
+  },
+  "tab": {
+    "message": "탭",
+    "description": "탭"
+  },
+  "megabyte": {
+    "message": "메가 바이트",
+    "description": "메가 바이트"
+  },
   "export": {
     "message": "내보내기",
     "description": "내보내기"

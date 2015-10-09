@@ -99,6 +99,22 @@
     "message": "分",
     "description": "分"
   },
+  "day": {
+    "message": "日",
+    "description": "日"
+  },
+  "session": {
+    "message": "セッション",
+    "description": "セッション"
+  },
+  "tab": {
+    "message": "タブ",
+    "description": "タブ"
+  },
+  "megabyte": {
+    "message": "メガバイト",
+    "description": "メガバイト"
+  },
   "export": {
     "message": "エクスポート",
     "description": "エクスポート"

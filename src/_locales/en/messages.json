@@ -107,6 +107,22 @@
     "message": "minutes",
     "description": "minute"
   },
+  "day": {
+    "message": "days",
+    "description": "days"
+  },
+  "session": {
+    "message": "sessions",
+    "description": "sessions"
+  },
+  "tab": {
+    "message": "tabs",
+    "description": "tabs"
+  },
+  "megabyte": {
+    "message": "Mbytes",
+    "description": "Mbytes"
+  },
   "export": {
     "message": "Export",
     "description": "Export"
