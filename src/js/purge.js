@@ -1141,7 +1141,7 @@
         };
       case 'temp':
         return {
-          list:        Array.from(sSetTempRelease).join('\\n'),
+          list:        Array.from(sSetTempRelease).join('\n'),
           options:     'i',
           returnValue: TEMP_EXCLUDE,
         };
