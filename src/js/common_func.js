@@ -4,6 +4,14 @@
 (function(window) {
   "use strict";
 
+  function escapeForRegExp(string) {
+    return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  }
+
+  function decodeForRegExp(string) {
+    return string.replace(/\\([-\/\\^$*+?.()|[\]{}])/g, '$1');
+  }
+
   /**
    * ajax
    *
@@ -699,6 +707,8 @@
 
   //{{{ method.
   // If you want to minify js file, you must set function name.
+  setObjectProperty(window, 'escapeForRegExp', escapeForRegExp);
+  setObjectProperty(window, 'decodeForRegExp', decodeForRegExp);
   setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
