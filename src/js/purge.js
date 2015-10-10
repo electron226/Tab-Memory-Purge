@@ -1093,10 +1093,12 @@
     }
 
     var lRegExpUrl    = null;
-    var lArrayExclude = pObjExclude.list.split('\n');
+    var lArrayExclude = [];
     var i             = 0;
 
-    for (i = 0; i < lArrayExclude.length; i = (i + 1) | 0) {
+    lArrayExclude = pObjExclude.list.split('\n');
+    i = 0;
+    for (i = 0; i < lArrayExclude.length; ++i) {
       if (lArrayExclude[i].length !== 0) {
         lRegExpUrl = new RegExp(lArrayExclude[i].trim(), pObjExclude.options);
         if (lRegExpUrl.test(pStrUrl)) {
