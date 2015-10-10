@@ -1929,9 +1929,10 @@
   {
     console.info('switchTempRelease', Array.prototype.slice.call(arguments));
 
-    var lRegexUrlInArg  = new RegExp();
-    var lRegexUrlInTemp = new RegExp();
-    var lArrayDelKeys   = [];
+    var lRegexUrlInArg   = new RegExp();
+    var lRegexUrlInTemp  = new RegExp();
+    var lArrayDelKeys    = [];
+    var lStrUrlForRegExp = '';
 
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'string' ],
@@ -1941,11 +1942,14 @@
       throw new Error(lStrErrMsg);
     }
 
-    lRegexUrlInArg = new RegExp(pStrUrl);
+    lStrUrlForRegExp = escapeForRegExp(pStrUrl);
+
+    lRegexUrlInArg = new RegExp(lStrUrlForRegExp);
     lArrayDelKeys  = [];
     sSetTempRelease.forEach(pValue => {
       lRegexUrlInTemp = new RegExp(pValue);
-      if (lRegexUrlInTemp.test(pStrUrl) || lRegexUrlInArg.test(pValue)) {
+      if (lRegexUrlInTemp.test(pStrUrl) ||
+          lRegexUrlInArg.test( decodeForRegExp(pValue) )) {
         lArrayDelKeys.push(pValue);
       }
     });
@@ -1955,7 +1959,7 @@
     }
 
     if (lArrayDelKeys.length === 0 || pStrType === 'add') {
-      sSetTempRelease.add(pStrUrl);
+      sSetTempRelease.add(lStrUrlForRegExp);
     }
   }//}}}
 
