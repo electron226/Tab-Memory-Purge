@@ -1016,13 +1016,17 @@
    */
   function getCurrentTab()//{{{
   {
+    console.info('getCurrentTab');
+
     return new Promise((resolve, reject) => {
-      chrome.tabs.getSelected(rTab => {
+      chrome.tabs.query(
+        { windowId: chrome.windows.WINDOW_ID_CURRENT, active: true },
+        pArrayTabs => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        resolve(rTab);
+        resolve(pArrayTabs[0]);
       });
     });
   }//}}}
