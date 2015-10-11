@@ -267,11 +267,19 @@
     "description": "the item in the popup menu."
   },
   "not_release": {
-    "message": "Temporarily exclude URL",
+    "message": "Temporarily exclude url",
     "description": "the item in the popup menu."
   },
   "remove_not_release": {
-    "message": "Cancel 'Temporarily exclude URL'",
+    "message": "Cancel 'Temporarily exclude url'",
+    "description": "the item in the popup menu."
+  },
+  "not_release_host": {
+    "message": "Temporarily exclude hostname",
+    "description": "the item in the popup menu."
+  },
+  "remove_not_release_host": {
+    "message": "Cancel 'Temporarily exclude hostname'",
     "description": "the item in the popup menu."
   },
   "all_purge": {

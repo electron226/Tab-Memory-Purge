@@ -1950,17 +1950,14 @@
     lArrayDelKeys  = [];
     sSetTempRelease.forEach(pValue => {
       lRegexUrlInTemp = new RegExp(pValue);
-      if (lRegexUrlInTemp.test(pStrUrl) ||
-          lRegexUrlInArg.test( decodeForRegExp(pValue) )) {
+      if (lRegexUrlInArg.test( decodeForRegExp(pValue) )) {
         lArrayDelKeys.push(pValue);
       }
     });
 
-    if (lArrayDelKeys.length > 0) {
-      lArrayDelKeys.forEach(pValue => sSetTempRelease.delete(pValue));
-    }
+    lArrayDelKeys.forEach(pValue => sSetTempRelease.delete(pValue));
 
-    if (lArrayDelKeys.length === 0 || pStrType === 'add') {
+    if (pStrType !== 'delete') {
       sSetTempRelease.add(lStrUrlForRegExp);
     }
   }//}}}
@@ -2661,6 +2658,7 @@
       var lNumTabId       = 0;
       var lNumState       = 0;
       var lNumResultState = 0;
+      var lStrAddUrl      = '';
 
       switch (pObjMessage.event) {
         case 'initialize':
@@ -2681,7 +2679,10 @@
         case 'switch_not_release':
           getCurrentTab()
           .then(pTab => {
-            switchTempRelease(pTab.url);
+            lStrAddUrl = (pObjMessage.addType === 'host') ?
+                          getHostName(pTab.url) :
+                          pTab.url;
+            switchTempRelease(lStrAddUrl, pObjMessage.type);
 
             return setTick(pTab.id);
           })

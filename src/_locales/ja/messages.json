@@ -271,6 +271,14 @@
     "message": "「このタブのURLの解放を一時的に禁止」を解除",
     "description": "ポップアップメニューの項目"
   },
+  "not_release_host": {
+    "message": "このタブのホスト名の解放を一時的に禁止",
+    "description": "ポップアップメニューの項目"
+  },
+  "remove_not_release_host": {
+    "message": "「このタブのホスト名の解放を一時的に禁止」を解除",
+    "description": "ポップアップメニューの項目"
+  },
   "all_purge": {
     "message": "全てのタブを解放",
     "description": "ポップアップメニューの項目"

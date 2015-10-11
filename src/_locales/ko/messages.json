@@ -267,11 +267,19 @@
     "description": "팝업 메뉴 항목."
   },
   "not_release": {
-    "message": "임시 제외 URL",
+    "message": "임시 제외 url",
     "description": "팝업 메뉴 항목."
   },
   "remove_not_release": {
-    "message": "'임시 제외 URL' 취소",
+    "message": "'임시 제외 url' 취소",
+    "description": "팝업 메뉴 항목."
+  },
+  "not_release_host": {
+    "message": "임시 제외 hostname",
+    "description": "팝업 메뉴 항목."
+  },
+  "remove_not_release_host": {
+    "message": "'임시 제외 hostname' 취소",
     "description": "팝업 메뉴 항목."
   },
   "all_purge": {

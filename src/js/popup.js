@@ -5,6 +5,16 @@
   const sElRestore          = document.querySelector('#restore_release');
   const sElNotRelease       = document.querySelector('#not_release');
   const sElRemoveNotRelease = document.querySelector('#remove_not_release');
+  const sElNotReleaseText   = sElNotRelease.querySelector('span');
+  const sElRemoveNotReleaseText = sElRemoveNotRelease.querySelector('span');
+
+  const sStrNotRelease       = chrome.i18n.getMessage('not_release');
+  const sStrRemoveNotRelease = chrome.i18n.getMessage('remove_not_release');
+  const sStrNotReleaseHost   = chrome.i18n.getMessage('not_release_host');
+  const sStrRemoveNotReleaseHost =
+    chrome.i18n.getMessage('remove_not_release_host');
+
+  var sObjPressKey = null;
 
   if (typeof sElRelease !== 'object' ||
       typeof sElRestore !== 'object' ||
@@ -13,6 +23,23 @@
     throw new Error(
       "Doesn't find the elements that want to use in the script.");
   }
+
+  document.addEventListener('keyup', () => {
+    sObjPressKey = null;
+
+    sElNotReleaseText.textContent       = sStrNotReleaseHost;
+    sElRemoveNotReleaseText.textContent = sStrRemoveNotReleaseHost;
+  });
+
+  document.addEventListener('keydown', pEvent => {
+    if (sObjPressKey === null) {
+      sObjPressKey = keyCheck(pEvent);
+      if (sObjPressKey.ctrl === true) {
+        sElNotReleaseText.textContent       = sStrNotRelease;
+        sElRemoveNotReleaseText.textContent = sStrRemoveNotRelease;
+      }
+    }
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()
@@ -100,11 +127,13 @@
 
   function buttonClicked(pEvent)//{{{
   {
-    var lElMenu       = document.createDocumentFragment();
-    var lObjCreateTab = {};
-    var lStrClassName = "";
-    var lStrId        = "";
-    var lStrErrMsg    = "";
+    var lElMenu        = document.createDocumentFragment();
+    var lObjCreateTab  = {};
+    var lStrClassName  = "";
+    var lStrId         = "";
+    var lStrErrMsg     = "";
+    var lBoolPressCtrl = false;
+    var lBoolDelete    = false;
 
     lStrErrMsg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
@@ -136,9 +165,18 @@
       chrome.runtime.sendMessage({ event: 'release' });
       popupClose();
       break;
-    case 'not_release':
     case 'remove_not_release':
-      chrome.runtime.sendMessage({ event: 'switch_not_release' });
+      lBoolDelete = true;
+      /* falls through */
+    case 'not_release':
+      lBoolPressCtrl = sObjPressKey !== null &&
+                       sObjPressKey.hasOwnProperty('ctrl') &&
+                       sObjPressKey.ctrl === true;
+      chrome.runtime.sendMessage({
+        event:   'switch_not_release',
+        type:    lBoolDelete ? 'delete' : 'add',
+        addType: lBoolPressCtrl ? 'url' : 'host',
+      });
       popupClose();
       break;
     case 'switchTimer':
