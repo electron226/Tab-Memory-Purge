@@ -1468,34 +1468,6 @@
   }//}}}
 
   /**
-  * 解放状態・解放解除を交互に行う
-  * @param {Number} pNumId 対象のタブのID.
-  * @return {Promise} promiseが返る。
-  */
-  function purgeToggle(pNumId)//{{{
-  {
-    console.info('purgeToggle', Array.prototype.slice.call(arguments));
-
-    var lStrErrMsg = '';
-    var lArrayArgs = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        [ 'number' ],
-      ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
-        return;
-      }
-
-      (() =>
-        sObjUnloaded.hasOwnProperty(pNumId) ? unPurge(pNumId) : purge(pNumId))()
-      .then(resolve)
-      .catch(reject);
-    });
-  }//}}}
-
-  /**
   * 定期的に実行される関数。アンロードするかどうかを判断。
   * @param {Number} pNumTabId 処理を行うタブのID.
   * @return {Promise} Promiseが返る。
@@ -2670,15 +2642,16 @@
           initialize();
           break;
         case 'release':
+          // toggle purged tab.
           getCurrentTab()
           .then(pObjTab => {
-            return new Promise((resolve, reject) => {
-              purgeToggle(pObjTab.id)
-              .then(resolve(pObjTab))
-              .catch(reject);
-            });
+            if (sObjUnloaded.hasOwnProperty(pObjTab.id)) {
+              return unPurge(pObjTab.id);
+            } else {
+              return purge(pObjTab.id)
+                     .then(searchUnloadedTabNearPosition(pObjTab));
+            }
           })
-          .then(searchUnloadedTabNearPosition)
           .catch(e => console.error(e));
           break;
         case 'switch_not_release':
