@@ -1,3 +1,19 @@
+10/12/2015 ver 2.4.5
+Fixed: When the item to restore the purged tab on the popup menu is clicked, fixed the problem to search for nearby tab.
+Fixed: Temporarily exclusion list does not work correctly with some website. Issues(#48)
+Changed: the behavior of the toggle temporary exclusion list.
+   I have implemented the function to add the hostname to the temporary exclusion list.
+   Also I have implemented a method to remove it.
+
+   When the popup menu is displaying, If the user is pressing the Ctrl key, add the url to the temporary exclusion list, or display the item that delete.
+   When the Ctrl key isn't pressing, display the item for hostname to add.
+
+   The behavior of when adds to the list.
+   Add a hostname, then delete a hostname = delete it,
+   Add a hostname, then delete a url      = doesn't delete it.
+   Add a url,      then delete a hostname = delete it.
+   Add a url,      then delete a url      = delete it.
+
 10/09/2015 ver 2.4.4
 Added: The translation of Korean (Merge pull request #47 from composite/master).
            But user cannot expect language of support because Developer can't write and read.
