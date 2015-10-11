@@ -1979,14 +1979,17 @@
       Array.prototype.slice.call(arguments));
 
     var lArrayTabs       = [];
-    var lArrayTarget     = [];
-    var lNumTargetLength = 0;
+    var lObjActiveTab    = {};
     var lStrErrMsg       = '';
     var lArrayArgs       = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        [ 'object' ],
+        function(pValue) {
+          return toType(pValue) !== 'object' &&
+                 !pValue.hasOwnProperty('index') &&
+                 !pValue.hasOwnProperty('windowId');
+        },
       ]);
       if (lStrErrMsg) {
         reject(new Error(lStrErrMsg));
@@ -1994,28 +1997,26 @@
       }
 
       // 現在のタブの左右の未解放のタブを選択する
-      chrome.windows.get(pObjTab.windowId, { populate: true }, pWin => {
+      chrome.tabs.query({ windowId: pObjTab.windowId }, pArrayTabs => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
-        lArrayTabs   = pWin.tabs.filter(v =>
+        lArrayTabs = pArrayTabs.filter(v =>
           !sObjUnloaded.hasOwnProperty(v.id) && !isReleasePage(v.url));
-        lArrayTarget = lArrayTabs.filter(v => (v.index > pObjTab.index));
-        lNumTargetLength = 0;
-        if (lArrayTarget.length === 0) {
-          lArrayTarget     = lArrayTabs.filter(v => (v.index < pObjTab.index));
-          lNumTargetLength = lArrayTarget.length - 1;
+        lObjActiveTab = lArrayTabs.find(v => (pObjTab.index < v.index));
+        if (lObjActiveTab === void 0 || lObjActiveTab === null) {
+          lObjActiveTab =
+            lArrayTabs.reverse().find(v => (pObjTab.index > v.index));
         }
 
-        if (lArrayTarget.length > 0) {
-          // If found tab, It's active.
-          chrome.tabs.update(
-            lArrayTarget[lNumTargetLength].id, { active: true }, resolve);
-        } else {
+        if (lObjActiveTab === void 0 || lObjActiveTab === null) {
           // If can not find the tab to activate to create a new tab.
           chrome.tabs.create({ active: true }, resolve);
+        } else {
+          // If found tab, It's active.
+          chrome.tabs.update(lObjActiveTab.id, { active: true }, resolve);
         }
       });
     });
