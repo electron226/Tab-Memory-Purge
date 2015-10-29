@@ -111,12 +111,13 @@
     var lElLink    = document.createDocumentFragment();
     var lElFavicon = document.createDocumentFragment();
 
-    var lObjArgs    = {};
-    var lStrUrl     = '';
-    var lStrName    = '';
-    var lStrFavicon = '';
-    var lStrErrMsg  = '';
-    var lArrayArgs  = Array.prototype.slice.call(arguments);
+    var lObjArgs      = {};
+    var lStrUrl       = '';
+    var lStrName      = '';
+    var lStrFavicon   = '';
+    var lStrErrMsg    = '';
+    var lBoolGetTitle = false;
+    var lArrayArgs    = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
       lStrErrMsg = checkFunctionArguments(lArrayArgs, [
@@ -174,11 +175,10 @@
           return new Promise(resolve2 => {
             lStrName = 'get_title_when_does_not_title';
             chrome.storage.local.get(lStrName, items => {
-              if (items[lStrName] === true) {
-                resolve2(true);
-              } else {
-                resolve2(false);
-              }
+              lBoolGetTitle = items.hasOwnProperty(lStrName) ?
+                              items[lStrName] :
+                              gMapDefaultValues.get(lStrName);
+              resolve2(lBoolGetTitle === true ? true : false);
             });
           });
         })()
