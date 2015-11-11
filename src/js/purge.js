@@ -54,8 +54,118 @@
   }//}}}
 
   /**
-   * The dict object contains the information
-   * on the tab that ran the purging memory.
+   * closureCreateMapObserve
+   *
+   * This provides the function like object.observe by using the Map.
+   *
+   * @param {function} pFuncChanged -
+   *     Function that will be called when a value is changed.
+   * @return {object} Return the object for operating.
+   *     Available functions.
+   *         get(key: any) - returns the value of keyName.
+   *         forEach(callback: function) -
+   *             Iterative processing of Map in closure.
+   *             Arguments of callback were value, key, map object.
+   *         set(key: any, value: any) - Key and Value that you want to set.
+   *         delete(key: any) - you want to delete Key.
+   *         clear() - all delete items in Map.
+   *         has(key: any) - If Key is found, return true.
+   *                         false if it isn't found.
+   *         size() -  returns the count of item in Map.
+   *         setCallbackWhenChanged(callback: function) -
+   *             called Function If the value of Map
+   *             is added, updated, or deleted.
+   *
+   *             argument of callback function is the object only.
+   */
+  function closureCreateMapObserve(pFuncChanged)//{{{
+  {
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'function', 'null', 'undefined' ],
+    ], true);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    var lMapUnloaded     = new Map();
+    var lFuncWhenChanged = (toType(pFuncChanged) === 'function') ?
+                            pFuncChanged :
+                            function() { return null; };
+
+    return {
+      get: function(pAnyKey) {//{{{
+        return lMapUnloaded.get(pAnyKey);
+      },//}}}
+      forEach: function(pFuncCallback) {//{{{
+        lMapUnloaded.forEach(pFuncCallback);
+      },//}}}
+      set: function(pAnyKey, pAnyValue) {//{{{
+        /*jshint -W069 */
+        var lObjChange   = {};
+        var lAnyOldValue = null;
+
+        lObjChange = {
+          key:   pAnyKey,
+          value: pAnyValue,
+        };
+        lAnyOldValue = lMapUnloaded.get(pAnyKey);
+
+        if (lAnyOldValue === void 0) {
+          lObjChange['type'] = 'add';
+        } else {
+          lObjChange['type']     = 'update';
+          lObjChange['oldValue'] = lAnyOldValue;
+        }
+
+        lMapUnloaded.set(pAnyKey, pAnyValue);
+        lFuncWhenChanged(lObjChange);
+      },//}}}
+      delete: function(pAnyKey) {//{{{
+        /*jshint -W069 */
+        var lObjChange = {};
+        var lAnyOldValue = null;
+
+        lObjChange = {
+          key:  pAnyKey,
+          type: 'delete',
+        };
+
+        lAnyOldValue = lMapUnloaded.get(pAnyKey);
+        if (lAnyOldValue !== void 0) {
+          lObjChange['oldValue'] = lMapUnloaded.get(pAnyKey);
+        }
+
+        lMapUnloaded.delete(pAnyKey);
+        lFuncWhenChanged(lObjChange);
+      },//}}}
+      clear: function() {//{{{
+        lMapUnloaded.clear();
+      },//}}}
+      has: function(pAnyKey) {//{{{
+        return lMapUnloaded.has(pAnyKey);
+      },//}}}
+      size: function() {//{{{
+        return lMapUnloaded.size;
+      },//}}}
+      setCallbackWhenChanged: function(pCallbackWhenChanged)//{{{
+      {
+        var lStrErrMsg = checkFunctionArguments(arguments, [
+          [ 'function' ],
+        ]);
+        if (lStrErrMsg) {
+          throw new Error(lStrErrMsg);
+        }
+
+        lFuncWhenChanged = pCallbackWhenChanged;
+      },//}}}
+    };
+  }//}}}
+
+  var sBoolUnloadedChange = false;
+  /**
+   * This instance object has created by closureCreateMapObserve function.
+   * A key and a value are added
+   * when have been running about the release process of a tab.
    *
    * key = tabId.
    * value = object.
@@ -64,33 +174,30 @@
    *       scrollPosition : the object that represent the scroll position(x, y).
    *       windowId       : the windowId of the purged tab.
    */
-  var sObjUnloaded        = {};
-  var sNumUnloadedCount   = 0;
-  var sBoolUnloadedChange = false;
-  Object.observe(sObjUnloaded, pArrayChanges => {//{{{
-    console.info('sObjUnloaded was changed.', Object.assign({}, pArrayChanges));
+  var sUnloadedObserve = closureCreateMapObserve(changed => {//{{{
+    console.info('sUnloadedObserve was changed.', Object.assign({}, changed));
 
     var lNumTabId = 0;
-    pArrayChanges.forEach(v => {
-      lNumTabId = parseInt(v.name, 10);
-      switch (v.type) {
-        case 'add':
-          sNumUnloadedCount++;
-          deleteTick(lNumTabId);
-          chrome.tabs.get(lNumTabId, tab => {
-            if (!isReleasePage(tab.url)) {
-              writeHistory(tab);
-            }
-          });
-          break;
-        case 'delete':
-          sNumUnloadedCount--;
-          sMapTempScrollPos.set(lNumTabId, v.oldValue.scrollPosition);
-          setTick(lNumTabId).catch(e => console.error(e));
-          break;
-      }
-    });
-    chrome.browserAction.setBadgeText({ text: sNumUnloadedCount.toString() });
+
+    lNumTabId = parseInt(changed.key, 10);
+    switch (changed.type) {
+      case 'add':
+        deleteTick(lNumTabId);
+        chrome.tabs.get(lNumTabId, tab => {
+          if (!isReleasePage(tab.url)) {
+            writeHistory(tab);
+          }
+        });
+        break;
+      case 'delete':
+        if (changed.hasOwnProperty('oldValue')) {
+          sMapTempScrollPos.set(lNumTabId, changed.oldValue.scrollPosition);
+        }
+        setTick(lNumTabId).catch(e => console.error(e));
+        break;
+    }
+    chrome.browserAction.setBadgeText(
+      { text: sUnloadedObserve.size().toString() });
 
     sBoolUnloadedChange = true;
   });//}}}
@@ -98,7 +205,7 @@
   /**
    * setUnloaded
    *
-   * Adds to sObjUnloaded.
+   * Adds to sUnloadedObserve.
    *
    * @param {any} pStrKey -
    *     You want to add the key name.
@@ -123,11 +230,11 @@
       throw new Error(lStrErrMsg);
     }
 
-    sObjUnloaded[pStrKey] = {
+    sUnloadedObserve.set(pStrKey, {
       url            : pStrUrl,
       windowId       : pNumWindowId,
       scrollPosition : pObjPos || { x : 0 , y : 0 },
-    };
+    });
   }//}}}
 
   /**
@@ -313,9 +420,9 @@
         sSetCreateTabId.delete(lNumTabId);
 
         if (checkExcludeList(lStrUrl) & NORMAL) {
-          if (sObjUnloaded.hasOwnProperty(lNumTabId)) {
+          if (sUnloadedObserve.has(lNumTabId)) {
             throw new Error(
-              "TabId has already existed into sObjUnloaded: " +
+              "TabId has already existed into sUnloadedObserve: " +
               `${JSON.stringify(pObjDetails)}`);
           }
 
@@ -502,7 +609,7 @@
           // When user close multiple tabs, continuously call more than once.
           // Thus, the same session is added more than once.
           // So call at here.
-          exclusiveProcessForFunc('writeSession', writeSession, sObjUnloaded)
+          exclusiveProcessForFunc('writeSession', writeSession)
           .catch(e => console.error(e));
         }
 
@@ -746,27 +853,16 @@
     });
   }//}}}
 
-  function writeSession(pObjUnloaded)//{{{
+  function writeSession()//{{{
   {
     console.info('writeSession', Array.prototype.slice.call(arguments));
 
     var lArraySessionWrites = [];
     var lArrayDelKeys       = [];
-    var lObjItem            = {};
     var lDate               = new Date();
     var lNumNowTime         = lDate.getTime();
-    var lStrErrMsg          = '';
-    var lArrayArgs          = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        [ 'object' ],
-      ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
-        return;
-      }
-
       lDate       = new Date();
       lNumNowTime = lDate.getTime();
 
@@ -794,18 +890,17 @@
       })()
       .then(() => {
         lArraySessionWrites = [];
-        Object.keys(pObjUnloaded).forEach(rTabId => {
-          lObjItem = pObjUnloaded[rTabId];
-          if (lObjItem !== void 0 && lObjItem !== null &&
-              lObjItem.url !== void 0 && lObjItem.url !== null &&
-              lObjItem.url.length > 0) {
+        sUnloadedObserve.forEach(rObjValue => {
+          if (rObjValue !== void 0 && rObjValue !== null &&
+              rObjValue.url !== void 0 && rObjValue.url !== null &&
+              rObjValue.url.length > 0) {
             lArraySessionWrites.push({
               date:     lNumNowTime,
-              url:      lObjItem.url,
-              windowId: lObjItem.windowId
+              url:      rObjValue.url,
+              windowId: rObjValue.windowId
             });
           } else {
-            console.error("Doesn't find url.", lObjItem);
+            console.error("Doesn't find url.", rObjValue);
           }
         });
 
@@ -1343,7 +1438,7 @@
         return;
       }
 
-      if (sObjUnloaded.hasOwnProperty(pNumTabId)) {
+      if (sUnloadedObserve.has(pNumTabId)) {
         reject(new Error(`Already purging. ${pNumTabId}`));
         return;
       }
@@ -1453,7 +1548,7 @@
         return;
       }
 
-      lStrUrl = sObjUnloaded[pNumId].url;
+      lStrUrl = sUnloadedObserve.get(pNumId).url;
       chrome.tabs.sendMessage(pNumId,
         { event: 'location_replace' }, useChrome => {
           // If the lStrUrl is empty in purge page.
@@ -1489,10 +1584,10 @@
         return;
       }
 
-      if (sObjUnloaded.hasOwnProperty(pNumTabId)) {
+      if (sUnloadedObserve.has(pNumTabId)) {
         deleteTick(pNumTabId);
         reject(new Error(
-          `pNumTabId added to sObjUnloaded already: ${pNumTabId}`));
+          `pNumTabId added to sUnloadedObserve already: ${pNumTabId}`));
         return;
       }
 
@@ -1888,11 +1983,11 @@
         .then(rResults => {
           rResults.forEach(pValue => {
             pValue.forEach((pValueJ, pNumTabId) => {
-              if (!sObjUnloaded.hasOwnProperty(pNumTabId)) {
-                sObjUnloaded[pNumTabId] = pValueJ;
+              if (!sUnloadedObserve.has(pNumTabId)) {
+                sUnloadedObserve.set(pNumTabId, pValueJ);
               } else {
                 console.error(
-                  'same tabId is found in sObjUnloaded object.', pNumTabId);
+                  'same tabId is found in sUnloadedObserve object.', pNumTabId);
               }
             });
           });
@@ -1976,7 +2071,7 @@
         }
 
         lArrayTabs = pArrayTabs.filter(v =>
-          !sObjUnloaded.hasOwnProperty(v.id) && !isReleasePage(v.url));
+          !sUnloadedObserve.has(v.id) && !isReleasePage(v.url));
         lObjActiveTab = lArrayTabs.find(v => (pObjTab.index < v.index));
         if (lObjActiveTab === void 0 || lObjActiveTab === null) {
           lObjActiveTab =
@@ -2257,7 +2352,8 @@
       sMapOptions = pMapOptions;
 
       // initialize badge.
-      chrome.browserAction.setBadgeText({ text: sNumUnloadedCount.toString() });
+      chrome.browserAction.setBadgeText(
+        { text: sUnloadedObserve.size().toString() });
       chrome.browserAction.setBadgeBackgroundColor({ color: '#0066FF' });
 
       resolve();
@@ -2562,7 +2658,7 @@
     console.info('chrome.tabs.onActivated.', pObjActiveInfo);
 
     sNumCurrentTabId = pObjActiveInfo.tabId;
-    if (sObjUnloaded.hasOwnProperty(pObjActiveInfo.tabId) &&
+    if (sUnloadedObserve.has(pObjActiveInfo.tabId) &&
         getOpts('no_release') === false) {
         unPurge(pObjActiveInfo.tabId)
         .then(onActivatedFunc(pObjActiveInfo.tabId))
@@ -2583,7 +2679,7 @@
   chrome.tabs.onRemoved.addListener(pTabId => {//{{{
     console.info('chrome.tabs.onRemoved.', pTabId);
 
-    delete sObjUnloaded[pTabId];
+    sUnloadedObserve.delete(pTabId);
     deleteTick(pTabId);
     sMapIconState.delete(pTabId);
   });//}}}
@@ -2597,7 +2693,7 @@
   chrome.tabs.onDetached.addListener(pTabId => {//{{{
     console.info('chrome.tabs.onDetached.', pTabId);
 
-    delete sObjUnloaded[pTabId];
+    sUnloadedObserve.delete(pTabId);
     deleteTick(pTabId);
     sMapIconState.delete(pTabId);
   });//}}}
@@ -2607,8 +2703,8 @@
       console.info('chrome.tabs.onUpdated. loading.',
                    Array.prototype.slice.call(arguments));
 
-      if (!isReleasePage(pTab.url) && sObjUnloaded.hasOwnProperty(pTabId)) {
-        delete sObjUnloaded[pTabId];
+      if (!isReleasePage(pTab.url) && sUnloadedObserve.has(pTabId)) {
+        sUnloadedObserve.delete(pTabId);
       }
     } else {
       console.info('chrome.tabs.onUpdated. complete.',
@@ -2645,7 +2741,7 @@
           // toggle purged tab.
           getCurrentTab()
           .then(pObjTab => {
-            if (sObjUnloaded.hasOwnProperty(pObjTab.id)) {
+            if (sUnloadedObserve.has(pObjTab.id)) {
               return unPurge(pObjTab.id);
             } else {
               return purge(pObjTab.id)
@@ -2680,7 +2776,7 @@
               lNumResultState = (pObjMessage.event === 'all_purge') ?
                 (CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE) ^
                    lNumState : NORMAL & lNumState;
-               return !sObjUnloaded.hasOwnProperty(v.id) &&
+               return !sUnloadedObserve.has(v.id) &&
                       lNumResultState !== 0;
             });
             if (lArrayTarget.length === 0) {
@@ -2698,7 +2794,7 @@
           break;
         case 'all_unpurge':
           // 解放されている全てのタブを解放解除
-          Object.keys(sObjUnloaded).forEach(pStrKey => {
+          sUnloadedObserve.forEach((pStrValue, pStrKey) => {
             unPurge(parseInt(pStrKey, 10)).catch(e => console.error(e));
           });
           break;
@@ -2733,7 +2829,7 @@
           break;
         case 'check_purged_tab':
           lNumTabId = pObjSender.tab.id;
-          if (!sObjUnloaded.hasOwnProperty(lNumTabId)) {
+          if (!sUnloadedObserve.has(lNumTabId)) {
             chrome.tabs.get(lNumTabId, pObjTab => {
               setUnloaded(lNumTabId, pObjMessage.url, pObjTab.windowId);
             });
@@ -2801,7 +2897,7 @@
           switch (pStrNotificationId) {
           case UPDATE_CONFIRM_DIALOG:
             if (pButtonIndex === 0) {
-              writeSession(sObjUnloaded)
+              writeSession()
               // reload the extension, and update the extension.
               .then(() => chrome.runtime.reload())
               .then(resolve)
