@@ -2028,7 +2028,8 @@
 
     lArrayDelKeys.forEach(pValue => sSetTempRelease.delete(pValue));
 
-    if (pStrType !== 'delete') {
+    if ((lArrayDelKeys.length === 0 && toType(pStrType) !== 'string') ||
+        pStrType === 'add') {
       sSetTempRelease.add(lStrUrlForRegExp);
     }
   }//}}}
