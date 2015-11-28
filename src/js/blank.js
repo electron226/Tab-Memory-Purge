@@ -41,10 +41,23 @@
   {
     console.info('navigateToPageBeforePurged');
 
-    var lObjArgs = getQueryString(document);
-    if (lObjArgs.url) {
-      window.location.replace(lObjArgs.url);
+    var lObjArgs = {};
+    var lStrUrl  = '';
+
+    lObjArgs = getQueryString(document);
+    lStrUrl  = '';
+
+    if (lObjArgs.hasOwnProperty('url')){
+      lStrUrl = lObjArgs.url;
+    } else if (sElementUrl !== void 0 &&
+               sElementUrl !== null &&
+               sElementUrl.textContent.length > 0) {
+      lStrUrl = sElementUrl.textContent;
+    } else {
+      throw new Error("Doesn't find the url for redirect at the previous url.");
     }
+
+    location.replace(lStrUrl);
   }//}}}
 
   function getDataOfBeforeToPurge(pNumRecorsiveCount)//{{{
@@ -256,7 +269,7 @@
   document.addEventListener('keydown', pEvent => {//{{{
     console.info('keydown', pEvent);
 
-    if (gObjF5Key === generateKeyString(keyCheck(pEvent))) {
+    if (gObjF5Key === generateKeyString( keyCheck(pEvent) )) {
       navigateToPageBeforePurged();
     }
   }, true);//}}}
@@ -276,13 +289,14 @@
 
     switch (message.event) {
       case 'location_replace':
-        var lStrUrl = document.getElementById('url');
-        if (lStrUrl.textContent.length === 0) {
-          sendResponse(true);
-        } else {
-          window.location.replace(lStrUrl.textContent);
+        try {
+          navigateToPageBeforePurged();
+        } catch (e) {
+          console.error(e);
           sendResponse(false);
+          break;
         }
+        sendResponse(true);
         break;
     }
   });//}}}
