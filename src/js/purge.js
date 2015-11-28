@@ -45,6 +45,8 @@
 
   function getOpts(pAnyKey)//{{{
   {
+    console.info('getOpts', Array.prototype.slice.call(arguments));
+
     if (sMapOptions.has(pAnyKey)) {
       return sMapOptions.get(pAnyKey);
     } else if (gMapDefaultValues.has(pAnyKey)) {
@@ -80,6 +82,9 @@
    */
   function closureCreateMapObserve(pFuncChanged)//{{{
   {
+    console.info(
+      'closureCreateMapObserve', Array.prototype.slice.call(arguments));
+
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'function', 'null', 'undefined' ],
     ], true);
@@ -94,13 +99,25 @@
 
     return {
       get: function(pAnyKey) {//{{{
+        console.info(
+          'get function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         return lMapUnloaded.get(pAnyKey);
       },//}}}
       forEach: function(pFuncCallback) {//{{{
+        console.info(
+          'forEach function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         lMapUnloaded.forEach(pFuncCallback);
       },//}}}
       set: function(pAnyKey, pAnyValue) {//{{{
         /*jshint -W069 */
+        console.info(
+          'set function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         var lObjChange   = {};
         var lAnyOldValue = null;
 
@@ -122,6 +139,10 @@
       },//}}}
       delete: function(pAnyKey) {//{{{
         /*jshint -W069 */
+        console.info(
+          'delete function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         var lObjChange = {};
         var lAnyOldValue = null;
 
@@ -139,16 +160,28 @@
         lFuncWhenChanged(lObjChange);
       },//}}}
       clear: function() {//{{{
+        console.info('clear function of closureCreateMapObserve');
+
         lMapUnloaded.clear();
       },//}}}
       has: function(pAnyKey) {//{{{
+        console.info(
+          'has function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         return lMapUnloaded.has(pAnyKey);
       },//}}}
       size: function() {//{{{
+        console.info('size function of closureCreateMapObserve');
+
         return lMapUnloaded.size;
       },//}}}
       setCallbackWhenChanged: function(pCallbackWhenChanged)//{{{
       {
+        console.info(
+          'setCallbackWhenChanged of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
         var lStrErrMsg = checkFunctionArguments(arguments, [
           [ 'function' ],
         ]);
@@ -1631,7 +1664,7 @@
   */
   function deleteTick(pNumId)//{{{
   {
-    console.info('deleteTick');
+    console.info('deleteTick', Array.prototype.slice.call(arguments));
 
     var lStrErrMsg = checkFunctionArguments(arguments, [
       [ 'number' ],
