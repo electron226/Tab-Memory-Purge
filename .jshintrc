@@ -37,8 +37,9 @@
     "IDBCursor":        true,
     "IDBIndex":         true,
     
-    "escapeForRegExp": true,
-    "decodeForRegExp": true,
+    "escapeForRegExp":                    true,
+    "decodeForRegExp":                    true,
+    "closureCreateMapObserve":            true,
     "ajax":                               true,
     "loadTranslation":                    true,
     "closureCreateBeep":                  true,

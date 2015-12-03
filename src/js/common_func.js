@@ -13,6 +13,152 @@
   }
 
   /**
+   * closureCreateMapObserve
+   *
+   * This provides the function like object.observe by using the Map.
+   *
+   * @param {function} pFuncChanged -
+   *     Function that will be called when a value is changed.
+   * @return {object} Return the object for operating.
+   *     Available functions.
+   *         get(key: any) - returns the value of keyName.
+   *         forEach(callback: function) -
+   *             Iterative processing of Map in closure.
+   *             Arguments of callback were value, key, map object.
+   *         set(key: any, value: any) - Key and Value that you want to set.
+   *         delete(key: any) - you want to delete Key.
+   *         clear() - all delete items in Map.
+   *         has(key: any) - If Key is found, return true.
+   *                         false if it isn't found.
+   *         size() -  returns the count of item in Map.
+   *         setCallbackWhenChanged(callback: function) -
+   *             called Function If the value of Map
+   *             is added, updated, or deleted.
+   *
+   *             argument of callback function is the object only.
+   */
+  function closureCreateMapObserve(pFuncChanged)//{{{
+  {
+    console.info(
+      'closureCreateMapObserve', Array.prototype.slice.call(arguments));
+
+    var lStrErrMsg = checkFunctionArguments(arguments, [
+      [ 'function', 'null', 'undefined' ],
+    ], true);
+    if (lStrErrMsg) {
+      throw new Error(lStrErrMsg);
+    }
+
+    var lMapUnloaded = new Map();
+
+    return {
+      get: function(pAnyKey) {//{{{
+        console.info(
+          'get function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        return lMapUnloaded.get(pAnyKey);
+      },//}}}
+      forEach: function(pFuncCallback) {//{{{
+        console.info(
+          'forEach function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        lMapUnloaded.forEach(pFuncCallback);
+      },//}}}
+      set: function(pAnyKey, pAnyValue) {//{{{
+        /*jshint -W069 */
+        console.info(
+          'set function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        var lObjChange   = {};
+        var lAnyOldValue = null;
+
+        lObjChange = {
+          key:   pAnyKey,
+          value: pAnyValue,
+        };
+        lAnyOldValue = lMapUnloaded.get(pAnyKey);
+
+        if (lAnyOldValue === void 0) {
+          lObjChange['type'] = 'add';
+        } else {
+          lObjChange['type']     = 'update';
+          lObjChange['oldValue'] = lAnyOldValue;
+        }
+
+        lMapUnloaded.set(pAnyKey, pAnyValue);
+
+        if (toType(pFuncChanged) === 'function') {
+          pFuncChanged(lObjChange);
+        } else {
+          console.warn("you should set the callback function.");
+        }
+      },//}}}
+      delete: function(pAnyKey) {//{{{
+        /*jshint -W069 */
+        console.info(
+          'delete function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        var lObjChange = {};
+        var lAnyOldValue = null;
+
+        lObjChange = {
+          key:  pAnyKey,
+          type: 'delete',
+        };
+
+        lAnyOldValue = lMapUnloaded.get(pAnyKey);
+        if (lAnyOldValue !== void 0) {
+          lObjChange['oldValue'] = lMapUnloaded.get(pAnyKey);
+        }
+
+        lMapUnloaded.delete(pAnyKey);
+
+        if (toType(pFuncChanged) === 'function') {
+          pFuncChanged(lObjChange);
+        } else {
+          console.warn("you should set the callback function.");
+        }
+      },//}}}
+      clear: function() {//{{{
+        console.info('clear function of closureCreateMapObserve');
+
+        lMapUnloaded.clear();
+      },//}}}
+      has: function(pAnyKey) {//{{{
+        console.info(
+          'has function of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        return lMapUnloaded.has(pAnyKey);
+      },//}}}
+      size: function() {//{{{
+        console.info('size function of closureCreateMapObserve');
+
+        return lMapUnloaded.size;
+      },//}}}
+      setCallbackWhenChanged: function(pCallbackWhenChanged)//{{{
+      {
+        console.info(
+          'setCallbackWhenChanged of closureCreateMapObserve',
+          Array.prototype.slice.call(arguments));
+
+        var lStrErrMsg = checkFunctionArguments(arguments, [
+          [ 'function' ],
+        ]);
+        if (lStrErrMsg) {
+          throw new Error(lStrErrMsg);
+        }
+
+        pFuncChanged = pCallbackWhenChanged;
+      },//}}}
+    };
+  }//}}}
+
+  /**
    * ajax
    *
    * Function for use Ajax process with XMLHttpRequest.
@@ -709,6 +855,7 @@
   // If you want to minify js file, you must set function name.
   setObjectProperty(window, 'escapeForRegExp', escapeForRegExp);
   setObjectProperty(window, 'decodeForRegExp', decodeForRegExp);
+  setObjectProperty(window, 'closureCreateMapObserve', closureCreateMapObserve);
   setObjectProperty(window, 'ajax', ajax);
   setObjectProperty(
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
