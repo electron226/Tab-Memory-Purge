@@ -24,6 +24,12 @@
       "Doesn't find the elements that want to use in the script.");
   }
 
+  function updateButtonState()//{{{
+  {
+    return updatePurgeOrRestoreButton()
+           .then(updateNotReleaseButton);
+  }//}}}
+
   document.addEventListener('keyup', () => {
     sObjPressKey = null;
 
@@ -44,8 +50,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()
     .then(loadTranslation(document, gStrTranslationPath))
-    .then(updatePurgeOrRestoreButton)
-    .then(updateNotReleaseButton)
+    .then(updateButtonState)
     .catch(e => console.error(e));
   }, true);
 
@@ -207,8 +212,13 @@
         }
       });
       break;
+    case 'clear_temporary_exclusion_list':
+      chrome.runtime.sendMessage({ event: lStrId });
+      updateButtonState();
+      break;
     default:
-      chrome.runtime.sendMessage({ event: lStrId }, popupClose);
+      chrome.runtime.sendMessage({ event: lStrId });
+      popupClose();
       break;
     }
   }//}}}

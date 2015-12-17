@@ -2702,6 +2702,10 @@
           .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
+        case 'clear_temporary_exclusion_list':
+          sSetTempRelease.clear();
+          reloadBrowserIconInAllActiveTab();
+          break;
         case 'reload_option_value':
           updateOptionValues()
           .then(reloadBrowserIconInAllActiveTab)

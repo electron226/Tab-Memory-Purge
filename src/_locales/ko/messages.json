@@ -302,6 +302,10 @@
     "message": "제외 목록에 추가.",
     "description": "팝업 메뉴 항목."
   },
+  "clear_temporary_exclusion_list": {
+    "message": "임시 제외 목록 지우기",
+    "description": "팝업 메뉴 항목."
+  },
 
 
   "exclude_dialog_mes1": {

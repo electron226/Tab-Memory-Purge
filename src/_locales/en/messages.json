@@ -302,6 +302,10 @@
     "message": "Add to the exclusion list.",
     "description": "the item in the popup menu."
   },
+  "clear_temporary_exclusion_list": {
+    "message": "Clear temporary exclusion list.",
+    "description": "the item in the popup menu."
+  },
 
 
   "exclude_dialog_mes1": {

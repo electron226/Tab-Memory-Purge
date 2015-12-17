@@ -299,6 +299,10 @@
     "message": "除外リストに追加",
     "description": "ポップアップメニューの項目"
   },
+  "clear_temporary_exclusion_list": {
+    "message": "一時的な除外リストをクリア",
+    "description": "ポップアップメニューの項目"
+  },
 
 
   "exclude_dialog_mes1": {
