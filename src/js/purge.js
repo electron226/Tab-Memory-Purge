@@ -2669,7 +2669,7 @@
             lArrayTarget = pArrayResults.filter(v => {
               lNumState       = checkExcludeList(v.url);
               lNumResultState = (pObjMessage.event === 'all_purge') ?
-                (CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE) ^
+                ~(CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE) &
                    lNumState : NORMAL & lNumState;
                return !sUnloadedObserve.has(v.id) &&
                       lNumResultState !== 0;
