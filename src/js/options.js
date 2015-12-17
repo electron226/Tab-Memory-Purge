@@ -2531,7 +2531,7 @@
         db.open(gObjDbCreateStores);
         resolve();
       });
-    }())
+    })()
     .then(loadTranslation(document, gStrTranslationPath))
     .then(operateOption.load(document))
     .then(initSectionBarEvent(document))
