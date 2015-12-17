@@ -2646,9 +2646,11 @@
           .catch(e => console.error(e));
           break;
         case 'switch_not_release':
+        case 'switch_not_release_host':
           getCurrentTab()
           .then(pTab => {
-            lStrAddUrl = (pObjMessage.addType === 'host') ?
+            lStrAddUrl = (pObjMessage.event === 'switch_not_release_host' ||
+                          pObjMessage.addType === 'host') ?
                           getHostName(pTab.url) :
                           pTab.url;
             switchTempRelease(lStrAddUrl, pObjMessage.type);

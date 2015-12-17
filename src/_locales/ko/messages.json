@@ -64,7 +64,11 @@
     "description": "옵션 메뉴명"
   },
   "switch_not_release": {
-    "message": "임시 예외 토글",
+    "message": "URL의 임시 제외 전환",
+    "description": "옵션 페이지의 단축키 설정 메뉴"
+  },
+  "switch_not_release_host": {
+    "message": "호스트 이름의 임시 제외 전환",
     "description": "옵션 페이지의 단축키 설정 메뉴"
   },
   "no_release": {

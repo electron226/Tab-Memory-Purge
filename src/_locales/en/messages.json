@@ -64,7 +64,11 @@
     "description": "an option menu name"
   },
   "switch_not_release": {
-    "message": "Toggle the temporary exclusion",
+    "message": "Toggle the temporary exclusion which using Url",
+    "description": "the menu of the keybinds in the options page"
+  },
+  "switch_not_release_host": {
+    "message": "Toggle the temporary exclusion which using Hostname",
     "description": "the menu of the keybinds in the options page"
   },
   "no_release": {

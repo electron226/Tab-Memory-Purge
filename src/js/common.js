@@ -45,6 +45,7 @@
 
     lMapConfig.set('keybind_release', lStrKeybindDefault);
     lMapConfig.set('keybind_switch_not_release', lStrKeybindDefault);
+    lMapConfig.set('keybind_switch_not_release_host', lStrKeybindDefault);
     lMapConfig.set('keybind_all_purge', lStrKeybindDefault);
     lMapConfig.set('keybind_all_purge_without_exclude_list', lStrKeybindDefault);
     lMapConfig.set('keybind_all_unpurge', lStrKeybindDefault);

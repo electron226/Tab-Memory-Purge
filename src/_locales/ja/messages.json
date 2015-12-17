@@ -67,6 +67,10 @@
     "message": "このタブのURLの解放を一時的に禁止/解除",
     "description": "オプションページの項目"
   },
+  "switch_not_release_host": {
+    "message": "このタブのホストの解放を一時的に禁止/解除",
+    "description": "オプションページの項目"
+  },
   "no_release": {
     "message": "解放したタブのアクティブ時にリロードを行わない。",
     "description": "オプションの項目名"
