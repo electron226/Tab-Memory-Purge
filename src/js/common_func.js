@@ -102,7 +102,7 @@
           'delete function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        var lObjChange = {};
+        var lObjChange   = {};
         var lAnyOldValue = null;
 
         lObjChange = {

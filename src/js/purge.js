@@ -223,7 +223,7 @@
    * @param {Any} [callbackArgs] - pass arguments to Function.
    * @return {promise} return promise.
    */
-  var exclusiveProcessForFunc = (function() {//{{{
+  var exclusiveProcessForFunc = (() => {//{{{
     console.info('create closure of exclusiveProcessForFunc');
 
     var lSetLocks  = new Set();
@@ -1363,7 +1363,8 @@
         })
       );
 
-      Promise.all(lArrayPromise).then(rResults => {
+      Promise.all(lArrayPromise)
+      .then(rResults => {
         lObjTab              = rResults[0];
         lArrayScrollPosition = rResults[1];
 
@@ -1385,35 +1386,36 @@
           return;
         }
 
-        (() => {
-          return new Promise(resolve2 => {
-            chrome.tabs.sendMessage(
-              pNumTabId, { event: 'form_cache' }, resolve2);
-          });
-        })()
-        .then(() => {
-          return new Promise((resolve3, reject3) => {
-            lStrUrl = getPurgeURL(lObjTab.url);
-
-            chrome.tabs.executeScript(pNumTabId, {
-              code: `window.location.replace("${lStrUrl}");` }, () => {
-                if (chrome.runtime.lastError) {
-                  reject3(chrome.runtime.lastError);
-                  return;
-                }
-                resolve3();
-              }
-            );
-          });
-        })
-        .then(() => {
-          setUnloaded(
-            pNumTabId, lObjTab.url, lObjTab.windowId, lArrayScrollPosition[0]);
-
-          return exclusiveProcessForFunc(
-            'deleteAllPurgedTabUrlFromHistory',
-            deleteAllPurgedTabUrlFromHistory);
+        return Promise.resolve();
+      })
+      .then(() => {
+        return new Promise(resolve2 => {
+          chrome.tabs.sendMessage(
+            pNumTabId, { event: 'form_cache' }, resolve2);
         });
+      })
+      .then(() => {
+        return new Promise((resolve2, reject2) => {
+          lStrUrl = getPurgeURL(lObjTab.url);
+
+          chrome.tabs.executeScript(pNumTabId, {
+            code: `window.location.replace("${lStrUrl}");` }, () => {
+              if (chrome.runtime.lastError) {
+                reject2(chrome.runtime.lastError);
+                return;
+              }
+              resolve2();
+            }
+          );
+        });
+      })
+      .then(() => {
+        setUnloaded(
+          pNumTabId, lObjTab.url, lObjTab.windowId, lArrayScrollPosition[0]);
+
+        return exclusiveProcessForFunc(
+          'deleteAllPurgedTabUrlFromHistory',
+          deleteAllPurgedTabUrlFromHistory);
       })
       .then(resolve)
       .catch(reject);
@@ -1429,7 +1431,7 @@
   {
     console.info('unPurge', Array.prototype.slice.call(arguments));
 
-    var lStrUrl = "";
+    var lStrUrl    = "";
     var lStrErrMsg = '';
     var lArrayArgs = Array.prototype.slice.call(arguments);
 

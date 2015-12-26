@@ -20,6 +20,7 @@
     /*jshint -W069*/
     var lStrKeybindDefault = JSON.stringify({});
     var lMapConfig = new Map();
+
     lMapConfig.set('no_release', false);
     lMapConfig.set('timer', 20);
     lMapConfig.set('exclude_url',
