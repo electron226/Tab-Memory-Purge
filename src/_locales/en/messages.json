@@ -12,11 +12,11 @@
     "description": "Option page string"
   },
   "option": {
-    "message": "OPTIONS",
+    "message": "OPTION",
     "description": "Option string"
   },
   "keybind": {
-    "message": "KEYBINDS",
+    "message": "KEYBIND",
     "description": "the string of buttons in the options page"
   },
   "history": {

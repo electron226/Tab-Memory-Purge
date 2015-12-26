@@ -303,7 +303,7 @@
     "description": "팝업 메뉴 항목."
   },
   "add_current_tab_exclude_list": {
-    "message": "제외 목록에 추가.",
+    "message": "제외 목록에 추가",
     "description": "팝업 메뉴 항목."
   },
   "clear_temporary_exclusion_list": {
