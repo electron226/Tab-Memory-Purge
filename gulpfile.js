@@ -97,12 +97,12 @@
            .pipe(gulp.dest('src'));
   });
 
-  gulp.task('clean-css', () => {
+  gulp.task('cssnano', () => {
     return gulp.src('src/css/*.css', { base: 'src' })
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
-           .pipe($.minifyCss())
+           .pipe($.cssnano())
            .pipe(gulp.dest('src'));
   });
 
@@ -165,12 +165,14 @@
            .pipe($.htmlhint.failReporter());
   });
 
-  gulp.task('minify-html', () => {
+  gulp.task('htmlmin', () => {
     return gulp.src('dist/**/*.html')
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
-           .pipe($.minifyHtml())
+           .pipe($.htmlmin({
+             collapseWhitespace: true,
+           }))
            .pipe(gulp.dest('dist'));
   });
 
@@ -269,7 +271,7 @@
 
   gulp.task('sass-build', callback => {
     runSequence(
-      'compass-build', 'autoprefixer', 'csscomb', 'clean-css', callback);
+      'compass-build', 'autoprefixer', 'csscomb', 'cssnano', callback);
   });
 
   gulp.task('zip', () => {
@@ -297,8 +299,8 @@
       ['compass-build', 'jshint', 'replace-build', 'htmlhint'],
       ['autoprefixer', 'babel', 'jsonminify'],
       'usemin-build',
-      ['csscomb', 'uglify-build', 'minify-html'],
-      ['clean-css'],
+      ['csscomb', 'uglify-build', 'htmlmin'],
+      ['cssnano'],
       'clean-tmp',
       callback);
   });
@@ -327,7 +329,7 @@
       runSequence('replace-build', 'jsonminify');
     });
     gulp.watch('src/*.html', () => {
-      runSequence('htmlhint', 'usemin', 'minify-html');
+      runSequence('htmlhint', 'usemin', 'htmlmin');
     });
     gulp.watch('src/**/*.js', () => {
       runSequence('js-build');
