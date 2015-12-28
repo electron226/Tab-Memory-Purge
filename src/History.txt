@@ -1,3 +1,10 @@
+12/28/2015 ver 2.4.6
+Added: The button for to clear temporary exclusion list in the popup menu.
+Added: The new shortcut command. It exist in the option page.
+Modified: Extension doesn't use Object.observe function. From after now, It use own implementation.
+Fixed: When execute the toggle temporary exclusion with keybind, doesn't delete a url from the temporary exclusion list.
+Fixed: When user purge all tabs, doesn't select next tab correctly.
+
 10/12/2015 ver 2.4.5
 Fixed: When the item to restore the purged tab on the popup menu is clicked, fixed the problem to search for nearby tab.
 Fixed: Temporarily exclusion list does not work correctly with some website. Issues(#48)
