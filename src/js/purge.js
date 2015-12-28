@@ -2705,9 +2705,34 @@
         case 'add_current_tab_exclude_list':
           getCurrentTab()
           .then(pObjTab => {
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
               chrome.tabs.sendMessage(
-                pObjTab.id, { event: 'showExcludeDialog' }, resolve);
+                pObjTab.id, { event: 'getExcludeDialogState' }, pBoolState => {
+                  if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                    return;
+                  }
+                  resolve([pObjTab, pBoolState]);
+                });
+            });
+          })
+          .then(pArrayItem => {
+            return new Promise((resolve, reject) => {
+              var lObjTab     = pArrayItem[0];
+              var lBoolState  = pArrayItem[1];
+              var lStrMessage = '';
+
+              lStrMessage = (lBoolState === true) ? 'hide' : 'show';
+              lStrMessage += 'ExcludeDialog';
+
+              chrome.tabs.sendMessage(
+                lObjTab.id, { event: lStrMessage }, () => {
+                  if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                    return;
+                  }
+                  resolve();
+                });
             });
           })
           .catch(e => console.error(e));

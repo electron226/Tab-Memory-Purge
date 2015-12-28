@@ -245,10 +245,21 @@
     sElParent.style.display = 'none';
   }//}}}
 
-  chrome.runtime.onMessage.addListener(message => {//{{{
-    switch (message.event) {
+  chrome.runtime.onMessage.addListener(
+    (pObjMessage, pObjSender, pFuncSendResponse) => {//{{{
+    switch (pObjMessage.event) {
+      case 'hideExcludeDialog':
+        sElParent.style.display = 'none';
+        break;
       case 'showExcludeDialog':
         sElParent.style.display = 'block';
+        break;
+      case 'getExcludeDialogState':
+        if (typeof pFuncSendResponse === 'function') {
+          pFuncSendResponse(sElParent.style.display !== 'none');
+        } else {
+          throw new Error("Doesn't find callback function.");
+        }
         break;
     }
   });//}}}
