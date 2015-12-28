@@ -184,10 +184,6 @@
       });
       popupClose();
       break;
-    case 'switchTimer':
-      chrome.runtime.sendMessage({ event: 'switchTimerState' });
-      popupClose();
-      break;
     case 'add_current_tab_exclude_list':
       chrome.runtime.sendMessage({ event: 'excludeDialogMenu' });
       popupClose();

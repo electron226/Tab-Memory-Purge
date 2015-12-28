@@ -2697,6 +2697,11 @@
             unPurge(parseInt(pStrKey, 10)).catch(e => console.error(e));
           });
           break;
+        case 'switch_timer_state':
+          switchDisableTimerState()
+          .then(reloadBrowserIconInAllActiveTab)
+          .catch(e => console.error(e));
+          break;
         case 'add_to_temp_exclude_list':
           getCurrentTab()
           .then(pObjTab => {
@@ -2749,11 +2754,6 @@
           pFuncSendResponse(!(lNumState &
             (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
              KEYBIND_EXCLUDE | INVALID_EXCLUDE)));
-          break;
-        case 'switchTimerState':
-          switchDisableTimerState()
-          .then(reloadBrowserIconInAllActiveTab)
-          .catch(e => console.error(e));
           break;
         case 'excludeDialogMenu':
           getCurrentTab()

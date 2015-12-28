@@ -295,7 +295,7 @@
     "message": "全ての解放されているタブを解除",
     "description": "ポップアップメニューの項目"
   },
-  "switchTimer": {
+  "switch_timer_state": {
     "message": "自動解放の有効/無効",
     "description": "ポップアップメニューの項目"
   },

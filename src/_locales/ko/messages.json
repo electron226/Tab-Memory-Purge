@@ -298,7 +298,7 @@
     "message": "초기화 복구",
     "description": "팝업 메뉴 항목."
   },
-  "switchTimer": {
+  "switch_timer_state": {
     "message": "자동 초기화 활성/비활성",
     "description": "팝업 메뉴 항목."
   },

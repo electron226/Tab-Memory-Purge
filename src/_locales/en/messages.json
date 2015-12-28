@@ -298,7 +298,7 @@
     "message": "Restore all purged",
     "description": "the item in the popup menu."
   },
-  "switchTimer": {
+  "switch_timer_state": {
     "message": "Toggle the automatic purging",
     "description": "the item in the popup menu."
   },
