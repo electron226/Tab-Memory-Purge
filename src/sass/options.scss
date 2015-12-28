@@ -34,6 +34,12 @@ input, button {
     @include rhythm-padding(0);
 }
 
+input, textarea {
+    @include box-sizing(border-box);
+
+    border: thin solid $input-border-color;
+}
+
 textarea {
     width: 40rem;
     height: $base-line-height * 10;
@@ -93,12 +99,6 @@ a {
 
 ul {
     list-style: none;
-}
-
-input, textarea {
-    @include box-sizing(border-box);
-
-    border: thin solid $input-border-color;
 }
 
 .mainNav {
