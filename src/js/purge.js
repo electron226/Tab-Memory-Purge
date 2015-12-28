@@ -2653,7 +2653,7 @@
           .then(pTab => {
             lStrAddUrl = (pObjMessage.event === 'switch_not_release_host' ||
                           pObjMessage.addType === 'host') ?
-                          getHostName(pTab.url) :
+                          getSplitURI(pTab.url).hostname :
                           pTab.url;
             switchTempRelease(lStrAddUrl, pObjMessage.type);
 

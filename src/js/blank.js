@@ -84,7 +84,7 @@
       if (pObjResult.status === 200) {
         lStrNewTitle = pObjResult.response.title;
         if (lStrNewTitle) {
-          lStrHost   = getHostName(lStrUrl);
+          lStrHost = getSplitURI(lStrUrl).hostname;
 
           db.add({
             name: gStrDbPageInfoName,

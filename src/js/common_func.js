@@ -337,17 +337,6 @@
     };
   }//}}}
 
-  function getHostName(pStrUrl)//{{{
-  {
-    var lArrayResult = /\/\/([\w-.~]*)\//i.exec(pStrUrl);
-
-    if (lArrayResult === null) {
-      throw new Error(`Doesn't get hostname: ${pStrUrl}`);
-    }
-
-    return lArrayResult[1];
-  }//}}}
-
   function getListAfterJoinHistoryDataOnDB(pArraySessions)//{{{
   {
     return new Promise(function(resolve) {
@@ -861,7 +850,6 @@
     window, 'getListAfterJoinHistoryDataOnDB', getListAfterJoinHistoryDataOnDB);
   setObjectProperty(window, 'closureCreateBeep', closureCreateBeep);
   setObjectProperty(window, 'getSplitURI',       getSplitURI);
-  setObjectProperty(window, 'getHostName',       getHostName);
   setObjectProperty(
     window, 'getHistoryListFromIndexedDB',       getHistoryListFromIndexedDB);
   setObjectProperty(window, 'loadTranslation',   loadTranslation);
