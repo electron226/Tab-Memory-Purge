@@ -1969,7 +1969,7 @@
 
         lArrayTabs = pArrayTabs.filter(v =>
           !sUnloadedObserve.has(v.id) && !isReleasePage(v.url));
-        lObjActiveTab = lArrayTabs.find(v => (pObjTab.index <= v.index));
+        lObjActiveTab = lArrayTabs.find(v => (pObjTab.index < v.index));
         if (lObjActiveTab === void 0 || lObjActiveTab === null) {
           lObjActiveTab =
             lArrayTabs.reverse().find(v => (pObjTab.index > v.index));
