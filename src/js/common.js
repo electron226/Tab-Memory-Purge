@@ -50,6 +50,9 @@
     lMapConfig.set('keybind_all_purge', lStrKeybindDefault);
     lMapConfig.set('keybind_all_purge_without_exclude_list', lStrKeybindDefault);
     lMapConfig.set('keybind_all_unpurge', lStrKeybindDefault);
+    lMapConfig.set('keybind_switch_timer_state', lStrKeybindDefault);
+    lMapConfig.set('keybind_add_current_tab_exclude_list', lStrKeybindDefault);
+    lMapConfig.set('keybind_clear_temporary_exclusion_list', lStrKeybindDefault);
     lMapConfig.set('keybind_exclude_url',
       'nicovideo.jp\n' +
       'youtube.com');
