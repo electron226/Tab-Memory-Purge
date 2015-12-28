@@ -7,7 +7,7 @@
   const sStrDefaultMenu = "normal";
 
   const sStrClassNameOfDoesNot  = 'doNotShow';
-  const sStrStyleDisplayNone    = 'display: none;';
+  const sStrStyleDisplayNone    = 'display: none';
 
   const sStrClassNameOfMenu   = 'sectionMenu';
   const sStrClassNameOfButton = 'sectionButton';
