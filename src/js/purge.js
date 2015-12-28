@@ -2702,6 +2702,16 @@
           .then(reloadBrowserIconInAllActiveTab)
           .catch(e => console.error(e));
           break;
+        case 'add_current_tab_exclude_list':
+          getCurrentTab()
+          .then(pObjTab => {
+            return new Promise(resolve => {
+              chrome.tabs.sendMessage(
+                pObjTab.id, { event: 'showExcludeDialog' }, resolve);
+            });
+          })
+          .catch(e => console.error(e));
+          break;
         case 'add_to_temp_exclude_list':
           getCurrentTab()
           .then(pObjTab => {
@@ -2754,16 +2764,6 @@
           pFuncSendResponse(!(lNumState &
             (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
              KEYBIND_EXCLUDE | INVALID_EXCLUDE)));
-          break;
-        case 'excludeDialogMenu':
-          getCurrentTab()
-          .then(pObjTab => {
-            return new Promise(resolve => {
-              chrome.tabs.sendMessage(
-                pObjTab.id, { event: 'showExcludeDialog' }, resolve);
-            });
-          })
-          .catch(e => console.error(e));
           break;
       }
     }
