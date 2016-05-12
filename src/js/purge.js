@@ -2775,10 +2775,10 @@
           if (!sUnloadedObserve.has(lNumTabId)) {
             chrome.tabs.get(lNumTabId, pObjTab => {
               setUnloaded(lNumTabId, pObjMessage.url, pObjTab.windowId);
+              pFuncSendResponse(false);
             });
-            pFuncSendResponse(true);
           } else {
-            pFuncSendResponse(false);
+            pFuncSendResponse(true);
           }
           break;
         case 'get_icon_state':
