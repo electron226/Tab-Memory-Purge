@@ -48,6 +48,12 @@ $rem-with-px-fallback: true;
     @include rhythm-padding($lines);
 }
 
+@mixin min-height($val) {
+    min-height: $val;
+    height: auto !important;
+    height: $val;
+}
+
 @each $prefix in 16, 19 {
     .icon#{$prefix} {
         width:  #{$prefix}px;

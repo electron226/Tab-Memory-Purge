@@ -161,9 +161,12 @@ ul {
 }
 
 .searchHistory {
-    @include display-flex;
+    @include display-flex();
     @include justify-content(center);
     @include flex-basis(auto);
+
+    @include box-sizing(border-box);
+    @include min-height($base-line-height);
 }
 
 #searchHistoryDate {
