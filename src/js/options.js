@@ -255,9 +255,9 @@
                       lElement[lStrProperty] : lStrValue;
 
       if (lStrValueType === 'number') {
-        lNumMin = parseInt(lElement.getAttribute('min'));
-        lNumMax = parseInt(lElement.getAttribute('max'));
-        lAnyVal = parseInt(lAnyVal);
+        lNumMin = parseInt(lElement.getAttribute('min'), 10);
+        lNumMax = parseInt(lElement.getAttribute('max'), 10);
+        lAnyVal = parseInt(lAnyVal, 10);
 
         if (lNumMin && lAnyVal < lNumMin) {
           lAnyVal = lNumMin;
@@ -1027,7 +1027,7 @@
             return {
               date: lDateNow,
               url: v,
-              windowId: parseInt(pKey) || 0
+              windowId: parseInt(pKey, 10) || 0
             };
           })
         );
@@ -1051,7 +1051,7 @@
       var lArrayDelKeys   = [];
 
       lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      lNumDate        = parseInt(lElSessionTitle.getAttribute('name'));
+      lNumDate        = parseInt(lElSessionTitle.getAttribute('name'), 10);
       lStrDbName      = lElSessionTitle.getAttribute(sStrAttrNameOfDatabase);
 
       if (toType(lNumDate) !== 'number' ||
@@ -1099,7 +1099,7 @@
 
     lArrayRestore = [];
     Array.prototype.slice.call(lElShowField).forEach(pValue => {
-      lNumWindowId  = parseInt(pValue.getAttribute(sStrAttrNameOfWindowId));
+      lNumWindowId  = parseInt(pValue.getAttribute(sStrAttrNameOfWindowId), 10);
       lElA  = pValue.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
       Array.prototype.slice.call(lElA).forEach(
         v => lArrayRestore.push({ url: v.href, windowId: lNumWindowId }));
@@ -1232,7 +1232,7 @@
 
         if (lNumCurrentTime !== void 0 &&
             lNumCurrentTime !== undefined &&
-            lNumCurrentTime === parseInt(pNumTime)) {
+            lNumCurrentTime === parseInt(pNumTime, 10)) {
           lStrText = 'Current Session';
         } else {
           lStrText = getFormatEachLanguages(pNumTime);
@@ -1618,7 +1618,7 @@
       lElHistoryDateField  = lElHistoryDateLegend.parentNode;
       lElHistoryList       = lElHistoryDateField.parentNode;
 
-      lDateNow     = new Date( parseInt(lELTarget.getAttribute('name')) );
+      lDateNow     = new Date( parseInt(lELTarget.getAttribute('name'), 10) );
       lNumFullYear = lDateNow.getFullYear();
       lNumMonth    = lDateNow.getMonth();
       lNumDay      = lDateNow.getDate();
@@ -1764,10 +1764,10 @@
         return lElSessionList.querySelectorAll(
           `fieldset:not(.${sStrClassNameOfDoesNot})`);
       };
-      lTarget        = event.target;
-      lNumWindowId   = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId));
-      lNumDateTime   = parseInt(lTarget.getAttribute('name'));
-      lArrayDbName   = [ gStrDbSessionName, gStrDbSavedSessionName ];
+      lTarget      = event.target;
+      lNumWindowId = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId), 10);
+      lNumDateTime = parseInt(lTarget.getAttribute('name'), 10);
+      lArrayDbName = [ gStrDbSessionName, gStrDbSavedSessionName ];
 
       // get from all the databases of a session history.
       lArrayPromise  = [];
@@ -1811,7 +1811,7 @@
         lElShowField = getShowField();
         Array.prototype.slice.call(lElShowField).forEach(pValue => {
           lNumWindowIdOfField =
-            parseInt(pValue.getAttribute(sStrAttrNameOfWindowId));
+            parseInt(pValue.getAttribute(sStrAttrNameOfWindowId), 10);
           if (lNumWindowIdOfField === lNumWindowId) {
             lElSessionList.removeChild(pValue);
           }
@@ -2210,7 +2210,7 @@
     }
 
     Array.prototype.slice.call(lElDateList).forEach(pValue => {
-      lDate    = new Date(parseInt(pValue.name));
+      lDate = new Date(parseInt(pValue.name, 10));
 
       if (lNumSearchHistoryValueLen === 0 ||
           lDate.getTime() === lNumSearchTime) {

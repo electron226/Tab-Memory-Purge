@@ -449,7 +449,7 @@
    */
   function getQueryString(pElement)//{{{
   {
-    if (1 < pElement.location.search.length) {
+    if (pElement.location.search.length > 1) {
       // 最初の1文字(?)を除いた文字列を取得
       var lStrQuery = decodeURIComponent(pElement.location.search.substring(1));
 
@@ -459,9 +459,7 @@
       var lArrayElement  = [];
       var lStrParamName  = "";
       var lStrParamValue = "";
-      var i              = 0;
 
-      i = 0;
       parameters.forEach(pValue => {
         lArrayElement = pValue.split('=');
         if (lArrayElement[0] === '' ||

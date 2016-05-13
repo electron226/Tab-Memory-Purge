@@ -1154,8 +1154,6 @@
           returnValue: USE_EXCLUDE,
         };
     }
-
-    throw new Error('getTargetExcludeList was error: ${pStrTarget}');
   }//}}}
 
   /**
@@ -1589,11 +1587,7 @@
   {
     console.info('unloadedAllTickIntervalOfTabs');
 
-    var lNumTabId = 0;
-
     return new Promise((resolve, reject) => {
-      lNumTabId = 0;
-
       chrome.tabs.query({}, pArrayTabs => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -1900,7 +1894,6 @@
     console.info('switchTempRelease', Array.prototype.slice.call(arguments));
 
     var lRegexUrlInArg   = new RegExp();
-    var lRegexUrlInTemp  = new RegExp();
     var lArrayDelKeys    = [];
     var lStrUrlForRegExp = '';
 
@@ -1917,7 +1910,6 @@
     lRegexUrlInArg = new RegExp(lStrUrlForRegExp);
     lArrayDelKeys  = [];
     sSetTempRelease.forEach(pValue => {
-      lRegexUrlInTemp = new RegExp(pValue);
       if (lRegexUrlInArg.test( decodeForRegExp(pValue) )) {
         lArrayDelKeys.push(pValue);
       }
