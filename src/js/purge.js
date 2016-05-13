@@ -1,4 +1,5 @@
-﻿(function() {
+﻿/* global Database */
+(function() {
   "use strict";
 
   //{{{ variables.

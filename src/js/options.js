@@ -1,4 +1,5 @@
-﻿(function(window, document) {
+﻿/* global Database */
+(function(window, document) {
   'use strict';
 
   //{{{ variables

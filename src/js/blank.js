@@ -1,4 +1,4 @@
-/** blank.htmlで行う処理のスクリプトファイル */
+/* global Database */
 (function(window, document) {
   "use strict";
 

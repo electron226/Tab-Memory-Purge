@@ -1,4 +1,4 @@
-/*jshint maxlen: 120, unused: false*/
+/*eslint max-len: ["error", 120]*/
 (function(window) {
   "use strict";
 
@@ -17,7 +17,7 @@
 
   function initializeDefaultConfigOfExtension()//{{{
   {
-    /*jshint -W069*/
+    /*eslint no-useless-escape: "off"*/
     var lStrKeybindDefault = JSON.stringify({});
     var lMapConfig = new Map();
 

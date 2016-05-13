@@ -649,6 +649,7 @@
       case 221: lStrOutput += ']'; break;
       case 222: lStrOutput += '\''; break;
       default:
+        /* eslint yoda: "off" */
         if (48 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 57 || // 0 to 9
             65 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 90) { // A to Z
           lStrOutput += String.fromCharCode(pObjKeyInfo.keyCode);

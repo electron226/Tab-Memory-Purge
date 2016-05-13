@@ -39,6 +39,7 @@
       switch (lElement.type) {
       case 'checkbox':
       case 'radio':
+        /* eslint no-loop-func: "off" */
         lElement.checked =
           lValue.some(v => (lElement.value === v)) ? true : false;
         break;

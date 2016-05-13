@@ -185,13 +185,14 @@
            .pipe(gulp.dest('dist'));
   });
 
-  gulp.task('jshint', () => {
+  gulp.task('eslint', () => {
     return gulp.src(['src/js/**/*.js', '!src/**/*.min.js'])
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
-           .pipe($.jshint({ lookup: '.jshintrc' }))
-           .pipe($.jshint.reporter('jshint-stylish'));
+           .pipe($.eslint('.eslintrc.json'))
+           .pipe($.eslint.format())
+           .pipe($.eslint.failAfterError());
   });
 
   gulp.task('babel', () => {
@@ -262,7 +263,7 @@
   });
 
   gulp.task('js-build', callback => {
-    runSequence('jshint', 'babel', 'uglify-build', 'clean-tmp', callback);
+    runSequence('eslint', 'babel', 'uglify-build', 'clean-tmp', callback);
   });
 
   gulp.task('sass-debug', callback => {
@@ -289,14 +290,14 @@
   gulp.task('debug', callback => {
     runSequence(
       'clean-debug',
-      ['htmlhint', 'sass-debug', 'jshint', 'replace-debug'],
+      ['htmlhint', 'sass-debug', 'eslint', 'replace-debug'],
       callback);
   });
   gulp.task('build', callback => {
     runSequence(
       'clean-build',
       'copy-build',
-      ['compass-build', 'jshint', 'replace-build', 'htmlhint'],
+      ['compass-build', 'eslint', 'replace-build', 'htmlhint'],
       ['autoprefixer', 'babel', 'jsonminify'],
       'usemin-build',
       ['csscomb', 'uglify-build', 'htmlmin'],
@@ -315,7 +316,7 @@
       runSequence('htmlhint');
     });
     gulp.watch('src/**/*.js', () => {
-      runSequence('jshint');
+      runSequence('eslint');
     });
     gulp.watch('src/**/*.scss', () => {
       runSequence('sass-debug');
