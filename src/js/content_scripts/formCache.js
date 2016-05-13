@@ -2,96 +2,89 @@
   "use strict";
 
   //{{{ the variables in this script.
-  const sStrPrefix = 'TMP_';
-  const sStrXPath  = '//input | //textarea';
+  const EXT_PREFIX      = 'TMP_';
+  const XPATH_FORM_ITEM = '//input | //textarea';
   //}}}
 
-  function checkSkipType(pStrType)//{{{
+  function checkSkipType(pType)//{{{
   {
-    var lArraySkipType = [ 'file', 'submit', 'image', 'reset', 'button', ];
-    return lArraySkipType.some(v => pStrType === v);
+    let skip_types = [ 'file', 'submit', 'image', 'reset', 'button', ];
+    return skip_types.some(v => (pType === v));
   }//}}}
 
-  (function() {//{{{
-    var lSetRestored     = new Set();
-    var lElement         = document.createDocumentFragment();
-    var lElementSnapshot = null;
-    var lValue           = null;
-    var lStrKeyName      = "";
-    var i                = 0;
+  (() => {//{{{
+    let restored = new Set();
 
-    lElementSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
-    for (i = 0; i < lElementSnapshot.snapshotLength; i = (i + 1) | 0) {
-      lElement = lElementSnapshot.snapshotItem(i);
-      if (lElement.name === void 0 ||
-          lElement.name === null ||
-          checkSkipType(lElement.type)) {
+    let snapshot = document.evaluate(XPATH_FORM_ITEM, document, null, 7, null);
+    for (let i = 0; i < snapshot.snapshotLength; ++i) {
+      let element = snapshot.snapshotItem(i);
+      if (element.name === void 0 ||
+          element.name === null ||
+          checkSkipType(element.type)) {
         continue;
       }
 
-      lStrKeyName = sStrPrefix + lElement.name;
-      lValue      = sessionStorage.getItem(lStrKeyName);
-      lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : lValue;
-      if (lValue === void 0 || lValue === null || lValue.length === 0) {
+      let key_name = EXT_PREFIX + element.name;
+      let value    = sessionStorage.getItem(key_name);
+      value        = (toType(value) === 'string') ? JSON.parse(value) : value;
+      if (value === void 0 || value === null || value.length === 0) {
         continue;
       }
 
-      switch (lElement.type) {
+      switch (element.type) {
       case 'checkbox':
       case 'radio':
         /* eslint no-loop-func: "off" */
-        lElement.checked =
-          lValue.some(v => (lElement.value === v)) ? true : false;
+        element.checked =
+          value.some(v => (element.value === v)) ? true : false;
         break;
       default:
-        lElement.value = lValue.shift();
-        sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
+        element.value = value.shift();
+        sessionStorage.setItem(key_name, JSON.stringify(value));
         break;
       }
 
-      lSetRestored.add(lStrKeyName);
+      restored.add(key_name);
     }
 
-    lSetRestored.forEach(pValue => sessionStorage.removeItem(pValue));
+    restored.forEach(pValue => sessionStorage.removeItem(pValue));
   })();//}}}
 
   chrome.runtime.onMessage.addListener(//{{{
-    (pObjMessage, pObjSender, pFuncSendResponse) => {
-    switch (pObjMessage.event) {
+    (pMessage, pSender, pSendResponse) => {
+    switch (pMessage.event) {
     case 'form_cache':
-      var lElement    = document.createDocumentFragment();
-      var lElSnapshot = null;
-      var lStrKeyName = "";
-      var lValue      = null;
-
-      lElSnapshot = document.evaluate(sStrXPath, document, null, 7, null);
-      for (var i = 0; i < lElSnapshot.snapshotLength; i = (i + 1) | 0) {
-        lElement = lElSnapshot.snapshotItem(i);
-        if (lElement.name === void 0 || lElement.name === null ||
-            lElement.value === void 0 || lElement.value === null ||
-            lElement.value === '' || checkSkipType(lElement.type)) {
-          continue;
-        }
-
-        switch (lElement.type) {
-        case 'checkbox':
-        case 'radio':
-          if (!lElement.checked) {
+      {
+        let snapshot = document.evaluate(
+            XPATH_FORM_ITEM, document, null, 7, null);
+        for (let i = 0; i < snapshot.snapshotLength; ++i) {
+          let element = snapshot.snapshotItem(i);
+          if (element.name === void 0 || element.name === null ||
+              element.value === void 0 || element.value === null ||
+              element.value === '' || checkSkipType(element.type)) {
             continue;
           }
-          break;
+
+          switch (element.type) {
+          case 'checkbox':
+          case 'radio':
+            if (!element.checked) {
+              continue;
+            }
+            break;
+          }
+
+          let key_name = EXT_PREFIX + element.name;
+          let value    = sessionStorage.getItem(key_name);
+          value        = (toType(value) === 'string') ? JSON.parse(value) : [];
+
+          value.push(element.value);
+          sessionStorage.setItem(key_name, JSON.stringify(value));
         }
 
-        lStrKeyName = sStrPrefix + lElement.name;
-        lValue      = sessionStorage.getItem(lStrKeyName);
-        lValue      = (toType(lValue) === 'string') ? JSON.parse(lValue) : [];
-
-        lValue.push(lElement.value);
-        sessionStorage.setItem(lStrKeyName, JSON.stringify(lValue));
+        pSendResponse();
+        break;
       }
-
-      pFuncSendResponse();
-      break;
     }
   });//}}}
 

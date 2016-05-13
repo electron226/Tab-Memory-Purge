@@ -3,177 +3,165 @@
   'use strict';
 
   //{{{ variables
-  var db = null; // indexedDB class.
+  let db = null; // indexedDB class.
 
-  const sStrDefaultMenu = "normal";
+  const DEFAULT_MENU = "normal";
 
-  const sStrClassNameOfDoesNot  = 'doNotShow';
-  const sStrStyleDisplayNone    = 'display: none';
+  const CLASS_NAME_OF_DOES_NOT = 'doNotShow';
+  const STYLE_DISPLAY_NONE     = 'display: none';
 
-  const sStrClassNameOfMenu   = 'sectionMenu';
-  const sStrClassNameOfButton = 'sectionButton';
-  const sStrClassNameWhenSelect = 'select';
+  const CLASS_NAME_OF_MENU     = 'sectionMenu';
+  const CLASS_NAME_OF_BUTTON   = 'sectionButton';
+  const CLASS_NAME_WHEN_SELECT = 'select';
 
-  const sStrClassNameOfCopyBtn  = 'copy';
-  const sStrClassNameOfApplyBtn = 'apply';
+  const CLASS_NAME_OF_COPY_BUTTON  = 'copy';
+  const CLASS_NAME_OF_APPLY_BUTTON = 'apply';
 
-  const sStrClassNameOfSetKeybindButton   = 'keybind_set';
-  const sStrClassNameOfClearKeybindButton = 'keybind_clear';
-  const sStrClassNameOfKeybindOption      = 'keyOption';
-  const sStrClassNameOfShowKeybind        = 'pressKey';
-  const sStrClassNameOfKeybindValue       = 'keybindValue';
+  const CLASS_NAME_OF_SET_KEYBIND_BUTTON   = 'keybind_set';
+  const CLASS_NAME_OF_CLEAR_KEYBIND_BUTTON = 'keybind_clear';
+  const CLASS_NAME_OF_KEYBIND_OPTION       = 'keyOption';
+  const CLASS_NAME_OF_SHOW_KEYBIND         = 'pressKey';
+  const CLASS_NAME_OF_KEYBIND_VALUE        = 'keybindValue';
 
-  const sStrClassNameOfHistoryItem       = 'historyItem';
-  const sStrClassNameOfHistoryDate       = 'historyDate';
-  const sStrClassNameOfHistoryItemDelete = 'itemDelete';
-  const sStrClassNameOfHistoryItemIcon   = 'itemIcon';
-  const sStrClassNameOfHistoryItemUrl    = 'itemUrl';
-  const sStrClassNameOfHistoryItemDate   = 'itemDate';
-  const sStrClassNameOfHistoryItemTitle  = 'itemTitle';
-  const sStrClassNameOfHistoryItemList   = 'itemList';
-  const sStrAttrNameOfWindowId           = 'windowId';
-  const sStrAttrNameOfDatabase           = 'databaseName';
-  const sStrAttrNameOfItemId             = 'historyItemId';
+  const CLASS_NAME_OF_HISTORY_ITEM        = 'historyItem';
+  const CLASS_NAME_OF_HISTORY_DATE        = 'historyDate';
+  const CLASS_NAME_OF_HISTORY_ITEM_DELETE = 'itemDelete';
+  const CLASS_NAME_OF_HISTORY_ITEM_ICON   = 'itemIcon';
+  const CLASS_NAME_OF_HISTORY_ITEM_URL    = 'itemUrl';
+  const CLASS_NAME_OF_HISTORY_ITEM_DATE   = 'itemDate';
+  const CLASS_NAME_OF_HISTORY_ITEM_TITLE  = 'itemTitle';
+  const CLASS_NAME_OF_HISTORY_ITEM_LIST   = 'itemList';
+  const ATTR_NAME_OF_WINDOW_ID            = 'windowId';
+  const ATTR_NAME_OF_DATABASE             = 'databaseName';
+  const ATTR_NAME_OF_ITEM_ID              = 'historyItemId';
 
-  const sStrIdNameOfHistoryList             = 'historyList';
-  const sStrIdNameOfSearchHistoryDate       = 'searchHistoryDate';
-  const sStrIdNameOfSearchHistoryItem       = 'searchHistoryItem';
-  const sStrIdNameOfSearchHistoryDateList   = 'historyDateList';
+  const ID_NAME_OF_HISTORY_LIST             = 'historyList';
+  const ID_NAME_OF_SEARCH_HISTORY_DATE      = 'searchHistoryDate';
+  const ID_NAME_OF_SEARCH_HISTORY_ITEM      = 'searchHistoryItem';
+  const ID_NAME_OF_SEARCH_HISTORY_DATE_LIST = 'historyDateList';
 
-  const sStrIdNameOfDateListNav             = 'dateListNav';
-  const sStrIdNameOfDateList                = 'dateList';
-  const sStrIdNameOfAddSavedSessionDateList = 'savedSessionDateList';
-  const sStrIdNameOfSessionDateList         = 'sessionDateList';
-  const sStrIdNameOfSessionNotFound         = 'sessionNotFound';
-  const sStrIdNameOfSavedSessionDateTitle   = 'savedSessionDateTitle';
-  const sStrIdNameOfSessionList             = 'sessionList';
-  const sStrIdNameOfSessionTitle            = 'sessionTitle';
-  const sStrIdNameOfSessionSave             = 'sessionSave';
-  const sStrIdNameOfSessionDelete           = 'sessionDelete';
-  const sStrIdNameOfSessionRestore          = 'sessionRestore';
-  const sStrIdNameOfSessionIconControl      = 'sessionIconControl';
-  const sStrIdNameOfChangeHistory           = 'change_history';
-  const sStrIdNameOfExport                  = 'export';
-  const sStrIdNameOfImport                  = 'import';
+  const ID_NAME_OF_DATE_LIST_NAV               = 'dateListNav';
+  const ID_NAME_OF_DATE_LIST                   = 'dateList';
+  const ID_NAME_OF_ADD_SAVED_SESSION_DATE_LIST = 'savedSessionDateList';
+  const ID_NAME_OF_SESSION_DATE_LIST           = 'sessionDateList';
+  const ID_NAME_OF_SESSION_NOT_FOUND           = 'sessionNotFound';
+  const ID_NAME_OF_SAVED_SESSION_DATE_TITLE    = 'savedSessionDateTitle';
+  const ID_NAME_OF_SESSION_LIST                = 'sessionList';
+  const ID_NAME_OF_SESSION_TITLE               = 'sessionTitle';
+  const ID_NAME_OF_SESSION_SAVE                = 'sessionSave';
+  const ID_NAME_OF_SESSION_DELETE              = 'sessionDelete';
+  const ID_NAME_OF_SESSION_RESTORE             = 'sessionRestore';
+  const ID_NAME_OF_SESSION_ICON_CONTROL        = 'sessionIconControl';
+  const ID_NAME_OF_CHANGE_HISTORY              = 'change_history';
+  const ID_NAME_OF_EXPORT                      = 'export';
+  const ID_NAME_OF_IMPORT                      = 'import';
 
-  const sObjOptsForCreateHistoryDate = {
-    className:  sStrClassNameOfHistoryDate,
+  const opts_for_create_history_date = {
+    className:  CLASS_NAME_OF_HISTORY_DATE,
     deleteFunc: function(pEvent) {
-      var lElSearchHistoryDate = document.createDocumentFragment();
-      var lStrErrMsg = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
       return removeHistoryDate(pEvent)
              .then(getAllHistory)
-             .then(historyArray => {
-               lElSearchHistoryDate =
-                 document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
-               lElSearchHistoryDate.value = null;
+             .then(pHistoryArray => {
+               let search_history_date_element =
+                 document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_DATE}`);
+               search_history_date_element.value = null;
 
-               return showAutoCompleteDateList(historyArray.reverse());
+               return showAutoCompleteDateList(pHistoryArray.reverse());
              });
     },
-    itemDelete: sStrClassNameOfHistoryItemDelete,
-    itemDate:   sStrClassNameOfHistoryItemDate,
-    itemList:   sStrClassNameOfHistoryItemList,
+    itemDelete: CLASS_NAME_OF_HISTORY_ITEM_DELETE,
+    itemDate:   CLASS_NAME_OF_HISTORY_ITEM_DATE,
+    itemList:   CLASS_NAME_OF_HISTORY_ITEM_LIST,
   };
-  const sObjOptsForCreateHistoryItem = {
-    attrNameOfDatabase: sStrAttrNameOfDatabase,
+  const opts_for_create_history_item = {
+    attrNameOfDatabase: ATTR_NAME_OF_DATABASE,
     deleteFunc: function(pEvent) {
-      var lStrErrMsg = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
       return removeHistoryItem(pEvent);
     },
-    className:  sStrClassNameOfHistoryItem,
-    itemDelete: sStrClassNameOfHistoryItemDelete,
-    itemDate:   sStrClassNameOfHistoryItemDate,
-    itemUrl:    sStrClassNameOfHistoryItemUrl,
-    itemIcon:   sStrClassNameOfHistoryItemIcon,
-    itemTitle:  sStrClassNameOfHistoryItemTitle,
+    className:  CLASS_NAME_OF_HISTORY_ITEM,
+    itemDelete: CLASS_NAME_OF_HISTORY_ITEM_DELETE,
+    itemDate:   CLASS_NAME_OF_HISTORY_ITEM_DATE,
+    itemUrl:    CLASS_NAME_OF_HISTORY_ITEM_URL,
+    itemIcon:   CLASS_NAME_OF_HISTORY_ITEM_ICON,
+    itemTitle:  CLASS_NAME_OF_HISTORY_ITEM_TITLE,
   };
 
-  var sMapExcludeKeyNames = new Set();
-  sMapExcludeKeyNames.add(gStrVersionKey);
-  sMapExcludeKeyNames.add(gStrPreviousSessionTimeKey);
+  let exclude_key_names = new Set();
+  exclude_key_names.add(gStrVersionKey);
+  exclude_key_names.add(gStrPreviousSessionTimeKey);
   //}}}
 
-  var OperateOptionValue = function() {//{{{
+  let OperateOptionValue = function() {//{{{
   };
-  OperateOptionValue.prototype.get = function(pElement, pStrName) {//{{{
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+  OperateOptionValue.prototype.get = function(pElement, pName) {//{{{
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    return this.call(pElement, pStrName, null, 'get');
+    return this.call(pElement, pName, null, 'get');
   };//}}}
   OperateOptionValue.prototype.set =//{{{
-    function(pElement, pStrName, pStrValue) {
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    function(pElement, pName, pValue) {
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
       [ 'string' ],
       [],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    return this.call(pElement, pStrName, pStrValue, 'set');
+    return this.call(pElement, pName, pValue, 'set');
   };//}}}
-  OperateOptionValue.prototype.call =//{{{
-    function(pElement, pStrName, pStrValue, pStrType) {
-    var $this      = this;
-    var lObjOpts   = {};
-    var lElement   = document.createDocumentFragment();
-    var lElSelect  = document.createDocumentFragment();
-    var lStrErrMsg = '';
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+  OperateOptionValue.prototype.call = //{{{
+    function(pElement, pName, pValue, pType) {
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
         [ 'string' ],
         [ ],
         [ 'string', 'null', 'undefined' ],
       ], true);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      pStrType = pStrType || 'get';
+      pType = pType || 'get';
 
-      lElement = pElement.querySelector(`[name="${pStrName}"`);
-      if (lElement) {
+      let opts         = {};
+      let name_element = pElement.querySelector(`[name="${pName}"`);
+      if (name_element) {
         try {
-          lObjOpts = {
-            element:   lElement,
-            value:     pStrValue,
-            type:      pStrType,
+          opts = {
+            element: name_element,
+            value:   pValue,
+            type:    pType,
           };
-          switch (lElement.type) {
+          switch (name_element.type) {
           case 'checkbox':
-            lObjOpts = Object.assign(lObjOpts, {
+            opts = Object.assign(opts, {
               property:  'checked',
               valueType: 'boolean',
             });
@@ -181,37 +169,39 @@
           case 'number':
           case 'text':
           case 'textarea':
-            lObjOpts = Object.assign(lObjOpts, {
+            opts = Object.assign(opts, {
               property:  'value',
-              valueType: (lElement.type === 'number') ? 'number' : 'string',
+              valueType: (name_element.type === 'number') ? 'number' : 'string',
             });
             break;
           case 'select-one':
-            lElSelect = lElement.querySelectorAll('option');
-            if (pStrType === 'get') {
-              Array.prototype.slice.call(lElSelect).forEach(pValue => {
-                if (pValue.selected === true) {
-                  resolve(pValue.getAttribute('value'));
-                }
-              });
-            } else {
-              Array.prototype.slice.call(lElSelect).forEach(pValue => {
-                if (pValue.getAttribute('value') === pStrValue) {
-                  pValue.selected = true;
-                } else {
-                  pValue.selected = false;
-                }
-              });
+            {
+              let option_element = name_element.querySelectorAll('option');
+              if (pType === 'get') {
+                Array.prototype.slice.call(option_element).forEach(value => {
+                  if (value.selected === true) {
+                    resolve(value.getAttribute('value'));
+                  }
+                });
+              } else {
+                Array.prototype.slice.call(option_element).forEach(value => {
+                  if (value.getAttribute('value') === pValue) {
+                    value.selected = true;
+                  } else {
+                    value.selected = false;
+                  }
+                });
+              }
             }
             return;
           default:
             reject(new Error(
               `Doesn't write the code of each element type.` +
-              ` name: ${pStrName}, type: ${lElement.type}`));
+              ` name: ${pName}, type: ${name_element.type}`));
             break;
           }
 
-          $this._call(lObjOpts).then(resolve).catch(reject);
+          $this._call(opts).then(resolve).catch(reject);
           return;
         } catch (pErr) {
           reject(new Error(pErr));
@@ -219,290 +209,259 @@
         }
       }
 
-      if (!sMapExcludeKeyNames.has(pStrName)) {
-        console.warn(`Doesn't find the elememt name: ${pStrName}`);
+      if (!exclude_key_names.has(pName)) {
+        console.warn(`Doesn't find the elememt name: ${pName}`);
       }
       resolve();
     });
   };//}}}
-  OperateOptionValue.prototype._call = function(pObj) {//{{{
-    var lElement      = document.createDocumentFragment();
-    var lStrValue     = "";
-    var lStrType      = "";
-    var lStrProperty  = "";
-    var lStrValueType = "";
-    var lAnyVal       = "";
-    var lNumMax       = 0;
-    var lNumMin       = 0;
-    var lStrErrMsg    = '';
-    var lArrayArgs    = Array.prototype.slice.call(arguments);
+  OperateOptionValue.prototype._call = function(pOptions) {//{{{
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lElement      = pObj.element;
-      lStrValue     = pObj.value;
-      lStrType      = pObj.type;
-      lStrProperty  = pObj.property;
-      lStrValueType = pObj.valueType;
-      lAnyVal       = (lStrType === 'get') ?
-                      lElement[lStrProperty] : lStrValue;
+      let element   = pOptions.element;
+      let value     = pOptions.value;
+      let type      = pOptions.type;
+      let property  = pOptions.property;
+      let valueType = pOptions.valueType;
+      let any_value = (type === 'get') ? element[property] : value;
 
-      if (lStrValueType === 'number') {
-        lNumMin = parseInt(lElement.getAttribute('min'), 10);
-        lNumMax = parseInt(lElement.getAttribute('max'), 10);
-        lAnyVal = parseInt(lAnyVal, 10);
+      if (valueType === 'number') {
+        let lNumMin = parseInt(element.getAttribute('min'), 10);
+        let lNumMax = parseInt(element.getAttribute('max'), 10);
+        any_value   = parseInt(any_value, 10);
 
-        if (lNumMin && lAnyVal < lNumMin) {
-          lAnyVal = lNumMin;
-          lElement.value = lNumMin;
-        } else if (lNumMax && lNumMax < lAnyVal){
-          lAnyVal = lNumMax;
-          lElement.value = lNumMax;
+        if (lNumMin && any_value < lNumMin) {
+          any_value = lNumMin;
+          element.value = lNumMin;
+        } else if (lNumMax && lNumMax < any_value){
+          any_value = lNumMax;
+          element.value = lNumMax;
         }
       }
 
-      if (toType(lAnyVal) !== lStrValueType) {
+      if (toType(any_value) !== valueType) {
         reject(new Error(
-          `${lAnyVal} is not ${lStrValueType} type: ${toType(lAnyVal)}`));
+          `${any_value} is not ${valueType} type: ${toType(any_value)}`));
         return;
       }
 
-      if (lStrType === 'get') {
-        resolve(lAnyVal);
+      if (type === 'get') {
+        resolve(any_value);
       } else {
-        lElement[lStrProperty] =
-          (toType(lAnyVal) === 'string') ? lAnyVal.trim() : lAnyVal;
+        element[property] =
+          (toType(any_value) === 'string') ? any_value.trim() : any_value;
         resolve();
       }
     });
   };//}}}
   OperateOptionValue.prototype.init = function(pElement) {//{{{
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     return this.load(pElement, gMapDefaultValues);
   };//}}}
-  OperateOptionValue.prototype.load = function(pElement, pObjOpts) {//{{{
-    var $this         = this;
-    var lMapNew       = new Map();
-    var lArrayPromise = [];
-    var lStrErrMsg    = '';
-    var lArrayArgs    = Array.prototype.slice.call(arguments);
+  OperateOptionValue.prototype.load = function(pElement, pOptions) {//{{{
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
         [ 'object', 'map', 'null', 'undefined' ],
       ], true);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
+      let promise_results = [];
+      let new_options     = new Map();
+
       $this.export()
       .then(rOptions => {
-        switch (toType(pObjOpts)) {
+        switch (toType(pOptions)) {
         case 'map':
-          lMapNew = pObjOpts;
+          new_options = pOptions;
           break;
         case 'object':
-          lMapNew = new Map();
-          Object.keys(pObjOpts).forEach(pKey => {
-            lMapNew.set(pKey, pObjOpts[pKey]);
+          new_options = new Map();
+          Object.keys(pOptions).forEach(pKey => {
+            new_options.set(pKey, pOptions[pKey]);
           });
           break;
         default:
-          lMapNew = rOptions;
+          new_options = rOptions;
         }
 
-        lMapNew.forEach((pValue, pKey) => {
-          lArrayPromise.push($this.set(pElement, pKey, pValue));
+        new_options.forEach((pValue, pKey) => {
+          promise_results.push( $this.set(pElement, pKey, pValue) );
         });
 
-        return Promise.all(lArrayPromise);
+        return Promise.all(promise_results);
       })
       .then(resolve)
       .catch(reject);
     });
   };//}}}
   OperateOptionValue.prototype.export = function() {//{{{
-    var lResult = new Map();
-
     return new Promise(resolve => {
       chrome.storage.local.get(items => {
-        lResult = new Map();
+        let results = new Map();
         gMapDefaultValues.forEach((v, key) => {
-          lResult.set(key, items.hasOwnProperty(key) ? items[key] : v);
+          results.set(key, items.hasOwnProperty(key) ? items[key] : v);
         });
-        resolve(lResult);
+        resolve(results);
       });
     });
   };//}}}
-  OperateOptionValue.prototype.import = function(pElement, pObjOpts) {//{{{
-    var $this      = this;
-    var lStrErrMsg = '';
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+  OperateOptionValue.prototype.import = function(pElement, pOptions) {//{{{
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
-        function(pValue) { return typeof pValue !== 'object'; },
+      let err_msg = checkFunctionArguments(args, [
+        function(pValue) { return (typeof pValue !== 'object'); },
         [ 'object' ],
       ], true);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      $this.load(pElement, pObjOpts)
-      .then(resolve(pObjOpts))
-      .catch(reject);
+      $this.load(pElement, pOptions)
+        .then(resolve(pOptions))
+        .catch(reject);
     });
   };//}}}
   //}}}
 
-  var ShowMenuSelection = function(pStrSelectors, pClassNameWhenSelect) {//{{{
+  let ShowMenuSelection = function(pSelectors, pClassNameWhenSelect) {//{{{
     ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
 
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'object' ],
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    this.strMenuSelector        = pStrSelectors.menu;
-    this.strButtonSelector      = pStrSelectors.button;
+    this.strMenuSelector        = pSelectors.menu;
+    this.strButtonSelector      = pSelectors.button;
     this.strClassNameWhenSelect = pClassNameWhenSelect;
   };
-  ShowMenuSelection.prototype.showMenu = function(pStrSelector) {//{{{
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+  ShowMenuSelection.prototype.showMenu = function(pSelector) {//{{{
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     return function(pIdName) {
-      var lElShowMenu        = document.createDocumentFragment();
-      var lElDoesNotShowMenu = document.createDocumentFragment();
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      err_msg = checkFunctionArguments(arguments, [
         [ 'string' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lElShowMenu = document.querySelector(`${pStrSelector}#${pIdName}`);
-      lElDoesNotShowMenu =
-        document.querySelectorAll(`${pStrSelector}:not(#${pIdName})`);
+      let show_menu = document.querySelector(`${pSelector}#${pIdName}`);
+      let does_not_show_menu =
+        document.querySelectorAll(`${pSelector}:not(#${pIdName})`);
 
       removeStringFromAttributeOfElement(
-        lElShowMenu, 'style', sStrStyleDisplayNone);
-      Array.prototype.slice.call(lElDoesNotShowMenu).forEach(pValue => {
-        addStringToAttributeOfElement(pValue, 'style', sStrStyleDisplayNone);
+        show_menu, 'style', STYLE_DISPLAY_NONE);
+      Array.prototype.slice.call(does_not_show_menu).forEach(pValue => {
+        addStringToAttributeOfElement(pValue, 'style', STYLE_DISPLAY_NONE);
       });
     };
   };//}}}
   ShowMenuSelection.prototype.changeSelectionButtonColor = //{{{
-    function(pStrSelector) {
+    function(pSelector) {
+    let $this   = this;
 
-    var $this      = this;
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     return function(pName) {
-      var lElPrevSelect = document.createDocumentFragment();
-      var lElNewSelect  = document.createDocumentFragment();
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      err_msg = checkFunctionArguments(arguments, [
         [ 'string' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lElPrevSelect = document.querySelector(
-        `${pStrSelector}.${$this.strClassNameWhenSelect}`);
-      if (lElPrevSelect !== null) {
+      let prev_select = document.querySelector(
+        `${pSelector}.${$this.strClassNameWhenSelect}`);
+      if (prev_select !== null) {
         removeStringFromAttributeOfElement(
-          lElPrevSelect, 'class', $this.strClassNameWhenSelect);
+          prev_select, 'class', $this.strClassNameWhenSelect);
       }
 
-      lElNewSelect = document.querySelector(`${pStrSelector}[name="${pName}"]`);
+      let new_select = document.querySelector(`${pSelector}[name="${pName}"]`);
       addStringToAttributeOfElement(
-        lElNewSelect, 'class', $this.strClassNameWhenSelect);
+        new_select, 'class', $this.strClassNameWhenSelect);
     };
   };//}}}
   ShowMenuSelection.prototype.show = function(pName) {//{{{
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    var showMenuArea     = this.showMenu(this.strMenuSelector);
-    var selectMenuButton =
+    let show_menu_area     = this.showMenu(this.strMenuSelector);
+    let select_menu_button =
       this.changeSelectionButtonColor(this.strButtonSelector);
 
     return new Promise(resolve => {
-      showMenuArea(pName);
-      selectMenuButton(pName);
+      show_menu_area(pName);
+      select_menu_button(pName);
 
       resolve(pName);
     });
   };//}}}
   //}}}
 
-  var KeyTrace = function(pId) {//{{{
+  let KeyTrace = function(pId) {//{{{
     this.id        = pId || null;
     this.objResult = null;
   };
   KeyTrace.prototype.start = function(pId) {//{{{
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
-      function(pValue) { return pValue === void 0 || pValue === null; },
+    let err_msg = checkFunctionArguments(arguments, [
+        function(pValue) { return pValue === void 0 || pValue === null },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     this.id = pId;
   };//}}}
   KeyTrace.prototype.traceEvent = function(pEvent) {//{{{
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     if (this.id === null || this.id === void 0) {
@@ -529,15 +488,31 @@
   };//}}}
   //}}}
 
+  function historyFuncForAfterMenuSelection()//{{{
+  {
+    return new Promise(resolve => {
+      showAllHistory()
+        .then(resolve)
+        .catch(e => console.error(e));
+    });
+  }//}}}
+
+  function sessionHistoryFuncForAfterMenuSelection()//{{{
+  {
+    return new Promise(resolve => {
+      initSessionHistory()
+        .then(resolve)
+        .catch(e => console.error(e));
+    });
+  }//}}}
+
   function processAfterMenuSelection(name)//{{{
   {
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'string' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     return new Promise((resolve, reject) => {
@@ -550,40 +525,28 @@
       case 'information':
         break;
       case 'history':
-        var historyFunc = function() {
-          showAllHistory()
-          .then(resolve)
-          .catch(e => console.error(e));
-        };
-
         if (db.isOpened()) {
-          historyFunc();
+          historyFuncForAfterMenuSelection();
         } else {
-          setTimeout(historyFunc, 1000);
+          setTimeout(historyFuncForAfterMenuSelection, 1000);
         }
         break;
       case 'session_history':
-        var sessionHistoryFunc = function() {
-          initSessionHistory()
-          .then(resolve)
-          .catch(e => console.error(e));
-        };
-
         if (db.isOpened()) {
-          sessionHistoryFunc();
+          sessionHistoryFuncForAfterMenuSelection();
         } else {
-          setTimeout(sessionHistoryFunc, 1000);
+          setTimeout(sessionHistoryFuncForAfterMenuSelection, 1000);
         }
         break;
       case 'change_history':
         showChangeHistory()
-        .then(resolve)
-        .catch(e => console.error(e));
+          .then(resolve)
+          .catch(e => console.error(e));
         break;
       case 'operate_settings':
         showOptionValuesToOperateSettingsPage()
-        .then(resolve)
-        .catch(e => console.error(e));
+          .then(resolve)
+          .catch(e => console.error(e));
         break;
       default:
         reject(new Error("The Invalid menu name."));
@@ -601,27 +564,25 @@
   const keybindTrace  = new KeyTrace();
   const menuToggle    = new ShowMenuSelection(
     {
-      menu:   `.${sStrClassNameOfMenu}`,
-      button: `.${sStrClassNameOfButton}`,
+      menu:   `.${CLASS_NAME_OF_MENU}`,
+      button: `.${CLASS_NAME_OF_BUTTON}`,
     },
-    sStrClassNameWhenSelect);
+    CLASS_NAME_WHEN_SELECT);
   //}}}
   //
   window.addEventListener('popstate', e => {//{{{
     if (e.state) {
-      menuToggle.show(e.state || sStrDefaultMenu);
+      menuToggle.show(e.state || DEFAULT_MENU);
     }
   }, true);//}}}
 
   function clearItemInElement(pNode)//{{{
   {
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     while(pNode.firstChild) {
@@ -630,63 +591,56 @@
     return pNode;
   }//}}}
 
-  function deleteKeyItemFromObject(pObj, pDeleteKeys)//{{{
+  function deleteKeyItemFromObject(pBaseObj, pDeleteKeys)//{{{
   {
-    var lObjNew         = null;
-    var lObjType        = "";
-    var lDeleteKeysType = "";
-    var lStrErrMsg      = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'object', 'set', 'map' ],
       [ 'array', 'object', 'map', 'set' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lObjNew         = pObj;
-    lObjType        = toType(pObj);
-    lDeleteKeysType = toType(pDeleteKeys);
+    let new_object       = pBaseObj;
+    let type             = toType(pBaseObj);
+    let delete_keys_type = toType(pDeleteKeys);
 
-    if (lDeleteKeysType === 'object') {
+    if (delete_keys_type === 'object') {
       Object.keys(pDeleteKeys).forEach(pKey => {
-        if (lObjType === 'object') {
-          delete lObjNew[ pDeleteKeys[pKey] ];
+        if (type === 'object') {
+          delete new_object[ pDeleteKeys[pKey] ];
         } else {
-          lObjNew.delete(pDeleteKeys[pKey]);
+          new_object.delete(pDeleteKeys[pKey]);
         }
       });
     } else {
       // the deleteKeysType is Array, map, or set.
       pDeleteKeys.forEach((pValue, pKey) => {
-        if (lObjType === 'object') {
-          delete lObjNew[ pKey ];
+        if (type === 'object') {
+          delete new_object[ pKey ];
         } else {
           // the objType is map or set.
-          lObjNew.delete(pKey);
+          new_object.delete(pKey);
         }
       });
     }
 
-    return lObjNew;
+    return new_object;
   }//}}}
 
   function showOptionValuesToOperateSettingsPage()//{{{
   {
-    var lElExport = document.querySelector(`#${sStrIdNameOfExport}`);
-    var lNewOpts  = {};
-    var lObj      = {};
-
     return new Promise(resolve => {
       operateOption.export()
-      .then(pMapOptions => {
-        lObj = {};
-        pMapOptions.forEach((pValue, pKey) => {
-          lObj[ pKey ] = pValue;
-        });
-        lNewOpts        = deleteKeyItemFromObject(lObj, sMapExcludeKeyNames);
-        lElExport.value = JSON.stringify(lNewOpts, null, '    ');
+      .then(pOptions => {
+        let old_options = {};
+        pOptions.forEach( (pValue, pKey) => (old_options[ pKey ] = pValue) );
+
+        let new_options =
+          deleteKeyItemFromObject(old_options, exclude_key_names);
+
+        let export_element = document.querySelector(`#${ID_NAME_OF_EXPORT}`);
+        export_element.value = JSON.stringify(new_options, null, '    ');
 
         resolve();
       });
@@ -695,21 +649,17 @@
 
   function showChangeHistory()//{{{
   {
-    var lElChangeHistory = document.createDocumentFragment();
-    var lElPre           = document.createDocumentFragment();
-
     return new Promise(resolve => {
       ajax({ url: gStrChangeHistory, responseType: 'text' })
       .then(result => {
-        lElPre = document.createElement('pre');
+        let change_history_element =
+          document.querySelector(`#${ID_NAME_OF_CHANGE_HISTORY}`);
+        clearItemInElement(change_history_element);
 
-        lElChangeHistory =
-          document.querySelector(`#${sStrIdNameOfChangeHistory}`);
-        clearItemInElement(lElChangeHistory);
+        let pre_element = document.createElement('pre');
+        pre_element.textContent = result.response;
 
-        lElPre.textContent = result.response;
-
-        lElChangeHistory.appendChild(lElPre);
+        change_history_element.appendChild(pre_element);
 
         resolve();
       });
@@ -720,267 +670,237 @@
   {
     console.log('showAllKeybindString');
 
-    var lElKeybindOptions = document.createDocumentFragment();
-    var lElKeyJson        = document.createDocumentFragment();
-    var lElKey            = document.createDocumentFragment();
-
-    lElKeybindOptions =
-      document.querySelectorAll(`.${sStrClassNameOfKeybindOption}`);
-    Array.prototype.slice.call(lElKeybindOptions).forEach(pValue => {
-      lElKeyJson = pValue.querySelector(`.${sStrClassNameOfKeybindValue}`);
-      lElKey     = pValue.querySelector(`.${sStrClassNameOfShowKeybind}`);
+    let keybind_elements =
+      document.querySelectorAll(`.${CLASS_NAME_OF_KEYBIND_OPTION}`);
+    Array.prototype.slice.call(keybind_elements).forEach(pValue => {
+      let key_json    = pValue.querySelector(`.${CLASS_NAME_OF_KEYBIND_VALUE}`);
+      let key_element = pValue.querySelector(`.${CLASS_NAME_OF_SHOW_KEYBIND}`);
       try {
-        if (lElKeyJson.value === '{}' ||
-            lElKeyJson.value === ''   ||
-            lElKeyJson.value === null ||
-            lElKeyJson.value === void 0) {
+        if (key_json.value === '{}' ||
+            key_json.value === ''   ||
+            key_json.value === null ||
+            key_json.value === void 0) {
           return;
         }
 
-        lElKey.value = generateKeyString(JSON.parse(lElKeyJson.value));
+        key_element.value = generateKeyString(JSON.parse(key_json.value));
       } catch (e) {
-        console.warn(e, lElKeyJson.value);
+        console.warn(e, key_json.value);
       }
     });
   }//}}}
 
   function setKeybindOption(pClassName, pKeyInfo)//{{{
   {
-    var lElOpt          = document.createDocumentFragment();
-    var lElKeybindValue = document.createDocumentFragment();
-    var lElShowKeybind  = document.createDocumentFragment();
-    var lStrErrMsg      = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'string' ],
       [ 'object' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElOpt = document.querySelector(
-      `.${pClassName}.${sStrClassNameOfKeybindOption}`);
-    lElKeybindValue = lElOpt.querySelector(`.${sStrClassNameOfKeybindValue}`);
-    lElShowKeybind = lElOpt.querySelector(`.${sStrClassNameOfShowKeybind}`);
+    let keybind_option =
+      document.querySelector(`.${pClassName}.${CLASS_NAME_OF_KEYBIND_OPTION}`);
+    let keybind_value =
+      keybind_option.querySelector(`.${CLASS_NAME_OF_KEYBIND_VALUE}`);
+    let show_keybind =
+      keybind_option.querySelector(`.${CLASS_NAME_OF_SHOW_KEYBIND}`);
 
-    lElKeybindValue.value = JSON.stringify(pKeyInfo);
+    keybind_value.value = JSON.stringify(pKeyInfo);
     try {
-      lElShowKeybind.value = generateKeyString(pKeyInfo);
+      show_keybind.value = generateKeyString(pKeyInfo);
     } catch (e) {
-      lElShowKeybind.value = '';
+      show_keybind.value = '';
     }
   }//}}}
 
   function keyupEvent(pEvent)//{{{
   {
-    var lObjInfo       = {};
-    var lEventNew      = document.createEvent('HTMLEvents');
-    var lElTraceTarget = document.createDocumentFragment();
-    var lStrErrMsg     = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     if (keybindTrace.isRun()) {
-      lObjInfo = keybindTrace.traceEvent(pEvent);
-      setKeybindOption(lObjInfo.id, lObjInfo.key);
+      let info = keybindTrace.traceEvent(pEvent);
+      setKeybindOption(info.id, info.key);
 
       // save the keybind with using event to storage.
-      lEventNew = document.createEvent('HTMLEvents');
-      lEventNew.initEvent('change', false, true);
+      let new_event = document.createEvent('HTMLEvents');
+      new_event.initEvent('change', false, true);
 
-      lElTraceTarget = document.querySelector(
-        `[name="${lObjInfo.id}"].${sStrClassNameOfKeybindValue}`);
-      lElTraceTarget.dispatchEvent(lEventNew);
+      let trace_target = document.querySelector(
+        `[name="${info.id}"].${CLASS_NAME_OF_KEYBIND_VALUE}`);
+      trace_target.dispatchEvent(new_event);
     }
   }//}}}
 
   function buttonClicked(pEvent)//{{{
   {
-    var lElTarget             = document.createDocumentFragment();
-    var lElement              = document.createDocumentFragment();
-    var lElExport             = document.createDocumentFragment();
-    var lElImport             = document.createDocumentFragment();
-    var lEventNew             = document.createEvent('HTMLEvents');
-    var lStrClassName         = "";
-    var lStrClassNameOfParent = "";
-    var lStrOptionName        = "";
-    var lStrMsg               = "";
-    var lStrValue             = "";
-    var lStrErrMsg            = "";
-    var lBoolResult           = false;
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElTarget    = pEvent.target;
-    lStrClassName = lElTarget.getAttribute('class');
+    let msg        = "";
+    let target     = pEvent.target;
+    let class_name = target.getAttribute('class');
 
     // keybind only.
-    lStrClassNameOfParent = lElTarget.parentNode.getAttribute('class');
-    lStrOptionName        = "";
-    if (lStrClassNameOfParent) {
-      lStrOptionName = lStrClassNameOfParent.replace(
-        sStrClassNameOfKeybindOption, '').trim();
+    let class_name_of_parent = target.parentNode.getAttribute('class');
+    let option_name          = "";
+    if (class_name_of_parent) {
+      option_name = class_name_of_parent.replace(
+        CLASS_NAME_OF_KEYBIND_OPTION, '').trim();
     }
 
-    switch (lStrClassName) {
-    case sStrClassNameOfSetKeybindButton:
+    switch (class_name) {
+    case CLASS_NAME_OF_SET_KEYBIND_BUTTON:
       if (keybindTrace.isRun()) {
         keybindTrace.stop();
       }
-      keybindTrace.start(lStrOptionName);
+      keybindTrace.start(option_name);
       break;
-    case sStrClassNameOfClearKeybindButton:
-      setKeybindOption(lStrOptionName, {});
+    case CLASS_NAME_OF_CLEAR_KEYBIND_BUTTON:
+      {
+        setKeybindOption(option_name, {});
 
-      // save the keybind with using event to storage.
-      lElement  = document.querySelector(
-        `[name="${lStrOptionName}"].${sStrClassNameOfKeybindValue}`);
-      lEventNew = document.createEvent('HTMLEvents');
-      lEventNew.initEvent('change', false, true);
-      lElement.dispatchEvent(lEventNew);
-      break;
-    case sStrClassNameOfCopyBtn:
-      lElExport = document.querySelector(`#${sStrIdNameOfExport}`);
-      lElExport.select();
+        // save the keybind with using event to storage.
+        let element = document.querySelector(
+          `[name="${option_name}"].${CLASS_NAME_OF_KEYBIND_VALUE}`);
 
-      lBoolResult = document.execCommand('copy');
-      lStrMsg    = lBoolResult ? 'successed' : 'failured';
-      console.log(`have copied the string of import area. it is ${lStrMsg}.`);
-
-      window.getSelection().removeAllRanges();
-      break;
-    case sStrClassNameOfApplyBtn:
-      lElImport = document.querySelector(`#${sStrIdNameOfImport}`);
-
-      try {
-        lStrValue = JSON.parse(lElImport.value.trim());
-      } catch (e) {
-        if (e instanceof SyntaxError) {
-          lStrMsg = "Invalid the json string. The value doesn't correct:\n" +
-                    e.message;
-          console.error(lStrMsg);
-          alert(lStrMsg);
-        } else {
-          console.error(e);
-        }
+        let new_event = document.createEvent('HTMLEvents');
+        new_event.initEvent('change', false, true);
+        element.dispatchEvent(new_event);
         break;
       }
+    case CLASS_NAME_OF_COPY_BUTTON:
+      {
+        let export_element = document.querySelector(`#${ID_NAME_OF_EXPORT}`);
+        export_element.select();
 
-      lStrValue = deleteKeyItemFromObject(lStrValue, sMapExcludeKeyNames);
-      operateOption.import(document, lStrValue)
-      .then(writeOptions => {
-        return new Promise(
-          resolve => chrome.storage.local.set(writeOptions, resolve));
-      })
-      .then(showOptionValuesToOperateSettingsPage)
-      .then(applyNewOptionToExtensionProcess)
-      .catch(e => console.error(e));
-      break;
+        let result = document.execCommand('copy');
+        msg = result ? 'successed' : 'failured';
+        console.log(`have copied the string of import area. it is ${msg}.`);
+
+        window.getSelection().removeAllRanges();
+        break;
+      }
+    case CLASS_NAME_OF_APPLY_BUTTON:
+      {
+        let import_element = document.querySelector(`#${ID_NAME_OF_IMPORT}`);
+
+        let value = "";
+        try {
+          value = JSON.parse(import_element.value.trim());
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            msg = "Invalid the json string. The value doesn't correct:\n" +
+                      e.message;
+            console.error(msg);
+            alert(msg);
+          } else {
+            console.error(e);
+          }
+          break;
+        }
+
+        value = deleteKeyItemFromObject(value, exclude_key_names);
+        operateOption.import(document, value)
+        .then(writeOptions => {
+          return new Promise(
+            resolve => chrome.storage.local.set(writeOptions, resolve));
+        })
+        .then(showOptionValuesToOperateSettingsPage)
+        .then(applyNewOptionToExtensionProcess)
+        .catch(e => console.error(e));
+        break;
+      }
     }
   }//}}}
 
   function addAutocompleteDateList(pElement)//{{{
   {
-    var lElAutoComp = document.createDocumentFragment();
-    var lElOption   = document.createDocumentFragment();
-    var lStrErrMsg  = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElAutoComp = pElement;
-    lElOption   = document.createElement('option');
+    let complete_element = pElement;
+    let option_element   = document.createElement('option');
 
-    while (lElAutoComp.firstChild) {
-      lElAutoComp.removeChild(lElAutoComp.firstChild);
+    while (complete_element.firstChild) {
+      complete_element.removeChild(complete_element.firstChild);
     }
 
     return function(pDate) {
-      var lElNewOption   = lElOption.cloneNode(true);
+      let lElNewOption   = option_element.cloneNode(true);
       lElNewOption.value = formatDate(pDate, 'YYYY-MM-DD');
-      lElAutoComp.appendChild(lElNewOption);
+      complete_element.appendChild(lElNewOption);
     };
   }//}}}
 
-  function getFormatEachLanguages(pTime, pObjFormat)//{{{
+  function getFormatEachLanguages(pTime, pFormat)//{{{
   {
-    var lStrFormatType = "";
-    var lStrLang       = "";
-    var lStrErrMsg     = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'number', 'date' ],
       [ 'object', 'undefined', 'null' ],
     ], true);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
-
-    lStrFormatType = "";
-    lStrLang       = chrome.i18n.getUILanguage();
 
     if (pTime === void 0 || pTime === null) {
       throw new Error(`Invalid arguments is pTime: ${pTime}`);
     }
 
-    if (pObjFormat === void 0 || pObjFormat === null) {
-      pObjFormat = {
+    if (pFormat === void 0 || pFormat === null) {
+      pFormat = {
         'ja':      'YYYY/MM/DD hh:mm:ss',
         'default': 'MM/DD/YYYY hh:mm:ss',
       };
     }
 
-    lStrFormatType = pObjFormat.hasOwnProperty(lStrLang) ?
-                     pObjFormat[lStrLang] :
-                     pObjFormat['default'];
+    let lStrLang       = chrome.i18n.getUILanguage();
+    let lStrFormatType = pFormat.hasOwnProperty(lStrLang) ?
+                         pFormat[lStrLang] :
+                         pFormat['default'];
     return formatDate(new Date(pTime), lStrFormatType);
   }//}}}
 
   function changeSessionIconControlState(pState)//{{{
   {
-    var lElSessionIconControl = document.createDocumentFragment();
-    var lStrErrMsg            = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'boolean' ]
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElSessionIconControl =
-      document.querySelector(`#${sStrIdNameOfSessionIconControl}`);
+    let session_icon_control_element =
+      document.querySelector(`#${ID_NAME_OF_SESSION_ICON_CONTROL}`);
     if (pState) {
       removeStringFromAttributeOfElement(
-        lElSessionIconControl, 'class', sStrClassNameOfDoesNot);
+        session_icon_control_element, 'class', CLASS_NAME_OF_DOES_NOT);
     } else {
       addStringToAttributeOfElement(
-        lElSessionIconControl, 'class', sStrClassNameOfDoesNot);
+        session_icon_control_element, 'class', CLASS_NAME_OF_DOES_NOT);
     }
   }//}}}
 
   function clearSessionTitleInSessionControlBar()//{{{
   {
     return new Promise(resolve => {
-      var lElSessionTitle = document.createDocumentFragment();
-
-      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      lElSessionTitle.textContent = '';
+      let session_title_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_TITLE}`);
+      session_title_element.textContent = '';
       resolve();
     });
   }//}}}
@@ -988,45 +908,37 @@
   function saveSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var lElAddLocationWhereSessionList = document.createDocumentFragment();
-      var lElShowField                   = document.createDocumentFragment();
-      var lElItemUrlList                 = document.createDocumentFragment();
-      var lMapUrlsOfEachWin              = new Map();
-      var arrayNewSessions               = [];
-      var lArrayUrls                     = [];
-      var lStrItemUrl                    = "";
-      var lNumWinId                      = 0;
-      var lDateNow                       = Date.now();
-
-      lElAddLocationWhereSessionList =
-        document.querySelector(`#${sStrIdNameOfSessionList}`);
-      lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
-        `fieldset:not(.${sStrClassNameOfDoesNot})`);
-      if (lElShowField.length === 0) {
+      let add_location_where_session_list_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
+      let show_field_elements =
+        add_location_where_session_list_element.querySelectorAll(
+          `fieldset:not(.${CLASS_NAME_OF_DOES_NOT})`);
+      if (show_field_elements.length === 0) {
         resolve();
         return;
       }
 
-      lMapUrlsOfEachWin = new Map();
-      lStrItemUrl       = sObjOptsForCreateHistoryItem.itemUrl;
+      let urls_of_each_window = new Map();
+      let item_url            = opts_for_create_history_item.itemUrl;
 
-      Array.prototype.slice.call(lElShowField).forEach(pValue => {
-        lNumWinId      = pValue.getAttribute(sStrAttrNameOfWindowId);
-        lElItemUrlList = pValue.querySelectorAll(`.${lStrItemUrl}`);
-        lArrayUrls     = [];
-        Array.prototype.slice.call(lElItemUrlList)
-          .forEach(v => lArrayUrls.push(v.href));
-        lMapUrlsOfEachWin.set(lNumWinId, lArrayUrls);
+      Array.prototype.slice.call(show_field_elements).forEach(pValue => {
+        let urls      = [];
+        let window_id = pValue.getAttribute(ATTR_NAME_OF_WINDOW_ID);
+        let item_url_list_elements = pValue.querySelectorAll(`.${item_url}`);
+
+        Array.prototype.slice.call(
+            item_url_list_elements).forEach(v => urls.push(v.href));
+        urls_of_each_window.set(window_id, urls);
       });
 
-      lDateNow         = Date.now();
-      arrayNewSessions = [];
-      lMapUrlsOfEachWin.forEach((pValue, pKey) => {
-        arrayNewSessions = arrayNewSessions.concat(
+      let now          = Date.now();
+      let new_sessions = [];
+      urls_of_each_window.forEach((pValue, pKey) => {
+        new_sessions = new_sessions.concat(
           pValue.map(v => {
             return {
-              date: lDateNow,
-              url: v,
+              date:     now,
+              url:      v,
               windowId: parseInt(pKey, 10) || 0
             };
           })
@@ -1035,7 +947,7 @@
 
       db.put({
         name: gStrDbSavedSessionName,
-        data: arrayNewSessions,
+        data: new_sessions,
       })
       .then(resolve)
       .catch(reject);
@@ -1045,34 +957,30 @@
   function deleteSession()//{{{
   {
     return new Promise((resolve, reject) => {
-      var lElSessionTitle = document.createDocumentFragment();
-      var lNumDate        = 0;
-      var lStrDbName      = "";
-      var lArrayDelKeys   = [];
+      let session_title_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_TITLE}`);
+      let date_value = parseInt(session_title_element.getAttribute('name'), 10);
+      let db_name = session_title_element.getAttribute(ATTR_NAME_OF_DATABASE);
 
-      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      lNumDate        = parseInt(lElSessionTitle.getAttribute('name'), 10);
-      lStrDbName      = lElSessionTitle.getAttribute(sStrAttrNameOfDatabase);
-
-      if (toType(lNumDate) !== 'number' ||
-          toType(lStrDbName) !== 'string' ||
-          lStrDbName.length === 0) {
+      if (toType(date_value) !== 'number' ||
+          toType(db_name) !== 'string' ||
+          db_name.length === 0) {
         reject(new Error(
-          `Doesn't get lNumDate: ${lNumDate} or` +
-          ` lStrDbName: ${lStrDbName} correctly.`));
+          `Doesn't get date_value: ${date_value} or` +
+          ` db_name: ${db_name} correctly.`));
         return;
       }
 
       db.getCursor({
-        name: lStrDbName,
-        range: IDBKeyRange.only(lNumDate),
+        name:      db_name,
+        range:     IDBKeyRange.only(date_value),
         indexName: 'date',
       })
       .then(pArrayResults => {
-        lArrayDelKeys = pArrayResults.map(v => v.id);
+        let delete_keys = pArrayResults.map(v => v.id);
         return db.delete({
-          name: lStrDbName,
-          keys: lArrayDelKeys,
+          name: db_name,
+          keys: delete_keys,
         });
       })
       .then(resolve)
@@ -1082,319 +990,281 @@
 
   function restoreSession()//{{{
   {
-    var lElAddLocationWhereSessionList = document.createDocumentFragment();
-    var lElShowField                   = document.createDocumentFragment();
-    var lElA                           = document.createDocumentFragment();
-    var lArrayRestore                  = [];
-    var lNumWindowId                   = 0;
-
-    lElAddLocationWhereSessionList =
-      document.querySelector(`#${sStrIdNameOfSessionList}`);
-    lElShowField = lElAddLocationWhereSessionList.querySelectorAll(
-      `fieldset:not(.${sStrClassNameOfDoesNot})`);
-    if (lElShowField.length === 0) {
-      console.warn('The length of lElShowField in restoreSession is zero.');
+    let add_location_where_session_list_element =
+      document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
+    let show_field_elements =
+      add_location_where_session_list_element.querySelectorAll(
+        `fieldset:not(.${CLASS_NAME_OF_DOES_NOT})`);
+    if (show_field_elements.length === 0) {
+      console.warn(
+          'The length of show_field_elements in restoreSession is zero.');
       return;
     }
 
-    lArrayRestore = [];
-    Array.prototype.slice.call(lElShowField).forEach(pValue => {
-      lNumWindowId  = parseInt(pValue.getAttribute(sStrAttrNameOfWindowId), 10);
-      lElA  = pValue.querySelectorAll(`.${sStrClassNameOfHistoryItemUrl}`);
-      Array.prototype.slice.call(lElA).forEach(
-        v => lArrayRestore.push({ url: v.href, windowId: lNumWindowId }));
+    let restores = [];
+    Array.prototype.slice.call(show_field_elements).forEach(pValue => {
+      let window_id = parseInt(pValue.getAttribute(ATTR_NAME_OF_WINDOW_ID), 10);
+      let history_item_urls =
+        pValue.querySelectorAll(`.${CLASS_NAME_OF_HISTORY_ITEM_URL}`);
+
+      Array.prototype.slice.call(history_item_urls).forEach(
+        v => restores.push({ url: v.href, windowId: window_id }));
     });
 
-    chrome.runtime.sendMessage({ event: 'restore', session: lArrayRestore });
+    chrome.runtime.sendMessage({ event: 'restore', session: restores });
   }//}}}
 
-  function closureCreateSessionDateList(pObjOpts)//{{{
+  function closureCreateSessionDateList(pOptions)//{{{
   {
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'object' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     //{{{ local variable.
-    const lStrDbName             = pObjOpts.databaseName;
-    const lStrAttrNameOfDatabase = pObjOpts.attrNameOfDatabase || 'database';
-    const lElToAddDateList       = pObjOpts.dateList;
-    const lElToAddItemList       = pObjOpts.itemList;
-    const lNumCurrentTime        = pObjOpts.currentTime;
+    const db_name               = pOptions.databaseName;
+    const ATTR_NAME_OF_DATABASE = pOptions.attrNameOfDatabase || 'database';
+    const to_add_date_list      = pOptions.dateList;
+    const to_add_item_list      = pOptions.itemList;
+    const current_time          = pOptions.currentTime;
 
-    if (toType(lStrDbName) !== 'string') {
-      throw new Error("lStrDbName isn't correctly.");
+    if (toType(db_name) !== 'string') {
+      throw new Error("db_name isn't correctly.");
     }
-    if (toType(lStrAttrNameOfDatabase) !== 'string') {
-      throw new Error("lStrAttrNameOfDatabase isn't correctly.");
+    if (toType(ATTR_NAME_OF_DATABASE) !== 'string') {
+      throw new Error("ATTR_NAME_OF_DATABASE isn't correctly.");
     }
-    if (lElToAddDateList === void 0 || lElToAddDateList === null) {
+    if (to_add_date_list === void 0 || to_add_date_list === null) {
       throw new Error("dateList isn't found in arguments");
     }
-    if (lElToAddItemList === void 0 || lElToAddItemList === null) {
+    if (to_add_item_list === void 0 || to_add_item_list === null) {
       throw new Error("itemList isn't found in arguments");
     }
-    if (lNumCurrentTime !== void 0 && lNumCurrentTime !== null &&
-        toType(lNumCurrentTime) !== 'number') {
+    if (current_time !== void 0 && current_time !== null &&
+        toType(current_time) !== 'number') {
       throw new Error('currentTime in arguments is not number.');
     }
     //}}}
 
     function onClicked(pEvent)//{{{
     {
-      var lElTarget         = document.createDocumentFragment();
-      var lElList           = document.createDocumentFragment();
-      var lElShowLists      = document.createDocumentFragment();
-      var lElNotShowLists   = document.createDocumentFragment();
-      var lElSessionSave    = document.createDocumentFragment();
-      var lElDateList       = document.createDocumentFragment();
-      var lElSelectDates    = document.createDocumentFragment();
-      var lElNotSelectDates = document.createDocumentFragment();
-      var lElSessionTitle   = document.createDocumentFragment();
-      var lStrName          = "";
-      var lStrListName      = "";
-      var lStrErrMsg        = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lElTarget       = pEvent.target;
-      lElList         = lElTarget.parentNode;
-      lStrListName    = lElList.getAttribute('id');
-      lStrName        = lElTarget.getAttribute('name');
-      lElDateList     = document.querySelector(`#${sStrIdNameOfDateList}`);
-      lElSessionSave  = document.querySelector(`#${sStrIdNameOfSessionSave}`);
-      lElSessionTitle = document.querySelector(`#${sStrIdNameOfSessionTitle}`);
-      lElShowLists      =
-        lElToAddItemList.querySelectorAll(`fieldset[name="${lStrName}"]`);
-      lElNotShowLists   =
-        lElToAddItemList.querySelectorAll(`fieldset:not([name="${lStrName}"])`);
-      lElSelectDates    = lElDateList.querySelector(`[name="${lStrName}"]`);
-      lElNotSelectDates =
-        lElDateList.querySelectorAll(`:not([name="${lStrName}"])`);
+      let target    = pEvent.target;
+      let list_name = target.parentNode.getAttribute('id');
+      let name      = target.getAttribute('name');
+      let session_save_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_SAVE}`);
+      let session_title_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_TITLE}`);
+      let show_lists     =
+        to_add_item_list.querySelectorAll(`fieldset[name="${name}"]`);
+      let not_show_lists =
+        to_add_item_list.querySelectorAll(`fieldset:not([name="${name}"])`);
+      let date_list    = document.querySelector(`#${ID_NAME_OF_DATE_LIST}`);
+      let select_dates = date_list.querySelector(`[name="${name}"]`);
+      let not_select_dates =
+        date_list.querySelectorAll(`:not([name="${name}"])`);
 
       // select which is showed a list of a session date.
-      Array.prototype.slice.call(lElShowLists).forEach(pValue => {
+      Array.prototype.slice.call(show_lists).forEach(pValue => {
         removeStringFromAttributeOfElement(
-          pValue, 'class', sStrClassNameOfDoesNot);
+          pValue, 'class', CLASS_NAME_OF_DOES_NOT);
       });
 
-      Array.prototype.slice.call(lElNotShowLists).forEach(pValue => {
-        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
+      Array.prototype.slice.call(not_show_lists).forEach(pValue => {
+        addStringToAttributeOfElement(pValue, 'class', CLASS_NAME_OF_DOES_NOT);
       });
 
       changeSessionIconControlState(true);
 
       // If clicking date is saved sesssion, add button is not show.
-      if (lStrListName === sStrIdNameOfAddSavedSessionDateList) {
+      if (list_name === ID_NAME_OF_ADD_SAVED_SESSION_DATE_LIST) {
         addStringToAttributeOfElement(
-          lElSessionSave, 'class', sStrClassNameOfDoesNot);
+          session_save_element, 'class', CLASS_NAME_OF_DOES_NOT);
       } else {
         removeStringFromAttributeOfElement(
-          lElSessionSave, 'class', sStrClassNameOfDoesNot);
+          session_save_element, 'class', CLASS_NAME_OF_DOES_NOT);
       }
 
       // a button of session date is changed by state.
       addStringToAttributeOfElement(
-        lElSelectDates, 'class', sStrClassNameWhenSelect);
+        select_dates, 'class', CLASS_NAME_WHEN_SELECT);
 
-      lElSessionTitle.setAttribute('name', lStrName);
-      lElSessionTitle.setAttribute(lStrAttrNameOfDatabase, lStrDbName);
-      lElSessionTitle.textContent = lElSelectDates.textContent;
+      session_title_element.setAttribute('name', name);
+      session_title_element.setAttribute(ATTR_NAME_OF_DATABASE, db_name);
+      session_title_element.textContent = select_dates.textContent;
 
-      Array.prototype.slice.call(lElNotSelectDates).forEach(pValue => {
+      Array.prototype.slice.call(not_select_dates).forEach(pValue => {
         removeStringFromAttributeOfElement(
-          pValue, 'class', sStrClassNameWhenSelect);
+          pValue, 'class', CLASS_NAME_WHEN_SELECT);
       });
     }//}}}
 
     function closureCreateSessionDate()//{{{
     {
-      var lElDiv = document.createElement('div');
+      let div_base = document.createElement('div');
 
-      return function(pNumTime) {
-        var lElDivRet = lElDiv.cloneNode(true);
-        var lStrText  = "";
-        var lStrErrMsg = "";
-
-        lStrErrMsg = checkFunctionArguments(arguments, [
+      return function(pTime) {
+        let err_msg = checkFunctionArguments(arguments, [
           [ 'number' ],
         ]);
-        if (lStrErrMsg) {
-          throw new Error(lStrErrMsg);
+        if (err_msg) {
+          throw new Error(err_msg);
         }
 
-        if (lNumCurrentTime !== void 0 &&
-            lNumCurrentTime !== undefined &&
-            lNumCurrentTime === parseInt(pNumTime, 10)) {
-          lStrText = 'Current Session';
+        let text  = "";
+
+        if (current_time !== void 0 &&
+            current_time !== undefined &&
+            current_time === parseInt(pTime, 10)) {
+          text = 'Current Session';
         } else {
-          lStrText = getFormatEachLanguages(pNumTime);
+          text = getFormatEachLanguages(pTime);
         }
 
-        lElDivRet.setAttribute('name', pNumTime);
-        lElDivRet.textContent = lStrText;
-        lElDivRet.addEventListener('click', onClicked, true);
+        let div_clone = div_base.cloneNode(true);
+        div_clone.setAttribute('name', pTime);
+        div_clone.textContent = text;
+        div_clone.addEventListener('click', onClicked, true);
 
-        return lElDivRet;
+        return div_clone;
       };
     }//}}}
 
-    function createSessionDateListItem(pArrayItems)//{{{
+    function createSessionDateListItem(pItems)//{{{
     {
-      var lCreateHistoryItem = null;
-      var lObjOpts           = {};
-      var lArrayList         = [];
-      var lStrErrMsg         = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         [ 'array' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lCreateHistoryItem = closureCreateHistoryItem(
-        Object.assign(sObjOptsForCreateHistoryItem, {
-          databaseName: lStrDbName,
+      let create_history_item = closureCreateHistoryItem(
+        Object.assign(opts_for_create_history_item, {
+          databaseName: db_name,
           deleteFunc:   removeSessionHistoryItem,
         })
       );
-      lObjOpts = {
+      let opts = {
         date: false,
       };
-      lArrayList = [];
+      let lists = [];
 
-      pArrayItems.forEach(pValue => {
-        lArrayList.push(lCreateHistoryItem(pValue, lObjOpts));
+      pItems.forEach(pValue => {
+        lists.push(create_history_item(pValue, opts));
       });
 
-      return lArrayList;
+      return lists;
     }//}}}
 
-    function getDictSplitEachSession(pArraySessions, pStrAttrName)//{{{
+    function getDictSplitEachSession(pSessions, pAttrName)//{{{
     {
-      var lAnyAttr   = null;
-      var lAnyValue  = null;
-      var lMapResult = new Map();
-      var lStrErrMsg = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         [ 'array' ],
         [ 'string' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lMapResult = new Map();
-      pArraySessions.forEach(pValue => {
-        lAnyAttr  = pValue[pStrAttrName];
-        lAnyValue = lMapResult.get(lAnyAttr) || [];
-        lAnyValue.push(pValue);
-        lMapResult.set(lAnyAttr, lAnyValue);
+      let attr, value;
+      let result = new Map();
+      pSessions.forEach(pValue => {
+        attr  = pValue[pAttrName];
+        value = result.get(attr) || [];
+        value.push(pValue);
+        result.set(attr, value);
       });
 
-      return lMapResult;
+      return result;
     }//}}}
 
-    function createSessionWindowList(lNumTime, lMapWindow)//{{{
+    function createSessionWindowList(pTime, pWindow)//{{{
     {
-      var lElField             = document.createDocumentFragment();
-      var lElArticle           = document.createDocumentFragment();
-      var lElWindowTitle       = document.createDocumentFragment();
-      var lElHistoryItemDelete = document.createDocumentFragment();
-      var lArrayList           = [];
-      var lStrErrMsg           = "";
-      var lNumCount            = 0;
-      var lCreateHistoryDate   = null;
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         [ 'number' ],
         [ 'map' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lCreateHistoryDate = closureCreateHistoryDate(
-        Object.assign(sObjOptsForCreateHistoryDate, {
+      let lCreateHistoryDate = closureCreateHistoryDate(
+        Object.assign(opts_for_create_history_date, {
           deleteFunc: removeSessionHistoryWindow,
         })
       );
 
-      lArrayList = [];
-      lNumCount  = 0;
-      lMapWindow.forEach((pValue, pNumWindowId) => {
-        lElField = lCreateHistoryDate({ date: lNumTime });
+      let lists     = [];
+      let count = 0;
+      pWindow.forEach((pValue, pNumWindowId) => {
+        let field_element = lCreateHistoryDate({ date: pTime });
         addStringToAttributeOfElement(
-          lElField, sStrAttrNameOfWindowId, pNumWindowId);
+          field_element, ATTR_NAME_OF_WINDOW_ID, pNumWindowId);
         addStringToAttributeOfElement(
-          lElField, 'class', sStrClassNameOfDoesNot);
+          field_element, 'class', CLASS_NAME_OF_DOES_NOT);
 
-        lElWindowTitle =
-          lElField.querySelector(`.${sStrClassNameOfHistoryItemDate}`);
-        lElWindowTitle.textContent = `Window ${lNumCount}`;
+        let window_title_element =
+          field_element.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_DATE}`);
+        window_title_element.textContent = `Window ${count}`;
 
-        lElHistoryItemDelete =
-          lElField.querySelector(`.${sStrClassNameOfHistoryItemDelete}`);
+        let history_item_delete_element =
+          field_element.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_DELETE}`);
         addStringToAttributeOfElement(
-            lElHistoryItemDelete, sStrAttrNameOfWindowId, pNumWindowId);
+            history_item_delete_element, ATTR_NAME_OF_WINDOW_ID, pNumWindowId);
 
-        lElArticle =
-          lElField.querySelector(`.${sObjOptsForCreateHistoryDate.itemList}`);
-
+        let article_element = field_element.querySelector(
+            `.${opts_for_create_history_date.itemList}`);
         createSessionDateListItem(pValue)
-        .forEach(v => lElArticle.appendChild(v));
+          .forEach(v => article_element.appendChild(v));
 
-        lArrayList.push(lElField);
+        lists.push(field_element);
 
-        ++lNumCount;
+        ++count;
       });
 
-      return lArrayList;
+      return lists;
     }//}}}
 
-    function createSessionDateList(pArraySessions)//{{{
+    function createSessionDateList(pSessions)//{{{
     {
-      var lMapSessionEachDate     = new Map();
-      var lMapSessionEachWindowId = new Map();
-      var lArrayDateList          = [];
-      var lArrayItemList          = [];
-      var lArrayItem              = [];
-      var lCreateSessionDate      = null;
-      var lStrErrMsg              = "";
-
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         [ 'array' ],
       ]);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lCreateSessionDate = closureCreateSessionDate();
-      lArrayDateList     = [];
-      lArrayItemList     = [];
+      let lCreateSessionDate = closureCreateSessionDate();
+      let lArrayDateList     = [];
+      let lArrayItemList     = [];
 
-      pArraySessions.forEach(pValue => {
-        lMapSessionEachDate = getDictSplitEachSession(pValue.data, 'date');
+      pSessions.forEach(pValue => {
+        let lMapSessionEachDate = getDictSplitEachSession(pValue.data, 'date');
+
         lMapSessionEachDate.forEach((pValue, pKey) => {
           lArrayDateList.push( lCreateSessionDate(pKey) );
-          lMapSessionEachWindowId =
-            getDictSplitEachSession(pValue, sStrAttrNameOfWindowId);
-          lArrayItem = createSessionWindowList(pKey, lMapSessionEachWindowId);
+
+          let lMapSessionEachWindowId =
+            getDictSplitEachSession(pValue, ATTR_NAME_OF_WINDOW_ID);
+          let lArrayItem =
+            createSessionWindowList(pKey, lMapSessionEachWindowId);
+
           lArrayItemList = lArrayItemList.concat(lArrayItem);
         });
       });
 
-      lArrayDateList.forEach(v => lElToAddDateList.appendChild(v));
-      lArrayItemList.forEach(v => lElToAddItemList.appendChild(v));
+      lArrayDateList.forEach(v => to_add_date_list.appendChild(v));
+      lArrayItemList.forEach(v => to_add_item_list.appendChild(v));
     }//}}}
 
     return createSessionDateList;
@@ -1402,33 +1272,26 @@
 
   function selectCurrentSession()//{{{
   {
-    var lElLocationWhereToAddSessionDateList =
-            document.createDocumentFragment();
-    var lElCurrentSessionItem  = document.createDocumentFragment();
-    var lNumCurrentSessionTime = 0;
-
-    lElLocationWhereToAddSessionDateList =
-      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
-
     return new Promise((resolve, reject) => {
-      chrome.storage.local.get(rObjItems => {
+      chrome.storage.local.get(pItems => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
-        lNumCurrentSessionTime = rObjItems[gStrPreviousSessionTimeKey];
-        if (lNumCurrentSessionTime === void 0 ||
-            lNumCurrentSessionTime === null) {
+        let current_session_time = pItems[gStrPreviousSessionTimeKey];
+        if (current_session_time === void 0 || current_session_time === null) {
           resolve();
           return;
         }
 
-        lElCurrentSessionItem =
-          lElLocationWhereToAddSessionDateList.querySelector(
-            `[name="${lNumCurrentSessionTime}"]`);
-        if (lElCurrentSessionItem) {
-          lElCurrentSessionItem.click();
+        let location_where_to_add_session_date_list_element =
+          document.querySelector(`#${ID_NAME_OF_SESSION_DATE_LIST}`);
+        let current_session_item_element =
+          location_where_to_add_session_date_list_element.querySelector(
+            `[name="${current_session_time}"]`);
+        if (current_session_item_element) {
+          current_session_item_element.click();
         }
       });
     });
@@ -1436,85 +1299,74 @@
 
   function showAllSessionHistory()//{{{
   {
-    var lElAddSavedSessionDateListLocation = document.createDocumentFragment();
-    var lElAddSessionDateListLocation      = document.createDocumentFragment();
-    var lElAddLocationWhereSessionList     = document.createDocumentFragment();
-    var lElSavedSessionDateTitle           = document.createDocumentFragment();
-    var lElDateListNav                     = document.createDocumentFragment();
-    var lElSessionNotFound                 = document.createDocumentFragment();
-    var lArraySavedSessions                = [];
-    var lArraySessions                     = [];
-    var lNumCurrentTime                    = 0;
-    var lCreateSavedSessionDateList        = null;
-    var lCreateSessionDateList             = null;
-
-    lElAddSavedSessionDateListLocation =
-      document.querySelector(`#${sStrIdNameOfAddSavedSessionDateList}`);
-    lElAddSessionDateListLocation      =
-      document.querySelector(`#${sStrIdNameOfSessionDateList}`);
-    lElAddLocationWhereSessionList     =
-      document.querySelector(`#${sStrIdNameOfSessionList}`);
-    lElSavedSessionDateTitle           =
-      document.querySelector(`#${sStrIdNameOfSavedSessionDateTitle}`);
-    lElDateListNav                     =
-      document.querySelector(`#${sStrIdNameOfDateListNav}`);
-    lElSessionNotFound                 =
-      document.querySelector(`#${sStrIdNameOfSessionNotFound}`);
+    let add_saved_session_date_list_element     =
+      document.querySelector(`#${ID_NAME_OF_ADD_SAVED_SESSION_DATE_LIST}`);
+    let add_session_date_list_element           =
+      document.querySelector(`#${ID_NAME_OF_SESSION_DATE_LIST}`);
+    let add_location_where_session_list_element =
+      document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
+    let saved_session_date_title_element        =
+      document.querySelector(`#${ID_NAME_OF_SAVED_SESSION_DATE_TITLE}`);
+    let date_list_nav_element                   =
+      document.querySelector(`#${ID_NAME_OF_DATE_LIST_NAV}`);
+    let session_not_found_element               =
+      document.querySelector(`#${ID_NAME_OF_SESSION_NOT_FOUND}`);
 
     return new Promise((resolve, reject) => {
       getAllSessionHistory()
       .then(results => {
-        lArraySavedSessions = results[0];
-        lArraySessions      = results[1];
+        let saved_sessions = results[0];
+        let sessions       = results[1];
 
-        clearItemInElement(lElAddSavedSessionDateListLocation);
-        clearItemInElement(lElAddSessionDateListLocation);
-        clearItemInElement(lElAddLocationWhereSessionList);
+        clearItemInElement(add_saved_session_date_list_element);
+        clearItemInElement(add_session_date_list_element);
+        clearItemInElement(add_location_where_session_list_element);
 
         // saved session list.
-        if (lArraySavedSessions.length === 0) {
+        if (saved_sessions.length === 0) {
           addStringToAttributeOfElement(
-            lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
+            saved_session_date_title_element, 'class', CLASS_NAME_OF_DOES_NOT);
         } else {
           removeStringFromAttributeOfElement(
-            lElSavedSessionDateTitle, 'class', sStrClassNameOfDoesNot);
+            saved_session_date_title_element, 'class', CLASS_NAME_OF_DOES_NOT);
 
-          lCreateSavedSessionDateList = closureCreateSessionDateList({
+          let create_saved_session_date_list = closureCreateSessionDateList({
             databaseName:       gStrDbSavedSessionName,
-            attrNameOfDatabase: sStrAttrNameOfDatabase,
-            dateList:           lElAddSavedSessionDateListLocation,
-            itemList:           lElAddLocationWhereSessionList,
+            attrNameOfDatabase: ATTR_NAME_OF_DATABASE,
+            dateList:           add_saved_session_date_list_element,
+            itemList:           add_location_where_session_list_element,
           });
-          lCreateSavedSessionDateList(lArraySavedSessions);
+          create_saved_session_date_list(saved_sessions);
         }
 
         //{{{ session list.
         chrome.storage.local.get(gStrPreviousSessionTimeKey, items => {
-          lNumCurrentTime = items[gStrPreviousSessionTimeKey];
+          let current_time = items[gStrPreviousSessionTimeKey];
 
           // new
-          lCreateSessionDateList = closureCreateSessionDateList({
+          let create_session_date_list = closureCreateSessionDateList({
             databaseName:       gStrDbSessionName,
-            attrNameOfDatabase: sStrAttrNameOfDatabase,
-            dateList:           lElAddSessionDateListLocation,
-            itemList:           lElAddLocationWhereSessionList,
-            currentTime:        lNumCurrentTime,
+            attrNameOfDatabase: ATTR_NAME_OF_DATABASE,
+            dateList:           add_session_date_list_element,
+            itemList:           add_location_where_session_list_element,
+            currentTime:        current_time,
           });
-          lCreateSessionDateList(lArraySessions);
+          create_session_date_list(sessions);
 
           // If savedSession list or session list are empty,
           // showing the message of session is empty.
-          if (lArraySavedSessions.length > 0 || lArraySessions.length > 0) {
+          if (saved_sessions.length > 0 || sessions.length > 0) {
             addStringToAttributeOfElement(
-              lElSessionNotFound, 'class', sStrClassNameOfDoesNot);
+              session_not_found_element, 'class', CLASS_NAME_OF_DOES_NOT);
             removeStringFromAttributeOfElement(
-              lElDateListNav, 'style', sStrStyleDisplayNone);
+              date_list_nav_element, 'style', STYLE_DISPLAY_NONE);
           } else {
             removeStringFromAttributeOfElement(
-              lElSessionNotFound, 'class', sStrClassNameOfDoesNot);
+              session_not_found_element, 'class', CLASS_NAME_OF_DOES_NOT);
             addStringToAttributeOfElement(
-              lElDateListNav, 'style', sStrStyleDisplayNone);
+              date_list_nav_element, 'style', STYLE_DISPLAY_NONE);
           }
+
           resolve();
         });
         //}}}
@@ -1525,119 +1377,97 @@
 
   function getAllSessionHistory()//{{{
   {
-    var lArrayPromise       = [];
-    var lArraySavedSessions = [];
-    var lArraySessions      = [];
-    var lArrayPageInfos     = [];
-    var lArrayDataURIs      = [];
-
     return new Promise((resolve, reject) => {
       if (db === void 0 || db === null) {
         reject(new Error("IndexedDB doesn't initialize yet."));
         return;
       }
 
-      lArrayPromise = [];
-      lArrayPromise.push( db.getAll({ name: gStrDbSavedSessionName }) );
-      lArrayPromise.push( db.getAll({ name: gStrDbSessionName }) );
-      lArrayPromise.push( db.getAll({ name: gStrDbPageInfoName }) );
-      lArrayPromise.push( db.getAll({ name: gStrDbDataURIName }) );
+      let promise_results = [];
+      promise_results.push( db.getAll({ name: gStrDbSavedSessionName }) );
+      promise_results.push( db.getAll({ name: gStrDbSessionName }) );
+      promise_results.push( db.getAll({ name: gStrDbPageInfoName }) );
+      promise_results.push( db.getAll({ name: gStrDbDataURIName }) );
 
-      Promise.all(lArrayPromise)
-      .then(rResults => {
-        lArraySavedSessions = rResults[0];
-        lArraySessions      = rResults[1];
-        lArrayPageInfos     = rResults[2];
-        lArrayDataURIs      = rResults[3];
+      Promise.all(promise_results)
+      .then(pResults => {
+        let saved_sessions = pResults[0];
+        let sessions       = pResults[1];
+        let page_infos     = pResults[2];
+        let data_urls      = pResults[3];
 
-        lArrayPromise = [];
-        lArrayPromise.push(
+        promise_results = [];
+        promise_results.push(
           getListAfterJoinHistoryDataOnDB(
-            [ lArraySavedSessions, lArrayPageInfos, lArrayDataURIs ])
+            [ saved_sessions, page_infos, data_urls ])
         );
-        lArrayPromise.push(
+        promise_results.push(
           getListAfterJoinHistoryDataOnDB(
-            [ lArraySessions, lArrayPageInfos, lArrayDataURIs ])
+            [ sessions, page_infos, data_urls ])
         );
 
-        return Promise.all(lArrayPromise);
+        return Promise.all(promise_results);
       })
       .then(resolve)
       .catch(reject);
     });
   }//}}}
 
-  function showAutoCompleteDateList(pArrayHistories)//{{{
+  function showAutoCompleteDateList(pHistories)//{{{
   {
-    var lElSearchHistoryDateList = document.createDocumentFragment();
-    var lElAutocompleteDateList  = document.createDocumentFragment();
-    var lStrErrMsg = "";
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'array' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElSearchHistoryDateList =
-      document.querySelector(`#${sStrIdNameOfSearchHistoryDateList}`);
-    lElAutocompleteDateList = addAutocompleteDateList(lElSearchHistoryDateList);
+    let search_history_date_elementList =
+      document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_DATE_LIST}`);
+    let autocomplete_date_list =
+      addAutocompleteDateList(search_history_date_elementList);
 
-    pArrayHistories.forEach(pValue => {
-      lElAutocompleteDateList(pValue.date);
-    });
+    pHistories.forEach(pValue => autocomplete_date_list(pValue.date));
   }//}}}
 
   function removeHistoryDate(pEvent)//{{{
   {
-    var lELTarget            = document.createDocumentFragment();
-    var lElHistoryDateLegend = document.createDocumentFragment();
-    var lElHistoryDateField  = document.createDocumentFragment();
-    var lElHistoryList       = document.createDocumentFragment();
-    var lDateNow             = new Date();
-    var lDateBegin           = new Date();
-    var lDateEnd             = new Date();
-    var lNumFullYear         = 0;
-    var lNumMonth            = 0;
-    var lNumDay              = 0;
-    var lArrayDelKeys        = [];
-    var lStrErrMsg           = "";
-    var lArrayArgs           = Array.prototype.slice.call(arguments);
+    let args           = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lELTarget            = pEvent.target;
-      lElHistoryDateLegend = lELTarget.parentNode;
-      lElHistoryDateField  = lElHistoryDateLegend.parentNode;
-      lElHistoryList       = lElHistoryDateField.parentNode;
+      let target              = pEvent.target;
+      let history_date_legend = target.parentNode;
+      let history_date_field  = history_date_legend.parentNode;
+      let history_list        = history_date_field.parentNode;
 
-      lDateNow     = new Date( parseInt(lELTarget.getAttribute('name'), 10) );
-      lNumFullYear = lDateNow.getFullYear();
-      lNumMonth    = lDateNow.getMonth();
-      lNumDay      = lDateNow.getDate();
-      lDateBegin = new Date(lNumFullYear, lNumMonth, lNumDay, 0, 0, 0, 0);
-      lDateEnd   = new Date(lNumFullYear, lNumMonth, lNumDay, 23, 59, 59, 999);
+      let target_date = new Date( parseInt(target.getAttribute('name'), 10) );
+      let fullyear    = target_date.getFullYear();
+      let month       = target_date.getMonth();
+      let day         = target_date.getDate();
+      let lDateBegin  = new Date(fullyear, month, day, 0, 0, 0, 0);
+      let lDateEnd    = new Date(fullyear, month, day, 23, 59, 59, 999);
 
       db.getCursor({
         name:  gStrDbHistoryName,
         range: IDBKeyRange.bound(lDateBegin.getTime(), lDateEnd.getTime()),
       })
       .then(histories => {
-        lArrayDelKeys = histories.map(v => v.date);
+        let delete_keys = histories.map(v => v.date);
         return db.delete({
           name: gStrDbHistoryName,
-          keys: lArrayDelKeys,
+          keys: delete_keys,
         });
       })
       .then(ret => {
-        lElHistoryList.removeChild(lElHistoryDateField);
+        history_list.removeChild(history_date_field);
         return ret;
       })
       .then(resolve)
@@ -1650,38 +1480,31 @@
 
   function removeHistoryItem(pEvent)//{{{
   {
-    var lTarget          = document.createDocumentFragment();
-    var lHistoryItem     = document.createDocumentFragment();
-    var lHistoryItemList = document.createDocumentFragment();
-    var lDbName          = ""; // indexedDB name.
-    var lItemId          = 0; // session item only.
-    var lTime            = 0; // this value is new Date().getTime().
-    var lStrErrMsg       = "";
-    var lArrayArgs       = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lTarget          = pEvent.target;
-      lHistoryItem     = lTarget.parentNode;
-      lHistoryItemList = lHistoryItem.parentNode;
+      let target            = pEvent.target;
+      let history_item      = target.parentNode;
+      let history_item_list = history_item.parentNode;
 
-      lDbName = lTarget.getAttribute(sStrAttrNameOfDatabase);
-      lItemId = parseInt(lTarget.getAttribute(sStrAttrNameOfItemId), 10);
-      lTime   = parseInt(lTarget.getAttribute('name'), 10);
+      let db_name = target.getAttribute(ATTR_NAME_OF_DATABASE);
+      let item_id = parseInt(target.getAttribute(ATTR_NAME_OF_ITEM_ID), 10);
+      let time    = parseInt(target.getAttribute('name'), 10);
 
       db.delete({
-        name: lDbName,
-        keys: lItemId ? lItemId : lTime,
+        name: db_name,
+        keys: item_id ? item_id : time,
       })
       .then(ret => {
-        lHistoryItemList.removeChild(lHistoryItem);
+        history_item_list.removeChild(history_item);
         return ret;
       })
       .then(resolve)
@@ -1694,40 +1517,36 @@
 
   function removeSessionHistoryItem(event)//{{{
   {
-    var lElSessionList = document.createDocumentFragment();
-    var lElItemList    = document.createDocumentFragment();
-    var lElShowField   = document.createDocumentFragment();
-    var lStrErrMsg     = "";
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
-    var lFuncGetShowField   = null;
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
-      lFuncGetShowField = function(){
-        return lElSessionList.querySelectorAll(
-          `fieldset:not(.${sStrClassNameOfDoesNot})`);
+      let session_list_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
+      let getShowField = () => {
+        return session_list_element.querySelectorAll(
+          `fieldset:not(.${CLASS_NAME_OF_DOES_NOT})`);
       };
-      lElShowField = lFuncGetShowField();
+      let show_field_element = getShowField();
 
       removeHistoryItem(event)
       .then(() => {
-        Array.prototype.slice.call(lElShowField).forEach(pValue => {
-          lElItemList =
-            pValue.querySelector(`.${sStrClassNameOfHistoryItemList}`);
-          if (lElItemList.childNodes.length === 0) {
-            lElSessionList.removeChild(pValue);
+        Array.prototype.slice.call(show_field_element).forEach(pValue => {
+          let item_list_element =
+            pValue.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_LIST}`);
+          if (item_list_element.childNodes.length === 0) {
+            session_list_element.removeChild(pValue);
           }
         });
 
-        return (lFuncGetShowField().length === 0) ? initSessionHistory() : null;
+        return (getShowField().length === 0) ? initSessionHistory() : null;
       })
       .then(resolve)
       .catch(reject);
@@ -1736,84 +1555,73 @@
 
   function removeSessionHistoryWindow(event)//{{{
   {
-    var lTarget             = document.createDocumentFragment();
-    var lElShowField        = document.createDocumentFragment();
-    var lElSessionList      = document.createDocumentFragment();
-    var lArrayDbName        = [];
-    var lArrayPromise       = [];
-    var lArraySessions      = [];
-    var lArrayDelKeys       = [];
-    var lNumWindowId        = 0;
-    var lNumDateTime        = 0;
-    var lNumWindowIdOfField = 0;
-    var getShowField        = null;
-    var lStrErrMsg          = "";
-    var lArrayArgs          = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lElSessionList = document.querySelector(`#${sStrIdNameOfSessionList}`);
-      getShowField = function(){
-        return lElSessionList.querySelectorAll(
-          `fieldset:not(.${sStrClassNameOfDoesNot})`);
+      let session_list_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
+      let getShowField = () => {
+        return session_list_element.querySelectorAll(
+          `fieldset:not(.${CLASS_NAME_OF_DOES_NOT})`);
       };
-      lTarget      = event.target;
-      lNumWindowId = parseInt(lTarget.getAttribute(sStrAttrNameOfWindowId), 10);
-      lNumDateTime = parseInt(lTarget.getAttribute('name'), 10);
-      lArrayDbName = [ gStrDbSessionName, gStrDbSavedSessionName ];
+      let target = event.target;
+      let window_id = parseInt(target.getAttribute(ATTR_NAME_OF_WINDOW_ID), 10);
+      let date_time = parseInt(target.getAttribute('name'), 10);
+      let db_names = [ gStrDbSessionName, gStrDbSavedSessionName ];
 
       // get from all the databases of a session history.
-      lArrayPromise  = [];
-      lArrayDbName.forEach(pValue => {
-        lArrayPromise.push(
+      let promise_results  = [];
+      db_names.forEach(pValue => {
+        promise_results.push(
           db.getCursor({
             name:      pValue,
-            range:     IDBKeyRange.only(lNumDateTime),
+            range:     IDBKeyRange.only(date_time),
             indexName: 'date',
           })
         );
       });
 
-      Promise.all(lArrayPromise)
-      .then(rResults => {
+      Promise.all(promise_results)
+      .then(pResults => {
         // create the array for to delete session history from database.
-        lArraySessions = [];
-        rResults.forEach(pValue => {
-          lArraySessions = lArraySessions.concat(pValue);
+        let sessions = [];
+        pResults.forEach(pValue => {
+          sessions = sessions.concat(pValue);
         });
-        lArrayDelKeys = lArraySessions.filter(v => {
-          return lNumWindowId ? v.windowId === lNumWindowId : true;
+        let delete_keys = sessions.filter(v => {
+          return window_id ? v.windowId === window_id : true;
         })
         .map(v => v.id);
 
         // delete specified window from the databases of a session history.
-        lArrayPromise = [];
-        lArrayDbName.forEach(pValue => {
-          lArrayPromise.push(
+        promise_results = [];
+        db_names.forEach(pValue => {
+          promise_results.push(
             db.delete({
               name: pValue,
-              keys: lArrayDelKeys,
+              keys: delete_keys,
             })
           );
         });
 
-        return Promise.all(lArrayPromise);
+        return Promise.all(promise_results);
       })
       .then(() => {
         // deletes the deleted window item from DOM.
-        lElShowField = getShowField();
-        Array.prototype.slice.call(lElShowField).forEach(pValue => {
-          lNumWindowIdOfField =
-            parseInt(pValue.getAttribute(sStrAttrNameOfWindowId), 10);
-          if (lNumWindowIdOfField === lNumWindowId) {
-            lElSessionList.removeChild(pValue);
+        let show_field_element = getShowField();
+        Array.prototype.slice.call(show_field_element).forEach(pValue => {
+          let window_id_of_field =
+            parseInt(pValue.getAttribute(ATTR_NAME_OF_WINDOW_ID), 10);
+          if (window_id_of_field === window_id) {
+            session_list_element.removeChild(pValue);
           }
         });
 
@@ -1825,77 +1633,68 @@
     });
   }//}}}
 
-  function closureCreateHistoryDate(pObjOpts)//{{{
+  function closureCreateHistoryDate(pOptions)//{{{
   {
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) {
         return toType(pValue) !== 'object' &&
-               !pObjOpts.hasOwnProperty(pObjOpts);
+               !pOptions.hasOwnProperty(pOptions);
       },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     //{{{ local variables.
-    const lFuncDelete                    = pObjOpts.deleteFunc;
-    const lStrClassNameOfHistoryDateItem = pObjOpts.className || 'historyDate';
-    const lStrClassNameOfDeleteButton    = pObjOpts.itemDelete || 'itemDelete';
+    const delete_function                 = pOptions.deleteFunc;
+    const CLASS_NAME_OF_HISTORY_DATE_item = pOptions.className || 'historyDate';
+    const class_name_of_delete_button     = pOptions.itemDelete || 'itemDelete';
     // itemDate also be used as DateTitle.
-    const lStrClassNameOfHistoryDate     = pObjOpts.itemDate || 'itemDate';
-    const lStrClassNameToAddHistoryItem  = pObjOpts.itemList || 'itemList';
+    const CLASS_NAME_OF_HISTORY_DATE     = pOptions.itemDate || 'itemDate';
+    const class_name_to_add_history_item = pOptions.itemList || 'itemList';
     //}}}
 
     function createPrototype()//{{{
     {
-      var lElFieldset = document.createElement('fieldset');
-      var lElLegend   = document.createElement('legend');
-      var lElSpan     = document.createElement('span');
-      var lElImg      = document.createElement('img');
-      var lElArticle  = document.createElement('article');
+      let fieldset        = document.createElement('fieldset');
+      let legend          = document.createElement('legend');
+      let span            = document.createElement('span');
+      let img             = document.createElement('img');
+      let article_element = document.createElement('article');
 
       addStringToAttributeOfElement(
-        lElFieldset, 'class', lStrClassNameOfHistoryDateItem);
-      addStringToAttributeOfElement(lElFieldset, 'class', 'historyField');
+        fieldset, 'class', CLASS_NAME_OF_HISTORY_DATE_item);
+      addStringToAttributeOfElement(fieldset, 'class', 'historyField');
 
       addStringToAttributeOfElement(
-        lElSpan, 'class', lStrClassNameOfHistoryDate);
+        span, 'class', CLASS_NAME_OF_HISTORY_DATE);
 
-      addStringToAttributeOfElement(lElImg, 'src', gStrDeleteIconPath);
-      addStringToAttributeOfElement(lElImg, 'alt', 'Delete button');
+      addStringToAttributeOfElement(img, 'src', gStrDeleteIconPath);
+      addStringToAttributeOfElement(img, 'alt', 'Delete button');
+      addStringToAttributeOfElement(img, 'class', class_name_of_delete_button);
+      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
+
       addStringToAttributeOfElement(
-        lElImg, 'class', lStrClassNameOfDeleteButton);
-      addStringToAttributeOfElement(lElImg, 'class', 'icon16_rev');
+        article_element, 'class', class_name_to_add_history_item);
+      addStringToAttributeOfElement(article_element, 'class', 'ellipsis_over');
 
-      addStringToAttributeOfElement(
-        lElArticle, 'class', lStrClassNameToAddHistoryItem);
-      addStringToAttributeOfElement(lElArticle, 'class', 'ellipsis_over');
+      legend.appendChild(span);
+      legend.appendChild(img);
+      fieldset.appendChild(legend);
+      fieldset.appendChild(article_element);
 
-      lElLegend.appendChild(lElSpan);
-      lElLegend.appendChild(lElImg);
-      lElFieldset.appendChild(lElLegend);
-      lElFieldset.appendChild(lElArticle);
-
-      return lElFieldset;
+      return fieldset;
     }//}}}
 
-    function createHistoryDate(pItem, pObjOpts)//{{{
+    function createHistoryDate(pItem, pOptions)//{{{
     {
-      var lElProto        = document.createDocumentFragment();
-      var lElHistoryDate  = document.createDocumentFragment();
-      var lElDeleteButton = document.createDocumentFragment();
-      var lElDateTitle    = document.createDocumentFragment();
-      var lNumTime        = 0;
-      var lObjDefaultOpts = {}; // default options.
-      var lStrErrMsg      = "";
-
-      lObjDefaultOpts = {
+      let default_opts = {
         deleteButton: true,
         date:         true,
         title:        true,
       };
 
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         function(pValue) {
           return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
         },
@@ -1904,134 +1703,125 @@
             return true;
           }
 
-          var rBoolResult = false;
+          let rBoolResult = false;
           Object.keys(pValue).forEach(pKey => {
-            if (!lObjDefaultOpts.hasOwnProperty(pKey)) {
+            if (!default_opts.hasOwnProperty(pKey)) {
               rBoolResult = true;
             }
           });
           return rBoolResult;
         },
       ], true);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lElProto        = createPrototype();
-      lElHistoryDate  = lElProto.cloneNode(true);
-      lElDeleteButton =
-        lElHistoryDate.querySelector(`.${lStrClassNameOfDeleteButton}`);
-      lElDateTitle  =
-        lElHistoryDate.querySelector(`.${lStrClassNameOfHistoryDate}`);
+      let prototype_element = createPrototype();
+      let history_date  = prototype_element.cloneNode(true);
+      let delete_button =
+        history_date.querySelector(`.${class_name_of_delete_button}`);
+      let date_title    =
+        history_date.querySelector(`.${CLASS_NAME_OF_HISTORY_DATE}`);
 
-      if (pObjOpts !== void 0 && pObjOpts !== null) {
-        Object.keys(pObjOpts).forEach(v => lObjDefaultOpts[v] = pObjOpts[v]);
+      if (pOptions !== void 0 && pOptions !== null) {
+        Object.keys(pOptions).forEach(v => default_opts[v] = pOptions[v]);
       }
 
-      lNumTime       = new Date(pItem.date).getTime();
-      addStringToAttributeOfElement(lElHistoryDate, 'name', lNumTime);
+      let time = new Date(pItem.date).getTime();
+      addStringToAttributeOfElement(history_date, 'name', time);
 
-      if (lObjDefaultOpts.deleteButton) {
-        addStringToAttributeOfElement(lElDeleteButton, 'name', lNumTime);
-        lElDeleteButton.addEventListener('click', lFuncDelete, true);
+      if (default_opts.deleteButton) {
+        addStringToAttributeOfElement(delete_button, 'name', time);
+        delete_button.addEventListener('click', delete_function, true);
       }
 
-      if (lObjDefaultOpts.title || lObjDefaultOpts.date) {
-        lElDateTitle.textContent = getFormatEachLanguages(pItem.date, {
+      if (default_opts.title || default_opts.date) {
+        date_title.textContent = getFormatEachLanguages(pItem.date, {
           'ja':      'YYYY/MM/DD',
           'default': 'MM/DD/YYYY',
         });
       }
 
-      return lElHistoryDate;
+      return history_date;
     }//}}}
 
     return createHistoryDate;
   }//}}}
 
-  function closureCreateHistoryItem(pObjOpts)//{{{
+  function closureCreateHistoryItem(pOptions)//{{{
   {
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) {
         return toType(pValue) !== 'object' &&
                !pValue.hasOwnProperty('databaseName') &&
                !pValue.hasOwnProperty('deleteFunc');
       },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
     //{{{ local variable
-    const gStrDbName  = pObjOpts.databaseName;
-    const lFuncDelete = pObjOpts.deleteFunc;
-    const lStrAttrNameOfDatabase = pObjOpts.attrNameOfDatabase || 'database';
-    const lStrClassNameOfHistoryItem  = pObjOpts.className || 'historyItem';
-    const lStrClassNameOfDeleteButton = pObjOpts.itemDelete || 'itemDelete';
-    const lStrClassNameOfPageIcon     = pObjOpts.itemIcon || 'itemIcon';
-    const lStrClassNameOfTitle = pObjOpts.itemTitle || 'itemTitle';
-    const lStrClassNameOfDate  = pObjOpts.itemDate || 'itemDate';
-    const lStrClassNameOfLink  = pObjOpts.itemUrl || 'itemUrl';
-    const lStrAttrNameOfItemId = pObjOpts.attrNameOfItemId || 'historyItemId';
+    const db_name         = pOptions.databaseName;
+    const delete_function = pOptions.deleteFunc;
+    const CLASS_NAME_OF_HISTORY_ITEM  = pOptions.className || 'historyItem';
+    const class_name_of_delete_button = pOptions.itemDelete || 'itemDelete';
+    const class_name_of_page_icon = pOptions.itemIcon || 'itemIcon';
+    const class_name_of_title     = pOptions.itemTitle || 'itemTitle';
+    const class_name_of_date      = pOptions.itemDate || 'itemDate';
+    const class_name_of_link      = pOptions.itemUrl || 'itemUrl';
+    const ATTR_NAME_OF_DATABASE = pOptions.attrNameOfDatabase || 'database';
+    const ATTR_NAME_OF_ITEM_ID  = pOptions.attrNameOfItemId || 'historyItemId';
     //}}}
 
     function createPrototype()//{{{
     {
-      var lElSection = document.createElement('section');
-      var lElSpan    = document.createElement('span');
-      var lElA       = document.createElement('a');
-      var lElImg     = document.createElement('img');
-      addStringToAttributeOfElement(lElImg, 'class', 'icon16_rev');
+      let section = document.createElement('section');
+      let span    = document.createElement('span');
+      let a_tag   = document.createElement('a');
+      let img     = document.createElement('img');
+      addStringToAttributeOfElement(img, 'class', 'icon16_rev');
 
-      var lElDeleteIcon = lElImg.cloneNode(true);
-      var lElPageIcon   = lElImg.cloneNode(true);
-      var lElTitle      = lElSpan.cloneNode(true);
-      var lElDate       = lElSpan.cloneNode(true);
+      let delete_icon   = img.cloneNode(true);
+      let page_icon     = img.cloneNode(true);
+      let title_element = span.cloneNode(true);
+      let date_element  = span.cloneNode(true);
 
       addStringToAttributeOfElement(
-        lElSection, 'class', lStrClassNameOfHistoryItem);
-      addStringToAttributeOfElement(lElSection, 'class', 'ellipsis');
+        section, 'class', CLASS_NAME_OF_HISTORY_ITEM);
+      addStringToAttributeOfElement(section, 'class', 'ellipsis');
       addStringToAttributeOfElement(
-        lElSection, lStrAttrNameOfDatabase, gStrDbName);
+        section, ATTR_NAME_OF_DATABASE, db_name);
 
-      addStringToAttributeOfElement(lElDeleteIcon, 'src', gStrDeleteIconPath);
-      addStringToAttributeOfElement(lElDeleteIcon, 'alt', 'Delete button');
+      addStringToAttributeOfElement(delete_icon, 'src', gStrDeleteIconPath);
+      addStringToAttributeOfElement(delete_icon, 'alt', 'Delete button');
       addStringToAttributeOfElement(
-        lElDeleteIcon, 'class', lStrClassNameOfDeleteButton);
+        delete_icon, 'class', class_name_of_delete_button);
 
-      addStringToAttributeOfElement(lElPageIcon, 'alt', 'page icon');
+      addStringToAttributeOfElement(page_icon, 'alt', 'page icon');
       addStringToAttributeOfElement(
-        lElPageIcon, 'class', lStrClassNameOfPageIcon);
+        page_icon, 'class', class_name_of_page_icon);
 
-      addStringToAttributeOfElement(lElTitle, 'class', lStrClassNameOfTitle);
-      addStringToAttributeOfElement(lElDate, 'class', lStrClassNameOfDate);
+      addStringToAttributeOfElement(
+          title_element, 'class', class_name_of_title);
+      addStringToAttributeOfElement(date_element, 'class', class_name_of_date);
 
-      addStringToAttributeOfElement(lElA, 'target', '_blank');
-      addStringToAttributeOfElement(lElA, 'class', lStrClassNameOfLink);
+      addStringToAttributeOfElement(a_tag, 'target', '_blank');
+      addStringToAttributeOfElement(a_tag, 'class', class_name_of_link);
 
-      lElA.appendChild(lElPageIcon);
-      lElA.appendChild(lElTitle);
+      a_tag.appendChild(page_icon);
+      a_tag.appendChild(title_element);
 
-      lElSection.appendChild(lElDeleteIcon);
-      lElSection.appendChild(lElDate);
-      lElSection.appendChild(lElA);
+      section.appendChild(delete_icon);
+      section.appendChild(date_element);
+      section.appendChild(a_tag);
 
-      return lElSection;
+      return section;
     }//}}}
 
-    function createHistoryItem(pObjItem, pObjOpts)//{{{
+    function createHistoryItem(pObjItem, pOptions)//{{{
     {
-      var lElProto        = document.createDocumentFragment();
-      var lElItem         = document.createDocumentFragment();
-      var lElDeleteButton = document.createDocumentFragment();
-      var lElDate         = document.createDocumentFragment();
-      var lElLink         = document.createDocumentFragment();
-      var lElIcon         = document.createDocumentFragment();
-      var lElTitle        = document.createDocumentFragment();
-      var lObjDefaultOpts = {}; // default options.
-      var lStrErrMsg      = "";
-
-      lObjDefaultOpts = { // default.
+      let default_opts = { // default.
         deleteButton: true,
         date:         true,
         link:         true,
@@ -2039,7 +1829,7 @@
         icon:         true,
       };
 
-      lStrErrMsg = checkFunctionArguments(arguments, [
+      let err_msg = checkFunctionArguments(arguments, [
         function(pValue) {
           return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
         },
@@ -2048,60 +1838,62 @@
             return true;
           }
 
-          var rBoolResult = false;
-          Object.keys(pObjOpts).forEach(pKey => {
-            if (!lObjDefaultOpts.hasOwnProperty(pKey)) {
+          let rBoolResult = false;
+          Object.keys(pOptions).forEach(pKey => {
+            if (!default_opts.hasOwnProperty(pKey)) {
               rBoolResult = true;
             }
           });
           return rBoolResult;
         },
       ], true);
-      if (lStrErrMsg) {
-        throw new Error(lStrErrMsg);
+      if (err_msg) {
+        throw new Error(err_msg);
       }
 
-      lElProto        = createPrototype();
-      lElItem         = lElProto.cloneNode(true);
-      lElDeleteButton =
-        lElItem.querySelector(`.${lStrClassNameOfDeleteButton}`);
-      lElDate         = lElItem.querySelector(`.${lStrClassNameOfDate}`);
-      lElLink         = lElItem.querySelector(`.${lStrClassNameOfLink}`);
-      lElIcon         = lElItem.querySelector(`.${lStrClassNameOfPageIcon}`);
-      lElTitle        = lElItem.querySelector(`.${lStrClassNameOfTitle}`);
+      let prototype_element = createPrototype();
+      let item_element      = prototype_element.cloneNode(true);
+      let delete_button =
+        item_element.querySelector(`.${class_name_of_delete_button}`);
+      let date_element  = item_element.querySelector(`.${class_name_of_date}`);
+      let link_element  = item_element.querySelector(`.${class_name_of_link}`);
+      let icon_element =
+        item_element.querySelector(`.${class_name_of_page_icon}`);
+      let title_element = item_element.querySelector(`.${class_name_of_title}`);
 
-      if (pObjOpts !== void 0 && pObjOpts !== null) {
-        Object.keys(pObjOpts).forEach(v => lObjDefaultOpts[v] = pObjOpts[v]);
+      if (pOptions !== void 0 && pOptions !== null) {
+        Object.keys(pOptions).forEach(v => default_opts[v] = pOptions[v]);
       }
 
-      lElItem.setAttribute('name', pObjItem.date);
+      item_element.setAttribute('name', pObjItem.date);
 
-      if (lObjDefaultOpts.deleteButton) {
-        lElDeleteButton.setAttribute('name', pObjItem.date);
-        lElDeleteButton.setAttribute(lStrAttrNameOfDatabase, gStrDbName);
-        lElDeleteButton.addEventListener('click', lFuncDelete, true);
+      if (default_opts.deleteButton) {
+        delete_button.setAttribute('name', pObjItem.date);
+        delete_button.setAttribute(ATTR_NAME_OF_DATABASE, db_name);
+        delete_button.addEventListener('click', delete_function, true);
         if (pObjItem.hasOwnProperty('id')) {
-          lElDeleteButton.setAttribute(lStrAttrNameOfItemId, pObjItem.id);
+          delete_button.setAttribute(ATTR_NAME_OF_ITEM_ID, pObjItem.id);
         }
       }
 
-      if (lObjDefaultOpts.date !== false) {
-        lElDate.textContent = formatDate(new Date(pObjItem.date), 'hh:mm:ss');
+      if (default_opts.date !== false) {
+        date_element.textContent =
+          formatDate(new Date(pObjItem.date), 'hh:mm:ss');
       }
 
-      if (pObjItem.hasOwnProperty('url') && lObjDefaultOpts.link) {
-        lElLink.setAttribute('href', pObjItem.url);
+      if (pObjItem.hasOwnProperty('url') && default_opts.link) {
+        link_element.setAttribute('href', pObjItem.url);
       }
 
-      if (pObjItem.hasOwnProperty('dataURI') && lObjDefaultOpts.icon) {
-        lElIcon.setAttribute('src', pObjItem.dataURI);
+      if (pObjItem.hasOwnProperty('dataURI') && default_opts.icon) {
+        icon_element.setAttribute('src', pObjItem.dataURI);
       }
 
-      if (pObjItem.hasOwnProperty('title') && lObjDefaultOpts.title) {
-        lElTitle.textContent = pObjItem.title;
+      if (pObjItem.hasOwnProperty('title') && default_opts.title) {
+        title_element.textContent = pObjItem.title;
       }
 
-      return lElItem;
+      return item_element;
     }//}}}
 
     return createHistoryItem;
@@ -2109,47 +1901,38 @@
 
   function showAllHistory()//{{{
   {
-    var lElHistoryDateList   = document.createDocumentFragment();
-    var lElHistoryItemList   = document.createDocumentFragment();
-    var lElHistoryDate       = document.createDocumentFragment();
-    var lElCreateHistoryDate = null;
-    var lElCreateHistoryItem = null;
-    var lArrayList           = [];
-
     return new Promise((resolve, reject) => {
       getAllHistory()
-      .then(historyArray => {
-        historyArray = historyArray.reverse();
-        lElHistoryDateList =
-          document.querySelector(`#${sStrIdNameOfHistoryList}`);
+      .then(pHistoryArray => {
+        pHistoryArray = pHistoryArray.reverse();
+        showAutoCompleteDateList(pHistoryArray);
 
-        showAutoCompleteDateList(historyArray);
+        let history_date_list_element =
+          document.querySelector(`#${ID_NAME_OF_HISTORY_LIST}`);
+        clearItemInElement(history_date_list_element);
 
-        clearItemInElement(lElHistoryDateList);
-
-        lElCreateHistoryDate =
-          closureCreateHistoryDate(sObjOptsForCreateHistoryDate);
-        lElCreateHistoryItem =
+        let createHistoryDateFunc =
+          closureCreateHistoryDate(opts_for_create_history_date);
+        let createHistoryItemFunc =
           closureCreateHistoryItem(
-            Object.assign(sObjOptsForCreateHistoryItem,
+            Object.assign(opts_for_create_history_item,
               { databaseName: gStrDbHistoryName }));
 
-        historyArray.forEach(pValue => {
-          lElHistoryDate = lElCreateHistoryDate(pValue);
-
-          lArrayList = [];
+        pHistoryArray.forEach(pValue => {
+          let lists = [];
           pValue.data.forEach(pValueJ => {
-            lArrayList.push( lElCreateHistoryItem(pValueJ) );
+            lists.push( createHistoryItemFunc(pValueJ) );
           });
-          lArrayList = lArrayList.reverse();
+          lists = lists.reverse();
 
-          lElHistoryItemList =
-            lElHistoryDate.querySelector(`.${sStrClassNameOfHistoryItemList}`);
-          lArrayList.forEach(pValueZ => {
-            lElHistoryItemList.appendChild(pValueZ);
+          let history_date = createHistoryDateFunc(pValue);
+          let history_item_list_element =
+            history_date.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_LIST}`);
+          lists.forEach(pValueZ => {
+            history_item_list_element.appendChild(pValueZ);
           });
 
-          lElHistoryDateList.appendChild(lElHistoryDate);
+          history_date_list_element.appendChild(history_date);
         });
 
         resolve();
@@ -2174,121 +1957,100 @@
 
   function showSpecificHistoryDateAndItem()//{{{
   {
-    var lElSearchHistoryDate          = document.createDocumentFragment();
-    var lElSearchHistoryItem          = document.createDocumentFragment();
-    var lElDateList                   = document.createDocumentFragment();
-    var lElHistoryItems               = document.createDocumentFragment();
-    var lElItemTitle                  = document.createDocumentFragment();
-    var lElItemUrl                    = document.createDocumentFragment();
-    var lStrSearchHistoryValue        = '';
-    var lStrSearchHistoryItemValue    = "";
-    var lNumSearchHistoryValueLen     = 0;
-    var lNumSearchHistoryItemValueLen = 0;
-    var lDate                         = new Date();
-    var lDateSearch                   = new Date();
-    var lRegItem                      = null;
-    var lArrayMatch                   = [];
-    var lNumCount                     = 0;
-    var lNumSearchTime                = 0;
+    let search_history_date_element =
+      document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_DATE}`);
+    let search_history_value        = search_history_date_element.value;
+    let search_history_value_length = search_history_value.length;
+    let search_history_item_element =
+      document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_ITEM}`);
+    let search_history_item_value = search_history_item_element.value.trim();
+    let search_history_item_value_length = search_history_item_value.length;
+    let date_list_element =
+      document.querySelectorAll(`.${CLASS_NAME_OF_HISTORY_DATE}`);
+    let regex_item = new RegExp(search_history_item_value, 'ig');
 
-    lElSearchHistoryDate      = document.querySelector(
-                                  `#${sStrIdNameOfSearchHistoryDate}`);
-    lStrSearchHistoryValue    = lElSearchHistoryDate.value;
-    lNumSearchHistoryValueLen = lStrSearchHistoryValue.length;
-    lElSearchHistoryItem      = document.querySelector(
-                                  `#${sStrIdNameOfSearchHistoryItem}`);
-    lStrSearchHistoryItemValue    = lElSearchHistoryItem.value.trim();
-    lNumSearchHistoryItemValueLen = lStrSearchHistoryItemValue.length;
-    lElDateList = document.querySelectorAll(`.${sStrClassNameOfHistoryDate}`);
-    lRegItem    = new RegExp(lStrSearchHistoryItemValue, 'ig');
-
-    if (lNumSearchHistoryValueLen > 0) {
-      lArrayMatch = lStrSearchHistoryValue.match(/(\d+)-(\d+)-(\d+)/);
-      lDateSearch =
-        new Date(lArrayMatch[1], lArrayMatch[2] - 1, lArrayMatch[3]);
-      lNumSearchTime = lDateSearch.getTime();
+    let search_time = 0;
+    if (search_history_value_length > 0) {
+      let matchies    = search_history_value.match(/(\d+)-(\d+)-(\d+)/);
+      let date_search = new Date(matchies[1], matchies[2] - 1, matchies[3]);
+      search_time = date_search.getTime();
     }
 
-    Array.prototype.slice.call(lElDateList).forEach(pValue => {
-      lDate = new Date(parseInt(pValue.name, 10));
+    Array.prototype.slice.call(date_list_element).forEach(pValue => {
+      let date = new Date(parseInt(pValue.name, 10));
 
-      if (lNumSearchHistoryValueLen === 0 ||
-          lDate.getTime() === lNumSearchTime) {
+      if (search_history_value_length === 0 || date.getTime() === search_time) {
         removeStringFromAttributeOfElement(
-          pValue, 'class', sStrClassNameOfDoesNot);
+          pValue, 'class', CLASS_NAME_OF_DOES_NOT);
       } else {
-        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
+        addStringToAttributeOfElement(pValue, 'class', CLASS_NAME_OF_DOES_NOT);
         return;
       }
 
-      lElHistoryItems =
-        pValue.querySelectorAll(`.${sStrClassNameOfHistoryItem}`);
-      lNumCount = 0;
-      Array.prototype.slice.call(lElHistoryItems).forEach(pValueJ => {
-        lElItemTitle =
-          pValueJ.querySelector(`.${sStrClassNameOfHistoryItemTitle}`);
-        lElItemUrl   =
-          pValueJ.querySelector(`.${sStrClassNameOfHistoryItemUrl}`);
-        if (lNumSearchHistoryItemValueLen === 0 ||
-            lRegItem.test(lElItemTitle.textContent) ||
-            lRegItem.test(lElItemUrl.href)) {
+      let history_item_element =
+        pValue.querySelectorAll(`.${CLASS_NAME_OF_HISTORY_ITEM}`);
+      let count = 0;
+      Array.prototype.slice.call(history_item_element).forEach(pValueJ => {
+        let item_title_element =
+          pValueJ.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_TITLE}`);
+        let item_url_element   =
+          pValueJ.querySelector(`.${CLASS_NAME_OF_HISTORY_ITEM_URL}`);
+        if (search_history_item_value_length === 0 ||
+            regex_item.test(item_title_element.textContent) ||
+            regex_item.test(item_url_element.href)) {
           removeStringFromAttributeOfElement(
-            pValueJ, 'class', sStrClassNameOfDoesNot);
+            pValueJ, 'class', CLASS_NAME_OF_DOES_NOT);
         } else {
           addStringToAttributeOfElement(
-            pValueJ, 'class', sStrClassNameOfDoesNot);
-          ++lNumCount;
+            pValueJ, 'class', CLASS_NAME_OF_DOES_NOT);
+          ++count;
         }
       });
 
-      if (lNumCount === lElHistoryItems.length) {
-        addStringToAttributeOfElement(pValue, 'class', sStrClassNameOfDoesNot);
+      if (count === history_item_element.length) {
+        addStringToAttributeOfElement(pValue, 'class', CLASS_NAME_OF_DOES_NOT);
       } else {
         removeStringFromAttributeOfElement(
-          pValue, 'class', sStrClassNameOfDoesNot);
+          pValue, 'class', CLASS_NAME_OF_DOES_NOT);
       }
     });
   }//}}}
 
-  function changeMenu(pStrName)//{{{
+  function changeMenu(pName)//{{{
   {
-    var lStrErrMsg = "";
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'string' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      menuToggle.show(pStrName)
-      .then(processAfterMenuSelection(pStrName))
-      .then(resolve)
-      .catch(reject);
+      menuToggle.show(pName)
+        .then(processAfterMenuSelection(pName))
+        .then(resolve)
+        .catch(reject);
     });
   }//}}}
 
   function sectionButtonClicked(pEvent)//{{{
   {
-    var lElTarget = document.createDocumentFragment();
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElTarget = pEvent.target;
-    if (lElTarget.getAttribute('class') !== sStrClassNameOfButton) {
+    let target = pEvent.target;
+    if (target.getAttribute('class') !== CLASS_NAME_OF_BUTTON) {
       return;
     }
 
-    changeMenu(lElTarget.getAttribute('name'));
+    changeMenu(target.getAttribute('name'));
   }//}}}
 
   function applyNewOptionToExtensionProcess()//{{{
@@ -2302,80 +2064,72 @@
 
   function updateOptionValueToStorage(pEvent)//{{{
   {
-    var lElTarget  = document.createDocumentFragment();
-    var lObjWrite  = {};
-    var lStrName   = "";
-    var lStrErrMsg = "";
-
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lElTarget = pEvent.target;
-    lStrName = lElTarget.getAttribute('name');
-    if (lStrName === void 0 || lStrName === null || lStrName.length === 0) {
+    let target = pEvent.target;
+    let name = target.getAttribute('name');
+    if (name === void 0 || name === null || name.length === 0) {
       return;
     }
 
-    operateOption.get(document, lStrName)
-    .then(rItem => {
-      return new Promise(resolve => {
-        lObjWrite = {};
-        lObjWrite[lStrName] = rItem;
-        chrome.storage.local.set(lObjWrite, () => {
-          console.log(
-            `have wrote the data. name: ${lStrName}, value: ${rItem}`);
-          resolve();
+    operateOption.get(document, name)
+      .then(rItem => {
+        return new Promise(resolve => {
+          let write   = {};
+          write[name] = rItem;
+          chrome.storage.local.set(write, () => {
+            console.log(
+              `have wrote the data. name: ${name}, value: ${rItem}`);
+            resolve();
+          });
         });
-      });
-    })
-    .then(applyNewOptionToExtensionProcess)
-    .catch(rMes => console.error(rMes));
+      })
+      .then(applyNewOptionToExtensionProcess)
+      .catch(rMes => console.error(rMes));
   }//}}}
 
   function initSessionHistory()//{{{
   {
     return new Promise((resolve, reject)=> {
       clearSessionTitleInSessionControlBar()
-      .then(changeSessionIconControlState(false))
-      .then(showAllSessionHistory)
-      .then(selectCurrentSession)
-      .then(resolve)
-      .catch(reject);
+        .then(changeSessionIconControlState(false))
+        .then(showAllSessionHistory)
+        .then(selectCurrentSession)
+        .then(resolve)
+        .catch(reject);
     });
   }//}}}
 
-  var initSessionHistoryEvent = (function() {//{{{
-    var lElSessionSave    = document.createDocumentFragment();
-    var lElSessionDelete  = document.createDocumentFragment();
-    var lElSessionRestore = document.createDocumentFragment();
+  let initSessionHistoryEvent = (() => {//{{{
+    let session_save_element =
+      document.querySelector(`#${ID_NAME_OF_SESSION_SAVE}`);
+    let session_delete_element =
+      document.querySelector(`#${ID_NAME_OF_SESSION_DELETE}`);
+    let session_restore_element =
+        document.querySelector(`#${ID_NAME_OF_SESSION_RESTORE}`);
 
-    lElSessionSave   = document.querySelector(`#${sStrIdNameOfSessionSave}`);
-    lElSessionDelete = document.querySelector(`#${sStrIdNameOfSessionDelete}`);
-    lElSessionRestore =
-        document.querySelector(`#${sStrIdNameOfSessionRestore}`);
-
-    var commonFunc = function(pEvent) {//{{{
-      var lStrErrMsg = "";
-      var lArrayArgs = Array.prototype.slice.call(arguments);
+    let commonFunc = function(pEvent) {//{{{
+      let args = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject)=> {
-        lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+        let err_msg = checkFunctionArguments(args, [
           function(pValue) { return (typeof pValue !== 'object'); },
         ]);
-        if (lStrErrMsg) {
-          reject(new Error(lStrErrMsg));
+        if (err_msg) {
+          reject(new Error(err_msg));
           return;
         }
 
         (() => {
-          var lStrIdName = pEvent.target.getAttribute('id');
-          if (lStrIdName === lElSessionSave.getAttribute('id')) {
+          let lStrIdName = pEvent.target.getAttribute('id');
+          if (lStrIdName === session_save_element.getAttribute('id')) {
             return saveSession();
-          } else if (lStrIdName === lElSessionDelete.getAttribute('id')) {
+          } else if (lStrIdName === session_delete_element.getAttribute('id')) {
             return deleteSession();
           }
         })()
@@ -2386,9 +2140,9 @@
     };//}}}
 
     return function() {
-      lElSessionSave.addEventListener('click', commonFunc, true);
-      lElSessionDelete.addEventListener('click', commonFunc, true);
-      lElSessionRestore.addEventListener('click', restoreSession, true);
+      session_save_element.addEventListener('click', commonFunc, true);
+      session_delete_element.addEventListener('click', commonFunc, true);
+      session_restore_element.addEventListener('click', restoreSession, true);
 
       clearSessionTitleInSessionControlBar()
       .then(changeSessionIconControlState(false));
@@ -2397,41 +2151,38 @@
 
   function initHistoryEvent()//{{{
   {
-    var lElSearchHistoryDate = document.createDocumentFragment();
-    var lElSearchHistoryItem = document.createDocumentFragment();
-
     return new Promise(resolve => {
-      lElSearchHistoryDate =
-        document.querySelector(`#${sStrIdNameOfSearchHistoryDate}`);
-      lElSearchHistoryItem =
-        document.querySelector(`#${sStrIdNameOfSearchHistoryItem}`);
+      let search_history_date_element =
+        document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_DATE}`);
+      let search_history_item_element =
+        document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_ITEM}`);
 
-      lElSearchHistoryDate.addEventListener(
+      search_history_date_element.addEventListener(
         'change', showSpecificHistoryDateAndItem, true);
-      lElSearchHistoryItem.addEventListener(
+      search_history_item_element.addEventListener(
         'keyup', showSpecificHistoryDateAndItem, true);
+
       resolve();
     });
   }//}}}
 
   function initSectionBarEvent(pEvent)//{{{
   {
-    var lElButton = document.createDocumentFragment();
-    var lStrErrMsg = "";
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
       try {
-        lElButton = pEvent.querySelectorAll(`.${sStrClassNameOfButton}`);
-        Array.prototype.slice.call(lElButton).forEach(pValue => {
+        let button_elements =
+          pEvent.querySelectorAll(`.${CLASS_NAME_OF_BUTTON}`);
+        Array.prototype.slice.call(button_elements).forEach(pValue => {
           pValue.addEventListener('click', sectionButtonClicked, true);
         });
         resolve();
@@ -2443,35 +2194,31 @@
 
   function initOptionElementEvent(pEvent)//{{{
   {
-    var lElInput    = document.createDocumentFragment();
-    var lElTextarea = document.createDocumentFragment();
-    var lElSelect   = document.createDocumentFragment();
-    var lStrErrMsg = "";
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lElInput    = pEvent.querySelectorAll("input");
-      lElTextarea = pEvent.querySelectorAll("textarea");
-      lElSelect   = pEvent.querySelectorAll("select");
+      let input_elements    = pEvent.querySelectorAll("input");
+      let textarea_elements = pEvent.querySelectorAll("textarea");
+      let select_elements   = pEvent.querySelectorAll("select");
 
-      Array.prototype.slice.call(lElInput).forEach(pValue => {
+      Array.prototype.slice.call(input_elements).forEach(pValue => {
         pValue.addEventListener('keyup', updateOptionValueToStorage, true);
         pValue.addEventListener('change', updateOptionValueToStorage, true);
       });
 
-      Array.prototype.slice.call(lElTextarea).forEach(pValue => {
+      Array.prototype.slice.call(textarea_elements).forEach(pValue => {
         pValue.addEventListener('keyup', updateOptionValueToStorage, true);
       });
 
-      Array.prototype.slice.call(lElSelect).forEach(pValue => {
+      Array.prototype.slice.call(select_elements).forEach(pValue => {
         pValue.addEventListener('change', updateOptionValueToStorage, true);
       });
 
@@ -2481,15 +2228,14 @@
 
   function initKeybindEvent(pEvent)//{{{
   {
-    var lStrErrMsg = "";
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
@@ -2500,21 +2246,19 @@
 
   function initButtonEvent(pEvent)//{{{
   {
-    var lElButtons = document.createDocumentFragment();
-    var lStrErrMsg = "";
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         function(pValue) { return (typeof pValue !== 'object'); },
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lElButtons = pEvent.querySelectorAll('button');
-      Array.prototype.slice.call(lElButtons).forEach(pValue => {
+      let button_elements = pEvent.querySelectorAll('button');
+      Array.prototype.slice.call(button_elements).forEach(pValue => {
         pValue.addEventListener('click', buttonClicked, true);
       });
 
@@ -2523,9 +2267,6 @@
   }//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
-    var lObjArgs = {};
-    var lStrMenu = "";
-
     (() => {
       return new Promise(resolve => {
         db = new Database(gStrDbName, gNumDbVersion);
@@ -2542,12 +2283,12 @@
     .then(initHistoryEvent(document))
     .then(initSessionHistoryEvent(document))
     .then(() => {
-      lObjArgs = getQueryString(document);
-      lStrMenu = (lObjArgs === void 0 ||
-                  lObjArgs === null ||
-                  !lObjArgs.hasOwnProperty('page')) ? sStrDefaultMenu :
-                                                      lObjArgs.page;
-      return changeMenu(lStrMenu);
+      let args_in_url = getQueryString(document);
+      let menu = (args_in_url === void 0 ||
+                  args_in_url === null ||
+                  !args_in_url.hasOwnProperty('page')) ? DEFAULT_MENU :
+                                                         args_in_url.page;
+      return changeMenu(menu);
     })
     .catch(rErr => console.error(rErr));
   }, true);//}}}

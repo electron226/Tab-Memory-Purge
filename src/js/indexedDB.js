@@ -1,7 +1,7 @@
 (function(window) {
   "use strict";
 
-  var Database = function(databaseName, version) {//{{{
+  let Database = function(databaseName, version) {//{{{
     // When database is opened and fail the onupgradeneeded function,
     // Its database is saved empty at version 1.
     // Therefore, I have set version 2 at here.
@@ -10,58 +10,54 @@
     this.db           = null;
   };//}}}
 
-  Database.prototype.open = function(pObjCreateProperties) {//{{{
+  Database.prototype.open = function(pCreateProperties) {//{{{
     console.info(
       'called open function of Database class.',
-      Array.prototype.slice.call(pObjCreateProperties));
+      Array.prototype.slice.call(pCreateProperties));
 
-    var $this      = this;
-    var req        = null;
-    var lStrErrMsg = '';
-    var lArrayArgs = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      req = indexedDB.open($this.databaseName, $this.version);
-
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
+
+      let req = indexedDB.open($this.databaseName, $this.version);
 
       req.onupgradeneeded = function(pEvent) {
         console.info('onupgradeneeded in open function of Database class.');
 
-        var db            = null;
-        var lDBStore      = null;
-        var lObjProperty  = {};
-        var lObjIndexs    = {};
-        var lObjItem      = {};
-
         pEvent.target.transaction.onerror = reject;
 
-        db = pEvent.target.result;
+        let db = pEvent.target.result;
 
-        Object.keys(pObjCreateProperties).forEach(pStrStoreName => {
+        let property = {};
+        let indexs   = {};
+        let item     = {};
+        let db_store = null;
+        Object.keys(pCreateProperties).forEach(pStoreName => {
           // delete previous object store in database.
-          if (db.objectStoreNames.contains(pStrStoreName)) {
-            db.deleteObjectStore(pStrStoreName);
+          if (db.objectStoreNames.contains(pStoreName)) {
+            db.deleteObjectStore(pStoreName);
           }
 
-          lObjProperty = pObjCreateProperties[pStrStoreName].property;
-          lDBStore     = db.createObjectStore(pStrStoreName, lObjProperty);
-          if (pObjCreateProperties[pStrStoreName].hasOwnProperty('indexs')) {
-            lObjIndexs = pObjCreateProperties[pStrStoreName].indexs;
+          property = pCreateProperties[pStoreName].property;
+          db_store     = db.createObjectStore(pStoreName, property);
+          if (pCreateProperties[pStoreName].hasOwnProperty('indexs')) {
+            indexs = pCreateProperties[pStoreName].indexs;
 
-            Object.keys(lObjIndexs).forEach(pStrIndexName => {
-              lObjItem = lObjIndexs[pStrIndexName];
-              lDBStore.createIndex(
+            Object.keys(indexs).forEach(pStrIndexName => {
+              item = indexs[pStrIndexName];
+              db_store.createIndex(
                 pStrIndexName,
-                lObjItem.targets.length === 1 ?
-                  lObjItem.targets[0] : lObjItem.targets,
-                lObjItem.property
+                item.targets.length === 1 ?
+                  item.targets[0] : item.targets,
+                item.property
               );
             });
           }
@@ -79,57 +75,51 @@
     });
   };//}}}
 
-  Database.prototype.addOrPut = function(pObjArgs, pStrType) {//{{{
+  Database.prototype.addOrPut = function(pOpts, pType) {//{{{
     console.info('called addOrPut function of Database class.',
       Array.prototype.slice.call(arguments));
 
-    var $this          = this;
-    var lStrStoreName  = "";
-    var lArrayData     = [];
-    var lDBTransaction = null;
-    var lDBStore       = null;
-    var lArrayPromise  = [];
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object', 'array' ],
         [ 'null', 'undefined', 'string' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lStrStoreName = pObjArgs.name;
-      pStrType      = pStrType || 'add';
-      lArrayData    = (toType(pObjArgs.data) === 'object') ?
-                      [ pObjArgs.data ] : pObjArgs.data;
+      let store_name = pOpts.name;
+      let type       = pType || 'add';
+      let datas      = (toType(pOpts.data) === 'object') ?
+                       [ pOpts.data ] : pOpts.data;
 
-      lDBTransaction = $this.db.transaction(lStrStoreName, 'readwrite');
-      lDBTransaction.onabort = function(pEvent) {
+      let db_transaction = $this.db.transaction(store_name, 'readwrite');
+      db_transaction.onabort = function(pEvent) {
         console.info('abort in addOrPut function of Database class');
 
-        var lObjError = pEvent.target.error;
+        let lObjError = pEvent.target.error;
         if (lObjError.name === 'QuotaExceededError') {
           console.error(lObjError.name);
         }
       };
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore      = lDBTransaction.objectStore(lStrStoreName);
-      lArrayPromise = [];
-      lArrayData.forEach(pValue => {
-        lArrayPromise.push(
+      let db_store = db_transaction.objectStore(store_name);
+      let promise_results = [];
+      datas.forEach(pValue => {
+        promise_results.push(
           new Promise((resolve, reject) => {
-            var lDBRequest = (pStrType === 'add') ?
-                      lDBStore.add(pValue) : lDBStore.put(pValue);
-            lDBRequest.onsuccess = resolve;
-            lDBRequest.onerror   = function(pErr) {
-              var newError = new Error(
-                `storeName: ${lStrStoreName}, ` +
+            let db_req = (type === 'add') ?
+                             db_store.add(pValue) : db_store.put(pValue);
+            db_req.onsuccess = resolve;
+            db_req.onerror   = function(pErr) {
+              let newError = new Error(
+                `storeName: ${store_name}, ` +
                 `name: ${pErr.target.error.name}, ` +
                 `message: ${pErr.target.error.message}`);
               reject(newError);
@@ -138,143 +128,127 @@
         );
       });
 
-      Promise.all(lArrayPromise)
-      .then(resolve)
-      .catch(pErr => reject(pErr));
+      Promise.all(promise_results)
+        .then(resolve)
+        .catch(pErr => reject(pErr));
     });
   };//}}}
 
-  Database.prototype.add = function(lObjArgs) {//{{{
+  Database.prototype.add = function(pOpts) {//{{{
     console.info('called add function of Database class.',
       Array.prototype.slice.call(arguments));
 
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'object', 'array' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    return this.addOrPut(lObjArgs, 'add');
+    return this.addOrPut(pOpts, 'add');
   };//}}}
 
-  Database.prototype.put = function(lObjArgs) {//{{{
+  Database.prototype.put = function(pOpts) {//{{{
     console.info('called put function of Database class.',
       Array.prototype.slice.call(arguments));
 
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'object', 'array' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    return this.addOrPut(lObjArgs, 'put');
+    return this.addOrPut(pOpts, 'put');
   };//}}}
 
-  Database.prototype.get = function(lObjArgs) {//{{{
+  Database.prototype.get = function(pOpts) {//{{{
     console.info('called get function of Database class.',
       Array.prototype.slice.call(arguments));
 
-    var $this          = this;
-    var lStrStoreName  = '';
-    var lStrKey        = '';
-    var lStrIndexName  = '';
-    var lDBTransaction = null;
-    var lDBStore       = null;
-    var lDBRequest     = null;
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lStrStoreName = lObjArgs.name;
-      lStrKey       = lObjArgs.key;
-      lStrIndexName = lObjArgs.indexName;
+      let store_name = pOpts.name;
+      let key        = pOpts.key;
+      let index_name = pOpts.indexName;
 
-      lDBTransaction = $this.db.transaction(lStrStoreName, 'readonly');
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      let db_transaction = $this.db.transaction(store_name, 'readonly');
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore   = lDBTransaction.objectStore(lStrStoreName);
-      lDBRequest = null;
+      let db_store = db_transaction.objectStore(store_name);
+      let db_req   = null;
       try {
-        lDBRequest = lStrIndexName ?
-                     lDBStore.index(lStrIndexName).get(lStrKey) :
-                     lDBStore.get(lStrKey);
+        db_req = index_name ? db_store.index(index_name).get(key) :
+                              db_store.get(key);
       } catch (e) {
         console.warn(e);
-        lDBRequest = lDBStore.get(lStrKey);
+        db_req = db_store.get(key);
       }
 
-      lDBRequest.onsuccess = function() {
+      db_req.onsuccess = function() {
         console.info('onsuccess in get function of class Database.');
 
         resolve(this.result);
       };
-      lDBRequest.onerror = reject;
+      db_req.onerror = reject;
     });
   };//}}}
 
-  Database.prototype.getAll = function(lObjArgs) {//{{{
-    var $this          = this;
-    var lArrayResult   = [];
-    var lStrStoreName  = '';
-    var lStrIndexName  = '';
-    var lDBTranslation = null;
-    var lDBStore       = null;
-    var lDBReq         = null;
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+  Database.prototype.getAll = function(pOpts) {//{{{
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lArrayResult  = [];
-      lStrStoreName = lObjArgs.name;
-      lStrIndexName = lObjArgs.indexName;
+      let store_name = pOpts.name;
+      let index_name = pOpts.indexName;
 
-      lDBTranslation = $this.db.transaction(lStrStoreName, 'readonly');
-      lDBTranslation.oncomplete = resolve;
-      lDBTranslation.onerror    = reject;
+      let db_translation = $this.db.transaction(store_name, 'readonly');
+      db_translation.oncomplete = resolve;
+      db_translation.onerror    = reject;
 
-      lDBStore = lDBTranslation.objectStore(lStrStoreName);
-      lDBReq   = null;
+      let db_store = db_translation.objectStore(store_name);
+      let db_req   = null;
       try {
-        lDBReq = lStrIndexName ?
-                 lDBStore.index(lStrIndexName).openCursor() :
-                 lDBStore.openCursor();
+        db_req = index_name ?
+                 db_store.index(index_name).openCursor() :
+                 db_store.openCursor();
       } catch (pErr) {
         console.warn(pErr);
-        lDBReq = lDBStore.openCursor();
+        db_req = db_store.openCursor();
       }
 
-      lArrayResult = [];
-      lDBReq.onsuccess = function() {
+      let results = [];
+      db_req.onsuccess = function() {
         console.info('onsucess in getAll function of Database class.');
 
-        var lObjCursor = this.result;
-        if (lObjCursor) {
-          lArrayResult.push(lObjCursor.value);
-          lObjCursor.continue();
+        let cursor = this.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
         } else {
-          resolve(lArrayResult);
+          resolve(results);
         }
       };
-      lDBReq.onerror = reject;
+      db_req.onerror = reject;
     });
   };//}}}
 
@@ -283,235 +257,205 @@
   // You use these that bound, lowerBound, only, and upperBound in IDBKeyRange.
   //
   // When indexName was error, this function isn't use it.
-  Database.prototype.getCursor = function(lObjArgs) {//{{{
-    console.info('called getCursor function of Database class.', lObjArgs);
+  Database.prototype.getCursor = function(pOpts) {//{{{
+    console.info('called getCursor function of Database class.', pOpts);
 
-    var $this          = this;
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
-    var lArrayResults  = [];
-    var lStrStoreName  = "";
-    var lStrIndexName  = "";
-    var lNumDirection  = 0;
-    var lDBRange       = null;
-    var lDBTransaction = null;
-    var lDBStore       = null;
-    var lDBRequest     = null;
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lArrayResults = [];
-      lStrStoreName = lObjArgs.name;
-      lDBRange      = lObjArgs.range;
-      lNumDirection = lObjArgs.direction;
-      lStrIndexName = lObjArgs.indexName;
+      let store_name = pOpts.name;
+      let db_range   = pOpts.range;
+      let direction  = pOpts.direction;
+      let index_name = pOpts.indexName;
 
-      lDBTransaction = $this.db.transaction(lStrStoreName, 'readonly');
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      let db_transaction = $this.db.transaction(store_name, 'readonly');
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore   = lDBTransaction.objectStore(lStrStoreName);
-      lDBRequest = null;
+      let db_store = db_transaction.objectStore(store_name);
+      let db_req   = null;
       try {
-        lDBRequest = lStrIndexName ?
-            lDBStore.index(lStrIndexName).openCursor(lDBRange, lNumDirection) :
-            lDBStore.openCursor(lDBRange, lNumDirection);
+        db_req = index_name ?
+            db_store.index(index_name).openCursor(db_range, direction) :
+            db_store.openCursor(db_range, direction);
       } catch (e) {
         console.warn(e);
-        lDBRequest = lDBStore.openCursor(lDBRange, lNumDirection);
+        db_req = db_store.openCursor(db_range, direction);
       }
 
-      lArrayResults = [];
-      lDBRequest.onsuccess = function() {
+      let results = [];
+      db_req.onsuccess = function() {
         console.info('onsucess in getCursor function of Database class.');
 
-        var lObjCursor = this.result;
-        if (lObjCursor) {
-          lArrayResults.push(lObjCursor.value);
-          lObjCursor.continue();
+        let cursor = this.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
         } else {
-          resolve(lArrayResults);
+          resolve(results);
         }
       };
-      lDBRequest.onerror = reject;
+      db_req.onerror = reject;
     });
   };//}}}
 
-  Database.prototype.update = function(pObjArgs) {//{{{
-    console.info('called update function of Database class.', pObjArgs);
+  Database.prototype.update = function(pOpts) {//{{{
+    console.info('called update function of Database class.', pOpts);
 
-    var $this          = this;
-    var lDBStore       = null;
-    var lDBRequest     = null;
-    var lDBRange       = null;
-    var lDBTransaction = null;
-    var lStrName       = '';
-    var lStrIndexName  = '';
-    var lObjUpdate     = {};
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lDBStore      = null;
-      lDBRequest    = null;
-      lStrName      = pObjArgs.name;
-      lDBRange      = pObjArgs.range;
-      lStrIndexName = pObjArgs.indexName;
-      lObjUpdate    = pObjArgs.update;
+      let name       = pOpts.name;
+      let db_range   = pOpts.range;
+      let index_name = pOpts.indexName;
+      let update     = pOpts.update;
 
-      lDBTransaction = $this.db.transaction(lStrName, 'readwrite');
-      lDBTransaction.onabort = function(pEvent) {
+      let db_transaction = $this.db.transaction(name, 'readwrite');
+      db_transaction.onabort = function(pEvent) {
         console.info('onabort in update function of Database class.');
 
-        var lObjErr = pEvent.target.error;
+        let lObjErr = pEvent.target.error;
         if (lObjErr.name === 'QuotaExceededError') {
           console.error(lObjErr.name);
         }
       };
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore   = lDBTransaction.objectStore(lStrName);
-      lDBRequest = null;
+      let db_store = db_transaction.objectStore(name);
+      let db_req   = null;
       try {
-        lDBRequest = lStrIndexName ?
-              lDBStore.index(lStrIndexName).openCursor(lDBRange) :
-              lDBStore.openCursor(lDBRange);
+        db_req = index_name ?
+                 db_store.index(index_name).openCursor(db_range) :
+                 db_store.openCursor(db_range);
       } catch (e) {
         console.warn(e);
-        lDBRequest = lDBStore.openCursor(lDBRange);
+        db_req = db_store.openCursor(db_range);
       }
 
-      lDBRequest.onsuccess = function() {
+      db_req.onsuccess = function() {
         console.info('onsuccess in update function of Database class.');
 
-        var lObjData   = {};
-        var lObjCursor = this.result;
-        if (lObjCursor) {
-          lObjData = lObjCursor.value;
+        let data   = {};
+        let cursor = this.result;
+        if (cursor) {
+          data = cursor.value;
 
-          Object.keys(lObjData).forEach(pKey => {
-            if (lObjUpdate.hasOwnProperty(pKey)) {
-              lObjData[pKey] = lObjUpdate[pKey];
+          Object.keys(data).forEach(pKey => {
+            if (update.hasOwnProperty(pKey)) {
+              data[pKey] = update[pKey];
             }
           });
-          lObjCursor.update(lObjData);
-          lObjCursor.continue();
+          cursor.update(data);
+          cursor.continue();
         } else {
           resolve();
         }
       };
-      lDBRequest.onerror = reject;
+      db_req.onerror = reject;
     });
   };//}}}
 
-  Database.prototype.delete = function(pObjArgs) {//{{{
-    console.info('called delete function of Database class.', pObjArgs);
+  Database.prototype.delete = function(pOpts) {//{{{
+    console.info('called delete function of Database class.', pOpts);
 
-    var $this          = this;
-    var lStrStoreName  = '';
-    var lArrayKeys     = [];
-    var lArrayPromise  = [];
-    var lDBTransaction = null;
-    var lDBStore       = null;
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'object', 'array' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lStrStoreName = pObjArgs.name;
-      lArrayKeys    = (toType(pObjArgs.keys) !== 'array') ?
-                            [ pObjArgs.keys ] : pObjArgs.keys;
+      let store_name = pOpts.name;
+      let lArrayKeys = (toType(pOpts.keys) !== 'array') ?
+                       [ pOpts.keys ] : pOpts.keys;
 
-      lDBTransaction = $this.db.transaction(lStrStoreName, 'readwrite');
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      let db_transaction = $this.db.transaction(store_name, 'readwrite');
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore = lDBTransaction.objectStore(lStrStoreName);
+      let db_store = db_transaction.objectStore(store_name);
 
-      lArrayPromise = [];
+      let promise_results = [];
       lArrayKeys.forEach(pValue => {
-        lArrayPromise.push(
+        promise_results.push(
           new Promise((resolve, reject) => {
-            var del       = lDBStore.delete(pValue);
+            let del       = db_store.delete(pValue);
             del.onsuccess = resolve;
             del.onerror   = reject;
           })
         );
       });
 
-      Promise.all(lArrayPromise).then(resolve, e => reject(e.target.error));
+      Promise.all(promise_results).then(resolve, e => reject(e.target.error));
     });
   };//}}}
 
-  Database.prototype.clear = function(pStrStoreName) {//{{{
-    console.info('called clear function of Database class.', pStrStoreName);
+  Database.prototype.clear = function(pStoreName) {//{{{
+    console.info('called clear function of Database class.', pStoreName);
 
-    var $this          = this;
-    var lDBStore       = null;
-    var lDBClear       = null;
-    var lDBTransaction = null;
-    var lStrErrMsg     = '';
-    var lArrayArgs     = Array.prototype.slice.call(arguments);
+    let $this = this;
+    let args  = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'string' ],
       ]);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      lDBTransaction = $this.db.transaction(pStrStoreName, 'readwrite');
-      lDBTransaction.oncomplete = resolve;
-      lDBTransaction.onerror    = reject;
+      let db_transaction = $this.db.transaction(pStoreName, 'readwrite');
+      db_transaction.oncomplete = resolve;
+      db_transaction.onerror    = reject;
 
-      lDBStore = lDBTransaction.objectStore(pStrStoreName);
-      lDBClear = lDBStore.clear();
-      lDBClear.onsuccess = resolve;
-      lDBClear.onerror   = reject;
+      let db_store = db_transaction.objectStore(pStoreName);
+      let db_clear = db_store.clear();
+      db_clear.onsuccess = resolve;
+      db_clear.onerror   = reject;
     });
   };//}}}
 
   Database.prototype.deleteDatabase = function() {//{{{
     console.info('called deleteAll function of Database class.');
 
-    var $this      = this;
-    var lDBRequest = null;
+    let $this  = this;
+    let db_req = null;
     return new Promise((resolve, reject) => {
-      lDBRequest           = indexedDB.deleteDatabase($this.databaseName);
-      lDBRequest.onsuccess = resolve;
-      lDBRequest.onerror   = reject;
+      db_req           = indexedDB.deleteDatabase($this.databaseName);
+      db_req.onsuccess = resolve;
+      db_req.onerror   = reject;
     });
   };//}}}
 
   Database.prototype.close = function() {//{{{
     console.info('called close function of Database class.');
 
-    var $this = this;
+    let $this = this;
     return new Promise((resolve) => {
       if ($this.db !== null) {
         $this.db.close();

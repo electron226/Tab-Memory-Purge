@@ -1,25 +1,28 @@
 (function(window, document) {
   "use strict";
 
-  const sElRelease          = document.querySelector('#release');
-  const sElRestore          = document.querySelector('#restore_release');
-  const sElNotRelease       = document.querySelector('#not_release');
-  const sElRemoveNotRelease = document.querySelector('#remove_not_release');
-  const sElNotReleaseText   = sElNotRelease.querySelector('span');
-  const sElRemoveNotReleaseText = sElRemoveNotRelease.querySelector('span');
+  const release_element     = document.querySelector('#release');
+  const restore_element     = document.querySelector('#restore_release');
+  const not_release_element = document.querySelector('#not_release');
+  const remove_not_release_element =
+    document.querySelector('#remove_not_release');
+  const not_releaes_text_element =
+    not_release_element.querySelector('span');
+  const remove_not_releaes_text_element =
+    remove_not_release_element.querySelector('span');
 
-  const sStrNotRelease       = chrome.i18n.getMessage('not_release');
-  const sStrRemoveNotRelease = chrome.i18n.getMessage('remove_not_release');
-  const sStrNotReleaseHost   = chrome.i18n.getMessage('not_release_host');
-  const sStrRemoveNotReleaseHost =
+  const not_release        = chrome.i18n.getMessage('not_release');
+  const remove_not_release = chrome.i18n.getMessage('remove_not_release');
+  const not_release_host   = chrome.i18n.getMessage('not_release_host');
+  const remove_not_release_host =
     chrome.i18n.getMessage('remove_not_release_host');
 
-  var sObjPressKey = null;
+  let press_key = null;
 
-  if (typeof sElRelease !== 'object' ||
-      typeof sElRestore !== 'object' ||
-      typeof sElNotRelease !== 'object' ||
-      typeof sElRemoveNotRelease !== 'object') {
+  if (typeof release_element !== 'object' ||
+      typeof restore_element !== 'object' ||
+      typeof not_release_element !== 'object' ||
+      typeof remove_not_release_element !== 'object') {
     throw new Error(
       "Doesn't find the elements that want to use in the script.");
   }
@@ -27,31 +30,31 @@
   function updateButtonState()//{{{
   {
     return updatePurgeOrRestoreButton()
-           .then(updateNotReleaseButton);
+             .then(updateNotReleaseButton);
   }//}}}
 
   document.addEventListener('keyup', () => {
-    sObjPressKey = null;
+    press_key = null;
 
-    sElNotReleaseText.textContent       = sStrNotReleaseHost;
-    sElRemoveNotReleaseText.textContent = sStrRemoveNotReleaseHost;
+    not_releaes_text_element.textContent        = not_release_host;
+    remove_not_releaes_text_element.textContent = remove_not_release_host;
   });
 
   document.addEventListener('keydown', pEvent => {
-    if (sObjPressKey === null) {
-      sObjPressKey = keyCheck(pEvent);
-      if (sObjPressKey.ctrl === true) {
-        sElNotReleaseText.textContent       = sStrNotRelease;
-        sElRemoveNotReleaseText.textContent = sStrRemoveNotRelease;
+    if (press_key === null) {
+      press_key = keyCheck(pEvent);
+      if (press_key.ctrl === true) {
+        not_releaes_text_element.textContent        = not_release;
+        remove_not_releaes_text_element.textContent = remove_not_release;
       }
     }
   });
 
   document.addEventListener('DOMContentLoaded', () => {
     initButtons()
-    .then(loadTranslation(document, gStrTranslationPath))
-    .then(updateButtonState)
-    .catch(e => console.error(e));
+      .then(loadTranslation(document, gStrTranslationPath))
+      .then(updateButtonState)
+      .catch(e => console.error(e));
   }, true);
 
   function getCurrentIconState()//{{{
@@ -82,16 +85,16 @@
   {
     return new Promise(resolve => {
       getCurrentIconState()
-      .then(pNumIconValue => {
-        if (pNumIconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
-          sElRelease.style.display = 'block';
-          sElRestore.style.display = 'none';
-        } else if (pNumIconValue & EXTENSION_EXCLUDE) {
-          sElRelease.style.display = 'none';
-          sElRestore.style.display = 'block';
+      .then(pIconValue => {
+        if (pIconValue & (USE_EXCLUDE | NORMAL | TEMP_EXCLUDE)) {
+          release_element.style.display = 'block';
+          restore_element.style.display = 'none';
+        } else if (pIconValue & EXTENSION_EXCLUDE) {
+          release_element.style.display = 'none';
+          restore_element.style.display = 'block';
         } else {
-          sElRelease.style.display = 'none';
-          sElRestore.style.display = 'none';
+          release_element.style.display = 'none';
+          restore_element.style.display = 'none';
         }
 
         resolve();
@@ -103,22 +106,21 @@
   {
     return new Promise((resolve, reject) => {
       getCurrentIconState()
-      .then(pNumIconValue => {
+      .then(pIconValue => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
 
-        if (pNumIconValue &
-            (USE_EXCLUDE | EXTENSION_EXCLUDE | CHROME_EXCLUDE)) {
-          sElNotRelease.style.display       = 'none';
-          sElRemoveNotRelease.style.display = 'none';
-        } else if (pNumIconValue & TEMP_EXCLUDE) {
-          sElNotRelease.style.display       = 'none';
-          sElRemoveNotRelease.style.display = 'block';
+        if (pIconValue & (USE_EXCLUDE | EXTENSION_EXCLUDE | CHROME_EXCLUDE)) {
+          not_release_element.style.display        = 'none';
+          remove_not_release_element.style.display = 'none';
+        } else if (pIconValue & TEMP_EXCLUDE) {
+          not_release_element.style.display        = 'none';
+          remove_not_release_element.style.display = 'block';
         } else {
-          sElRemoveNotRelease.style.display = 'none';
-          sElNotRelease.style.display       = 'block';
+          remove_not_release_element.style.display = 'none';
+          not_release_element.style.display        = 'block';
         }
         resolve();
       });
@@ -132,38 +134,34 @@
 
   function buttonClicked(pEvent)//{{{
   {
-    var lElMenu        = document.createDocumentFragment();
-    var lObjCreateTab  = {};
-    var lStrClassName  = "";
-    var lStrId         = "";
-    var lStrErrMsg     = "";
-    var lBoolPressCtrl = false;
-    var lBoolDelete    = false;
+    let menu_element = document.createDocumentFragment();
+    let class_name   = "";
+    let is_delete    = false;
 
-    lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return (typeof pValue !== 'object'); },
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    lStrId = pEvent.target.getAttribute('id');
-    switch (lStrId) {
+    let id_name = pEvent.target.getAttribute('id');
+    switch (id_name) {
     case 'option_prev':
-      lElMenu = document.querySelectorAll('.menu');
+      menu_element = document.querySelectorAll('.menu');
 
-      Array.prototype.slice.call(lElMenu).forEach(pValue => {
-        lStrClassName = pValue.getAttribute('class')
+      Array.prototype.slice.call(menu_element).forEach(pValue => {
+        class_name = pValue.getAttribute('class')
                         .replace('option_menu_show', '').trim();
-        pValue.setAttribute('class', lStrClassName);
+        pValue.setAttribute('class', class_name);
       });
       return; // return.
     case 'option_menu':
-      lElMenu = document.querySelectorAll('.menu');
+      menu_element = document.querySelectorAll('.menu');
 
-      Array.prototype.slice.call(lElMenu).forEach(pValue => {
-        lStrClassName = pValue.getAttribute('class');
-        pValue.setAttribute('class', `${lStrClassName} option_menu_show`);
+      Array.prototype.slice.call(menu_element).forEach(pValue => {
+        class_name = pValue.getAttribute('class');
+        pValue.setAttribute('class', `${class_name} option_menu_show`);
       });
       return; // return.
     case 'restore_release':
@@ -171,19 +169,21 @@
       popupClose();
       break;
     case 'remove_not_release':
-      lBoolDelete = true;
+      is_delete = true;
       /* falls through */
     case 'not_release':
-      lBoolPressCtrl = sObjPressKey !== null &&
-                       sObjPressKey.hasOwnProperty('ctrl') &&
-                       sObjPressKey.ctrl === true;
-      chrome.runtime.sendMessage({
-        event:   'switch_not_release',
-        type:    lBoolDelete ? 'delete' : 'add',
-        addType: lBoolPressCtrl ? 'url' : 'host',
-      });
-      popupClose();
-      break;
+      {
+        let press_ctrl = press_key !== null &&
+                         press_key.hasOwnProperty('ctrl') &&
+                         press_key.ctrl === true;
+        chrome.runtime.sendMessage({
+          event:   'switch_not_release',
+          type:    is_delete ? 'delete' : 'add',
+          addType: press_ctrl ? 'url' : 'host',
+        });
+        popupClose();
+        break;
+      }
     case 'normal':
     case 'keybind':
     case 'history':
@@ -192,24 +192,24 @@
     case 'information':
     case 'operate_settings':
       chrome.tabs.query({ url: gStrOptionPage + '*' }, results => {
-        lObjCreateTab = {
-          url:    `${gStrOptionPage}?page=${lStrId}`,
+        let create_tab = {
+          url:    `${gStrOptionPage}?page=${id_name}`,
           active: true,
         };
 
         if (results.length === 0) {
-          chrome.tabs.create(lObjCreateTab, popupClose);
+          chrome.tabs.create(create_tab, popupClose);
         } else {
-          chrome.tabs.update(results[0].id, lObjCreateTab, popupClose);
+          chrome.tabs.update(results[0].id, create_tab, popupClose);
         }
       });
       break;
     case 'clear_temporary_exclusion_list':
-      chrome.runtime.sendMessage({ event: lStrId });
+      chrome.runtime.sendMessage({ event: id_name });
       updateButtonState();
       break;
     default:
-      chrome.runtime.sendMessage({ event: lStrId });
+      chrome.runtime.sendMessage({ event: id_name });
       popupClose();
       break;
     }
@@ -218,16 +218,13 @@
   function initButtons()//{{{
   {
     return new Promise(resolve => {
-      var lElButtons = document.createDocumentFragment();
-      var lElInAll   = document.createDocumentFragment();
-
-      lElButtons = document.querySelectorAll('div.btn');
-      Array.prototype.slice.call(lElButtons).forEach(pValue => {
+      let button_elements = document.querySelectorAll('div.btn');
+      Array.prototype.slice.call(button_elements).forEach(pValue => {
         pValue.addEventListener('click', buttonClicked, true);
 
         // The elements of the all are setting id into item.
-        lElInAll = pValue.querySelectorAll('*');
-        Array.prototype.slice.call(lElInAll).forEach(pValueJ => {
+        let all_elements = pValue.querySelectorAll('*');
+        Array.prototype.slice.call(all_elements).forEach(pValueJ => {
           if (!(pValueJ.getAttribute('id'))) {
             pValueJ.setAttribute('id', pValue.getAttribute('id'));
           }

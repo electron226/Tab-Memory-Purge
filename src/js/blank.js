@@ -3,13 +3,13 @@
   "use strict";
 
   // variables.//{{{
-  var db = null;
+  let db = null;
 
-  const sNumMaxRecorsiveCount = 3;
+  const max_recorsive_count = 3;
 
-  const sElementIcon  = document.querySelector('#favicon');
-  const sElementTitle = document.querySelector('#title');
-  const sElementUrl   = document.querySelector('#url');
+  const icon_on_html  = document.querySelector('#favicon');
+  const title_on_html = document.querySelector('#title');
+  const url_on_html   = document.querySelector('#url');
 
   const gObjF5Key = generateKeyString({
     ctrl    : false,
@@ -25,131 +25,112 @@
     console.info('getFaviconOfCurrentPage',
       Array.prototype.slice.call(arguments));
 
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       function(pValue) { return typeof pValue !== 'object'; }
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    var lXPathIcon = document.evaluate(
+    let xpath_icon = document.evaluate(
       '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
-    return (lXPathIcon.snapshotLength > 0) ? lXPathIcon.snapshotItem(0) : null;
+    return (xpath_icon.snapshotLength > 0) ? xpath_icon.snapshotItem(0) : null;
   }//}}}
 
   function navigateToPageBeforePurged()//{{{
   {
     console.info('navigateToPageBeforePurged');
 
-    var lObjArgs = {};
-    var lStrUrl  = '';
+    let args_in_url = getQueryString(document);
+    let url         = '';
 
-    lObjArgs = getQueryString(document);
-    lStrUrl  = '';
-
-    if (lObjArgs.hasOwnProperty('url')){
-      lStrUrl = lObjArgs.url;
-    } else if (sElementUrl !== void 0 &&
-               sElementUrl !== null &&
-               sElementUrl.textContent.length > 0) {
-      lStrUrl = sElementUrl.textContent;
+    if (args_in_url.hasOwnProperty('url')){
+      url = args_in_url.url;
+    } else if (url_on_html !== void 0 &&
+               url_on_html !== null &&
+               url_on_html.textContent.length > 0) {
+      url = url_on_html.textContent;
     } else {
       throw new Error("Doesn't find the url for redirect at the previous url.");
     }
 
-    location.replace(lStrUrl);
+    location.replace(url);
   }//}}}
 
-  function getDataOfBeforeToPurge(pNumRecorsiveCount)//{{{
+  function getDataOfBeforeToPurge(pRecorsiveCount)//{{{
   {
     console.info('getDataOfBeforeToPurge',
       Array.prototype.slice.call(arguments));
 
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'number' ],
     ]);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    var lStrUrl        = "";
-    var lStrNewTitle   = "";
-    var lStrFaviconUrl = "";
-    var lElFavicon     = document.createDocumentFragment();
-    var lStrHost       = "";
-
-    lStrUrl = sElementUrl.textContent;
-    return ajax({ url: lStrUrl, responseType: 'document' })
-    .then(pObjResult => {
-      if (pObjResult.status === 200) {
-        lStrNewTitle = pObjResult.response.title;
-        if (lStrNewTitle) {
-          lStrHost = getSplitURI(lStrUrl).hostname;
+    let url = url_on_html.textContent;
+    return ajax({ url: url, responseType: 'document' })
+    .then(pResult => {
+      if (pResult.status === 200) {
+        let new_title = pResult.response.title;
+        if (new_title) {
+          let host = getSplitURI(url).hostname;
 
           db.add({
             name: gStrDbPageInfoName,
             data: {
-              url:   lStrUrl,
-              title: lStrNewTitle || 'Unknown',
-              host:  lStrHost,
+              url:   url,
+              title: new_title || 'Unknown',
+              host:  host,
             },
           });
 
-          lElFavicon = getFaviconOfCurrentPage(pObjResult.response);
-          lStrFaviconUrl = lElFavicon ? lElFavicon.href :
-                                        window.location.origin + '/favicon.ico';
-          getDataURI(lStrFaviconUrl)
-          .then(pStrIconDataURI => {
+          let favicon = getFaviconOfCurrentPage(pResult.response);
+          let favicon_url = favicon ? favicon.href :
+                                      window.location.origin + '/favicon.ico';
+
+          getDataURI(favicon_url)
+          .then(pIconDataURI => {
             db.add({
               name: gStrDbDataURIName,
               data: {
-                host:    lStrHost,
-                dataURI: pStrIconDataURI,
+                host:    host,
+                dataURI: pIconDataURI,
               }
             });
           });
         }
-        return loadPurgedTabInfo(pNumRecorsiveCount);
+
+        return loadPurgedTabInfo(pRecorsiveCount);
       }
     });
   }//}}}
 
-  function loadPurgedTabInfo(pNumRecorsiveCount)
+  function loadPurgedTabInfo(pRecorsiveCount)
   {
     console.info('loadPurgedTabInfo', Array.prototype.slice.call(arguments));
 
-    var lElSpan    = document.createDocumentFragment();
-    var lElA       = document.createDocumentFragment();
-    var lElHead    = document.createDocumentFragment();
-    var lElLink    = document.createDocumentFragment();
-    var lElFavicon = document.createDocumentFragment();
-
-    var lObjArgs      = {};
-    var lStrUrl       = '';
-    var lStrName      = '';
-    var lStrFavicon   = '';
-    var lStrErrMsg    = '';
-    var lBoolGetTitle = false;
-    var lArrayArgs    = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
-      lStrErrMsg = checkFunctionArguments(lArrayArgs, [
+      let err_msg = checkFunctionArguments(args, [
         [ 'number', 'null', 'undefined' ],
       ], true);
-      if (lStrErrMsg) {
-        reject(new Error(lStrErrMsg));
+      if (err_msg) {
+        reject(new Error(err_msg));
         return;
       }
 
-      if (pNumRecorsiveCount === void 0 || pNumRecorsiveCount === null) {
-        pNumRecorsiveCount = sNumMaxRecorsiveCount;
-      } else if (pNumRecorsiveCount < 0) {
+      if (pRecorsiveCount === void 0 || pRecorsiveCount === null) {
+        pRecorsiveCount = max_recorsive_count;
+      } else if (pRecorsiveCount < 0) {
         reject(new Error("Doesn't get a title of a purged tab."));
         return;
       }
 
-      lObjArgs = getQueryString(document);
-      if (!lObjArgs.hasOwnProperty('url') || lObjArgs.url.length === 0) {
+      let args_in_url = getQueryString(document);
+      if (!args_in_url.hasOwnProperty('url') || args_in_url.url.length === 0) {
         reject(new Error("Doesn't get a url of arguments on web page."));
         return;
       }
@@ -157,41 +138,40 @@
       (() => {
         return new Promise(resolve => {
           chrome.runtime.sendMessage(
-            { event: 'check_purged_tab', url: lObjArgs.url }, resolve);
+            { event: 'check_purged_tab', url: args_in_url.url }, resolve);
         });
       })()
       .then(() => {
-        lElSpan = sElementUrl;
-        while (lElSpan.firstChild) {
-          lElSpan.removeChild(lElSpan.firstChild);
+        let span = url_on_html;
+        while (span.firstChild) {
+          span.removeChild(span.firstChild);
         }
 
-        if (lObjArgs.url) {
-          lStrUrl        = lObjArgs.url;
-          lElA           = document.createElement('a');
-          lElA.href      = lStrUrl;
-          lElA.innerText = lStrUrl;
-          lElSpan.appendChild(lElA);
+        if (args_in_url.url) {
+          let url         = args_in_url.url;
+          let a_tag       = document.createElement('a');
+          a_tag.href      = url;
+          a_tag.innerText = url;
+          span.appendChild(a_tag);
         } else {
-          lElSpan.innerHTML = 'None';
+          span.innerHTML = 'None';
           reject(new Error("Doesn't get a purged url."));
           return;
         }
 
         return db.get({
           name : gStrDbPageInfoName,
-          key  : lObjArgs.url,
+          key  : args_in_url.url,
         });
       })
       .then(pageInfo => {
         return (() => {
           return new Promise(resolve2 => {
-            lStrName = 'get_title_when_does_not_title';
-            chrome.storage.local.get(lStrName, items => {
-              lBoolGetTitle = items.hasOwnProperty(lStrName) ?
-                              items[lStrName] :
-                              gMapDefaultValues.get(lStrName);
-              resolve2(lBoolGetTitle === true ? true : false);
+            let name = 'get_title_when_does_not_title';
+            chrome.storage.local.get(name, items => {
+              let get_title = items.hasOwnProperty(name) ?
+                              items[name] : gMapDefaultValues.get(name);
+              resolve2(get_title === true ? true : false);
             });
           });
         })()
@@ -201,10 +181,10 @@
               !pageInfo.hasOwnProperty('title') ||
               pageInfo.title === 'Unknown') {
             if (option === true) {
-              document.title = sElementUrl.textContent;
-              sElementTitle.setAttribute('style', 'display: none');
+              document.title = url_on_html.textContent;
+              title_on_html.setAttribute('style', 'display: none');
 
-              console.log('RecorsiveCount is ', pNumRecorsiveCount);
+              console.log('RecorsiveCount is ', pRecorsiveCount);
 
               (() => {
                 return new Promise((resolve2, reject2) => {
@@ -220,7 +200,7 @@
                   }
                 });
               })()
-              .then(getDataOfBeforeToPurge(--pNumRecorsiveCount))
+              .then(getDataOfBeforeToPurge(--pRecorsiveCount))
               .then(resolve)
               .catch(reject);
             } else {
@@ -229,8 +209,8 @@
             }
           } else {
             document.title            = pageInfo.title;
-            sElementTitle.textContent = pageInfo.title;
-            sElementTitle.removeAttribute('style');
+            title_on_html.textContent = pageInfo.title;
+            title_on_html.removeAttribute('style');
 
             return db.get({
               name : gStrDbDataURIName,
@@ -241,22 +221,22 @@
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
-          lStrFavicon  = dataURIInfo.dataURI;
+          let favicon_url  = dataURIInfo.dataURI;
 
-          lElHead      = document.querySelector('head');
-          lElLink      = document.createElement('link');
-          lElLink.rel  = 'shortcut icon';
-          lElLink.href = decodeURIComponent(lStrFavicon);
+          let head      = document.querySelector('head');
+          let link      = document.createElement('link');
+          link.rel  = 'shortcut icon';
+          link.href = decodeURIComponent(favicon_url);
 
-          lElFavicon   = getFaviconOfCurrentPage(document);
-          if (lElFavicon) {
-            lElHead.removeChild(lElFavicon);
+          let favicon   = getFaviconOfCurrentPage(document);
+          if (favicon) {
+            head.removeChild(favicon);
           }
-          lElHead.appendChild(lElLink);
+          head.appendChild(link);
 
-          sElementIcon.src = lStrFavicon;
+          icon_on_html.src = favicon_url;
           removeStringFromAttributeOfElement(
-            sElementIcon, 'class', 'doNotShow');
+            icon_on_html, 'class', 'doNotShow');
         }
       })
       .then(resolve)

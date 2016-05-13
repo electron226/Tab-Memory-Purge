@@ -17,7 +17,7 @@
    *
    * This provides the function like object.observe by using the Map.
    *
-   * @param {function} pFuncChanged -
+   * @param {function} pChangedCallback -
    *     Function that will be called when a value is changed.
    * @return {object} Return the object for operating.
    *     Available functions.
@@ -37,19 +37,19 @@
    *
    *             argument of callback function is the object only.
    */
-  function closureCreateMapObserve(pFuncChanged)//{{{
+  function closureCreateMapObserve(pChangedCallback)//{{{
   {
     console.info(
       'closureCreateMapObserve', Array.prototype.slice.call(arguments));
 
-    var lStrErrMsg = checkFunctionArguments(arguments, [
+    let err_msg = checkFunctionArguments(arguments, [
       [ 'function', 'null', 'undefined' ],
     ], true);
-    if (lStrErrMsg) {
-      throw new Error(lStrErrMsg);
+    if (err_msg) {
+      throw new Error(err_msg);
     }
 
-    var lMapUnloaded = new Map();
+    let unloadeds = new Map();
 
     return {
       get: function(pAnyKey) {//{{{
@@ -57,41 +57,40 @@
           'get function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        return lMapUnloaded.get(pAnyKey);
+        return unloadeds.get(pAnyKey);
       },//}}}
       forEach: function(pFuncCallback) {//{{{
         console.info(
           'forEach function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        lMapUnloaded.forEach(pFuncCallback);
+        unloadeds.forEach(pFuncCallback);
       },//}}}
       set: function(pAnyKey, pAnyValue) {//{{{
-        /*jshint -W069 */
         console.info(
           'set function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        var lObjChange   = {};
-        var lAnyOldValue = null;
+        let change   = {};
+        let old_value = null;
 
-        lObjChange = {
+        change = {
           key:   pAnyKey,
           value: pAnyValue,
         };
-        lAnyOldValue = lMapUnloaded.get(pAnyKey);
+        old_value = unloadeds.get(pAnyKey);
 
-        if (lAnyOldValue === void 0) {
-          lObjChange['type'] = 'add';
+        if (old_value === void 0) {
+          change['type'] = 'add';
         } else {
-          lObjChange['type']     = 'update';
-          lObjChange['oldValue'] = lAnyOldValue;
+          change['type']     = 'update';
+          change['oldValue'] = old_value;
         }
 
-        lMapUnloaded.set(pAnyKey, pAnyValue);
+        unloadeds.set(pAnyKey, pAnyValue);
 
-        if (toType(pFuncChanged) === 'function') {
-          pFuncChanged(lObjChange);
+        if (toType(pChangedCallback) === 'function') {
+          pChangedCallback(change);
         } else {
           console.warn("you should set the callback function.");
         }
@@ -102,23 +101,23 @@
           'delete function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        var lObjChange   = {};
-        var lAnyOldValue = null;
+        let change   = {};
+        let old_value = null;
 
-        lObjChange = {
+        change = {
           key:  pAnyKey,
           type: 'delete',
         };
 
-        lAnyOldValue = lMapUnloaded.get(pAnyKey);
-        if (lAnyOldValue !== void 0) {
-          lObjChange['oldValue'] = lMapUnloaded.get(pAnyKey);
+        old_value = unloadeds.get(pAnyKey);
+        if (old_value !== void 0) {
+          change['oldValue'] = unloadeds.get(pAnyKey);
         }
 
-        lMapUnloaded.delete(pAnyKey);
+        unloadeds.delete(pAnyKey);
 
-        if (toType(pFuncChanged) === 'function') {
-          pFuncChanged(lObjChange);
+        if (toType(pChangedCallback) === 'function') {
+          pChangedCallback(change);
         } else {
           console.warn("you should set the callback function.");
         }
@@ -126,19 +125,19 @@
       clear: function() {//{{{
         console.info('clear function of closureCreateMapObserve');
 
-        lMapUnloaded.clear();
+        unloadeds.clear();
       },//}}}
       has: function(pAnyKey) {//{{{
         console.info(
           'has function of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        return lMapUnloaded.has(pAnyKey);
+        return unloadeds.has(pAnyKey);
       },//}}}
       size: function() {//{{{
         console.info('size function of closureCreateMapObserve');
 
-        return lMapUnloaded.size;
+        return unloadeds.size;
       },//}}}
       setCallbackWhenChanged: function(pCallbackWhenChanged)//{{{
       {
@@ -146,14 +145,14 @@
           'setCallbackWhenChanged of closureCreateMapObserve',
           Array.prototype.slice.call(arguments));
 
-        var lStrErrMsg = checkFunctionArguments(arguments, [
+        let err_msg = checkFunctionArguments(arguments, [
           [ 'function' ],
         ]);
-        if (lStrErrMsg) {
-          throw new Error(lStrErrMsg);
+        if (err_msg) {
+          throw new Error(err_msg);
         }
 
-        pFuncChanged = pCallbackWhenChanged;
+        pChangedCallback = pCallbackWhenChanged;
       },//}}}
     };
   }//}}}
@@ -163,12 +162,12 @@
    *
    * Function for use Ajax process with XMLHttpRequest.
    *
-   * @param {object} obj - The options for Ajax.
-   * @param {string} obj.url - You want to get the url.
-   * @param {boolean} [obj.async] - Do you want to use async process?.
-   * @param {string} [obj.user] -
+   * @param {object} pOpts - The options for Ajax.
+   * @param {string} pOpts.url - You want to get the url.
+   * @param {boolean} [pOpts.async] - Do you want to use async process?.
+   * @param {string} [pOpts.user] -
    *     The user name to use for authentication purposes.
-   * @param {string} [obj.password] -
+   * @param {string} [pOpts.password] -
    *     The password to use for authentication purposes.
    * @param {number} [timeout] - The time to occur timeout. to set seconds time.
    * @param {string} [mimeType] - You want to set mimeType.
@@ -188,81 +187,75 @@
    *     Call the function when each time the state change is changed.
    * @return {promise} a promise object.
    */
-  function ajax(pObjOpts)//{{{
+  function ajax(pOpts)//{{{
   {
-    var lStrMethod            = pObjOpts.method || 'GET';
-    var lStrUrl               = pObjOpts.url;
-    var lBoolAsync            = pObjOpts.async || true;
-    var lStrUser              = pObjOpts.user || '';
-    var lStrPassword          = pObjOpts.password || '';
-    var lNumTimeout           = (pObjOpts.timeout || 60) * 1000;
-    var lStrMimeType          = pObjOpts.mimeType;
-    var lArrayHeaders         = pObjOpts.headers;
-    var lData                 = pObjOpts.data || null;
-    var lStrResponseType      = pObjOpts.responseType;
-    var lFuncReadyStateChange = pObjOpts.readyStateChange;
-    var lXmlHttpReq           = new XMLHttpRequest();
-
     return new Promise(function(resolve, reject) {
-      lXmlHttpReq = new XMLHttpRequest();
+      let method        = pOpts.method || 'GET';
+      let url           = pOpts.url;
+      let async         = pOpts.async || true;
+      let user          = pOpts.user || '';
+      let password      = pOpts.password || '';
+      let timeout       = (pOpts.timeout || 60) * 1000;
+      let mimetype      = pOpts.mimeType;
+      let headers       = pOpts.headers;
+      let data          = pOpts.data || null;
+      let response_type = pOpts.responseType;
+      let ready_state_change_callback = pOpts.readyStateChange;
 
-      lXmlHttpReq.open(lStrMethod, lStrUrl, lBoolAsync, lStrUser, lStrPassword);
-      lXmlHttpReq.timeout = lNumTimeout;
-      if (lArrayHeaders !== void 0 && lArrayHeaders !== null) {
-        if (lArrayHeaders.length !== 2) {
+      let requrest = new XMLHttpRequest();
+      requrest.open(method, url, async, user, password);
+      requrest.timeout = timeout;
+      if (headers !== void 0 && headers !== null) {
+        if (headers.length !== 2) {
           reject(
             new Error('headers is not array type, or array size is not 2.'));
           return;
         }
-        lXmlHttpReq.setRequestHeader.apply(null, lArrayHeaders);
+        requrest.setRequestHeader.apply(null, headers);
       }
-      if (lFuncReadyStateChange !== void 0 && lFuncReadyStateChange !== null) {
-        lXmlHttpReq.onreadystatechange = lFuncReadyStateChange;
+      if (ready_state_change_callback !== void 0 &&
+          ready_state_change_callback !== null) {
+        requrest.onreadystatechange = ready_state_change_callback;
       }
-      if (lStrMimeType !== void 0 && lStrMimeType !== null) {
-        lXmlHttpReq.overrideMimeType(lStrMimeType);
+      if (mimetype !== void 0 && mimetype !== null) {
+        requrest.overrideMimeType(mimetype);
       }
-      if (lStrResponseType !== void 0 && lStrResponseType !== null) {
-        lXmlHttpReq.responseType = lStrResponseType;
+      if (response_type !== void 0 && response_type !== null) {
+        requrest.responseType = response_type;
       }
 
-      lXmlHttpReq.ontimeout = function() {
-        reject(new Error('timeout: \n' + JSON.stringfy(pObjOpts, '    ')));
+      requrest.ontimeout = function() {
+        reject(new Error('timeout: \n' + JSON.stringfy(pOpts, '    ')));
       };
-      lXmlHttpReq.onload = function() {
+      requrest.onload = function() {
         resolve({
-          status:   lXmlHttpReq.status,
+          status:   requrest.status,
           response: this.response,
-          xhr:      lXmlHttpReq,
+          xhr:      requrest,
         });
       };
-      lXmlHttpReq.onerror = function(pErr) {
+      requrest.onerror = function(pErr) {
         reject(new Error(JSON.stringify(pErr)));
       };
-      lXmlHttpReq.send(lData);
+      requrest.send(data);
     });
   }//}}}
 
-  function loadTranslation(pElement, pStrUrl) //{{{
+  function loadTranslation(pElement, pUrl) //{{{
   {
     return new Promise((resolve, reject) => {
-      var lStrTarget       = "";
-      var lElementSnapshot = null;
-      var lElItem          = document.createDocumentFragment();
-      var lStrTextName     = "";
-      var i                = 0;
-
-      ajax({ url: pStrUrl }).then(pObjResult => {
+      ajax({ url: pUrl }).then(pObjResult => {
         if (pObjResult.status === 200) {
-          lStrTarget = JSON.parse(pObjResult.response);
-          lElementSnapshot =
+          let target = JSON.parse(pObjResult.response);
+          let snapshot =
             pElement.evaluate('//*[@translation]', pElement, null, 7, null);
 
-          for (i = 0; i < lElementSnapshot.snapshotLength; i = (i + 1) | 0) {
-            lElItem      = lElementSnapshot.snapshotItem(i);
-            lStrTextName = lElItem.getAttribute('translation');
-            if (lStrTarget.hasOwnProperty(lStrTextName)) {
-              lElItem.innerHTML = chrome.i18n.getMessage(lStrTextName);
+          let item, text_name;
+          for (let i = 0; i < snapshot.snapshotLength; ++i) {
+            item      = snapshot.snapshotItem(i);
+            text_name = item.getAttribute('translation');
+            if (target.hasOwnProperty(text_name)) {
+              item.innerHTML = chrome.i18n.getMessage(text_name);
             }
           }
           resolve();
@@ -279,143 +272,130 @@
   function closureCreateBeep(pAudioCtx)//{{{
   {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const lAudioCtx = pAudioCtx || new AudioContext();
+    const audio_ctx    = pAudioCtx || new AudioContext();
 
     /**
      * beep
      *
      * sound the beep.
      *
-     * @param {number} [pNumDuration] -
+     * @param {number} [pDuration] -
      *     duration of the tone in milliseconds. Default is 500.
-     * @param {number} [pNumFurequency] -
+     * @param {number} [pFurequency] -
      *     frequency of the tone is hertz. default is 440.
-     * @param {number} [pNumVolume] -
+     * @param {number} [pVolume] -
      *     volume of the tone. default is 1, off is 0.
-     * @param {string} [pStrType] -
+     * @param {string} [pType] -
      *     type of tone.
      *     Possible values are sine, square, sawtooth, triangle, and custom.
      *     default is sine.
      * @return {promise} the promise object.
      */
-    function beep(pNumDuration, pNumFurequency, pNumVolume, pStrType) {
+    function beep(pDuration, pFurequency, pVolume, pType) {
       return new Promise(resolve => {
-        var lAudioOscillator = lAudioCtx.createOscillator();
-        var lAudioGainNode   = lAudioCtx.createGain();
+        let audio_oscillator = audio_ctx.createOscillator();
+        let audio_gain_node  = audio_ctx.createGain();
 
-        lAudioOscillator.connect(lAudioGainNode);
-        lAudioGainNode.connect(lAudioCtx.destination);
+        audio_oscillator.connect(audio_gain_node);
+        audio_gain_node.connect(audio_ctx.destination);
 
-        lAudioGainNode.gain.value        = pNumVolume || 500;
-        lAudioOscillator.frequency.value = pNumFurequency || 440;
-        lAudioOscillator.type            = pStrType || 'sine';
-        lAudioOscillator.onended         = resolve;
+        audio_gain_node.gain.value       = pVolume || 500;
+        audio_oscillator.frequency.value = pFurequency || 440;
+        audio_oscillator.type            = pType || 'sine';
+        audio_oscillator.onended         = resolve;
 
-        lAudioOscillator.start();
+        audio_oscillator.start();
         setTimeout(
-          () => lAudioOscillator.stop(), (pNumDuration ? pNumDuration : 500));
+          () => audio_oscillator.stop(), (pDuration ? pDuration : 500));
       });
     }
 
     return beep;
   }//}}}
 
-  function getSplitURI(pStrUrl)//{{{
+  function getSplitURI(pUrl)//{{{
   {
-    var lArrayResult =
-      /(\w+):\/+([\w-.~]+[:\d]*)(\/[\w-.~]*)\?*(.*)/i.exec(pStrUrl);
-
-    if (lArrayResult === null) {
-      throw new Error(`pStrUri is not uri: ${pStrUrl}`);
+    let result = /(\w+):\/+([\w-.~]+[:\d]*)(\/[\w-.~]*)\?*(.*)/i.exec(pUrl);
+    if (result === null) {
+      throw new Error(`pStrUri is not uri: ${pUrl}`);
     }
 
     return {
-      scheme:   lArrayResult[1] || null,
-      hostname: lArrayResult[2] || null,
-      path:     lArrayResult[3] || null,
-      params:   lArrayResult[4] || null,
+      scheme:   result[1] || null,
+      hostname: result[2] || null,
+      path:     result[3] || null,
+      params:   result[4] || null,
     };
   }//}}}
 
-  function getListAfterJoinHistoryDataOnDB(pArraySessions)//{{{
+  function getListAfterJoinHistoryDataOnDB(pSessions)//{{{
   {
     return new Promise(function(resolve) {
-      var histories    = [];
-      var pageInfos    = [];
-      var dataURIs     = [];
-      var lDate        = new Date();
-      var lDateTemp    = new Date();
-      var lDateAdd     = new Date();
-      var rListResult  = [];
-      var lListData    = [];
-      var lObjPageInfo = {};
-      var lObjDataURI  = {};
-      var lObjPage     = {};
-      var lObjAdd      = {};
+      let histories = pSessions[0];
+      let pageInfos = pSessions[1];
+      let dataURIs  = pSessions[2];
 
-      histories = pArraySessions[0];
-      pageInfos = pArraySessions[1];
-      dataURIs  = pArraySessions[2];
-
-      lObjPageInfo = {};
+      let page_info = {};
       pageInfos.forEach(pValue => {
-        lObjPageInfo[pValue.url] = { title: pValue.title, host: pValue.host };
+        page_info[pValue.url] = { title: pValue.title, host: pValue.host };
       });
 
-      lObjDataURI = {};
+      let data_uri = {};
       dataURIs.forEach(pValue => {
-        lObjDataURI[pValue.host] = pValue.dataURI;
+        data_uri[pValue.host] = pValue.dataURI;
       });
 
-      rListResult = [];
-      lListData   = [];
-      lDateTemp   = null;
+      let date        = null;
+      let date_temp   = null;
+      let date_add    = null;
+      let list_result = [];
+      let list_data   = [];
+      let to_add      = {};
       histories.forEach(pValue => {
-        lObjPage = lObjPageInfo[pValue.url];
-        if (lObjPage === void 0 || lObjPage === null) {
-          console.warn(
-            "Don't find data in pageInfo of indexedDB.", pValue.url);
+        let page = page_info[pValue.url];
+        if (page === void 0 || page === null) {
+          console.warn("Don't find data in pageInfo of indexedDB.", pValue.url);
           return;
         }
 
-        lDate = new Date(pValue.date);
-        if (!lDateTemp) {
-          lDateTemp = lDate;
+        date = new Date(pValue.date);
+        if (!date_temp) {
+          date_temp = date;
         }
 
-        if (formatDate(lDateTemp, 'YYYY/MM/DD') !==
-            formatDate(lDate, 'YYYY/MM/DD')) {
-          lDateAdd = new Date(lDateTemp.getFullYear(),
-                              lDateTemp.getMonth(),
-                              lDateTemp.getDate(),
+        if (formatDate(date_temp, 'YYYY/MM/DD') !==
+            formatDate(date, 'YYYY/MM/DD')) {
+          date_add = new Date(date_temp.getFullYear(),
+                              date_temp.getMonth(),
+                              date_temp.getDate(),
                               0, 0, 0, 0);
-          rListResult.push({ date : lDateAdd, data : lListData });
-          lDateTemp = lDate;
-          lListData = [];
+          list_result.push({ date : date_add, data : list_data });
+          date_temp = date;
+          list_data = [];
         }
 
-        lObjAdd = {
+        to_add = {
           date    : pValue.date,
           url     : pValue.url,
-          title   : lObjPage.title,
-          host    : lObjPage.host,
-          dataURI : lObjDataURI[lObjPage.host] || gMapIcons.get(NORMAL),
+          title   : page.title,
+          host    : page.host,
+          dataURI : data_uri[page.host] || gMapIcons.get(NORMAL),
         };
-        if (pValue.id) { lObjAdd.id = pValue.id; }
-        if (pValue.windowId) { lObjAdd.windowId = pValue.windowId; }
+        if (pValue.id) { to_add.id = pValue.id; }
+        if (pValue.windowId) { to_add.windowId = pValue.windowId; }
 
-        lListData.push(lObjAdd);
+        list_data.push(to_add);
       });
 
-      if (lListData.length > 0) {
-        lDateAdd = new Date(lDateTemp.getFullYear(),
-                            lDateTemp.getMonth(),
-                            lDateTemp.getDate(),
+      if (list_data.length > 0) {
+        date_add = new Date(date_temp.getFullYear(),
+                            date_temp.getMonth(),
+                            date_temp.getDate(),
                             0, 0, 0, 0);
-        rListResult.push({ date : lDateAdd, data : lListData });
+        list_result.push({ date : date_add, data : list_data });
       }
 
-      resolve(rListResult);
+      resolve(list_result);
     });
   }//}}}
 
@@ -423,21 +403,21 @@
    * Get history list.
    * @param {Database} pInstanceDB -
    *     the instance of Database class in indexedDB.js.
-   * @param {String} pStrDbName - the target history name in indexedDB.
+   * @param {String} pDbName - the target history name in indexedDB.
    * @return {Promise} return promise.
    */
-  function getHistoryListFromIndexedDB(pInstanceDB, pStrDbName)//{{{
+  function getHistoryListFromIndexedDB(pInstanceDB, pDbName)//{{{
   {
     return new Promise((resolve, reject) => {
-      var lArrayPromise = [];
-      lArrayPromise.push( pInstanceDB.getAll({ name: pStrDbName }) );
-      lArrayPromise.push( pInstanceDB.getAll({ name: gStrDbPageInfoName }) );
-      lArrayPromise.push( pInstanceDB.getAll({ name: gStrDbDataURIName }) );
+      let promise_results = [];
+      promise_results.push( pInstanceDB.getAll({ name: pDbName }) );
+      promise_results.push( pInstanceDB.getAll({ name: gStrDbPageInfoName }) );
+      promise_results.push( pInstanceDB.getAll({ name: gStrDbDataURIName }) );
 
-      Promise.all(lArrayPromise)
-      .then(getListAfterJoinHistoryDataOnDB)
-      .then(resolve)
-      .catch(reject);
+      Promise.all(promise_results)
+        .then(getListAfterJoinHistoryDataOnDB)
+        .then(resolve)
+        .catch(reject);
     });
   }//}}}
 
@@ -451,29 +431,29 @@
   {
     if (pElement.location.search.length > 1) {
       // 最初の1文字(?)を除いた文字列を取得
-      var lStrQuery = decodeURIComponent(pElement.location.search.substring(1));
+      let query = decodeURIComponent(pElement.location.search.substring(1));
 
       // 引数ごとに分割
-      var parameters     = lStrQuery.split('&');
-      var rObjResult     = {};
-      var lArrayElement  = [];
-      var lStrParamName  = "";
-      var lStrParamValue = "";
+      let parameters = query.split('&');
+      let result     = {};
+      let elements   = [];
+      let param_name  = "";
+      let parama_value = "";
 
       parameters.forEach(pValue => {
-        lArrayElement = pValue.split('=');
-        if (lArrayElement[0] === '' ||
-            lArrayElement[1] === undefined ||
-            lArrayElement[1] === null) {
+        elements = pValue.split('=');
+        if (elements[0] === '' ||
+            elements[1] === undefined ||
+            elements[1] === null) {
           return;
         }
 
-        lStrParamName             = lArrayElement[0];
-        lStrParamValue            = decodeURIComponent(lArrayElement[1]);
-        rObjResult[lStrParamName] = lStrParamValue;
+        param_name         = elements[0];
+        parama_value       = decodeURIComponent(elements[1]);
+        result[param_name] = parama_value;
       });
 
-      return rObjResult;
+      return result;
     }
 
     return null;
@@ -481,53 +461,47 @@
 
   function closureGetDataURI()//{{{
   {
-    function getDataType(pArrayBuf)//{{{
+    function getDataType(pBuffers)//{{{
     {
-      if (pArrayBuf[0] === 0xFF &&
-          pArrayBuf[1] === 0xD8 &&
-          pArrayBuf[pArrayBuf.byteLength - 2] === 0xFF &&
-          pArrayBuf[pArrayBuf.byteLength - 1] === 0xD9) {
+      if (pBuffers[0] === 0xFF &&
+          pBuffers[1] === 0xD8 &&
+          pBuffers[pBuffers.byteLength - 2] === 0xFF &&
+          pBuffers[pBuffers.byteLength - 1] === 0xD9) {
         return 'image/jpeg';
-      } else if (pArrayBuf[0] === 0x89 && pArrayBuf[1] === 0x50 &&
-                 pArrayBuf[2] === 0x4E && pArrayBuf[3] === 0x47) {
+      } else if (pBuffers[0] === 0x89 && pBuffers[1] === 0x50 &&
+                 pBuffers[2] === 0x4E && pBuffers[3] === 0x47) {
         return 'image/png';
-      } else if (pArrayBuf[0] === 0x47 && pArrayBuf[1] === 0x49 &&
-                 pArrayBuf[2] === 0x46 && pArrayBuf[3] === 0x38) {
+      } else if (pBuffers[0] === 0x47 && pBuffers[1] === 0x49 &&
+                 pBuffers[2] === 0x46 && pBuffers[3] === 0x38) {
         return 'image/gif';
-      } else if (pArrayBuf[0] === 0x42 && pArrayBuf[1] === 0x4D) {
+      } else if (pBuffers[0] === 0x42 && pBuffers[1] === 0x4D) {
         return 'image/bmp';
-      } else if (pArrayBuf[0] === 0x00 &&
-                 pArrayBuf[1] === 0x00 &&
-                 pArrayBuf[2] === 0x01) {
+      } else if (pBuffers[0] === 0x00 &&
+                 pBuffers[1] === 0x00 &&
+                 pBuffers[2] === 0x01) {
         return 'image/x-icon';
       } else {
         return 'image/unknown';
       }
     }//}}}
 
-    function getDataURI(pStrUrl)//{{{
+    function getDataURI(pUrl)//{{{
     {
       return new Promise(function(resolve, reject) {
-        var lU8ArrayBytes  = new Uint8Array();
-        var lStrDataType   = '';
-        var lStrBinaryData = '';
-        var i              = 0;
-
         ajax({
-          url:          pStrUrl,
+          url:          pUrl,
           responseType: 'arraybuffer',
         }).then(pResult => {
           if (pResult.status === 200) {
-            lU8ArrayBytes  = new Uint8Array(pResult.response);
-            lStrDataType   = getDataType(lU8ArrayBytes);
-            lStrBinaryData = '';
+            let uint8_array = new Uint8Array(pResult.response);
+            let data_type   = getDataType(uint8_array);
 
-            for (i = 0; i < lU8ArrayBytes.byteLength; i = (i + 1) | 0) {
-              lStrBinaryData += String.fromCharCode(lU8ArrayBytes[i]);
+            let binary_data = '';
+            for (let i = 0; i < uint8_array.byteLength; ++i) {
+              binary_data += String.fromCharCode(uint8_array[i]);
             }
 
-            resolve(
-              `data:${lStrDataType};base64,${window.btoa(lStrBinaryData)}`);
+            resolve(`data:${data_type};base64,${window.btoa(binary_data)}`);
           } else {
             reject(new Error(pResult.xhr.statusText));
           }
@@ -538,32 +512,29 @@
     return getDataURI;
   }//}}}
 
-  function hasStringOfAttributeOfElement(pElement, pStrAttrName, lStrAdd)//{{{
+  function hasStringOfAttributeOfElement(pElement, pAttrName, pAdd)//{{{
   {
-    var lRegex = new RegExp(`(^|\\s+)${lStrAdd}`, '');
-    return lRegex.test(pElement.getAttribute(pStrAttrName));
+    let regex = new RegExp(`(^|\\s+)${pAdd}`, '');
+    return regex.test(pElement.getAttribute(pAttrName));
   }//}}}
 
-  function addStringToAttributeOfElement(pElement, pStrAttrName, lStrAdd)//{{{
+  function addStringToAttributeOfElement(pElement, pAttrName, pAdd)//{{{
   {
-    if (!hasStringOfAttributeOfElement(pElement, pStrAttrName, lStrAdd)) {
-      var lStrAttr = pElement.getAttribute(pStrAttrName);
-
-      pElement.setAttribute(
-        pStrAttrName, (lStrAttr ? lStrAttr + ' ' : '') + lStrAdd);
+    if (!hasStringOfAttributeOfElement(pElement, pAttrName, pAdd)) {
+      let attr = pElement.getAttribute(pAttrName);
+      pElement.setAttribute(pAttrName, (attr ? attr + ' ' : '') + pAdd);
       return true;
     }
     return false;
   }//}}}
 
   function removeStringFromAttributeOfElement(//{{{
-    pElement, pStrAttrName, pStrRemove, pStrReplace)
+    pElement, pAttrName, pRemove, pReplace)
   {
-    var lRegex    = new RegExp('(^|\\s+)' + pStrRemove, 'ig');
-    var lStrValue = pElement.getAttribute(pStrAttrName);
-    if (lStrValue) {
-      pElement.setAttribute(
-        pStrAttrName, lStrValue.replace(lRegex, pStrReplace || ''));
+    let regex = new RegExp('(^|\\s+)' + pRemove, 'ig');
+    let value = pElement.getAttribute(pAttrName);
+    if (value) {
+      pElement.setAttribute(pAttrName, value.replace(regex, pReplace || ''));
     }
   }//}}}
 
@@ -592,78 +563,78 @@
    * generateKeyString
    * Based on key info create string.
    *
-   * @param {Object} pObjKeyInfo has got return value of keyCheck function.
+   * @param {Object} pKeyInfo has got return value of keyCheck function.
    * @return {String} result string.
    */
-  function generateKeyString(pObjKeyInfo) //{{{
+  function generateKeyString(pKeyInfo) //{{{
   {
-    if (toType(pObjKeyInfo) !== 'object') {
+    if (toType(pKeyInfo) !== 'object') {
       throw new Error('Invalid type of argument.');
     }
 
-    var lStrOutput = '';
-    if (pObjKeyInfo.meta)  { lStrOutput += 'Meta +'; }
-    if (pObjKeyInfo.ctrl)  { lStrOutput += 'Ctrl +'; }
-    if (pObjKeyInfo.alt)   { lStrOutput += 'Alt +'; }
-    if (pObjKeyInfo.shift) { lStrOutput += 'Shift +'; }
+    let output = '';
+    if (pKeyInfo.meta)  { output += 'Meta +'; }
+    if (pKeyInfo.ctrl)  { output += 'Ctrl +'; }
+    if (pKeyInfo.alt)   { output += 'Alt +'; }
+    if (pKeyInfo.shift) { output += 'Shift +'; }
 
-    lStrOutput += ' ';
+    output += ' ';
 
     /* refernece to
      * http://www.javascripter.net/faq/keycodes.htm */
-    switch (pObjKeyInfo.keyCode) {
-      case 8:   lStrOutput += 'BackSpace'; break;
-      case 9:   lStrOutput += 'Tab'; break;
-      case 12:  lStrOutput += 'Numpad 5'; break;
-      case 13:  lStrOutput += 'Enter'; break;
-      case 19:  lStrOutput += 'Pause'; break;
-      case 20:  lStrOutput += 'CapsLock'; break;
-      case 27:  lStrOutput += 'Esc'; break;
-      case 32:  lStrOutput += 'Space'; break;
-      case 33:  lStrOutput += 'Page Up'; break;
-      case 34:  lStrOutput += 'Page Down'; break;
-      case 35:  lStrOutput += 'End'; break;
-      case 36:  lStrOutput += 'Home'; break;
-      case 37:  lStrOutput += 'Left'; break;
-      case 38:  lStrOutput += 'Up'; break;
-      case 39:  lStrOutput += 'Right'; break;
-      case 40:  lStrOutput += 'Down'; break;
-      case 44:  lStrOutput += 'PrintScreen'; break;
-      case 45:  lStrOutput += 'Insert'; break;
-      case 46:  lStrOutput += 'Delete'; break;
-      case 106: lStrOutput += 'Numpad*'; break;
-      case 107: lStrOutput += 'Numpad+'; break;
-      case 109: lStrOutput += 'Numpad-'; break;
-      case 110: lStrOutput += 'Numpad.'; break;
-      case 111: lStrOutput += 'Numpad/'; break;
-      case 144: lStrOutput += 'NumLock'; break;
-      case 145: lStrOutput += 'ScrollLock'; break;
-      case 188: lStrOutput += ','; break;
-      case 190: lStrOutput += '.'; break;
-      case 191: lStrOutput += '/'; break;
-      case 192: lStrOutput += '`'; break;
-      case 219: lStrOutput += '['; break;
-      case 220: lStrOutput += '\\'; break;
-      case 221: lStrOutput += ']'; break;
-      case 222: lStrOutput += '\''; break;
+    switch (pKeyInfo.keyCode) {
+      case 8:   output += 'BackSpace'; break;
+      case 9:   output += 'Tab'; break;
+      case 12:  output += 'Numpad 5'; break;
+      case 13:  output += 'Enter'; break;
+      case 19:  output += 'Pause'; break;
+      case 20:  output += 'CapsLock'; break;
+      case 27:  output += 'Esc'; break;
+      case 32:  output += 'Space'; break;
+      case 33:  output += 'Page Up'; break;
+      case 34:  output += 'Page Down'; break;
+      case 35:  output += 'End'; break;
+      case 36:  output += 'Home'; break;
+      case 37:  output += 'Left'; break;
+      case 38:  output += 'Up'; break;
+      case 39:  output += 'Right'; break;
+      case 40:  output += 'Down'; break;
+      case 44:  output += 'PrintScreen'; break;
+      case 45:  output += 'Insert'; break;
+      case 46:  output += 'Delete'; break;
+      case 106: output += 'Numpad*'; break;
+      case 107: output += 'Numpad+'; break;
+      case 109: output += 'Numpad-'; break;
+      case 110: output += 'Numpad.'; break;
+      case 111: output += 'Numpad/'; break;
+      case 144: output += 'NumLock'; break;
+      case 145: output += 'ScrollLock'; break;
+      case 188: output += ','; break;
+      case 190: output += '.'; break;
+      case 191: output += '/'; break;
+      case 192: output += '`'; break;
+      case 219: output += '['; break;
+      case 220: output += '\\'; break;
+      case 221: output += ']'; break;
+      case 222: output += '\''; break;
       default:
         /* eslint yoda: "off" */
-        if (48 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 57 || // 0 to 9
-            65 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 90) { // A to Z
-          lStrOutput += String.fromCharCode(pObjKeyInfo.keyCode);
-        } else if (96 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 105) {
+        if (48 <= pKeyInfo.keyCode && pKeyInfo.keyCode <= 57 || // 0 to 9
+            65 <= pKeyInfo.keyCode && pKeyInfo.keyCode <= 90) { // A to Z
+          output += String.fromCharCode(pKeyInfo.keyCode);
+        } else if (96 <= pKeyInfo.keyCode && pKeyInfo.keyCode <= 105) {
           // Numpad 0 to Numpad 9
-          lStrOutput += 'Numpad ' + (pObjKeyInfo.keyCode - 96);
-        } else if (112 <= pObjKeyInfo.keyCode && pObjKeyInfo.keyCode <= 123) {
+          output += 'Numpad ' + (pKeyInfo.keyCode - 96);
+        } else if (112 <= pKeyInfo.keyCode && pKeyInfo.keyCode <= 123) {
           // F1 to F12
-          lStrOutput += 'F' + (pObjKeyInfo.keyCode - 111);
+          output += 'F' + (pKeyInfo.keyCode - 111);
         } else {
           throw new Error('Invalid keyCode.');
         }
         break;
     }
 
-    return lStrOutput.trim();
+    return output.trim();
   }//}}}
 
   /* base program.
@@ -672,15 +643,14 @@
    * I have added about NaN
    */
   function toType(pObj) {//{{{
-    var lStrType =
-      ({}).toString.call(pObj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
-    if (lStrType === 'global') {
+    let type = ({}).toString.call(pObj).match(/\s([a-zA-Z]+)/)[1].toLowerCase();
+    if (type === 'global') {
       if (pObj === void 0)    { return 'undefined'; }
       else if (pObj === null) { return 'null'; }
-    } else if (lStrType === 'number') {
+    } else if (type === 'number') {
       if (isNaN(pObj)) { return 'NaN'; }
     }
-    return lStrType;
+    return type;
   }//}}}
 
   /**
@@ -690,7 +660,7 @@
    *
    * @param {arguments or array} pArguments -
    *     you want to confirm the arguments of function.
-   * @param {array of array of string} pArrayTypes -
+   * @param {array of array of string} pTypes -
    *     you want to confirm the array of
    *     the string represent the type of the arguments of the function.
    *     String of Array acknowledge the type of arguments.
@@ -702,103 +672,97 @@
    *     Arguments of Function are
    *        1: one of a value of arguments.
    *        2 or later: none;
-   * @param {boolean} [pBoolLenAllow] -
+   * @param {boolean} [pLenAllow] -
    *     Whether admitting that the length of
-   *     pArguments and pArrayTypes do not match.
+   *     pArguments and pTypes do not match.
    *     default is false.
    * @return {string or boolean}
    *     If exist an error, to return the string.
    *     return false of boolean if doesn't exist the error.
    */
-  function checkFunctionArguments(pArguments, pArrayTypes, pBoolLenAllow)//{{{
+  function checkFunctionArguments(pArguments, pTypes, pLenAllow)//{{{
   {
-    var lArrayArgs        = (toType(pArguments) === 'array') ?
-                            pArguments :
-                            Array.prototype.slice.call(pArguments);
-    var rStrError         = '';
-    var lStrErr           = '';
-    var lStrType          = '';
-    var lBoolResultOfFunc = true;
-    var lNumMatchToAll    = 0;
-    var lBoolLengthAllow  = pBoolLenAllow || false;
+    let args = (toType(pArguments) === 'array') ?
+                pArguments : Array.prototype.slice.call(pArguments);
+    let length_allow = pLenAllow || false;
 
-    if (lBoolLengthAllow === false &&
-        lArrayArgs.length !== pArrayTypes.length) {
+    if (length_allow === false && args.length !== pTypes.length) {
       throw new Error(
         "The value of the arguments is not same length: " +
-        `first: ${lArrayArgs.length}, second: ${pArrayTypes.length}`);
+        `first: ${args.length}, second: ${pTypes.length}`);
     }
 
-    lArrayArgs.forEach((pValue, i) => {
-      lStrErr = '';
-      lNumMatchToAll = 0;
+    let error_message = "";
+    let match_to_all  = 0;
+    let error         = '';
+    args.forEach((pValue, i) => {
+      error_message = '';
+      match_to_all  = 0;
 
-      lStrType = toType(pArrayTypes[i]);
-      switch (lStrType) {
+      let type = toType(pTypes[i]);
+      switch (type) {
       case 'function':
-        lBoolResultOfFunc = pArrayTypes[i](pValue);
-        if (lBoolResultOfFunc === void 0 || lBoolResultOfFunc === null) {
-          throw new Error("Function is not return the boolean.");
-        } else if (lBoolResultOfFunc === true) {
-          lStrErr += `Arg ${i}: The result of the function was error.\n`;
-          ++lNumMatchToAll;
+        {
+          let result = pTypes[i](pValue);
+          if (result === void 0 || result === null) {
+            throw new Error("Function is not return the boolean.");
+          } else if (result === true) {
+            error_message +=
+              `Arg ${i}: The result of the function was error.\n`;
+            ++match_to_all;
+          }
+          break;
         }
-        break;
       case 'array':
-        pArrayTypes[i].forEach(pStrType => {
-          if (toType(pValue) !== pStrType) {
-            lStrErr += `Arg ${i}: isn't ${pStrType} type\n`;
-            ++lNumMatchToAll;
+        pTypes[i].forEach(pType => {
+          if (toType(pValue) !== pType) {
+            error_message += `Arg ${i}: isn't ${pType} type\n`;
+            ++match_to_all;
           }
         });
         break;
       default:
         throw new Error(
-          "Invalid arugments. pArrayTypes is not array or function.");
+          "Invalid arugments. pTypes is not array or function.");
       }
 
-      if (lNumMatchToAll === pArrayTypes[i].length) {
-        rStrError += lStrErr;
+      if (match_to_all === pTypes[i].length) {
+        error += error_message;
       }
     });
 
-    return rStrError.length > 0 ? rStrError : false;
+    return error.length > 0 ? error : false;
   }//}}}
 
   /**
    * 日付をフォーマットする
    * http://qiita.com/osakanafish/items/c64fe8a34e7221e811d0
    * @param  {Date}   pDate     日付
-   * @param  {String} [pStrFormat] フォーマット
+   * @param  {String} [pFormat] フォーマット
    * @return {String}          フォーマット済み日付
    */
-  function formatDate(pDate, pStrFormat)//{{{
+  function formatDate(pDate, pFormat)//{{{
   {
-    var lStrMilliSeconds = "";
-    var lNumLength       = 0;
-    var i                = 0;
-
-    if (!pStrFormat) {
-      pStrFormat = 'YYYY-MM-DD hh:mm:ss.SSS';
+    if (!pFormat) {
+      pFormat = 'YYYY-MM-DD hh:mm:ss.SSS';
     }
-    pStrFormat = pStrFormat.replace(/YYYY/g, pDate.getFullYear());
-    pStrFormat = pStrFormat.replace(
+    pFormat = pFormat.replace(/YYYY/g, pDate.getFullYear());
+    pFormat = pFormat.replace(
       /MM/g, ('0' + (pDate.getMonth() + 1)).slice(-2));
-    pStrFormat = pStrFormat.replace(/DD/g, ('0' + pDate.getDate()).slice(-2));
-    pStrFormat = pStrFormat.replace(/hh/g, ('0' + pDate.getHours()).slice(-2));
-    pStrFormat = pStrFormat.replace(
+    pFormat = pFormat.replace(/DD/g, ('0' + pDate.getDate()).slice(-2));
+    pFormat = pFormat.replace(/hh/g, ('0' + pDate.getHours()).slice(-2));
+    pFormat = pFormat.replace(
       /mm/g, ('0' + pDate.getMinutes()).slice(-2));
-    pStrFormat = pStrFormat.replace(
+    pFormat = pFormat.replace(
       /ss/g, ('0' + pDate.getSeconds()).slice(-2));
-    if (pStrFormat.match(/S/g)) {
-      lStrMilliSeconds = ('00' + pDate.getMilliseconds()).slice(-3);
-      lNumLength = pStrFormat.match(/S/g).length;
-      for (i = 0; i < lNumLength; i = (i + 1) | 0) {
-        pStrFormat =
-          pStrFormat.replace(/S/, lStrMilliSeconds.substring(i, i + 1));
+    if (pFormat.match(/S/g)) {
+      let millisecond = ('00' + pDate.getMilliseconds()).slice(-3);
+      let length = pFormat.match(/S/g).length;
+      for (let i = 0; i < length; ++i) {
+        pFormat = pFormat.replace(/S/, millisecond.substring(i, i + 1));
       }
     }
-    return pStrFormat;
+    return pFormat;
   }//}}}
 
   /**
@@ -813,30 +777,30 @@
   {
     console.info('setObjectProperty', arguments);
 
-    var lArrayArgs = Array.prototype.slice.call(arguments);
-    if (lArrayArgs.length < 2) {
+    let args = Array.prototype.slice.call(arguments);
+    if (args.length < 2) {
       throw new Error('setObjectProperty arguments is less.');
     }
 
-    var lObjToAdd = lArrayArgs[0];
-    var lObjName  = lArrayArgs[1];
-    var lValue    = lArrayArgs[2];
-    if (toType(lObjName) === 'function') {
-      if (lObjName.name.length === 0) {
+    let to_add = args[0];
+    let name   = args[1];
+    let value  = args[2];
+    if (toType(name) === 'function') {
+      if (name.name.length === 0) {
         throw new Error('a nameless function.');
       }
-      if (lObjToAdd.hasOwnProperty(lObjName.name)) {
-        throw new Error('Already had added to object.', lArrayArgs);
+      if (to_add.hasOwnProperty(name.name)) {
+        throw new Error('Already had added to object.', args);
       }
 
-      lObjToAdd[lObjName.name] = lObjName;
+      to_add[name.name] = name;
       return;
     }
 
-    if (lObjToAdd.hasOwnProperty(lObjName)) {
-      throw new Error('Already had added to object.', lArrayArgs);
+    if (to_add.hasOwnProperty(name)) {
+      throw new Error('Already had added to object.', args);
     }
-    lObjToAdd[lObjName] = lValue;
+    to_add[name] = value;
   }//}}}
 
   //{{{ method.

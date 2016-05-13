@@ -4,62 +4,56 @@
   function getKeyBinds()//{{{
   {
     return new Promise((resolve, reject) => {
-      var lMapKeys    = new Map();
-      var lObjKeyInfo = {};
-
-      chrome.storage.local.get(null, pObjItems => {
+      chrome.storage.local.get(null, pItems => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.messsage));
           return;
         }
 
-        lMapKeys = new Map();
-        Object.keys(pObjItems).forEach(pKey => {
+        let keys = new Map();
+        Object.keys(pItems).forEach(pKey => {
           if (pKey.indexOf('keybind_') !== -1) {
             try {
-              lObjKeyInfo = JSON.parse(pObjItems[pKey]);
-              if (toType(lObjKeyInfo) !== 'object') {
+              let key_info = JSON.parse(pItems[pKey]);
+              if (toType(key_info) !== 'object') {
                 return;
               }
 
-              lMapKeys.set(
-                pKey, pObjItems[pKey] || gMapDefaultValues.get(pKey));
+              keys.set(pKey, pItems[pKey] || gMapDefaultValues.get(pKey));
             } catch (e) {
               return;
             }
           }
         });
 
-        resolve(lMapKeys);
+        resolve(keys);
       });
     });
   }//}}}
 
   document.addEventListener('keyup', pEvent => {//{{{
-    var lElCurrentFocus      = document.activeElement;
-    var lElActiveElementName = lElCurrentFocus.tagName.toLowerCase();
-    if (lElActiveElementName === 'input' ||
-        lElActiveElementName === 'textarea') {
+    let current_focus_element = document.activeElement;
+    let active_element_name   = current_focus_element.tagName.toLowerCase();
+    if (active_element_name === 'input' ||
+        active_element_name === 'textarea') {
       return;
     }
 
     chrome.runtime.sendMessage(
       { event: 'keybind_check_exclude_list', location: window.location },
-      pBoolResult => {
-        var pushKey = "";
-
-        if (pBoolResult) {
+      pResult => {
+        if (pResult) {
           getKeyBinds()
-          .then(pMapKeys => {
-            pushKey = JSON.stringify(keyCheck(pEvent));
-            pMapKeys.forEach((pValue, pKey) => {
+          .then(pKeys => {
+            let pushKey = JSON.stringify(keyCheck(pEvent));
+            pKeys.forEach((pValue, pKey) => {
               if (pValue === pushKey) {
                 chrome.runtime.sendMessage(
                   { event: pKey.replace(/^keybind_/, '') });
               }
             });
           })
-          .catch(eErr => console.error(eErr));
+          .catch(e => console.error(e));
         } else {
           console.error('Tab Memory Purge: This url contain the exclude list.');
         }

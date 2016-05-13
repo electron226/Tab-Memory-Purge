@@ -3,13 +3,13 @@
   "use strict";
 
   /* for this script. */
-  function setObjectProperty(pObj, pStrName, pValue)//{{{
+  function setObjectProperty(pObj, pName, pValue)//{{{
   {
-    console.info('setObjectProperty in common.js', pObj, pStrName, pValue);
-    if (pObj.hasOwnProperty(pStrName)) {
-      throw new Error('Already contain to pObj', pStrName, pValue);
+    console.info('setObjectProperty in common.js', pObj, pName, pValue);
+    if (pObj.hasOwnProperty(pName)) {
+      throw new Error('Already contain to pObj', pName, pValue);
     }
-    pObj[pStrName] = pValue;
+    pObj[pName] = pValue;
   }//}}}
 
   setObjectProperty(window, 'gStrVersionKey', 'version');
@@ -18,49 +18,49 @@
   function initializeDefaultConfigOfExtension()//{{{
   {
     /*eslint no-useless-escape: "off"*/
-    var lStrKeybindDefault = JSON.stringify({});
-    var lMapConfig = new Map();
+    let keybind_default = JSON.stringify({});
+    let config = new Map();
 
-    lMapConfig.set('no_release', false);
-    lMapConfig.set('timer', 20);
-    lMapConfig.set('exclude_url',
+    config.set('no_release', false);
+    config.set('timer', 20);
+    config.set('exclude_url',
       '^https://\n' +
       '.*://(10|172|192).\d+.\d+.\d+\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
       'youtube.com'
     );
-    lMapConfig.set('regex_insensitive', true);
-    lMapConfig.set('enable_auto_purge', true);
-    lMapConfig.set('remaiming_memory', 500);
-    lMapConfig.set('max_history', 7);
-    lMapConfig.set('max_sessions', 10);
-    lMapConfig.set('purging_all_tabs_except_active', false);
-    lMapConfig.set('max_opening_tabs', 5);
-    lMapConfig.set('interval_timing', 5);
-    lMapConfig.set('new_tab_opens_with_purged_tab', false);
-    lMapConfig.set('get_title_when_does_not_title', true);
-    lMapConfig.set('not_purge_playsound_tab', true);
+    config.set('regex_insensitive', true);
+    config.set('enable_auto_purge', true);
+    config.set('remaiming_memory', 500);
+    config.set('max_history', 7);
+    config.set('max_sessions', 10);
+    config.set('purging_all_tabs_except_active', false);
+    config.set('max_opening_tabs', 5);
+    config.set('interval_timing', 5);
+    config.set('new_tab_opens_with_purged_tab', false);
+    config.set('get_title_when_does_not_title', true);
+    config.set('not_purge_playsound_tab', true);
 
-    lMapConfig.set('restored_type', 'restore_to_original_window');
+    config.set('restored_type', 'restore_to_original_window');
 
-    lMapConfig.set('keybind_release', lStrKeybindDefault);
-    lMapConfig.set('keybind_switch_not_release', lStrKeybindDefault);
-    lMapConfig.set('keybind_switch_not_release_host', lStrKeybindDefault);
-    lMapConfig.set('keybind_all_purge', lStrKeybindDefault);
-    lMapConfig.set('keybind_all_purge_without_exclude_list', lStrKeybindDefault);
-    lMapConfig.set('keybind_all_unpurge', lStrKeybindDefault);
-    lMapConfig.set('keybind_switch_timer_state', lStrKeybindDefault);
-    lMapConfig.set('keybind_add_current_tab_exclude_list', lStrKeybindDefault);
-    lMapConfig.set('keybind_clear_temporary_exclusion_list', lStrKeybindDefault);
-    lMapConfig.set('keybind_exclude_url',
+    config.set('keybind_release', keybind_default);
+    config.set('keybind_switch_not_release', keybind_default);
+    config.set('keybind_switch_not_release_host', keybind_default);
+    config.set('keybind_all_purge', keybind_default);
+    config.set('keybind_all_purge_without_exclude_list', keybind_default);
+    config.set('keybind_all_unpurge', keybind_default);
+    config.set('keybind_switch_timer_state', keybind_default);
+    config.set('keybind_add_current_tab_exclude_list', keybind_default);
+    config.set('keybind_clear_temporary_exclusion_list', keybind_default);
+    config.set('keybind_exclude_url',
       'nicovideo.jp\n' +
       'youtube.com');
-    lMapConfig.set('keybind_regex_insensitive', true);
-    lMapConfig.set(window['gStrVersionKey'], chrome.app.getDetails());
-    lMapConfig.set(window['gStrPreviousSessionTimeKey'], null);
+    config.set('keybind_regex_insensitive', true);
+    config.set(window['gStrVersionKey'], chrome.app.getDetails());
+    config.set(window['gStrPreviousSessionTimeKey'], null);
 
-    return lMapConfig;
+    return config;
   }//}}}
 
   setObjectProperty(window, 'gMapDefaultValues', initializeDefaultConfigOfExtension());
@@ -73,26 +73,26 @@
   setObjectProperty(window, 'gStrDbSessionName', 'session');
   setObjectProperty(window, 'gStrDbSavedSessionName', 'savedSession');
 
-  var lObjCreateStores = {};//{{{
-  lObjCreateStores[window.gStrDbHistoryName] = {
+  let create_stores = {};//{{{
+  create_stores[window.gStrDbHistoryName] = {
     property: {
       keyPath: 'date',
       autoIncrement: false,
     },
   };
-  lObjCreateStores[window.gStrDbDataURIName] = {
+  create_stores[window.gStrDbDataURIName] = {
     property: {
       keyPath: 'host',
       autoIncrement: false,
     },
   };
-  lObjCreateStores[window.gStrDbPageInfoName] = {
+  create_stores[window.gStrDbPageInfoName] = {
     property: {
       keyPath: 'url',
       autoIncrement: false,
     },
   };
-  lObjCreateStores[window.gStrDbSessionName] = {
+  create_stores[window.gStrDbSessionName] = {
     property: {
       keyPath: 'id',
       autoIncrement: true,
@@ -104,7 +104,7 @@
       },
     },
   };
-  lObjCreateStores[window.gStrDbSavedSessionName] = {
+  create_stores[window.gStrDbSavedSessionName] = {
     property: {
       keyPath: 'id',
       autoIncrement: true,
@@ -116,10 +116,10 @@
       },
     },
   };
-  setObjectProperty(window, 'gObjDbCreateStores', lObjCreateStores);//}}}
+  setObjectProperty(window, 'gObjDbCreateStores', create_stores);//}}}
 
-  var gStrBlankUrl = chrome.runtime.getURL('blank.html');
-  setObjectProperty(window, 'gStrExtensionExcludeUrl', '^' + gStrBlankUrl);
+  let blank_url = chrome.runtime.getURL('blank.html');
+  setObjectProperty(window, 'gStrExtensionExcludeUrl', '^' + blank_url);
   setObjectProperty(window, 'gStrChromeExcludeUrl',
       '^chrome-*\\w*://\n' +
       '^view-source:\n' +
@@ -136,7 +136,7 @@
   setObjectProperty(window, 'gStrGetScrollPosScript', 'js/load_scripts/getScrollPosition.js');
 
   // a value which represents of the exclude list.
-  var lArrayExcludeValues = [
+  let exclude_values = [
     'DISABLE_AUTOPURGE',     // 1
     'INVALID_EXCLUDE',   // 2
     'KEYBIND_EXCLUDE',   // 4
@@ -149,40 +149,40 @@
     'EXTENSION_ICON_48', // 512
     'EXTENSION_ICON_128', // 1024
   ];
-  lArrayExcludeValues.forEach((pValue, i) => {
+  exclude_values.forEach((pValue, i) => {
     setObjectProperty(window, pValue, 1 << i);
   });
 
   // the path of icons.
   // defined NORMAL etc... in common.js.
-  var lMapIcons = new Map();
-  var lMapIconNumbers = new Map();
-  lMapIconNumbers.set(DISABLE_AUTOPURGE, 'icon_disable_timer');
-  lMapIconNumbers.set(NORMAL,            'icon_019');
-  lMapIconNumbers.set(USE_EXCLUDE,       'icon_019_use_exclude');
-  lMapIconNumbers.set(TEMP_EXCLUDE,      'icon_019_temp_exclude');
-  lMapIconNumbers.set(EXTENSION_EXCLUDE, 'icon_019_extension_exclude');
-  lMapIconNumbers.set(CHROME_EXCLUDE,    'icon_019_extension_exclude');
+  let icons        = new Map();
+  let icon_numbers = new Map();
+  icon_numbers.set(DISABLE_AUTOPURGE, 'icon_disable_timer');
+  icon_numbers.set(NORMAL,            'icon_019');
+  icon_numbers.set(USE_EXCLUDE,       'icon_019_use_exclude');
+  icon_numbers.set(TEMP_EXCLUDE,      'icon_019_temp_exclude');
+  icon_numbers.set(EXTENSION_EXCLUDE, 'icon_019_extension_exclude');
+  icon_numbers.set(CHROME_EXCLUDE,    'icon_019_extension_exclude');
 
-  var lStrIconDir           = 'img/icons/';
-  var lStrKeybindIconSuffix = '_with_keybind';
-  lMapIconNumbers.forEach((pValue, pKey) => {
-    lMapIcons.set(pKey, chrome.runtime.getURL(`${lStrIconDir}${pValue}.png`));
-    lMapIcons.set(pKey | KEYBIND_EXCLUDE,
-      chrome.runtime.getURL(`${lStrIconDir}${pValue}${lStrKeybindIconSuffix}.png`));
+  let icon_dir            = 'img/icons/';
+  let keybind_icon_suffix = '_with_keybind';
+  icon_numbers.forEach((pValue, pKey) => {
+    icons.set(pKey, chrome.runtime.getURL(`${icon_dir}${pValue}.png`));
+    icons.set(pKey | KEYBIND_EXCLUDE,
+      chrome.runtime.getURL(`${icon_dir}${pValue}${keybind_icon_suffix}.png`));
   });
 
-  var lMapMainIcons = new Map();
-  lMapMainIcons.set(EXTENSION_ICON_38, 'icon_038');
-  lMapMainIcons.set(EXTENSION_ICON_48, 'icon_048');
-  lMapMainIcons.set(EXTENSION_ICON_128, 'icon_128');
+  let main_icons = new Map();
+  main_icons.set(EXTENSION_ICON_38, 'icon_038');
+  main_icons.set(EXTENSION_ICON_48, 'icon_048');
+  main_icons.set(EXTENSION_ICON_128, 'icon_128');
 
-  lMapMainIcons.forEach((pValue, pKey) => {
-    lMapIcons.set(pKey, chrome.runtime.getURL(`${lStrIconDir}${pValue}.png`));
+  main_icons.forEach((pValue, pKey) => {
+    icons.set(pKey, chrome.runtime.getURL(`${icon_dir}${pValue}.png`));
   });
-  setObjectProperty(window, 'gMapIcons', lMapIcons);
+  setObjectProperty(window, 'gMapIcons', icons);
 
-  setObjectProperty(window, 'gStrBlankUrl', gStrBlankUrl);
+  setObjectProperty(window, 'gStrBlankUrl', blank_url);
   setObjectProperty(window, 'gStrOptionPage', chrome.runtime.getURL('options.html'));
   setObjectProperty(window, 'gStrChangeHistory', chrome.runtime.getURL('History.txt'));
   setObjectProperty(window, 'gStrDeleteIconPath', 'img/icons/close.svg');
