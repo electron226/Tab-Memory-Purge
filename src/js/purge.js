@@ -995,6 +995,29 @@
   }//}}}
 
   /**
+   * isPinnedTab
+   *
+   * Whether the pinned tab.
+   *
+   * @param {Object} pTab - The tab object of chrome.tabs.
+   * @return {Boolean} If the tab was pinned, True.
+   *     haven't pinned it if False.
+   */
+  function isPinnedTab(pTab)//{{{
+  {
+    console.info('isPinnedTab', Array.prototype.slice.call(arguments));
+
+    let err_msg = checkFunctionArguments(arguments, [
+      [ 'object' ],
+    ]);
+    if (err_msg) {
+      throw new Error(err_msg);
+    }
+
+    return pTab.pinned === true;
+  }//}}}
+
+  /**
   * Check whether the user matches that set the exclusion list.
   * @param {String} pUrl - the url to check whether matches.
   * @param {Object} pExclude - the object represent exclusion list settings.
@@ -1323,6 +1346,16 @@
         });
       })
       .then(() => {
+        return new Promise(resolve2 => {
+          if (getOpts('when_purge_tab_to_pin') === false) {
+            resolve2();
+            return;
+          }
+
+          chrome.tabs.update(pTabId, { pinned: true }, resolve2);
+        });
+      })
+      .then(() => {
         setUnloaded(pTabId, tab.url, tab.windowId, scroll_positions[0]);
 
         return exclusiveProcessForFunc(
@@ -1336,10 +1369,10 @@
 
   /**
   * 解放したタブを復元します。
-  * @param {Number} pId 復元するタブのID.
+  * @param {Number} pTabId 復元するタブのID.
   * @return {Promise} promiseが返る。
   */
-  function unPurge(pId)//{{{
+  function unPurge(pTabId)//{{{
   {
     console.info('unPurge', Array.prototype.slice.call(arguments));
 
@@ -1354,12 +1387,12 @@
         return;
       }
 
-      chrome.tabs.sendMessage(pId,
-        { event: 'location_replace' }, useChrome => {
+      chrome.tabs.sendMessage(pTabId,
+        { event: 'location_replace', tabId: pTabId }, useChrome => {
           // If the url is empty in purge page.
           if (useChrome) {
-            let url = unloaded_observe.get(pId).url;
-            chrome.tabs.update(pId, { url: url }, resolve);
+            let url = unloaded_observe.get(pTabId).url;
+            chrome.tabs.update(pTabId, { url: url }, resolve);
           } else {
             resolve();
           }
@@ -1395,7 +1428,7 @@
         return;
       }
 
-      chrome.tabs.get(pTabId, rTab => {
+      chrome.tabs.get(pTabId, pTab => {
         if (chrome.runtime.lastError) {
           deleteTick(pTabId);
           reject(new Error(`tick function is skipped: ${pTabId}. message: ` +
@@ -1404,25 +1437,31 @@
         }
 
         // 全ての除外アドレス一覧と解放用のページと比較
-        let state = checkExcludeList(rTab.url);
-        if (!(state & NORMAL) && !isReleasePage(rTab.url)) {
+        let state = checkExcludeList(pTab.url);
+        if (!(state & NORMAL) && !isReleasePage(pTab.url)) {
           // 除外アドレスに含まれている場合
           console.warn("the tab includes to the exclusion list: " +
-                       ` ${JSON.stringify(rTab)}`);
+                       ` ${JSON.stringify(pTab)}`);
           resolve();
           return;
         }
 
         if (getOpts('not_purge_playsound_tab') === true &&
-            isPlayingSound(rTab)) {
+            isPlayingSound(pTab)) {
           console.warn(
-            `the tab have been playing sound: ${JSON.stringify(rTab)}`);
+            `the tab have been playing sound: ${JSON.stringify(pTab)}`);
+          resolve();
+          return;
+        }
+
+        if (getOpts('not_purge_pinned_tab') === true && isPinnedTab(pTab)) {
+          console.warn(`the tab have been pinned: ${JSON.stringify(pTab)}`);
           resolve();
           return;
         }
 
         // If a tab is activated, updates unload time of a tab.
-        (() => rTab.active ? setTick(pTabId) : purge(pTabId))()
+        (() => pTab.active ? setTick(pTabId) : purge(pTabId))()
         .then(resolve).catch(reject);
       });
     });

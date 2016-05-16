@@ -20,6 +20,24 @@
   });
   //}}}
 
+  function getOpts(pOptionName)//{{{
+  {
+    console.info('getOpts', Array.prototype.slice.call(arguments));
+
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(pOptionName, items => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+
+        let option = items.hasOwnProperty(pOptionName) ?
+                     items[pOptionName] : gMapDefaultValues.get(pOptionName);
+        resolve(option === true ? true : false);
+      });
+    });
+  }//}}}
+
   function getFaviconOfCurrentPage(pElement)//{{{
   {
     console.info('getFaviconOfCurrentPage',
@@ -35,6 +53,38 @@
     let xpath_icon = document.evaluate(
       '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
     return (xpath_icon.snapshotLength > 0) ? xpath_icon.snapshotItem(0) : null;
+  }//}}}
+
+  function cancelPinnedTab(pTabId)//{{{
+  {
+    console.info('cancelPinnedTab', Array.prototype.slice.call(arguments));
+
+    return new Promise((resolve, reject) => {
+      getOpts('when_purge_tab_to_pin')
+      .then(pinned => {
+        if (pinned === false) {
+          console.warn(
+              'the option "When purges a tab, to pin it." is disabled.');
+          resolve();
+          return;
+        }
+
+        chrome.tabs.get(pTabId, tab => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+
+          chrome.tabs.update(tab.id, { pinned: false }, () => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+            resolve();
+          });
+        });
+      });
+    });
   }//}}}
 
   function navigateToPageBeforePurged()//{{{
@@ -244,13 +294,43 @@
     });
   }
 
-  document.addEventListener('click', navigateToPageBeforePurged, true);
+  function getCurrentTab()//{{{
+  {
+    console.info('getCurrentTab');
+
+    return new Promise((resolve, reject) => {
+      chrome.tabs.getCurrent(tab => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+
+        resolve(tab.id);
+      });
+    });
+  }//}}}
+
+  function restorePage(pTabId)//{{{
+  {
+    console.info('restorePage', Array.prototype.slice.call(arguments));
+
+    if (toType(pTabId) === 'number') {
+      cancelPinnedTab(pTabId)
+        .then(navigateToPageBeforePurged);
+    } else {
+      getCurrentTab()
+        .then(cancelPinnedTab)
+        .then(navigateToPageBeforePurged);
+    }
+  }//}}}
+
+  document.addEventListener('click', restorePage, true);
 
   document.addEventListener('keydown', pEvent => {//{{{
     console.info('keydown', pEvent);
 
     if (gObjF5Key === generateKeyString( keyCheck(pEvent) )) {
-      navigateToPageBeforePurged();
+      restorePage();
     }
   }, true);//}}}
 
@@ -270,7 +350,7 @@
     switch (message.event) {
       case 'location_replace':
         try {
-          navigateToPageBeforePurged();
+          restorePage(message.tabId);
         } catch (e) {
           console.error(e);
           sendResponse(false);

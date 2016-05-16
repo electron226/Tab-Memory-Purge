@@ -163,6 +163,14 @@
     "message": "소리가 재생될 경우 자동으로 초기화하지 않기.",
     "description": "옵션 항목."
   },
+  "not_purge_pinned_tab": {
+    "message": "고정 된 탭 자동으로 해제하지 않는다.",
+    "description": "옵션 항목."
+  },
+  "when_purge_tab_to_pin": {
+    "message": "풀어 놓았다 탭 고정한다.",
+    "description": "옵션 항목."
+  },
   "restore_to_current_window": {
     "message": "현재 창으로 복구",
     "description": "세션 내역의 복구 항목."

@@ -41,6 +41,8 @@
     config.set('new_tab_opens_with_purged_tab', false);
     config.set('get_title_when_does_not_title', true);
     config.set('not_purge_playsound_tab', true);
+    config.set('not_purge_pinned_tab', true);
+    config.set('when_purge_tab_to_pin', false);
 
     config.set('restored_type', 'restore_to_original_window');
 

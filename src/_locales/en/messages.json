@@ -79,6 +79,14 @@
     "message": "Do not purge tabs that are actively playing sounds or videos.",
     "description": "the item of the options."
   },
+  "not_purge_pinned_tab": {
+    "message": "Do not purge the pinned tabs automatically.",
+    "description": "the item of the options."
+  },
+  "when_purge_tab_to_pin": {
+    "message": "When purges a tab, to pin it.",
+    "description": "the item of the options."
+  },
   "remaiming_memory": {
     "message": "Start purging tabs when computer RAM is below the specified memory size:",
     "description": "another option in the options menu"

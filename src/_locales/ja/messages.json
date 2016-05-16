@@ -159,6 +159,14 @@
     "message": "音を再生中のタブは自動的に解放しない",
     "description": "オプションの項目"
   },
+  "not_purge_pinned_tab": {
+    "message": "固定されたタブは自動的に解放しない",
+    "description": "オプションの項目"
+  },
+  "when_purge_tab_to_pin": {
+    "message": "解放したタブは固定する",
+    "description": "オプションの項目"
+  },
   "restore_to_current_window": {
     "message": "現在のウインドウに復元",
     "description": "セッション履歴の復元タイプ"
