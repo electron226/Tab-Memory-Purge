@@ -215,17 +215,7 @@
         });
       })
       .then(pageInfo => {
-        return (() => {
-          return new Promise(resolve2 => {
-            let name = 'get_title_when_does_not_title';
-            chrome.storage.local.get(name, items => {
-              let get_title = items.hasOwnProperty(name) ?
-                              items[name] : gMapDefaultValues.get(name);
-              resolve2(get_title === true ? true : false);
-            });
-          });
-        })()
-        .then(option => {
+        return getOpts('get_title_when_does_not_title').then(option => {
           if (pageInfo === void 0 ||
               pageInfo === null ||
               !pageInfo.hasOwnProperty('title') ||
