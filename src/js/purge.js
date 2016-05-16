@@ -457,8 +457,7 @@
       }
 
       let interval_id = continue_run.get(interval_name);
-      // TODO: must fix || to &&
-      if (interval_id !== void 0 || interval_id !== null) {
+      if (interval_id !== void 0 && interval_id !== null) {
         console.warn(
           "Already running interval process, so its process is stop." +
           `Then create new interval process. ` +
@@ -1172,12 +1171,9 @@
 
     return new Promise((resolve, reject) => {
       chrome.tabs.query({ active: true }, pTabs => {
-        pTabs.forEach(pTab => {
-          // TODO: This is not loop.
-          reloadBrowserIcon(pTab)
-          .then(resolve)
-          .catch(reject);
-        });
+        let promise_results = [];
+        pTabs.forEach(pTab => promise_results.push(reloadBrowserIcon(pTab)));
+        Promise.all(promise_results).then(resolve).catch(reject);
       });
     });
   }//}}}
