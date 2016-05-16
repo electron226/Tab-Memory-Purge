@@ -19,6 +19,10 @@
     "message": "단축키 설정",
     "description": "옵션 내에서 사용할 버튼 문자열 설정"
   },
+  "popup": {
+    "message": "팝업",
+    "description": "옵션 내에서 사용할 버튼 문자열 설정"
+  },
   "history": {
     "message": "내역",
     "description": "옵션 내에서 사용할 버튼 문자열 설정"
@@ -184,6 +188,23 @@
     "description": "세션 내역의 복구 항목."
   },
 
+  "popup_explanaton": {
+    "message": "팝업 메뉴의 버튼 동작 설정",
+    "description": "옵션의 팝업 탭의 설명"
+  },
+  "popup_exclude_list": {
+    "message": "제외 목록",
+    "description": "옵션의 팝업 탭의 옵션"
+  },
+  "popup_exclude_playsound_tab": {
+    "message": "재생중인 탭",
+    "description": "옵션의 팝업 탭의 옵션"
+  },
+  "popup_exclude_pinned_tab": {
+    "message": "고정 된 탭.",
+    "description": "옵션의 팝업 탭의 옵션"
+  },
+
   "specification": {
     "message": "규약 설명 안내.",
     "description": "옵션 페이지의 정보 항목."
@@ -298,8 +319,8 @@
     "message": "모든 탭 초기화",
     "description": "팝업 메뉴 항목."
   },
-  "all_purge_without_exclude_list": {
-    "message": "제외 항목 외 모두 초기화",
+  "all_purge_except_settings": {
+    "message": "설정 항목을 제외한 모든 탭을 해제",
     "description": "팝업 메뉴 항목."
   },
   "all_unpurge": {

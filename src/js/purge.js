@@ -1016,6 +1016,15 @@
     return pTab.pinned === true;
   }//}}}
 
+  function getPopupMenuSettingsOfAllPurge()//{{{
+  {
+    return {
+      list:      getOpts('popup_exclude_list'),
+      playsound: getOpts('popup_exclude_playsound_tab'),
+      pinned:    getOpts('popup_exclude_pinned_tab'),
+    };
+  }//}}}
+
   /**
   * Check whether the user matches that set the exclusion list.
   * @param {String} pUrl - the url to check whether matches.
@@ -2530,20 +2539,43 @@
           .catch(e => console.error(e));
           break;
         case 'all_purge':
-        case 'all_purge_without_exclude_list':
+        case 'all_purge_except_settings':
           chrome.tabs.query({}, pArrayResults => {
             if (chrome.runtime.lastError) {
               console.error(new Error(chrome.runtime.lastError.message));
               return;
             }
 
+            let popup_options = null;
+            if (pMessage.event !== 'all_purge') {
+              popup_options = getPopupMenuSettingsOfAllPurge();
+            }
+
             let targets = pArrayResults.filter(v => {
-              state       = checkExcludeList(v.url);
-              let result_state = (pMessage.event === 'all_purge') ?
-                ~(CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE) &
-                   state : NORMAL & state;
-               return !unloaded_observe.has(v.id) &&
-                      result_state !== 0;
+              let is_playsound = false;
+              let is_pinned    = false;
+
+              // all_purge
+              let state_for_compare =
+                ~(CHROME_EXCLUDE | EXTENSION_EXCLUDE | INVALID_EXCLUDE);
+              if (popup_options) { // all_purge_except_settings
+                if (popup_options.list) {
+                  state_for_compare = NORMAL;
+                }
+                if (popup_options.playsound) {
+                  is_playsound = isPlayingSound(v);
+                }
+                if (popup_options.pinned) {
+                  is_pinned = isPinnedTab(v);
+                }
+              }
+
+              let state = checkExcludeList(v.url);
+              let result_state = state_for_compare & state;
+              return !unloaded_observe.has(v.id) &&
+                     result_state !== 0 &&
+                     !is_playsound &&
+                     !is_pinned;
             });
             if (targets.length === 0) {
               return;

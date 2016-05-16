@@ -44,13 +44,17 @@
     config.set('not_purge_pinned_tab', true);
     config.set('when_purge_tab_to_pin', false);
 
+    config.set('popup_exclude_list', true);
+    config.set('popup_exclude_playsound_tab', true);
+    config.set('popup_exclude_pinned_tab', true);
+
     config.set('restored_type', 'restore_to_original_window');
 
     config.set('keybind_release', keybind_default);
     config.set('keybind_switch_not_release', keybind_default);
     config.set('keybind_switch_not_release_host', keybind_default);
     config.set('keybind_all_purge', keybind_default);
-    config.set('keybind_all_purge_without_exclude_list', keybind_default);
+    config.set('keybind_all_purge_except_settings', keybind_default);
     config.set('keybind_all_unpurge', keybind_default);
     config.set('keybind_switch_timer_state', keybind_default);
     config.set('keybind_add_current_tab_exclude_list', keybind_default);

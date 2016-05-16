@@ -19,6 +19,10 @@
     "message": "キーバインド",
     "description": "オプションページ内のページ切り替えボタンなど"
   },
+  "popup": {
+    "message": "ポップアップ",
+    "description": "オプションページ内のページ切り替えボタンなど"
+  },
   "history": {
     "message": "履歴",
     "description": "オプションページ内のページ切り替えボタンなど"
@@ -180,6 +184,22 @@
     "description": "セッション履歴の復元タイプ"
   },
 
+  "popup_explanaton": {
+    "message": "ポップアップメニューのボタンの動作の設定",
+    "description": "オプションのポップアップタブの説明"
+  },
+  "popup_exclude_list": {
+    "message": "除外リスト",
+    "description": "オプションのポップアップタブのオプション"
+  },
+  "popup_exclude_playsound_tab": {
+    "message": "再生中のタブ",
+    "description": "オプションのポップアップタブのオプション"
+  },
+  "popup_exclude_pinned_tab": {
+    "message": "固定されたタブ",
+    "description": "オプションのポップアップタブのオプション"
+  },
 
   "specification": {
     "message": "簡単な仕様",
@@ -295,8 +315,8 @@
     "message": "全てのタブを解放",
     "description": "ポップアップメニューの項目"
   },
-  "all_purge_without_exclude_list": {
-    "message": "全てのタブを解放(除外リスト除く)",
+  "all_purge_except_settings": {
+    "message": "全てのタブを解放(設定項目以外)",
     "description": "ポップアップメニューの項目"
   },
   "all_unpurge": {

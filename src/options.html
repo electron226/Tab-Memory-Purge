@@ -12,6 +12,7 @@
     <nav class="mainNav"><!--{{{-->
       <button name="normal" class="sectionButton" translation="option"></button>
       <button name="keybind" class="sectionButton" translation="keybind"></button>
+      <button name="popup" class="sectionButton" translation="popup"></button>
       <button name="history" class="sectionButton" translation="history"></button>
       <button name="session_history" class="sectionButton" translation="session_history"></button>
       <button name="change_history" class="sectionButton" translation="change_history"></button>
@@ -38,13 +39,13 @@
           <label><input type="checkbox" name="no_release"><span translation="no_release"></span></label>
         </div>
         <div>
+          <label><input type="checkbox" name="when_purge_tab_to_pin"><span translation="when_purge_tab_to_pin"></span></label>
+        </div>
+        <div>
           <label><input type="checkbox" name="not_purge_playsound_tab"><span translation="not_purge_playsound_tab"></span></label>
         </div>
         <div>
           <label><input type="checkbox" name="not_purge_pinned_tab"><span translation="not_purge_pinned_tab"></span></label>
-        </div>
-        <div>
-          <label><input type="checkbox" name="when_purge_tab_to_pin"><span translation="when_purge_tab_to_pin"></span></label>
         </div>
         <div>
           <label><input type="checkbox" name="new_tab_opens_with_purged_tab"><span translation="new_tab_opens_with_purged_tab"></span></label>
@@ -100,10 +101,10 @@
           <input type="text" class="pressKey" disabled></input>
           <button class="keybind_clear">CLEAR</button>
         </div>
-        <div class="keybind_all_purge_without_exclude_list keyOption">
-          <span translation="all_purge_without_exclude_list" class="keybindTitle"></span>
+        <div class="keybind_all_purge_except_settings keyOption">
+          <span translation="all_purge_except_settings" class="keybindTitle"></span>
           <button class="keybind_set">SET</button>
-          <input type="text" name="keybind_all_purge_without_exclude_list" class="keybindValue doNotShow" disabled></input>
+          <input type="text" name="keybind_all_purge_except_settings" class="keybindValue doNotShow" disabled></input>
           <input type="text" class="pressKey" disabled></input>
           <button class="keybind_clear">CLEAR</button>
         </div>
@@ -146,6 +147,13 @@
             <div style="clear: left"></div>
           </div>
         </div>
+      </section><!--}}}-->
+
+      <section id="popup" class="sectionMenu"><!--{{{-->
+          <div translation="popup_explanaton"></div>
+          <div><label><input type="checkbox" name="popup_exclude_list"><span translation="popup_exclude_list"></span></label></div>
+          <div><label><input type="checkbox" name="popup_exclude_playsound_tab"><span translation="popup_exclude_playsound_tab"></span></label></div>
+          <div><label><input type="checkbox" name="popup_exclude_pinned_tab"><span translation="popup_exclude_pinned_tab"></span></label></div>
       </section><!--}}}-->
 
       <section id="history" class="sectionMenu"><!--{{{-->

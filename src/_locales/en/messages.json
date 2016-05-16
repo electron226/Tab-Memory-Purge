@@ -19,6 +19,10 @@
     "message": "KEYBIND",
     "description": "the string of buttons in the options page"
   },
+  "popup": {
+    "message": "POPUP",
+    "description": "the string of buttons in the options page"
+  },
   "history": {
     "message": "HISTORY",
     "description": "the string of buttons in the options page"
@@ -184,6 +188,23 @@
     "description": "The restored type of the session history."
   },
 
+  "popup_explanaton": {
+    "message": "Settings of behavior of the button on the popup menu.",
+    "description": "The explanation of the popup menu on the option page."
+  },
+  "popup_exclude_list": {
+    "message": "Exclusion list.",
+    "description": "The item of the popup menu on the option page."
+  },
+  "popup_exclude_playsound_tab": {
+    "message": "Tab during playback.",
+    "description": "The item of the popup menu on the option page."
+  },
+  "popup_exclude_pinned_tab": {
+    "message": "The pinned tab.",
+    "description": "The item of the popup menu on the option page."
+  },
+
   "specification": {
     "message": "Brief description of specification.",
     "description": "A item in information of option page."
@@ -298,8 +319,8 @@
     "message": "Purge all tabs",
     "description": "the item in the popup menu."
   },
-  "all_purge_without_exclude_list": {
-    "message": "Purge all tabs except exclusion",
+  "all_purge_except_settings": {
+    "message": "Purge all tabs except settings",
     "description": "the item in the popup menu."
   },
   "all_unpurge": {

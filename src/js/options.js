@@ -518,6 +518,7 @@
     return new Promise((resolve, reject) => {
       switch (name) {
       case 'normal':
+      case 'popup':
         break;
       case 'keybind':
         setTimeout(showAllKeybindString, 500);
