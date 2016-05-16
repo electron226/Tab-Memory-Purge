@@ -261,14 +261,14 @@
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {
-          let favicon_url  = dataURIInfo.dataURI;
+          let favicon_url = dataURIInfo.dataURI;
 
-          let head      = document.querySelector('head');
-          let link      = document.createElement('link');
+          let head = document.querySelector('head');
+          let link = document.createElement('link');
           link.rel  = 'shortcut icon';
           link.href = decodeURIComponent(favicon_url);
 
-          let favicon   = getFaviconOfCurrentPage(document);
+          let favicon = getFaviconOfCurrentPage(document);
           if (favicon) {
             head.removeChild(favicon);
           }

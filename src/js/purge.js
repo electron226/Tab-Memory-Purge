@@ -386,8 +386,8 @@
         }
 
         Promise.all(promise_results)
-          .then(resolve)
-          .catch(reject);
+               .then(resolve)
+               .catch(reject);
       });
     });
   }//}}}
@@ -1196,7 +1196,7 @@
   {
     console.info('reloadBrowserIcon', Array.prototype.slice.call(arguments));
 
-    let args     = Array.prototype.slice.call(arguments);
+    let args = Array.prototype.slice.call(arguments);
 
     return new Promise((resolve, reject) => {
       let err_msg = checkFunctionArguments(args, [
@@ -2504,7 +2504,6 @@
                    Array.prototype.slice.call(arguments));
 
       let promise_results = [];
-      let state           = 0;
 
       switch (pMessage.event) {
         case 'initialize':
@@ -2686,11 +2685,13 @@
           pSendResponse(icon_states.get(pMessage.tabId));
           break;
         case 'keybind_check_exclude_list':
-          state = checkExcludeList(pMessage.location.href);
-          pSendResponse(!(state &
-            (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
-             KEYBIND_EXCLUDE | INVALID_EXCLUDE)));
-          break;
+          {
+            let state = checkExcludeList(pMessage.location.href);
+            pSendResponse(!(state &
+              (CHROME_EXCLUDE | EXTENSION_EXCLUDE |
+               KEYBIND_EXCLUDE | INVALID_EXCLUDE)));
+            break;
+          }
       }
     }
   );//}}}
