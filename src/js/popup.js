@@ -186,6 +186,7 @@
       }
     case 'normal':
     case 'keybind':
+    case 'popup':
     case 'history':
     case 'session_history':
     case 'change_history':
