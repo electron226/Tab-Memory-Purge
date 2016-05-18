@@ -134,16 +134,11 @@
 
   function buttonClicked(pEvent)//{{{
   {
+    console.assert(toType(pEvent) === 'object', "not object type.");
+
     let menu_element = document.createDocumentFragment();
     let class_name   = "";
     let is_delete    = false;
-
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
 
     let id_name = pEvent.target.getAttribute('id');
     switch (id_name) {

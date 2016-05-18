@@ -46,8 +46,6 @@
 
   function getOpts(pKey)//{{{
   {
-    console.info('getOpts', Array.prototype.slice.call(arguments));
-
     if (ext_opts.has(pKey)) {
       return ext_opts.get(pKey);
     } else if (gMapDefaultValues.has(pKey)) {
@@ -70,8 +68,6 @@
    *       windowId       : the windowId of the purged tab.
    */
   let unloaded_observe = closureCreateMapObserve(changed => {//{{{
-    console.info('unloaded_observe was changed.', Object.assign({}, changed));
-
     let tab_id = parseInt(changed.key, 10);
     switch (changed.type) {
       case 'add':
@@ -111,17 +107,11 @@
    */
   function setUnloaded(pKeyName, pUrl, pWindowId, pPos)//{{{
   {
-    console.info('setUnloaded', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ ],
-      [ 'string' ],
-      [ 'number' ],
-      [ 'object', 'null', 'undefined' ],
-    ], true);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
+    console.assert(toType(pWindowId) === 'number', "not number type.");
+    console.assert(
+        toType(pPos) === 'object' || pPos === void 0 || pPos === null,
+        "not number type.");
 
     unloaded_observe.set(pKeyName, {
       url            : pUrl,
@@ -139,15 +129,8 @@
    */
   function getParameterByName(pUrl, pName)//{{{
   {
-    console.info('getParameterByName', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
+    console.assert(toType(pName) === 'string', "not string type.");
 
     let lRegParameter = new RegExp(`[\\?&]${pName}\s*=\s*([^&#]*)`);
     let lStrResults   = lRegParameter.exec(decodeURIComponent(pUrl));
@@ -164,14 +147,7 @@
    */
   function getPurgeURL(pUrl)//{{{
   {
-    console.info('getPurgeURL', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
 
     let str_args = '&url=' + encodeURIComponent(pUrl).replace(/%20/g, '+');
     return encodeURI(gStrBlankUrl) + '?' + encodeURIComponent(str_args);
@@ -183,8 +159,6 @@
    */
   function autoPurgeCheck()//{{{
   {
-    console.info('purgeCheck() in closureAutoPurgeCheck');
-
     return new Promise((resolve, reject) => {
       let remaiming_memory = getOpts('remaiming_memory');
 
@@ -217,30 +191,17 @@
    * @return {promise} return promise.
    */
   let exclusiveProcessForFunc = (() => {//{{{
-    console.info('create closure of exclusiveProcessForFunc');
-
     let locks  = new Set();
 
     return function() {
-      console.info('exclusiveProcessForFunc',
-        Array.prototype.slice.call(arguments));
-
-      let args          = Array.prototype.slice.call(arguments);
-      let name          = "";
-      let callback      = null;
-      let callback_args = [];
-      let err_msg       = '';
+      let args = Array.prototype.slice.call(arguments);
+      console.assert(toType(args[0]) === 'string', "not string type.");
+      console.assert(toType(args[1]) === 'function', "not function type.");
 
       return new Promise((resolve, reject) => {
-        err_msg = checkFunctionArguments(args, [
-          [ 'string' ],
-          [ 'function' ],
-          [ ],
-        ], true);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
+        let name          = "";
+        let callback      = null;
+        let callback_args = [];
 
         if (args.length < 2) {
           reject(
@@ -284,15 +245,7 @@
    */
   function redirectPurgedTabWhenCreateNewTab(pDetails)//{{{
   {
-    console.info('redirectPurgedTabWhenCreateNewTab',
-                 Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pDetails) === 'object', "not object type.");
 
     if (pDetails.type === 'main_frame') {
       let tab_id = pDetails.tabId;
@@ -321,19 +274,9 @@
 
   function loadScrollPosition(pTabId)//{{{
   {
-    console.info('loadScrollPosition', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       if (tmp_scroll_pos.has(pTabId)) {
         let lNumPos = tmp_scroll_pos.get(pTabId);
 
@@ -356,8 +299,6 @@
 
   function purgingAllTabsExceptForTheActiveTab()//{{{
   {
-    console.info('purgingAllTabsExceptForTheActiveTab');
-
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, pTabs => {
         if (chrome.runtime.lastError) {
@@ -401,19 +342,9 @@
    */
   function isLackTheMemory(pCriteriaMemorySize)//{{{
   {
-    console.info('isLackTheMemory', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pCriteriaMemorySize) === 'number', "not number type");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       chrome.system.memory.getInfo(info => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -441,21 +372,10 @@
   // Therefore, the callback function of setInterval is called.
   function intervalProcess(pIntervalTime)//{{{
   {
-    console.info('initializeIntervalProcess',
-      Array.prototype.slice.call(arguments));
+    console.assert(toType(pIntervalTime) === 'number', "not number type.");
 
-    let args          = Array.prototype.slice.call(arguments);
     let interval_name = 'main';
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let interval_id = continue_run.get(interval_name);
       if (interval_id !== void 0 && interval_id !== null) {
         console.warn(
@@ -507,8 +427,6 @@
   
   function deleteOldDatabase()//{{{
   {
-    console.info('deleteOldDatabase');
-
     return new Promise((resolve, reject) => {
       let promise_results = [];
       promise_results.push( deleteOldSession() );
@@ -524,8 +442,6 @@
 
   function deleteOldSession()//{{{
   {
-    console.info('deleteOldSession');
-
     return new Promise((resolve, reject) => {
       db.getAll({
         name: gStrDbSessionName,
@@ -568,8 +484,6 @@
 
   function deleteOldHistory()//{{{
   {
-    console.info('deleteOldHistory');
-
     return new Promise((resolve, reject) => {
       let max_history = parseInt(getOpts('max_history'), 10);
       let now         = new Date();
@@ -594,22 +508,12 @@
 
   function deleteNotUsePageInfo()//{{{
   {
-    console.info('deleteNotUsePageInfo');
-
     function check(pArray, pObjTarget)//{{{
     {
-      let args  = Array.prototype.slice.call(arguments);
+      console.assert(toType(pArray) === 'array', "not array type.");
+      console.assert(toType(pObjTarget) === 'object', "not object type.");
 
       return new Promise((resolve3, reject3) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'array' ],
-          [ 'object' ],
-        ]);
-        if (err_msg) {
-          reject3(new Error(err_msg));
-          return;
-        }
-
         let result = pArray.some(v => (v.url === pObjTarget.url));
         if (result) {
           reject3();
@@ -665,8 +569,6 @@
 
   function deleteNotUseDataURI()//{{{
   {
-    console.info('deleteNotUseDataURI');
-
     return new Promise((resolve, reject) => {
       let promise_results = [];
       promise_results.push( db.getAll({ name: gStrDbDataURIName } ) );
@@ -699,8 +601,6 @@
 
   function writeSession()//{{{
   {
-    console.info('writeSession', Array.prototype.slice.call(arguments));
-
     return new Promise((resolve, reject) => {
       let now_time       = new Date().getTime();
       let session_writes = [];
@@ -768,25 +668,13 @@
   }//}}}
 
   let writeHistory = (function() {//{{{
-    console.info('create closure of writeHistory');
-
     let writes = new Set();
 
     return function(pTab) {
-      console.info('writeHistory', Array.prototype.slice.call(arguments));
+      console.assert(toType(pTab) === 'object', "not object type.");
 
       let unknown_title = 'Unknown';
-      let args          = Array.prototype.slice.call(arguments);
-
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'object' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         let tab_url = pTab.url;
 
         if (writes.has(tab_url)) {
@@ -900,8 +788,6 @@
 
   function deleteAllPurgedTabUrlFromHistory()//{{{
   {
-    console.info('deleteAllPurgedTabUrlFromHistory');
-
     let regex_blank_url = new RegExp(`^${gStrBlankUrl}`, 'i');
 
     return new Promise((resolve, reject) => {
@@ -935,8 +821,6 @@
    */
   function getCurrentTab()//{{{
   {
-    console.info('getCurrentTab');
-
     return new Promise((resolve, reject) => {
       chrome.tabs.query(
         { windowId: chrome.windows.WINDOW_ID_CURRENT, active: true }, pTabs => {
@@ -958,14 +842,7 @@
    */
   function isReleasePage(pUrl)//{{{
   {
-    console.info('isReleasePage', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
 
     return pUrl.indexOf(gStrBlankUrl) === 0;
   }//}}}
@@ -981,14 +858,7 @@
    */
   function isPlayingSound(pTab)//{{{
   {
-    console.info('isPlayingSound', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pTab) === 'object', "not object type.");
 
     return pTab.audible === true;
   }//}}}
@@ -1004,14 +874,7 @@
    */
   function isPinnedTab(pTab)//{{{
   {
-    console.info('isPinnedTab', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pTab) === 'object', "not object type.");
 
     return pTab.pinned === true;
   }//}}}
@@ -1036,15 +899,8 @@
   */
   function checkMatchUrlString(pUrl, pExclude)//{{{
   {
-    console.info('checkMatchUrlString', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
+    console.assert(toType(pExclude) === 'object', "not object type.");
 
     let excludes = pExclude.list.split('\n');
     for (let i = 0; i < excludes.length; ++i) {
@@ -1062,20 +918,17 @@
   /**
    * return the exclusion list have been set argument,
    *
-   * @param {String} pTarget - the name of the target list.
+   * @param {String} [pTarget] - the name of the target list.
    *                   If the value is undefined, return normal exlusion list.
    * @return {Object} the object of the list relation.
    */
   function getTargetExcludeList(pTarget)//{{{
   {
-    console.info('getTargetExcludeList', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'undefined', 'null', 'string' ],
-    ], true);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pTarget) === 'string' ||
+        pTarget === void 0 ||
+        pTarget === null,
+        "not any type in string, undefined, or null.");
 
     switch (pTarget) {
       case 'chrome':
@@ -1128,14 +981,11 @@
   */
   function checkExcludeList(pUrl)//{{{
   {
-    console.info('checkExcludeList', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string', 'null', 'undefined' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pUrl) === 'string' ||
+        pUrl === void 0 ||
+        pUrl === null,
+        "not any type in string, undefined, or null.");
 
     if (pUrl === void 0 || pUrl === null || pUrl.length === 0) {
       return INVALID_EXCLUDE;
@@ -1176,8 +1026,6 @@
 
   function reloadBrowserIconInAllActiveTab()//{{{
   {
-    console.info('reloadBrowserIconInAllActiveTab');
-
     return new Promise((resolve, reject) => {
       chrome.tabs.query({ active: true }, pTabs => {
         let promise_results = [];
@@ -1194,19 +1042,9 @@
    */
   function reloadBrowserIcon(pTab)//{{{
   {
-    console.info('reloadBrowserIcon', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTab) === 'object', "not object type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let change_icon = disable_auto_purge ?
                         DISABLE_AUTOPURGE :
                         checkExcludeList(pTab.url);
@@ -1257,19 +1095,9 @@
   */
   function purge(pTabId)//{{{
   {
-    console.info('purge', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let tab              = {};
       let scroll_positions = [];
 
@@ -1379,19 +1207,9 @@
   */
   function unPurge(pTabId)//{{{
   {
-    console.info('unPurge', Array.prototype.slice.call(arguments));
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       chrome.tabs.sendMessage(pTabId,
         { event: 'location_replace', tabId: pTabId }, useChrome => {
           // If the url is empty in purge page.
@@ -1413,19 +1231,9 @@
   */
   function tick(pTabId)//{{{
   {
-    console.info('tick', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       if (unloaded_observe.has(pTabId)) {
         deleteTick(pTabId);
         reject(new Error(
@@ -1474,22 +1282,15 @@
 
   /**
   * 定期的な処理を停止
-  * @param {Number} pId 停止するタブのID.
+  * @param {Number} pTabId 停止するタブのID.
   */
-  function deleteTick(pId)//{{{
+  function deleteTick(pTabId)//{{{
   {
-    console.info('deleteTick', Array.prototype.slice.call(arguments));
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'number' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
-    if (ticked.has(pId)) {
-      clearInterval(ticked.get(pId));
-      ticked.delete(pId);
+    if (ticked.has(pTabId)) {
+      clearInterval(ticked.get(pTabId));
+      ticked.delete(pTabId);
     }
   }//}}}
 
@@ -1501,19 +1302,9 @@
   */
   function setTick(pTabId)//{{{
   {
-    console.info('setTick', Array.prototype.slice.call(arguments));
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       if (disable_auto_purge) {
         console.log("Extension is disabled automatic purge.");
         resolve();
@@ -1534,8 +1325,6 @@
 
   function updateAllTickIntervalOfTabs()//{{{
   {
-    console.info('unloadedAllTickIntervalOfTabs');
-
     return new Promise((resolve, reject) => {
       chrome.tabs.query({}, pTabs => {
         if (chrome.runtime.lastError) {
@@ -1559,24 +1348,11 @@
   * @return {Promise} promiseが返る。
   */
   let restore = (function() {//{{{
-    console.info('create closure of restore.');
-
     function restoreTab(pSession)//{{{
     {
-      console.info('restoreTab in closure of restore.',
-        Array.prototype.slice.call(arguments));
-
-      let args  = Array.prototype.slice.call(arguments);
+      console.assert(toType(pSession) === 'object', "not object type.");
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'object' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         let win_id  = pSession.windowId;
         let url     = pSession.url;
         let opts    = { url: getPurgeURL(url), active: false };
@@ -1605,20 +1381,9 @@
 
     function restoreWindow(pSessions)//{{{
     {
-      console.info('restoreWindow in closure of restore.',
-        Array.prototype.slice.call(arguments));
-
-      let args = Array.prototype.slice.call(arguments);
+      console.assert(toType(pSessions) === 'array', "not array type.");
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'array' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         let temp_urls = new Map();
         let urls      = [];
         pSessions.forEach(v => {
@@ -1649,22 +1414,15 @@
     function restoreSessionsInCurrentOrOriginal(//{{{
       pWinId, pSessions, pRestoreType)
     {
-      console.info('restoreSessionsInCurrentOrOriginal in closure of restore.',
-        Array.prototype.slice.call(arguments));
-
-      let args = Array.prototype.slice.call(arguments);
+      console.assert(
+          toType(pWinId) === 'number' ||
+          pWinId === void 0 ||
+          pWinId === null,
+          "not any type in number, undefined, or null.");
+      console.assert(toType(pSessions) === 'array', "not array type.");
+      console.assert(toType(pRestoreType) === 'string', "not string type.");
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'number', 'undefined', 'null' ],
-          [ 'array' ],
-          [ 'string' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         // restore tab to window of winId.
         let promise_results = [];
         pSessions.forEach(pValue => {
@@ -1692,22 +1450,17 @@
 
     function restoreSessions(pWinId, pSessions, pRestoreType)//{{{
     {
-      console.info('restoreSessions in closure if restore',
-        Array.prototype.slice.call(arguments));
+      console.assert(
+          toType(pWinId) === 'number' ||
+          pWinId === void 0 ||
+          pWinId === null,
+          "not any type in number, undefined, or null.");
+      console.assert(toType(pSessions) === 'array', "not array type.");
+      console.assert(toType(pRestoreType) === 'string', "not string type.");
 
       let args = Array.prototype.slice.call(arguments);
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'number', 'null', 'undefined' ],
-          [ 'array' ],
-          [ 'string' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         switch (pRestoreType) {
         case 'restore_to_current_window':
           restoreSessionsInCurrentOrOriginal.apply(null, args)
@@ -1754,20 +1507,14 @@
     }//}}}
 
     return function(pSessions, pRestoreType) {//{{{
-      console.info('restore', Array.prototype.slice.call(arguments));
-
-      let args = Array.prototype.slice.call(arguments);
+      console.assert(toType(pSessions) === 'array', "not array type.");
+      console.assert(
+          toType(pRestoreType) === 'string' ||
+          pRestoreType === void 0 ||
+          pRestoreType === null,
+          "not any type in string, undefined, or null.");
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'array' ],
-          [ 'null', 'undefined', 'string' ],
-        ], true);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         if (pRestoreType === void 0 || pRestoreType === null) {
           pRestoreType = getOpts('restored_type');
         }
@@ -1806,15 +1553,12 @@
 
   function switchTempRelease(pUrl, pType)//{{{
   {
-    console.info('switchTempRelease', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-      [ 'string', 'undefined', 'null' ],
-    ], true);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pUrl) === 'string', "not string type.");
+    console.assert(
+        toType(pType) === 'string' ||
+        pType === void 0 ||
+        pType === null,
+        "not any type in string, undefined, or null.");
 
     let url_for_regex     = escapeForRegExp(pUrl);
     let regex_url_in_args = new RegExp(url_for_regex);
@@ -1843,24 +1587,13 @@
   */
   function searchUnloadedTabNearPosition(pTab)//{{{
   {
-    console.info('searchUnloadedTabNearPosition',
-      Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTab) === 'object', "not object type.");
+    console.assert(
+        pTab.hasOwnProperty('index'), "the index is not found in object.");
+    console.assert(
+        pTab.hasOwnProperty('windowId'), "the index is not found in object.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) {
-          return toType(pValue) !== 'object' &&
-                 !pValue.hasOwnProperty('index') &&
-                 !pValue.hasOwnProperty('windowId');
-        },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       // 現在のタブの左右の未解放のタブを選択する
       chrome.tabs.query({ windowId: pTab.windowId }, pTabs => {
         if (chrome.runtime.lastError) {
@@ -1891,7 +1624,7 @@
    */
   function onInstall()//{{{
   {
-    console.info('Extension Installed.');
+    console.log('Extension Installed.');
 
     return new Promise(resolve => {
       chrome.runtime.openOptionsPage(resolve);
@@ -1900,20 +1633,10 @@
 
   function restoreSessionBeforeUpdate(pPreviousSessionTime)//{{{
   {
-    console.info('restoreSessionBeforeUpdate',
-      Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(
+        toType(pPreviousSessionTime) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ], true);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       db.getCursor({
         name:      gStrDbSessionName,
         range:     IDBKeyRange.only(pPreviousSessionTime),
@@ -1945,7 +1668,7 @@
    */
   function onUpdate()//{{{
   {
-    console.info('Extension Updated.');
+    console.log('Extension Updated.');
 
     return new Promise((resolve, reject) => {
       getInitAndLoadOptions()
@@ -1981,15 +1704,12 @@
    */
   function getVersion()//{{{
   {
-    console.info('getVersion');
     let lObjDetails= chrome.app.getDetails();
     return lObjDetails.version;
   }//}}}
 
   function versionCheckAndUpdate()//{{{
   {
-    console.info('versionCheckUpdate');
-
     return new Promise((resolve, reject) => {
       let current_version = getVersion();
       chrome.storage.local.get(gStrVersionKey, pStorages => {
@@ -2025,20 +1745,9 @@
 
   function updatePreviousSessionTime(pTime)//{{{
   {
-    console.info('updatePreviousSessionTime',
-      Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTime) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let write = {};
       write[gStrPreviousSessionTimeKey] = pTime;
       chrome.storage.local.set(write, () => {
@@ -2053,8 +1762,6 @@
 
   function deletePreviousSessionTime()//{{{
   {
-    console.info('deletePreviousSessionTime');
-
     return new Promise((resolve, reject) => {
       // delete old current session time.
       chrome.storage.local.remove(gStrPreviousSessionTimeKey, () => {
@@ -2079,8 +1786,6 @@
    */
   function getInitAndLoadOptions()//{{{
   {
-    console.info('getInitAndLoadOptions');
-
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(pItems => {
         if (chrome.runtime.lastError) {
@@ -2120,19 +1825,9 @@
 
   function initializeUseOptions(pOptions)//{{{
   {
-    console.info('initializeUseOptions', Array.prototype.slice.call(arguments));
+    console.assert(toType(pOptions) === 'map', "not map type.");
 
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'map' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       ext_opts = pOptions;
 
       // initialize badge.
@@ -2145,21 +1840,11 @@
   }//}}}
 
   let initializeAlreadyPurgedTabs = (function() {//{{{
-    console.info('create closure of initializeAlreadyPurgedTabs.');
-
     function toAdd(pCurrent)
     {
-      let args = Array.prototype.slice.call(arguments);
+      console.assert(toType(pCurrent) === 'object', "not object type.");
 
       return new Promise((resolve, reject) => {
-        let err_msg = checkFunctionArguments(args, [
-          [ 'object' ],
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         let result_value = checkExcludeList(pCurrent.url);
         if (result_value ^ (NORMAL & INVALID_EXCLUDE)) {
           if (isReleasePage(pCurrent.url)) {
@@ -2177,8 +1862,6 @@
     }
 
     return function() {
-      console.info('initializeAlreadyPurgedTabs');
-
       return new Promise((resolve, reject) => {
         chrome.tabs.query({}, pTabs => {
           if (chrome.runtime.lastError) {
@@ -2240,11 +1923,7 @@
   }//}}}
 
   let switchDisableTimerState = (function() {//{{{
-    console.info('create closure of switchDisableTimerState');
-
     return function() {
-      console.info('switchDisableTimerState');
-
       return new Promise((resolve, reject) => {
         if (disable_auto_purge) {
           updateAllTickIntervalOfTabs()
@@ -2272,19 +1951,9 @@
    */
   function onActivatedFunc(pTabId)//{{{
   {
-    console.info('onActivatedFunc', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       chrome.tabs.get(pTabId, pTab => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -2305,8 +1974,6 @@
 
   function updateOptionValues()//{{{
   {
-    console.info('updateOptionValues');
-
     return new Promise((resolve, reject) => {
       getInitAndLoadOptions()
       .then(pOptions => {
@@ -2321,8 +1988,6 @@
 
   function updateCheck()//{{{
   {
-    console.info('updateCheck');
-
     return new Promise(resolve => {
       chrome.runtime.requestUpdateCheck((pStatus, pVersion) => {
         switch (pStatus) {
@@ -2346,21 +2011,11 @@
 
   function initializeIntervalUpdateCheck(pCheckTime)//{{{
   {
-    console.info('initializeIntervalUpdateCheck',
-      Array.prototype.slice.call(arguments));
+    console.assert(toType(pCheckTime) === 'number', "not map type.");
 
     let interval_name = 'updateCheck';
-    let args          = Array.prototype.slice.call(arguments);
 
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       let interval_id = continue_run.get(interval_name);
       if (interval_id !== void 0 && interval_id !== null) {
         console.warn('already be running the update check process, ' +
@@ -2420,8 +2075,6 @@
   }//}}}
 
   chrome.webRequest.onBeforeRequest.addListener(pDetails => {//{{{
-    // console.info('webRequest.onBeforeRequest', pDetails);
-
     if (getOpts('new_tab_opens_with_purged_tab') === true) {
       if (current_tab_id !== pDetails.tabId) {
         return redirectPurgedTabWhenCreateNewTab(pDetails);
@@ -2432,8 +2085,6 @@
   ["blocking"]);//}}}
 
   chrome.tabs.onActivated.addListener(pObjActiveInfo => {//{{{
-    console.info('chrome.tabs.onActivated.', pObjActiveInfo);
-
     current_tab_id = pObjActiveInfo.tabId;
     if (unloaded_observe.has(pObjActiveInfo.tabId) &&
         getOpts('no_release') === false) {
@@ -2447,29 +2098,21 @@
   });//}}}
 
   chrome.tabs.onCreated.addListener(pTab => {//{{{
-    console.info('chrome.tabs.onCreated.', pTab);
-
     create_tab_ids.add(pTab.id);
     setTick(pTab.id).catch(e => console.error(e));
   });//}}}
 
   chrome.tabs.onRemoved.addListener(pTabId => {//{{{
-    console.info('chrome.tabs.onRemoved.', pTabId);
-
     unloaded_observe.delete(pTabId);
     deleteTick(pTabId);
     icon_states.delete(pTabId);
   });//}}}
 
   chrome.tabs.onAttached.addListener(pTabId => {//{{{
-    console.info('chrome.tabs.onAttached.', pTabId);
-
     setTick(pTabId).catch(e => console.error(e));
   });//}}}
 
   chrome.tabs.onDetached.addListener(pTabId => {//{{{
-    console.info('chrome.tabs.onDetached.', pTabId);
-
     unloaded_observe.delete(pTabId);
     deleteTick(pTabId);
     icon_states.delete(pTabId);
@@ -2477,16 +2120,10 @@
 
   chrome.tabs.onUpdated.addListener((pTabId, pChangeInfo, pTab) => {//{{{
     if (pChangeInfo.status === 'loading') {
-      console.info('chrome.tabs.onUpdated. loading.',
-                   Array.prototype.slice.call(arguments));
-
       if (!isReleasePage(pTab.url) && unloaded_observe.has(pTabId)) {
         unloaded_observe.delete(pTabId);
       }
     } else {
-      console.info('chrome.tabs.onUpdated. complete.',
-                   Array.prototype.slice.call(arguments));
-
       loadScrollPosition(pTabId)
         .then(reloadBrowserIcon(pTab))
         .catch(e => console.error(e));
@@ -2494,15 +2131,11 @@
   });//}}}
 
   chrome.windows.onRemoved.addListener(pWindowId => {//{{{
-    console.info('chrome.windows.onRemoved.', pWindowId);
     old_active_ids.delete(pWindowId);
   });//}}}
 
   chrome.runtime.onMessage.addListener(//{{{
     (pMessage, pSender, pSendResponse) => {
-      console.info('chrome.runtime.onMessage.',
-                   Array.prototype.slice.call(arguments));
-
       let promise_results = [];
 
       switch (pMessage.event) {
@@ -2696,16 +2329,14 @@
     }
   );//}}}
 
-  chrome.runtime.onUpdateAvailable.addListener(pDetails => {//{{{
-    console.info("runtime.onUpdateAvailable", pDetails);
+  // chrome.runtime.onUpdateAvailable.addListener(pDetails => {//{{{
+  chrome.runtime.onUpdateAvailable.addListener(() => {//{{{
     showUpdateConfirmationDialog()
-    .catch(e => console.error(e));
+      .catch(e => console.error(e));
   });//}}}
 
   chrome.notifications.onButtonClicked.addListener(//{{{
     (pNotificationId, pButtonIndex) => {
-      console.info('nortifications.onButtonClicked',
-                   Array.prototype.slice.call(arguments));
       (() => {
         return new Promise((resolve, reject) => {
           chrome.notifications.clear(pNotificationId, pWasCleared => {

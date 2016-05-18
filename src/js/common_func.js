@@ -39,38 +39,24 @@
    */
   function closureCreateMapObserve(pChangedCallback)//{{{
   {
-    console.info(
-      'closureCreateMapObserve', Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'function', 'null', 'undefined' ],
-    ], true);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
+    console.assert(
+        toType(pChangedCallback) === 'function' ||
+        pChangedCallback === void 0 ||
+        pChangedCallback === null,
+        "not any type in function, undefined, ot null.");
     let unloadeds = new Map();
 
     return {
       get: function(pAnyKey) {//{{{
-        console.info(
-          'get function of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
-
         return unloadeds.get(pAnyKey);
       },//}}}
       forEach: function(pFuncCallback) {//{{{
-        console.info(
-          'forEach function of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
+        console.assert(toType(pFuncCallback) === 'function',
+            "not function type.");
 
         unloadeds.forEach(pFuncCallback);
       },//}}}
       set: function(pAnyKey, pAnyValue) {//{{{
-        console.info(
-          'set function of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
-
         let change   = {};
         let old_value = null;
 
@@ -96,11 +82,6 @@
         }
       },//}}}
       delete: function(pAnyKey) {//{{{
-        /*jshint -W069 */
-        console.info(
-          'delete function of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
-
         let change   = {};
         let old_value = null;
 
@@ -123,34 +104,18 @@
         }
       },//}}}
       clear: function() {//{{{
-        console.info('clear function of closureCreateMapObserve');
-
         unloadeds.clear();
       },//}}}
       has: function(pAnyKey) {//{{{
-        console.info(
-          'has function of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
-
         return unloadeds.has(pAnyKey);
       },//}}}
       size: function() {//{{{
-        console.info('size function of closureCreateMapObserve');
-
         return unloadeds.size;
       },//}}}
       setCallbackWhenChanged: function(pCallbackWhenChanged)//{{{
       {
-        console.info(
-          'setCallbackWhenChanged of closureCreateMapObserve',
-          Array.prototype.slice.call(arguments));
-
-        let err_msg = checkFunctionArguments(arguments, [
-          [ 'function' ],
-        ]);
-        if (err_msg) {
-          throw new Error(err_msg);
-        }
+        console.assert(
+            toType(pCallbackWhenChanged) === 'function', "not function type");
 
         pChangedCallback = pCallbackWhenChanged;
       },//}}}
@@ -654,87 +619,6 @@
   }//}}}
 
   /**
-   * checkFunctionArguments
-   *
-   * Function confirm that type of received the arguments.
-   *
-   * @param {arguments or array} pArguments -
-   *     you want to confirm the arguments of function.
-   * @param {array of array of string} pTypes -
-   *     you want to confirm the array of
-   *     the string represent the type of the arguments of the function.
-   *     String of Array acknowledge the type of arguments.
-   *
-   *     If array of string is empty, it admit all type.
-   *
-   *     If array of string is function,
-   *     When return value is true, it determines to match.
-   *     Arguments of Function are
-   *        1: one of a value of arguments.
-   *        2 or later: none;
-   * @param {boolean} [pLenAllow] -
-   *     Whether admitting that the length of
-   *     pArguments and pTypes do not match.
-   *     default is false.
-   * @return {string or boolean}
-   *     If exist an error, to return the string.
-   *     return false of boolean if doesn't exist the error.
-   */
-  function checkFunctionArguments(pArguments, pTypes, pLenAllow)//{{{
-  {
-    let args = (toType(pArguments) === 'array') ?
-                pArguments : Array.prototype.slice.call(pArguments);
-    let length_allow = pLenAllow || false;
-
-    if (length_allow === false && args.length !== pTypes.length) {
-      throw new Error(
-        "The value of the arguments is not same length: " +
-        `first: ${args.length}, second: ${pTypes.length}`);
-    }
-
-    let error_message = "";
-    let match_to_all  = 0;
-    let error         = '';
-    args.forEach((pValue, i) => {
-      error_message = '';
-      match_to_all  = 0;
-
-      let type = toType(pTypes[i]);
-      switch (type) {
-      case 'function':
-        {
-          let result = pTypes[i](pValue);
-          if (result === void 0 || result === null) {
-            throw new Error("Function is not return the boolean.");
-          } else if (result === true) {
-            error_message +=
-              `Arg ${i}: The result of the function was error.\n`;
-            ++match_to_all;
-          }
-          break;
-        }
-      case 'array':
-        pTypes[i].forEach(pType => {
-          if (toType(pValue) !== pType) {
-            error_message += `Arg ${i}: isn't ${pType} type\n`;
-            ++match_to_all;
-          }
-        });
-        break;
-      default:
-        throw new Error(
-          "Invalid arugments. pTypes is not array or function.");
-      }
-
-      if (match_to_all === pTypes[i].length) {
-        error += error_message;
-      }
-    });
-
-    return error.length > 0 ? error : false;
-  }//}}}
-
-  /**
    * 日付をフォーマットする
    * http://qiita.com/osakanafish/items/c64fe8a34e7221e811d0
    * @param  {Date}   pDate     日付
@@ -775,8 +659,6 @@
    */
   function setObjectProperty()//{{{
   {
-    console.info('setObjectProperty', arguments);
-
     let args = Array.prototype.slice.call(arguments);
     if (args.length < 2) {
       throw new Error('setObjectProperty arguments is less.');
@@ -827,7 +709,6 @@
   setObjectProperty(window, 'keyCheck',          keyCheck);
   setObjectProperty(window, 'generateKeyString', generateKeyString);
   setObjectProperty(window, 'toType',            toType);
-  setObjectProperty(window, 'checkFunctionArguments', checkFunctionArguments);
   setObjectProperty(window, 'formatDate',        formatDate);
   setObjectProperty(window, 'setObjectProperty', setObjectProperty);
   //}}}

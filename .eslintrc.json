@@ -28,7 +28,7 @@
          "UPDATE_CONFIRM_DIALOG": true,
          "RESTORE_PREVIOUS_SESSION": true,
          "gNumUpdateCheckTime": true,
-         
+
          "DISABLE_AUTOPURGE": true,
          "INVALID_EXCLUDE": true,
          "KEYBIND_EXCLUDE": true,
@@ -40,7 +40,7 @@
          "EXTENSION_ICON_38": true,
          "EXTENSION_ICON_48": true,
          "EXTENSION_ICON_128": true,
-         
+
          "escapeForRegExp": true,
          "decodeForRegExp": true,
          "closureCreateMapObserve": true,
@@ -58,7 +58,6 @@
          "keyCheck": true,
          "generateKeyString": true,
          "toType": true,
-         "checkFunctionArguments": true,
          "formatDate": true,
          "setObjectProperty": true
     },

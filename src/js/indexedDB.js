@@ -2,6 +2,17 @@
   "use strict";
 
   let Database = function(databaseName, version) {//{{{
+    console.assert(
+        toType(databaseName) === 'string' ||
+        databaseName === void 0 ||
+        databaseName === null,
+        "not any type in string, undefined, or null.");
+    console.assert(
+        toType(version) === 'number' ||
+        version === void 0 ||
+        version === null,
+        "not any type in number, undefined, or null.");
+
     // When database is opened and fail the onupgradeneeded function,
     // Its database is saved empty at version 1.
     // Therefore, I have set version 2 at here.
@@ -11,27 +22,13 @@
   };//}}}
 
   Database.prototype.open = function(pCreateProperties) {//{{{
-    console.info(
-      'called open function of Database class.',
-      Array.prototype.slice.call(pCreateProperties));
+    console.assert(toType(pCreateProperties) === 'object', "not object type.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let req = indexedDB.open($this.databaseName, $this.version);
 
       req.onupgradeneeded = function(pEvent) {
-        console.info('onupgradeneeded in open function of Database class.');
-
         pEvent.target.transaction.onerror = reject;
 
         let db = pEvent.target.result;
@@ -65,8 +62,6 @@
       };
 
       req.onsuccess = function(pEvent) {
-        console.info('onsuccess in open function of Database class');
-
         $this.db = pEvent.target.result;
         resolve(pEvent);
       };
@@ -76,22 +71,18 @@
   };//}}}
 
   Database.prototype.addOrPut = function(pOpts, pType) {//{{{
-    console.info('called addOrPut function of Database class.',
-      Array.prototype.slice.call(arguments));
+    console.assert(
+        toType(pOpts) === "object" ||
+        toType(pOpts) === 'array',
+        "not object or array type.");
+    console.assert(
+        toType(pType) === void 0 ||
+        toType(pType) === null ||
+        toType(pType) === 'string',
+        "not any type in undefined, null, or string.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object', 'array' ],
-        [ 'null', 'undefined', 'string' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let store_name = pOpts.name;
       let type       = pType || 'add';
       let datas      = (toType(pOpts.data) === 'object') ?
@@ -99,8 +90,6 @@
 
       let db_transaction = $this.db.transaction(store_name, 'readwrite');
       db_transaction.onabort = function(pEvent) {
-        console.info('abort in addOrPut function of Database class');
-
         let lObjError = pEvent.target.error;
         if (lObjError.name === 'QuotaExceededError') {
           console.error(lObjError.name);
@@ -135,49 +124,28 @@
   };//}}}
 
   Database.prototype.add = function(pOpts) {//{{{
-    console.info('called add function of Database class.',
-      Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object', 'array' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pOpts) === 'object' ||
+        toType(pOpts) === 'array',
+        "not any type in object or array.");
 
     return this.addOrPut(pOpts, 'add');
   };//}}}
 
   Database.prototype.put = function(pOpts) {//{{{
-    console.info('called put function of Database class.',
-      Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object', 'array' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pOpts) === 'object' ||
+        toType(pOpts) === 'array',
+        "not any type in object or array.");
 
     return this.addOrPut(pOpts, 'put');
   };//}}}
 
   Database.prototype.get = function(pOpts) {//{{{
-    console.info('called get function of Database class.',
-      Array.prototype.slice.call(arguments));
+    console.assert(toType(pOpts) === 'object', "not object type.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let store_name = pOpts.name;
       let key        = pOpts.key;
       let index_name = pOpts.indexName;
@@ -197,8 +165,6 @@
       }
 
       db_req.onsuccess = function() {
-        console.info('onsuccess in get function of class Database.');
-
         resolve(this.result);
       };
       db_req.onerror = reject;
@@ -206,18 +172,10 @@
   };//}}}
 
   Database.prototype.getAll = function(pOpts) {//{{{
+    console.assert(toType(pOpts) === 'object', "not object type.");
+
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let store_name = pOpts.name;
       let index_name = pOpts.indexName;
 
@@ -238,8 +196,6 @@
 
       let results = [];
       db_req.onsuccess = function() {
-        console.info('onsucess in getAll function of Database class.');
-
         let cursor = this.result;
         if (cursor) {
           results.push(cursor.value);
@@ -258,20 +214,10 @@
   //
   // When indexName was error, this function isn't use it.
   Database.prototype.getCursor = function(pOpts) {//{{{
-    console.info('called getCursor function of Database class.', pOpts);
+    console.assert(toType(pOpts) === 'object', "not object type.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let store_name = pOpts.name;
       let db_range   = pOpts.range;
       let direction  = pOpts.direction;
@@ -294,8 +240,6 @@
 
       let results = [];
       db_req.onsuccess = function() {
-        console.info('onsucess in getCursor function of Database class.');
-
         let cursor = this.result;
         if (cursor) {
           results.push(cursor.value);
@@ -309,20 +253,10 @@
   };//}}}
 
   Database.prototype.update = function(pOpts) {//{{{
-    console.info('called update function of Database class.', pOpts);
+    console.assert(toType(pOpts) === 'object', "not object type.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let name       = pOpts.name;
       let db_range   = pOpts.range;
       let index_name = pOpts.indexName;
@@ -330,8 +264,6 @@
 
       let db_transaction = $this.db.transaction(name, 'readwrite');
       db_transaction.onabort = function(pEvent) {
-        console.info('onabort in update function of Database class.');
-
         let lObjErr = pEvent.target.error;
         if (lObjErr.name === 'QuotaExceededError') {
           console.error(lObjErr.name);
@@ -352,8 +284,6 @@
       }
 
       db_req.onsuccess = function() {
-        console.info('onsuccess in update function of Database class.');
-
         let data   = {};
         let cursor = this.result;
         if (cursor) {
@@ -375,20 +305,13 @@
   };//}}}
 
   Database.prototype.delete = function(pOpts) {//{{{
-    console.info('called delete function of Database class.', pOpts);
+    console.assert(
+        toType(pOpts) === 'object' ||
+        toType(pOpts) === 'array',
+        "not any type in object or array.");
 
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object', 'array' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let store_name = pOpts.name;
       let lArrayKeys = (toType(pOpts.keys) !== 'array') ?
                        [ pOpts.keys ] : pOpts.keys;
@@ -415,20 +338,9 @@
   };//}}}
 
   Database.prototype.clear = function(pStoreName) {//{{{
-    console.info('called clear function of Database class.', pStoreName);
-
+    console.assert(toType(pStoreName) === 'string', "not string type.");
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'string' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let db_transaction = $this.db.transaction(pStoreName, 'readwrite');
       db_transaction.oncomplete = resolve;
       db_transaction.onerror    = reject;
@@ -441,8 +353,6 @@
   };//}}}
 
   Database.prototype.deleteDatabase = function() {//{{{
-    console.info('called deleteAll function of Database class.');
-
     let $this  = this;
     let db_req = null;
     return new Promise((resolve, reject) => {
@@ -453,8 +363,6 @@
   };//}}}
 
   Database.prototype.close = function() {//{{{
-    console.info('called close function of Database class.');
-
     let $this = this;
     return new Promise((resolve) => {
       if ($this.db !== null) {
@@ -465,7 +373,6 @@
   };//}}}
 
   Database.prototype.isOpened = function() {//{{{
-    console.info('called isOpened function of Database class.');
     return (this.db !== null) ? true : false;
   };//}}}
 

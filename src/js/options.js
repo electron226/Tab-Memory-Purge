@@ -59,13 +59,6 @@
   const opts_for_create_history_date = {
     className:  CLASS_NAME_OF_HISTORY_DATE,
     deleteFunc: function(pEvent) {
-      let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
-
       return removeHistoryDate(pEvent)
              .then(getAllHistory)
              .then(pHistoryArray => {
@@ -83,13 +76,6 @@
   const opts_for_create_history_item = {
     attrNameOfDatabase: ATTR_NAME_OF_DATABASE,
     deleteFunc: function(pEvent) {
-      let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
-
       return removeHistoryItem(pEvent);
     },
     className:  CLASS_NAME_OF_HISTORY_ITEM,
@@ -108,46 +94,25 @@
   let OperateOptionValue = function() {//{{{
   };
   OperateOptionValue.prototype.get = function(pElement, pName) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pName) === 'string', "not string type.");
 
     return this.call(pElement, pName, null, 'get');
   };//}}}
-  OperateOptionValue.prototype.set =//{{{
+  OperateOptionValue.prototype.set = //{{{
     function(pElement, pName, pValue) {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-      [ 'string' ],
-      [],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pName) === 'string', "not string type.");
 
     return this.call(pElement, pName, pValue, 'set');
   };//}}}
   OperateOptionValue.prototype.call = //{{{
     function(pElement, pName, pValue, pType) {
+    console.assert(toType(pName) === 'string', "not string type.");
+    console.assert(
+        toType(pType) === 'string' || pType === void 0 || pType === null,
+        "not any type in string, undefined, null.");
+
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-        [ 'string' ],
-        [ ],
-        [ 'string', 'null', 'undefined' ],
-      ], true);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       pType = pType || 'get';
 
       let opts         = {};
@@ -216,17 +181,9 @@
     });
   };//}}}
   OperateOptionValue.prototype._call = function(pOptions) {//{{{
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pOptions) === 'object', "not object type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'object' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let element   = pOptions.element;
       let value     = pOptions.value;
       let type      = pOptions.type;
@@ -264,29 +221,18 @@
     });
   };//}}}
   OperateOptionValue.prototype.init = function(pElement) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     return this.load(pElement, gMapDefaultValues);
   };//}}}
   OperateOptionValue.prototype.load = function(pElement, pOptions) {//{{{
+    console.assert(
+        toType(pOptions) === 'object' ||
+        toType(pOptions) === 'map' ||
+        pOptions === void 0 ||
+        pOptions === null,
+        "any type in object, map, undefined, null.");
+
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-        [ 'object', 'map', 'null', 'undefined' ],
-      ], true);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let promise_results = [];
       let new_options     = new Map();
 
@@ -328,19 +274,10 @@
     });
   };//}}}
   OperateOptionValue.prototype.import = function(pElement, pOptions) {//{{{
+    console.assert(toType(pOptions) === 'object', "not object type.");
+
     let $this = this;
-    let args  = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-        [ 'object' ],
-      ], true);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       $this.load(pElement, pOptions)
         .then(resolve(pOptions))
         .catch(reject);
@@ -349,35 +286,21 @@
   //}}}
 
   let ShowMenuSelection = function(pSelectors, pClassNameWhenSelect) {//{{{
-    ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
+    console.assert(toType(pSelectors) === 'object', "not object type.");
+    console.assert(
+        toType(pClassNameWhenSelect) === 'string', "not string type.");
 
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object' ],
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    ShowMenuSelection.toggleSectionRegex = /(display:\s*)(\w+);/i;
 
     this.strMenuSelector        = pSelectors.menu;
     this.strButtonSelector      = pSelectors.button;
     this.strClassNameWhenSelect = pClassNameWhenSelect;
   };
   ShowMenuSelection.prototype.showMenu = function(pSelector) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pSelector) === 'string', "not string type.");
 
     return function(pIdName) {
-      err_msg = checkFunctionArguments(arguments, [
-        [ 'string' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pIdName) === 'string', "not string type.");
 
       let show_menu = document.querySelector(`${pSelector}#${pIdName}`);
       let does_not_show_menu =
@@ -392,22 +315,12 @@
   };//}}}
   ShowMenuSelection.prototype.changeSelectionButtonColor = //{{{
     function(pSelector) {
+    console.assert(toType(pSelector) === 'string', "not string type.");
+
     let $this   = this;
 
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     return function(pName) {
-      err_msg = checkFunctionArguments(arguments, [
-        [ 'string' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pName) === 'string', "not string type.");
 
       let prev_select = document.querySelector(
         `${pSelector}.${$this.strClassNameWhenSelect}`);
@@ -422,12 +335,7 @@
     };
   };//}}}
   ShowMenuSelection.prototype.show = function(pName) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pName) === 'string', "not string type.");
 
     let show_menu_area     = this.showMenu(this.strMenuSelector);
     let select_menu_button =
@@ -443,27 +351,21 @@
   //}}}
 
   let KeyTrace = function(pId) {//{{{
+    console.assert(
+        toType(pId) === 'string' ||
+        pId === void 0 ||
+        pId === null,
+        "not any type in string, undefined, null.");
+
     this.id        = pId || null;
     this.objResult = null;
   };
   KeyTrace.prototype.start = function(pId) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) { return pValue === void 0 || pValue === null },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pId) === 'string', "not string type.");
 
     this.id = pId;
   };//}}}
   KeyTrace.prototype.traceEvent = function(pEvent) {//{{{
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     if (this.id === null || this.id === void 0) {
       throw new Error("Doesn't set the id in this instance yet.");
     }
@@ -508,12 +410,7 @@
 
   function processAfterMenuSelection(name)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(name) === 'string', "not string type.");
 
     return new Promise((resolve, reject) => {
       switch (name) {
@@ -579,13 +476,6 @@
 
   function clearItemInElement(pNode)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     while(pNode.firstChild) {
       pNode.removeChild(pNode.firstChild);
     }
@@ -594,13 +484,17 @@
 
   function deleteKeyItemFromObject(pBaseObj, pDeleteKeys)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object', 'set', 'map' ],
-      [ 'array', 'object', 'map', 'set' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pBaseObj) === 'object' ||
+        toType(pBaseObj) === 'set' ||
+        toType(pBaseObj) === 'map',
+        "not any type in object, set, or map.");
+    console.assert(
+        toType(pDeleteKeys) === 'array' ||
+        toType(pDeleteKeys) === 'object' ||
+        toType(pDeleteKeys) === 'set' ||
+        toType(pDeleteKeys) === 'map',
+        "not any type in array, object, set, or map.");
 
     let new_object       = pBaseObj;
     let type             = toType(pBaseObj);
@@ -669,8 +563,6 @@
 
   function showAllKeybindString()//{{{
   {
-    console.log('showAllKeybindString');
-
     let keybind_elements =
       document.querySelectorAll(`.${CLASS_NAME_OF_KEYBIND_OPTION}`);
     Array.prototype.slice.call(keybind_elements).forEach(pValue => {
@@ -693,13 +585,8 @@
 
   function setKeybindOption(pClassName, pKeyInfo)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'string' ],
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pClassName) === 'string', "not string type.");
+    console.assert(toType(pKeyInfo) === 'object', "not object type.");
 
     let keybind_option =
       document.querySelector(`.${pClassName}.${CLASS_NAME_OF_KEYBIND_OPTION}`);
@@ -718,13 +605,6 @@
 
   function keyupEvent(pEvent)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     if (keybindTrace.isRun()) {
       let info = keybindTrace.traceEvent(pEvent);
       setKeybindOption(info.id, info.key);
@@ -741,13 +621,6 @@
 
   function buttonClicked(pEvent)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     let msg        = "";
     let target     = pEvent.target;
     let class_name = target.getAttribute('class');
@@ -827,13 +700,6 @@
 
   function addAutocompleteDateList(pElement)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     let complete_element = pElement;
     let option_element   = document.createElement('option');
 
@@ -850,13 +716,15 @@
 
   function getFormatEachLanguages(pTime, pFormat)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'number', 'date' ],
-      [ 'object', 'undefined', 'null' ],
-    ], true);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(
+        toType(pTime) === 'number' ||
+        toType(pTime) === 'date',
+        "not any type in number or date.");
+    console.assert(
+        toType(pFormat) === 'object' ||
+        pFormat === void 0 ||
+        pFormat === null,
+        "not any type in object, undefined, null.");
 
     if (pTime === void 0 || pTime === null) {
       throw new Error(`Invalid arguments is pTime: ${pTime}`);
@@ -878,12 +746,7 @@
 
   function changeSessionIconControlState(pState)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'boolean' ]
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pState) === 'boolean', "not boolean type.");
 
     let session_icon_control_element =
       document.querySelector(`#${ID_NAME_OF_SESSION_ICON_CONTROL}`);
@@ -1017,12 +880,7 @@
 
   function closureCreateSessionDateList(pOptions)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'object' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pOptions) === 'object', "not object type.");
 
     //{{{ local variable.
     const db_name               = pOptions.databaseName;
@@ -1051,13 +909,6 @@
 
     function onClicked(pEvent)//{{{
     {
-      let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
-
       let target    = pEvent.target;
       let list_name = target.parentNode.getAttribute('id');
       let name      = target.getAttribute('name');
@@ -1114,12 +965,7 @@
       let div_base = document.createElement('div');
 
       return function(pTime) {
-        let err_msg = checkFunctionArguments(arguments, [
-          [ 'number' ],
-        ]);
-        if (err_msg) {
-          throw new Error(err_msg);
-        }
+        console.assert(toType(pTime) === 'number', "not number type.");
 
         let text  = "";
 
@@ -1142,12 +988,7 @@
 
     function createSessionDateListItem(pItems)//{{{
     {
-      let err_msg = checkFunctionArguments(arguments, [
-        [ 'array' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pItems) === 'array', "not array type.");
 
       let create_history_item = closureCreateHistoryItem(
         Object.assign(opts_for_create_history_item, {
@@ -1169,13 +1010,8 @@
 
     function getDictSplitEachSession(pSessions, pAttrName)//{{{
     {
-      let err_msg = checkFunctionArguments(arguments, [
-        [ 'array' ],
-        [ 'string' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pSessions) === 'array', "not array type.");
+      console.assert(toType(pAttrName) === 'string', "not string type.");
 
       let attr, value;
       let result = new Map();
@@ -1191,13 +1027,8 @@
 
     function createSessionWindowList(pTime, pWindow)//{{{
     {
-      let err_msg = checkFunctionArguments(arguments, [
-        [ 'number' ],
-        [ 'map' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pTime) === 'number', "not number type.");
+      console.assert(toType(pWindow) === 'map', "not map type.");
 
       let lCreateHistoryDate = closureCreateHistoryDate(
         Object.assign(opts_for_create_history_date, {
@@ -1238,12 +1069,7 @@
 
     function createSessionDateList(pSessions)//{{{
     {
-      let err_msg = checkFunctionArguments(arguments, [
-        [ 'array' ],
-      ]);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(toType(pSessions) === 'array', "not array type.");
 
       let lCreateSessionDate = closureCreateSessionDate();
       let lArrayDateList     = [];
@@ -1416,12 +1242,7 @@
 
   function showAutoCompleteDateList(pHistories)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'array' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pHistories) === 'array', "not array type.");
 
     let search_history_date_elementList =
       document.querySelector(`#${ID_NAME_OF_SEARCH_HISTORY_DATE_LIST}`);
@@ -1433,17 +1254,7 @@
 
   function removeHistoryDate(pEvent)//{{{
   {
-    let args           = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let target              = pEvent.target;
       let history_date_legend = target.parentNode;
       let history_date_field  = history_date_legend.parentNode;
@@ -1481,17 +1292,7 @@
 
   function removeHistoryItem(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let target            = pEvent.target;
       let history_item      = target.parentNode;
       let history_item_list = history_item.parentNode;
@@ -1516,19 +1317,9 @@
     });
   }//}}}
 
-  function removeSessionHistoryItem(event)//{{{
+  function removeSessionHistoryItem(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let session_list_element =
         document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
       let getShowField = () => {
@@ -1537,7 +1328,7 @@
       };
       let show_field_element = getShowField();
 
-      removeHistoryItem(event)
+      removeHistoryItem(pEvent)
       .then(() => {
         Array.prototype.slice.call(show_field_element).forEach(pValue => {
           let item_list_element =
@@ -1554,26 +1345,16 @@
     });
   }//}}}
 
-  function removeSessionHistoryWindow(event)//{{{
+  function removeSessionHistoryWindow(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       let session_list_element =
         document.querySelector(`#${ID_NAME_OF_SESSION_LIST}`);
       let getShowField = () => {
         return session_list_element.querySelectorAll(
           `fieldset:not(.${CLASS_NAME_OF_DOES_NOT})`);
       };
-      let target = event.target;
+      let target = pEvent.target;
       let window_id = parseInt(target.getAttribute(ATTR_NAME_OF_WINDOW_ID), 10);
       let date_time = parseInt(target.getAttribute('name'), 10);
       let db_names = [ gStrDbSessionName, gStrDbSavedSessionName ];
@@ -1636,15 +1417,9 @@
 
   function closureCreateHistoryDate(pOptions)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) {
-        return toType(pValue) !== 'object' &&
-               !pOptions.hasOwnProperty(pOptions);
-      },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pOptions) === 'object', "not object type.");
+    console.assert(
+        pOptions.hasOwnProperty('deleteFunc'), "not found deleteFunc");
 
     //{{{ local variables.
     const delete_function                 = pOptions.deleteFunc;
@@ -1695,27 +1470,15 @@
         title:        true,
       };
 
-      let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) {
-          return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
-        },
-        function(pValue) {
-          if (toType(pValue) !== 'object') {
-            return true;
-          }
+      console.assert(toType(pItem) === 'object', "not object type.");
+      console.assert(
+          pItem.hasOwnProperty('date'), "date property is not found.");
 
-          let rBoolResult = false;
-          Object.keys(pValue).forEach(pKey => {
-            if (!default_opts.hasOwnProperty(pKey)) {
-              rBoolResult = true;
-            }
-          });
-          return rBoolResult;
-        },
-      ], true);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(
+          toType(pOptions) === 'object' ||
+          pOptions === void 0 ||
+          pOptions === null,
+          "not any type in object, undefined, or null.");
 
       let prototype_element = createPrototype();
       let history_date  = prototype_element.cloneNode(true);
@@ -1751,16 +1514,11 @@
 
   function closureCreateHistoryItem(pOptions)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) {
-        return toType(pValue) !== 'object' &&
-               !pValue.hasOwnProperty('databaseName') &&
-               !pValue.hasOwnProperty('deleteFunc');
-      },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pOptions) === 'object', "not object type.");
+    ['databaseName', 'deleteFunc'].forEach(pKey => {
+      console.assert(
+          pOptions.hasOwnProperty(pKey), `${pKey} property is not found.`);
+    });
 
     //{{{ local variable
     const db_name         = pOptions.databaseName;
@@ -1830,27 +1588,17 @@
         icon:         true,
       };
 
-      let err_msg = checkFunctionArguments(arguments, [
-        function(pValue) {
-          return toType(pValue) !== 'object' || !pValue.hasOwnProperty('date');
-        },
-        function(pValue) {
-          if (toType(pValue) !== 'object') {
-            return true;
-          }
+      console.assert(toType(pObjItem) === 'object', "not object type.");
+      ['date'].forEach(pKey => {
+        console.assert(
+            pObjItem.hasOwnProperty(pKey), `${pKey} property is not found.`);
+      });
 
-          let rBoolResult = false;
-          Object.keys(pOptions).forEach(pKey => {
-            if (!default_opts.hasOwnProperty(pKey)) {
-              rBoolResult = true;
-            }
-          });
-          return rBoolResult;
-        },
-      ], true);
-      if (err_msg) {
-        throw new Error(err_msg);
-      }
+      console.assert(
+          toType(pOptions) === 'object' ||
+          pOptions === void 0 ||
+          pOptions === null,
+          "not any type in object, undefined, or null.");
 
       let prototype_element = createPrototype();
       let item_element      = prototype_element.cloneNode(true);
@@ -2019,17 +1767,9 @@
 
   function changeMenu(pName)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(toType(pName) === 'string', "not string type.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'string' ],
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       menuToggle.show(pName)
         .then(processAfterMenuSelection(pName))
         .then(resolve)
@@ -2039,13 +1779,6 @@
 
   function sectionButtonClicked(pEvent)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     let target = pEvent.target;
     if (target.getAttribute('class') !== CLASS_NAME_OF_BUTTON) {
       return;
@@ -2065,13 +1798,6 @@
 
   function updateOptionValueToStorage(pEvent)//{{{
   {
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return (typeof pValue !== 'object'); },
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
-
     let target = pEvent.target;
     let name = target.getAttribute('name');
     if (name === void 0 || name === null || name.length === 0) {
@@ -2115,17 +1841,7 @@
         document.querySelector(`#${ID_NAME_OF_SESSION_RESTORE}`);
 
     let commonFunc = function(pEvent) {//{{{
-      let args = Array.prototype.slice.call(arguments);
-
       return new Promise((resolve, reject)=> {
-        let err_msg = checkFunctionArguments(args, [
-          function(pValue) { return (typeof pValue !== 'object'); },
-        ]);
-        if (err_msg) {
-          reject(new Error(err_msg));
-          return;
-        }
-
         (() => {
           let lStrIdName = pEvent.target.getAttribute('id');
           if (lStrIdName === session_save_element.getAttribute('id')) {
@@ -2169,17 +1885,7 @@
 
   function initSectionBarEvent(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       try {
         let button_elements =
           pEvent.querySelectorAll(`.${CLASS_NAME_OF_BUTTON}`);
@@ -2195,17 +1901,7 @@
 
   function initOptionElementEvent(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       let input_elements    = pEvent.querySelectorAll("input");
       let textarea_elements = pEvent.querySelectorAll("textarea");
       let select_elements   = pEvent.querySelectorAll("select");
@@ -2229,17 +1925,7 @@
 
   function initKeybindEvent(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       pEvent.addEventListener('keyup', keyupEvent, true);
       resolve();
     });
@@ -2247,17 +1933,7 @@
 
   function initButtonEvent(pEvent)//{{{
   {
-    let args = Array.prototype.slice.call(arguments);
-
-    return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        function(pValue) { return (typeof pValue !== 'object'); },
-      ]);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
+    return new Promise(resolve => {
       let button_elements = pEvent.querySelectorAll('button');
       Array.prototype.slice.call(button_elements).forEach(pValue => {
         pValue.addEventListener('click', buttonClicked, true);

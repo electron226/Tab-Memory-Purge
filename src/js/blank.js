@@ -22,8 +22,6 @@
 
   function getOpts(pOptionName)//{{{
   {
-    console.info('getOpts', Array.prototype.slice.call(arguments));
-
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(pOptionName, items => {
         if (chrome.runtime.lastError) {
@@ -40,15 +38,7 @@
 
   function getFaviconOfCurrentPage(pElement)//{{{
   {
-    console.info('getFaviconOfCurrentPage',
-      Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      function(pValue) { return typeof pValue !== 'object'; }
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pElement) === 'object', "not object type.");
 
     let xpath_icon = document.evaluate(
       '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
@@ -57,7 +47,7 @@
 
   function cancelPinnedTab(pTabId)//{{{
   {
-    console.info('cancelPinnedTab', Array.prototype.slice.call(arguments));
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     return new Promise((resolve, reject) => {
       getOpts('when_purge_tab_to_pin')
@@ -89,8 +79,6 @@
 
   function navigateToPageBeforePurged()//{{{
   {
-    console.info('navigateToPageBeforePurged');
-
     let args_in_url = getQueryString(document);
     let url         = '';
 
@@ -109,15 +97,7 @@
 
   function getDataOfBeforeToPurge(pRecorsiveCount)//{{{
   {
-    console.info('getDataOfBeforeToPurge',
-      Array.prototype.slice.call(arguments));
-
-    let err_msg = checkFunctionArguments(arguments, [
-      [ 'number' ],
-    ]);
-    if (err_msg) {
-      throw new Error(err_msg);
-    }
+    console.assert(toType(pRecorsiveCount) === 'number', "not number type.");
 
     let url = url_on_html.textContent;
     return ajax({ url: url, responseType: 'document' })
@@ -159,19 +139,13 @@
 
   function loadPurgedTabInfo(pRecorsiveCount)
   {
-    console.info('loadPurgedTabInfo', Array.prototype.slice.call(arguments));
-
-    let args = Array.prototype.slice.call(arguments);
+    console.assert(
+        toType(pRecorsiveCount) === 'number' ||
+        pRecorsiveCount === void 0 ||
+        pRecorsiveCount === null,
+        "not any type in number, nundefined, or null.");
 
     return new Promise((resolve, reject) => {
-      let err_msg = checkFunctionArguments(args, [
-        [ 'number', 'null', 'undefined' ],
-      ], true);
-      if (err_msg) {
-        reject(new Error(err_msg));
-        return;
-      }
-
       if (pRecorsiveCount === void 0 || pRecorsiveCount === null) {
         pRecorsiveCount = max_recorsive_count;
       } else if (pRecorsiveCount < 0) {
@@ -286,8 +260,6 @@
 
   function getCurrentTab()//{{{
   {
-    console.info('getCurrentTab');
-
     return new Promise((resolve, reject) => {
       chrome.tabs.getCurrent(tab => {
         if (chrome.runtime.lastError) {
@@ -302,7 +274,7 @@
 
   function restorePage(pTabId)//{{{
   {
-    console.info('restorePage', Array.prototype.slice.call(arguments));
+    console.assert(toType(pTabId) === 'number', "not number type.");
 
     if (toType(pTabId) === 'number') {
       cancelPinnedTab(pTabId)
@@ -317,16 +289,12 @@
   document.addEventListener('click', restorePage, true);
 
   document.addEventListener('keydown', pEvent => {//{{{
-    console.info('keydown', pEvent);
-
     if (gObjF5Key === generateKeyString( keyCheck(pEvent) )) {
       restorePage();
     }
   }, true);//}}}
 
   document.addEventListener('DOMContentLoaded', () => {//{{{
-    console.info('DOMContentLoaded');
-
     (() => {
       db = new Database(gStrDbName, gNumDbVersion);
       return db.open(gObjDbCreateStores);
@@ -335,10 +303,10 @@
   });//}}}
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {//{{{
-    console.info('runtime.onMessage', Array.prototype.slice.call(arguments));
-
     switch (message.event) {
       case 'location_replace':
+        console.assert(toType(message.tabId) === 'number', "not number type.");
+
         try {
           restorePage(message.tabId);
         } catch (e) {
