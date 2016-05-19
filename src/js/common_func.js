@@ -5,10 +5,14 @@
   "use strict";
 
   function escapeForRegExp(string) {
+    console.assert(toType(string) === 'string', "not string type.");
+
     return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   }
 
   function decodeForRegExp(string) {
+    console.assert(toType(string) === 'string', "not string type.");
+
     return string.replace(/\\([-\/\\^$*+?.()|[\]{}])/g, '$1');
   }
 
@@ -154,6 +158,8 @@
    */
   function ajax(pOpts)//{{{
   {
+    console.assert(toType(pOpts) === 'object', "not object type.");
+
     return new Promise(function(resolve, reject) {
       let method        = pOpts.method || 'GET';
       let url           = pOpts.url;
@@ -208,6 +214,12 @@
 
   function loadTranslation(pElement, pUrl) //{{{
   {
+    console.assert(toType(pUrl) === 'string', 'not string type.');
+    console.assert(
+        toType(pElement) !== void 0 &&
+        toType(pElement) !== null,
+        'any type in undefined or null.');
+
     return new Promise((resolve, reject) => {
       ajax({ url: pUrl }).then(pObjResult => {
         if (pObjResult.status === 200) {
@@ -257,6 +269,11 @@
      * @return {promise} the promise object.
      */
     function beep(pDuration, pFurequency, pVolume, pType) {
+      console.assert(toType(pDuration) === 'number', "not number type.");
+      console.assert(toType(pFurequency) === 'number', "not number type.");
+      console.assert(toType(pVolume) === 'number', "not number type.");
+      console.assert(toType(pType) === 'string', "not string type.");
+
       return new Promise(resolve => {
         let audio_oscillator = audio_ctx.createOscillator();
         let audio_gain_node  = audio_ctx.createGain();
@@ -280,6 +297,8 @@
 
   function getSplitURI(pUrl)//{{{
   {
+    console.assert(toType(pUrl) === 'string', "not string type.");
+
     let result = /(\w+):\/+([\w-.~]+[:\d]*)(\/[\w-.~]*)\?*(.*)/i.exec(pUrl);
     if (result === null) {
       throw new Error(`pStrUri is not uri: ${pUrl}`);
@@ -295,6 +314,8 @@
 
   function getListAfterJoinHistoryDataOnDB(pSessions)//{{{
   {
+    console.assert(toType(pSessions) === 'array', "not array type.");
+
     return new Promise(function(resolve) {
       let histories = pSessions[0];
       let pageInfos = pSessions[1];
@@ -373,6 +394,8 @@
    */
   function getHistoryListFromIndexedDB(pInstanceDB, pDbName)//{{{
   {
+    console.assert(toType(pDbName) === 'string', "not string type.");
+
     return new Promise((resolve, reject) => {
       let promise_results = [];
       promise_results.push( pInstanceDB.getAll({ name: pDbName }) );
@@ -452,6 +475,8 @@
 
     function getDataURI(pUrl)//{{{
     {
+      console.assert(toType(pUrl) === 'string', "not string type.");
+
       return new Promise(function(resolve, reject) {
         ajax({
           url:          pUrl,
@@ -479,12 +504,16 @@
 
   function hasStringOfAttributeOfElement(pElement, pAttrName, pAdd)//{{{
   {
+    console.assert(toType(pAttrName) === 'string', "not string type.");
+
     let regex = new RegExp(`(^|\\s+)${pAdd}`, '');
     return regex.test(pElement.getAttribute(pAttrName));
   }//}}}
 
   function addStringToAttributeOfElement(pElement, pAttrName, pAdd)//{{{
   {
+    console.assert(toType(pAttrName) === 'string', "not string type.");
+
     if (!hasStringOfAttributeOfElement(pElement, pAttrName, pAdd)) {
       let attr = pElement.getAttribute(pAttrName);
       pElement.setAttribute(pAttrName, (attr ? attr + ' ' : '') + pAdd);
@@ -496,6 +525,14 @@
   function removeStringFromAttributeOfElement(//{{{
     pElement, pAttrName, pRemove, pReplace)
   {
+    console.assert(toType(pAttrName) === 'string', "not string type.");
+    console.assert(toType(pRemove) === 'string', "not string type.");
+    console.assert(
+        toType(pReplace) === 'string' ||
+        pReplace === void 0 ||
+        pReplace === null,
+        "not any type in string, undefined, or null.");
+
     let regex = new RegExp('(^|\\s+)' + pRemove, 'ig');
     let value = pElement.getAttribute(pAttrName);
     if (value) {
@@ -511,9 +548,8 @@
    * @return {Object} object of key information.
    */
   function keyCheck(pEvent) {//{{{
-    if (pEvent === void 0 || pEvent === null) {
-      throw new Error("Invalid argument. don't get event object.");
-    }
+    console.assert(
+        pEvent !== void 0 && pEvent !== null, "any type in undefined or null.");
 
     return {
       ctrl:    pEvent.ctrlKey,
@@ -533,9 +569,7 @@
    */
   function generateKeyString(pKeyInfo) //{{{
   {
-    if (toType(pKeyInfo) !== 'object') {
-      throw new Error('Invalid type of argument.');
-    }
+    console.assert(toType(pKeyInfo) === 'object', "not object type.");
 
     let output = '';
     if (pKeyInfo.meta)  { output += 'Meta +'; }
@@ -627,6 +661,8 @@
    */
   function formatDate(pDate, pFormat)//{{{
   {
+    console.assert(toType(pFormat) === 'string', "not string type.");
+
     if (!pFormat) {
       pFormat = 'YYYY-MM-DD hh:mm:ss.SSS';
     }
