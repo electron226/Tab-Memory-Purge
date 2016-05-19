@@ -213,7 +213,7 @@
         if (pObjResult.status === 200) {
           let target = JSON.parse(pObjResult.response);
           let snapshot =
-            pElement.evaluate('//*[@translation]', pElement, null, 7, null);
+            document.evaluate('//*[@translation]', pElement, null, 7, null);
 
           let item, text_name;
           for (let i = 0; i < snapshot.snapshotLength; ++i) {
