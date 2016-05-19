@@ -877,6 +877,32 @@
     return pTab.pinned === true;
   }//}}}
 
+  function togglePinnedTab(pTabId, pState)//{{{
+  {
+    console.assert(toType(pTabId) === 'number', "not number type.");
+    console.assert(
+        toType(pState) === 'boolean' ||
+        pState === void 0 ||
+        pState === null,
+        "not any type in boolean, undefined, null.");
+
+    return new Promise((resolve, reject) => {
+      chrome.tabs.get(pTabId, pTab => {
+        let pinned_state =
+          (toType(pState) === 'boolean') ? pState : !isPinnedTab(pTab);
+
+        chrome.tabs.update(pTab.id, { pinned: pinned_state }, () => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+
+          resolve();
+        });
+      });
+    });
+  }//}}}
+
   function getPopupMenuSettingsOfAllPurge()//{{{
   {
     return {
@@ -1177,14 +1203,10 @@
         });
       })
       .then(() => {
-        return new Promise(resolve2 => {
-          if (getOpts('when_purge_tab_to_pin') === false) {
-            resolve2();
-            return;
-          }
-
-          chrome.tabs.update(pTabId, { pinned: true }, resolve2);
-        });
+        if (getOpts('when_purge_tab_to_pin') === false) {
+          return Promise.resolve();
+        }
+        return togglePinnedTab(pTabId, true);
       })
       .then(() => {
         setUnloaded(pTabId, tab.url, tab.windowId, scroll_positions[0]);
@@ -2075,7 +2097,13 @@
   chrome.webRequest.onBeforeRequest.addListener(pDetails => {//{{{
     if (getOpts('new_tab_opens_with_purged_tab') === true) {
       if (current_tab_id !== pDetails.tabId) {
-        return redirectPurgedTabWhenCreateNewTab(pDetails);
+        let results = redirectPurgedTabWhenCreateNewTab(pDetails);
+        if (getOpts('when_purge_tab_to_pin') === true) {
+          if (Object.keys(results).length > 0) {
+            togglePinnedTab(pDetails.tabId);
+          }
+        }
+        return results;
       }
     }
   },
