@@ -60,7 +60,9 @@
           <label><input type="checkbox" name="enable_auto_purge"><span translation="remaiming_memory"></span></label>&nbsp;<input type="number" name="remaiming_memory" style="width: 50px" min="1">&nbsp;<span translation="megabyte"></span>
         </div>
         <div>
-          <div translation="exclude_url"></div>
+          <div>
+              <span translation="exclude_url"></span>(<span translation="exclude_postscript"></span>)
+          </div>
           <div>
             <textarea name="exclude_url" style="float: left"></textarea>
             <div>
@@ -137,7 +139,9 @@
           <button class="keybind_clear">CLEAR</button>
         </div>
         <div class="keybindExcludeField">
-          <div translation="keybind_exclude_url"></div>
+          <div>
+            <span translation="keybind_exclude_url"></span>(<span translation="exclude_postscript"></span>)
+          </div>
           <div>
             <textarea name="keybind_exclude_url" style="float: left"></textarea>
             <div>
@@ -150,8 +154,10 @@
       </section><!--}}}-->
 
       <section id="popup" class="sectionMenu"><!--{{{-->
-          <div translation="popup_explanaton"></div>
-          <div><label><input type="checkbox" name="popup_exclude_list"><span translation="popup_exclude_list"></span></label></div>
+          <div>
+            <span translation="popup_explanaton"></span>(&nbsp;<span translation="all_purge_except_settings"></span>&nbsp;)
+          </div>
+          <div><label><input type="checkbox" name="popup_exclude_list"><span translation="exclude_url"></span></label></div>
           <div><label><input type="checkbox" name="popup_exclude_playsound_tab"><span translation="popup_exclude_playsound_tab"></span></label></div>
           <div><label><input type="checkbox" name="popup_exclude_pinned_tab"><span translation="popup_exclude_pinned_tab"></span></label></div>
       </section><!--}}}-->

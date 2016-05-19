@@ -148,15 +148,19 @@
     "description": "Import"
   },
   "exclude_url": {
-    "message": "URLs to exclude from purges (Regular expressions allowed - <a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
+    "message": "URLs to exclude from purges",
     "description": "Exclude URL"
   },
   "keybind_exclude_url": {
-    "message": "URLs to disable key bindings (Regular expressions allowed - <a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>)",
+    "message": "URLs to disable key bindings",
     "description": "Exclude URL on Keybinds"
   },
+  "exclude_postscript": {
+    "message": "Regular expressions allowed - <a href='https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>see documentation</a>",
+    "description": "The postcript for Exclude URL"
+  },
   "purging_all_tabs_except_active": {
-    "message": "Purge all tabs except last ",
+    "message": "Purge all tabs except last",
     "description": "Purging all tabs except for the active tab."
   },
   "supplementary_of_purging_all_tabs": {
@@ -191,10 +195,6 @@
   "popup_explanaton": {
     "message": "Settings of behavior of the button on the popup menu.",
     "description": "The explanation of the popup menu on the option page."
-  },
-  "popup_exclude_list": {
-    "message": "Exclusion list.",
-    "description": "The item of the popup menu on the option page."
   },
   "popup_exclude_playsound_tab": {
     "message": "Tab during playback.",

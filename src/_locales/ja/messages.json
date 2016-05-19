@@ -132,12 +132,16 @@
     "description": "インポート"
   },
   "exclude_url": {
-    "message": "除外するアドレス(<a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>正規表現</a>、部分一致)",
+    "message": "除外するアドレス",
     "description": "除外するアドレス"
   },
   "keybind_exclude_url": {
-    "message": "キーバインドを除外するアドレス(<a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>正規表現</a>、部分一致)",
+    "message": "キーバインドを除外するアドレス",
     "description": "キーバインドを除外するアドレス"
+  },
+  "exclude_postscript": {
+    "message": "<a href='https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>正規表現</a>、部分一致",
+    "description": "除外するアドレスの追記"
   },
   "purging_all_tabs_except_active": {
     "message": "設定値を超えたアクティブタブ以外のタブを解放",
@@ -185,12 +189,8 @@
   },
 
   "popup_explanaton": {
-    "message": "ポップアップメニューのボタンの動作の設定",
+    "message": "ポップアップメニューのボタンの除外設定",
     "description": "オプションのポップアップタブの説明"
-  },
-  "popup_exclude_list": {
-    "message": "除外リスト",
-    "description": "オプションのポップアップタブのオプション"
   },
   "popup_exclude_playsound_tab": {
     "message": "再生中のタブ",

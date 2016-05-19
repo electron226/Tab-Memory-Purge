@@ -136,12 +136,16 @@
     "description": "불러오기"
   },
   "exclude_url": {
-    "message": "예외 주소 (<a href='https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>정규식</a> 또는 부분 매치)",
+    "message": "예외 주소",
     "description": "예외 주소"
   },
   "keybind_exclude_url": {
-    "message": "단축키 작동 시 예외 주소 (<a href='https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>정규식</a> 또는 부분 매치)",
+    "message": "단축키 작동 시 예외 주소",
     "description": "단축키를 통한 예외 주소"
+  },
+  "exclude_postscript": {
+    "message": "<a href='https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/RegExp' target='_blank'>정규식</a> 또는 부분 매치",
+    "description": "예외 주소 추가"
   },
   "purging_all_tabs_except_active": {
     "message": "활성화 탭을 제외한 모든 열린 탭에 대한 초기화 개수",
@@ -191,10 +195,6 @@
   "popup_explanaton": {
     "message": "팝업 메뉴의 버튼 동작 설정",
     "description": "옵션의 팝업 탭의 설명"
-  },
-  "popup_exclude_list": {
-    "message": "제외 목록",
-    "description": "옵션의 팝업 탭의 옵션"
   },
   "popup_exclude_playsound_tab": {
     "message": "재생중인 탭",
