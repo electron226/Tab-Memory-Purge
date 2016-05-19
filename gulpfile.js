@@ -70,14 +70,14 @@
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
            .pipe($.compass({
-             css:         'src/css',
+             css:         'tmp/css',
              sass:        'src/sass',
              environment: 'production',
              style:       'compressed',
            }));
   });
 
-  gulp.task('autoprefixer', () => {
+  gulp.task('autoprefixer-debug', () => {
     return gulp.src(['src/css/*.css', '!src/**/*.min.css'], { base: 'src' })
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
@@ -88,7 +88,18 @@
            .pipe(gulp.dest('src')));
   });
 
-  gulp.task('csscomb', () => {
+  gulp.task('autoprefixer-build', () => {
+    return gulp.src(['tmp/css/*.css', '!tmp/**/*.min.css'], { base: 'tmp' })
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.autoprefixer({
+             browsers: [ 'last 2 Chrome versions' ],
+           })
+           .pipe(gulp.dest('tmp')));
+  });
+
+  gulp.task('csscomb-debug', () => {
     return gulp.src(['src/css/*.css', '!src/**/*.min.css'], { base: 'src' })
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
@@ -97,13 +108,25 @@
            .pipe(gulp.dest('src'));
   });
 
+  gulp.task('csscomb-build', () => {
+    return gulp.src(['tmp/css/*.css', '!tmp/**/*.min.css'], { base: 'tmp' })
+           .pipe($.plumber({
+             errorHandler: $.notify.onError('Error: <%= error.message %>')
+           }))
+           .pipe($.csscomb())
+           .pipe(gulp.dest('tmp'));
+  });
+
   gulp.task('cssnano', () => {
-    return gulp.src('src/css/*.css', { base: 'src' })
+    return gulp.src('tmp/css/*.css', { base: 'tmp' })
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
            .pipe($.cssnano())
-           .pipe(gulp.dest('src'));
+           .pipe($.rename({
+             extname: '.min.css'
+           }))
+           .pipe(gulp.dest('dist'));
   });
 
   gulp.task('replace-debug', () => {
@@ -206,15 +229,16 @@
 
   gulp.task('uglify-build', () => {
     return merge(
-      gulp.src(['tmp/js/common.js', 'tmp/js/common_func.js'], { base: 'tmp' })
+      gulp.src([
+      'tmp/js/common.js',
+      'tmp/js/common_func.js'
+      ], { base: 'tmp' })
            .pipe($.plumber({
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
           .pipe($.concat('commons.min.js'))
           .pipe($.stripDebug())
-          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
-          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist/js')),
       gulp.src([
         'tmp/js/blank.js',
@@ -227,12 +251,10 @@
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
           .pipe($.stripDebug())
-          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
           .pipe($.rename({
             extname: '.min.js'
           }))
-          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist')),
       gulp.src([
         'tmp/js/load_scripts/getScrollPosition.js',
@@ -241,9 +263,7 @@
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
           .pipe($.stripDebug())
-          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
-          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist')),
       gulp.src([
         'tmp/js/content_scripts/excludeDialog.js',
@@ -255,9 +275,7 @@
            }))
           .pipe($.concat('content_scripts.min.js'))
           .pipe($.stripDebug())
-          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
-          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist/js/content_scripts'))
     );
   });
@@ -267,12 +285,14 @@
   });
 
   gulp.task('sass-debug', callback => {
-    runSequence('compass-debug', 'autoprefixer', 'csscomb', callback);
+    runSequence(
+      'compass-debug', 'autoprefixer-debug', 'csscomb-debug', callback);
   });
 
   gulp.task('sass-build', callback => {
     runSequence(
-      'compass-build', 'autoprefixer', 'csscomb', 'cssnano', callback);
+      'compass-build', 'autoprefixer-build', 'csscomb-build', 'cssnano',
+      callback);
   });
 
   gulp.task('zip', () => {
@@ -297,11 +317,11 @@
     runSequence(
       'clean-build',
       'copy-build',
-      ['compass-build', 'eslint', 'replace-build', 'htmlhint'],
-      ['autoprefixer', 'babel', 'jsonminify'],
       'usemin-build',
-      ['csscomb', 'uglify-build', 'htmlmin'],
-      ['cssnano'],
+      ['compass-build', 'eslint', 'replace-build', 'htmlhint'],
+      ['autoprefixer-build', 'babel', 'jsonminify'],
+      ['csscomb-build', 'uglify-build', 'htmlmin'],
+      'cssnano',
       'clean-tmp',
       callback);
   });
