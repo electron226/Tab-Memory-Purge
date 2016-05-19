@@ -38,8 +38,6 @@
 
   function getFaviconOfCurrentPage(pElement)//{{{
   {
-    console.assert(toType(pElement) === 'object', "not object type.");
-
     let xpath_icon = document.evaluate(
       '//link[@rel="shortcut icon" or @rel="icon"]', pElement, null, 7, null);
     return (xpath_icon.snapshotLength > 0) ? xpath_icon.snapshotItem(0) : null;
@@ -274,8 +272,6 @@
 
   function restorePage(pTabId)//{{{
   {
-    console.assert(toType(pTabId) === 'number', "not number type.");
-
     if (toType(pTabId) === 'number') {
       cancelPinnedTab(pTabId)
         .then(navigateToPageBeforePurged);
