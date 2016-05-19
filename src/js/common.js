@@ -23,11 +23,11 @@
     config.set('no_release', false);
     config.set('timer', 20);
     config.set('exclude_url',
-      '^https://\n' +
       '.*://(10|172|192).\d+.\d+.\d+\n' +
       'localhost\n' +
       'nicovideo.jp\n' +
-      'youtube.com'
+      'youtube.com\n' +
+      'twitch.tv'
     );
     config.set('regex_insensitive', true);
     config.set('enable_auto_purge', true);
