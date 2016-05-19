@@ -51,7 +51,7 @@
       getOpts('when_purge_tab_to_pin')
       .then(pinned => {
         if (pinned === false) {
-          console.warn(
+          console.log(
               'the option "When purges a tab, to pin it." is disabled.');
           resolve();
           return;

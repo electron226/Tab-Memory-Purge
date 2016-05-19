@@ -767,7 +767,6 @@
               .then(resolve3)
               .catch(pErr => {
                 console.warn(pErr);
-                console.warn("Don't find favIconUrl.", pTab);
                 resolve3();
               });
             })
