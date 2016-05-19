@@ -187,49 +187,41 @@
         });
       })
       .then(pageInfo => {
-        return getOpts('get_title_when_does_not_title').then(option => {
-          if (pageInfo === void 0 ||
-              pageInfo === null ||
-              !pageInfo.hasOwnProperty('title') ||
-              pageInfo.title === 'Unknown') {
-            if (option === true) {
-              document.title = url_on_html.textContent;
-              title_on_html.setAttribute('style', 'display: none');
+        if (pageInfo === void 0 ||
+            pageInfo === null ||
+            !pageInfo.hasOwnProperty('title') ||
+            pageInfo.title === 'Unknown') {
+            document.title = url_on_html.textContent;
+            title_on_html.setAttribute('style', 'display: none');
+          console.log('RecorsiveCount is ', pRecorsiveCount);
 
-              console.log('RecorsiveCount is ', pRecorsiveCount);
-
-              (() => {
-                return new Promise((resolve2, reject2) => {
-                  if (pageInfo !== void 0 &&
-                      pageInfo !== null &&
-                      pageInfo.hasOwnProperty('url') &&
-                      pageInfo.url.length > 0) {
-                    db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
-                    .then(resolve2)
-                    .catch(reject2);
-                  } else {
-                    resolve();
-                  }
-                });
-              })()
-              .then(getDataOfBeforeToPurge(--pRecorsiveCount))
-              .then(resolve)
-              .catch(reject);
-            } else {
-              reject(new Error("Doesn't get a title of a purged tab."));
-              return;
-            }
-          } else {
-            document.title            = pageInfo.title;
-            title_on_html.textContent = pageInfo.title;
-            title_on_html.removeAttribute('style');
-
-            return db.get({
-              name : gStrDbDataURIName,
-              key  : pageInfo.host,
+          (() => {
+            return new Promise((resolve2, reject2) => {
+              if (pageInfo !== void 0 &&
+                  pageInfo !== null &&
+                  pageInfo.hasOwnProperty('url') &&
+                  pageInfo.url.length > 0) {
+                db.delete({ name: gStrDbPageInfoName, keys: pageInfo.url })
+                .then(resolve2)
+                .catch(reject2);
+              } else {
+                resolve();
+              }
             });
-          }
-        });
+          })()
+          .then(getDataOfBeforeToPurge(--pRecorsiveCount))
+          .then(resolve)
+          .catch(reject);
+        } else {
+          document.title            = pageInfo.title;
+          title_on_html.textContent = pageInfo.title;
+          title_on_html.removeAttribute('style');
+
+          return db.get({
+            name : gStrDbDataURIName,
+            key  : pageInfo.host,
+          });
+        }
       })
       .then(dataURIInfo => {
         if (dataURIInfo !== void 0 && dataURIInfo !== null) {

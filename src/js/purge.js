@@ -713,8 +713,7 @@
         })
         .then(() => {
           return new Promise((resolve, reject) => {
-            if (getOpts('get_title_when_does_not_title') === true &&
-                !pTab.title) {
+            if (!pTab.title) {
               ajax({ url:tab_url, responseType: 'document' })
               .then(pObjResult => {
                 if (pObjResult.status === 200) {

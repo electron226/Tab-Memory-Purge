@@ -175,10 +175,6 @@
     "message": "When opening a new tab, it is already purged.",
     "description": "the item of the options."
   },
-  "get_title_when_does_not_title": {
-    "message": "If purged tab had no title then get title from the live page.",
-    "description": "the item of the options."
-  },
   "restore_to_current_window": {
     "message": "Restore to the current window",
     "description": "The restored type of the session history."

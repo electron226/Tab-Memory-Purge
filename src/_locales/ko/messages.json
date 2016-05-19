@@ -163,10 +163,6 @@
     "message": "초기화된 상태로 새 탭 열기.",
     "description": "옵션 항목."
   },
-  "get_title_when_does_not_title": {
-    "message": "초기화된 탭에 제목이 없을 경우 인터넷 페이지에서 제목 취득",
-    "description": "옵션 항목."
-  },
   "not_purge_playsound_tab": {
     "message": "소리가 재생될 경우 자동으로 초기화하지 않기.",
     "description": "옵션 항목."
