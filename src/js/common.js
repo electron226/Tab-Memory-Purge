@@ -59,7 +59,9 @@
     config.set('keybind_clear_temporary_exclusion_list', keybind_default);
     config.set('keybind_exclude_url',
       'nicovideo.jp\n' +
-      'youtube.com');
+      'youtube.com\n' +
+      'twitch.tv'
+    );
     config.set('keybind_regex_insensitive', true);
     config.set(window['gStrVersionKey'], chrome.app.getDetails());
     config.set(window['gStrPreviousSessionTimeKey'], null);
