@@ -1,6 +1,3 @@
-/**
- * ネイティブで動作する関数の集まり
- */
 (function(window) {
   "use strict";
 
@@ -48,6 +45,7 @@
         pChangedCallback === void 0 ||
         pChangedCallback === null,
         "not any type in function, undefined, ot null.");
+
     let unloadeds = new Map();
 
     return {

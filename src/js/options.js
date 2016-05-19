@@ -408,12 +408,12 @@
     });
   }//}}}
 
-  function processAfterMenuSelection(name)//{{{
+  function processAfterMenuSelection(pName)//{{{
   {
-    console.assert(toType(name) === 'string', "not string type.");
+    console.assert(toType(pName) === 'string', "not string type.");
 
     return new Promise((resolve, reject) => {
-      switch (name) {
+      switch (pName) {
       case 'normal':
       case 'popup':
         break;
@@ -451,9 +451,9 @@
         return;
       }
 
-      history.pushState(name,
-        `${document.title} ${chrome.i18n.getMessage(name)}`,
-        `${gStrOptionPage}?page=${name}`);
+      history.pushState(pName,
+        `${document.title} ${chrome.i18n.getMessage(pName)}`,
+        `${gStrOptionPage}?page=${pName}`);
     });
   }//}}}
 
