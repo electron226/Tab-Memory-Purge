@@ -1,3 +1,20 @@
+05/20/2016 ver 2.5.0
+Added: The Function for "Purges all tabs but pinned tabs" (Issues #50)
+    There are the popup menu in the option page.
+Added: The new options.
+    1. Do not purge the pinned tabs automatically.
+    2. When purges a tab, to pin it.
+Changed: The default values of the options are changed.
+Changed: Deletes get_title_when_does_not_title option
+    To get the title from web page when it does not get correctly from now on.
+Changed: default fonts are changed.
+Fixed: A purged tab do not show a favicon correctly.
+Fixed: The bug on blank page
+    Fixed the bug that doesn't show the title or the url
+    if the result is confirmed when the purged tab check
+    whether released and has been recognized.
+Fixed: Does not run Sleep by Windows correctly when Extension is enabled.
+
 12/28/2015 ver 2.4.6
 Added: The button for to clear temporary exclusion list in the popup menu.
 Added: The new shortcut command. It exist in the option page.
