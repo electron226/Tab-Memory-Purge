@@ -238,7 +238,9 @@
            }))
           .pipe($.concat('commons.min.js'))
           .pipe($.stripDebug())
+          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
+          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist/js')),
       gulp.src([
         'tmp/js/blank.js',
@@ -251,10 +253,12 @@
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
           .pipe($.stripDebug())
+          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
           .pipe($.rename({
             extname: '.min.js'
           }))
+          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist')),
       gulp.src([
         'tmp/js/load_scripts/getScrollPosition.js',
@@ -263,7 +267,9 @@
              errorHandler: $.notify.onError('Error: <%= error.message %>')
            }))
           .pipe($.stripDebug())
+          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
+          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist')),
       gulp.src([
         'tmp/js/content_scripts/excludeDialog.js',
@@ -275,7 +281,9 @@
            }))
           .pipe($.concat('content_scripts.min.js'))
           .pipe($.stripDebug())
+          .pipe($.sourcemaps.init())
           .pipe($.uglify(uglify_options))
+          .pipe($.sourcemaps.write('./'))
           .pipe(gulp.dest('dist/js/content_scripts'))
     );
   });
