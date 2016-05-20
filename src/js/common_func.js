@@ -1,17 +1,19 @@
 (function(window) {
   "use strict";
 
-  function escapeForRegExp(string) {
+  function escapeForRegExp(string)//{{{
+  {
     console.assert(toType(string) === 'string', "not string type.");
 
     return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-  }
+  }//}}}
 
-  function decodeForRegExp(string) {
+  function decodeForRegExp(string)//{{{
+  {
     console.assert(toType(string) === 'string', "not string type.");
 
     return string.replace(/\\([-\/\\^$*+?.()|[\]{}])/g, '$1');
-  }
+  }//}}}
 
   /**
    * closureCreateMapObserve
@@ -53,8 +55,8 @@
         return unloadeds.get(pAnyKey);
       },//}}}
       forEach: function(pFuncCallback) {//{{{
-        console.assert(toType(pFuncCallback) === 'function',
-            "not function type.");
+        console.assert(
+            toType(pFuncCallback) === 'function', "not function type.");
 
         unloadeds.forEach(pFuncCallback);
       },//}}}
@@ -266,7 +268,8 @@
      *     default is sine.
      * @return {promise} the promise object.
      */
-    function beep(pDuration, pFurequency, pVolume, pType) {
+    function beep(pDuration, pFurequency, pVolume, pType)//{{{
+    {
       console.assert(toType(pDuration) === 'number', "not number type.");
       console.assert(toType(pFurequency) === 'number', "not number type.");
       console.assert(toType(pVolume) === 'number', "not number type.");
@@ -288,7 +291,7 @@
         setTimeout(
           () => audio_oscillator.stop(), (pDuration ? pDuration : 500));
       });
-    }
+    }//}}}
 
     return beep;
   }//}}}
