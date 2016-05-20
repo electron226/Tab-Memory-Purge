@@ -3,8 +3,6 @@
   "use strict";
 
   //{{{ variables.
-  let beep = closureCreateBeep().bind(null, 100, 800, 0.5, 'triangle');
-
   let ext_opts = new Map();
 
   /**
@@ -52,6 +50,12 @@
       return gMapDefaultValues.get(pKey);
     }
     throw new Error(`Doesn't get the options: ${pKey}`);
+  }//}}}
+
+  function beep()//{{{
+  {
+    let beep_sound = closureCreateBeep();
+    beep_sound(100, 800, 0.5, 'triangle');
   }//}}}
 
   let unloaded_change = false;
