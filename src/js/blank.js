@@ -276,8 +276,10 @@
           .then(resolve)
           .catch(reject);
         } else {
-          document.title            = pageInfo.title;
-          title_on_html.textContent = pageInfo.title;
+          let title = pageInfo.title;
+
+          document.title            = title;
+          title_on_html.textContent = title;
           title_on_html.removeAttribute('style');
 
           return db.get({
