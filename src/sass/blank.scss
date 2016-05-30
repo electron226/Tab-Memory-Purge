@@ -21,6 +21,10 @@ body {
     width: 60vw;
 }
 
+#background_error {
+    background-color: #F6D4D8;
+}
+
 #page_info {
     @include rhythm-margins(3, 0);
     @include box-sizing(border-box);
@@ -37,9 +41,27 @@ body {
 
     background-color: $primary-color-in-blank;
 }
-#url {
-    background-color: $light-primary-color;
+
+#title_place_error {
+    @extend .place;
+
+    background-color: #DA6272;
+}
+
+.url {
     @include box-sizing(border-box);
+}
+
+#url {
+    @extend .url;
+
+    background-color: $light-primary-color;
+}
+
+#url_error {
+    @extend .url;
+
+    background-color: #ECACB5;
 }
 
 #message {

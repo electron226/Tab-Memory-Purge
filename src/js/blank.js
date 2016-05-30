@@ -7,10 +7,16 @@
 
   const MAX_RECORSIVE_COUNT       = 3;
 
-  const title_on_html = document.querySelector('#title');
-  const url_on_html   = document.querySelector('#url');
+  const TITLE_PLACE_ID_NAME       = 'title_place';
+  const TITLE_PLACE_ERROR_ID_NAME = 'title_place_error';
+  const URL_ID_NAME               = 'url';
+  const URL_ERROR_ID_NAME         = 'url_error';
+  const BACKGROUND_ERROR_ID_NAME  = 'background_error';
 
   const ICON_ON_HTML      = document.querySelector('#favicon');
+  let title_place_on_html = document.querySelector(`#${TITLE_PLACE_ID_NAME}`);
+  let title_on_html       = document.querySelector('#title');
+  let url_on_html         = document.querySelector(`#${URL_ID_NAME}`);
 
   const gObjF5Key = generateKeyString({
     ctrl    : false,
@@ -36,6 +42,54 @@
       });
     });
   }//}}}
+
+  let togglePageType = (function () {//{{{
+    let changeFunc = function(pDoc, pDelId, pAddId) {
+      removeStringFromAttributeOfElement(pDoc, 'id', `${pDelId}`);
+      addStringToAttributeOfElement(pDoc, 'id', `${pAddId}`);
+
+      return document.querySelector(`#${pAddId}`);
+    };
+
+    let body = document.querySelector('body');
+      
+    return function(pType) {
+      console.assert(
+          pType === void 0 ||
+          pType === null ||
+          toType(pType) === 'string',
+          "not any type in undefined, null, string.");
+
+      if (pType === void 0 || pType === null) {
+        if (document.querySelector(`#${TITLE_PLACE_ID_NAME}`) === null) {
+          pType = 'normal';
+        } else {
+          pType = 'error';
+        }
+      }
+
+      switch (pType) {
+        case 'error':
+          title_place_on_html = changeFunc(title_place_on_html,
+              TITLE_PLACE_ID_NAME, TITLE_PLACE_ERROR_ID_NAME);
+          url_on_html = changeFunc(url_on_html, URL_ID_NAME, URL_ERROR_ID_NAME);
+
+          addStringToAttributeOfElement(
+              body, 'id', `${BACKGROUND_ERROR_ID_NAME}`);
+          break;
+        default:
+          title_place_on_html = changeFunc(title_place_on_html,
+              TITLE_PLACE_ERROR_ID_NAME, TITLE_PLACE_ID_NAME);
+          url_on_html = changeFunc(url_on_html, URL_ERROR_ID_NAME, URL_ID_NAME);
+
+          removeStringFromAttributeOfElement(
+              body, 'id', `${BACKGROUND_ERROR_ID_NAME}`);
+          break;
+      }
+
+      title_on_html.removeAttribute('style');
+    };
+  })();//}}}
 
   function getFaviconOfCurrentPage(pElement)//{{{
   {
@@ -101,7 +155,14 @@
     let url = url_on_html.textContent;
     return ajax({ url: url, responseType: 'document' })
     .then(pResult => {
-      if (pResult.status === 200) {
+      if (pResult.status >= 400) { // error.
+        let title = `${pResult.status} ${pResult.xhr.statusText}`;
+
+        document.title            = title;
+        title_on_html.textContent = title;
+
+        togglePageType('error');
+      } else if (pResult.status === 200) { // Success
         let new_title = pResult.response.title;
         if (new_title) {
           let host = getSplitURI(url).hostname;
@@ -132,6 +193,7 @@
         }
 
         return loadPurgedTabInfo(pRecorsiveCount);
+      } else { // other
       }
     });
   }//}}}
