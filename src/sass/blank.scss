@@ -26,13 +26,17 @@ body {
     @include box-sizing(border-box);
 }
 
-#titlePlace {
+.place {
     @include adjust-font-size-to(18px, 1);
     @include box-sizing(border-box);
-    background-color: $primary-color-in-blank;
     font-weight:      bold;
 }
 
+#title_place {
+    @extend .place;
+
+    background-color: $primary-color-in-blank;
+}
 #url {
     background-color: $light-primary-color;
     @include box-sizing(border-box);
