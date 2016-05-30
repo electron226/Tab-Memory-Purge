@@ -5,11 +5,12 @@
   // variables.//{{{
   let db = null;
 
-  const max_recorsive_count = 3;
+  const MAX_RECORSIVE_COUNT       = 3;
 
-  const icon_on_html  = document.querySelector('#favicon');
   const title_on_html = document.querySelector('#title');
   const url_on_html   = document.querySelector('#url');
+
+  const ICON_ON_HTML      = document.querySelector('#favicon');
 
   const gObjF5Key = generateKeyString({
     ctrl    : false,
@@ -145,7 +146,7 @@
 
     return new Promise((resolve, reject) => {
       if (pRecorsiveCount === void 0 || pRecorsiveCount === null) {
-        pRecorsiveCount = max_recorsive_count;
+        pRecorsiveCount = MAX_RECORSIVE_COUNT;
       } else if (pRecorsiveCount < 0) {
         reject(new Error("Doesn't get a title of a purged tab."));
         return;
@@ -238,9 +239,9 @@
           }
           head.appendChild(link);
 
-          icon_on_html.src = favicon_url;
+          ICON_ON_HTML.src = favicon_url;
           removeStringFromAttributeOfElement(
-            icon_on_html, 'class', 'doNotShow');
+            ICON_ON_HTML, 'class', 'doNotShow');
         }
       })
       .then(resolve)
