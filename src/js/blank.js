@@ -255,6 +255,7 @@
         if (pageInfo === void 0 ||
             pageInfo === null ||
             !pageInfo.hasOwnProperty('title') ||
+            !pageInfo.hasOwnProperty('host') ||
             pageInfo.title === 'Unknown') {
             document.title = url_on_html.textContent;
             title_on_html.setAttribute('style', 'display: none');
@@ -291,7 +292,9 @@
         }
       })
       .then(dataURIInfo => {
-        if (dataURIInfo !== void 0 && dataURIInfo !== null) {
+        if (dataURIInfo !== void 0 &&
+            dataURIInfo !== null &&
+            dataURIInfo.hasOwnProperty('dataURI')) {
           let favicon_url = dataURIInfo.dataURI;
 
           let head = document.querySelector('head');
