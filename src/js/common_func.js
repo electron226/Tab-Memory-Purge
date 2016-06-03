@@ -1,6 +1,13 @@
 (function(window) {
   "use strict";
 
+  function sleep(pMilliseconds)//{{{
+  {
+    console.assert(toType(pMilliseconds) === 'number', "not number type.");
+
+    return new Promise(resolve => setTimeout(resolve, pMilliseconds));
+  }//}}}
+
   function escapeForRegExp(string)//{{{
   {
     console.assert(toType(string) === 'string', "not string type.");
@@ -724,6 +731,7 @@
 
   //{{{ method.
   // If you want to minify js file, you must set function name.
+  setObjectProperty(window, 'sleep', sleep);
   setObjectProperty(window, 'escapeForRegExp', escapeForRegExp);
   setObjectProperty(window, 'decodeForRegExp', decodeForRegExp);
   setObjectProperty(window, 'closureCreateMapObserve', closureCreateMapObserve);
