@@ -6,6 +6,7 @@
   let db = null;
 
   const MAX_RECORSIVE_COUNT       = 3;
+  const SLEEP_TIME                = 500; // milliseconds
 
   const TITLE_PLACE_ID_NAME       = 'title_place';
   const TITLE_PLACE_ERROR_ID_NAME = 'title_place_error';
@@ -226,6 +227,7 @@
             { event: 'check_purged_tab', url: args_in_url.url }, resolve);
         });
       })()
+      .then(sleep(SLEEP_TIME))
       .then(() => {
         let span = url_on_html;
         while (span.firstChild) {
