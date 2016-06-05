@@ -1,3 +1,8 @@
+06/05/2016 ver 2.5.1
+Added: The function to change the page color for error on blank page.
+Changed: delaying the timing of getting page information on the blank page.
+Fixed: If you want to purge the page is in error, does not show the title
+
 05/20/2016 ver 2.5.0
 Added: The Function for "Purges all tabs but pinned tabs" (Issues #50)
     There are the popup menu in the option page.
